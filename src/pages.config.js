@@ -11,6 +11,7 @@ import Ausgaben from './pages/Ausgaben';
 import MusikerDetail from './pages/MusikerDetail';
 import KundenDetail from './pages/KundenDetail';
 import Aufgaben from './pages/Aufgaben';
+import Leads from './pages/Leads';
 import Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "MusikerDetail": MusikerDetail,
     "KundenDetail": KundenDetail,
     "Aufgaben": Aufgaben,
+    "Leads": Leads,
 }
 
 export const pagesConfig = {
