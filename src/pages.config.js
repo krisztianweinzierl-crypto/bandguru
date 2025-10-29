@@ -8,6 +8,7 @@ import OrganisationSettings from './pages/OrganisationSettings';
 import Finanzen from './pages/Finanzen';
 import Rechnungen from './pages/Rechnungen';
 import Ausgaben from './pages/Ausgaben';
+import MusikerDetail from './pages/MusikerDetail';
 import Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "Finanzen": Finanzen,
     "Rechnungen": Rechnungen,
     "Ausgaben": Ausgaben,
+    "MusikerDetail": MusikerDetail,
 }
 
 export const pagesConfig = {
