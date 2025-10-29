@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, Mail, Phone, DollarSign, Languages, Tag, MoreVertical, Edit, Send } from "lucide-react";
+import { Plus, Search, Music, Mail, Phone, DollarSign, Languages, Tag, MoreVertical, Edit, Send, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ export default function MusikerPage() {
   const [editingMusiker, setEditingMusiker] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
+  const [viewMode, setViewMode] = useState("grid");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -229,6 +230,117 @@ export default function MusikerPage() {
     );
   };
 
+  const MusikerListItem = ({ musiker }) => {
+    const initials = musiker.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M';
+    const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'];
+    const color = colors[Math.abs(musiker.name?.charCodeAt(0) || 0) % colors.length];
+
+    return (
+      <div 
+        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer"
+        onClick={() => handleCardClick(musiker.id)}
+      >
+        <Avatar className={`w-12 h-12 ${color} text-white text-lg font-bold flex-shrink-0`}>
+          <AvatarFallback className={color}>{initials}</AvatarFallback>
+        </Avatar>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-4 mb-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-lg text-gray-900 truncate">{musiker.name}</h3>
+              {musiker.instrumente && musiker.instrumente.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {musiker.instrumente.map((instrument, i) => (
+                    <Badge key={i} variant="secondary" className="text-xs">
+                      {instrument}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="relative flex-shrink-0">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDropdownId(showDropdownId === musiker.id ? null : musiker.id);
+                }}
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+
+              {showDropdownId === musiker.id && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdownId(null);
+                    }}
+                  />
+                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(musiker);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium">Musiker bearbeiten</span>
+                    </button>
+                    
+                    {musiker.email && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSendInvitation(musiker);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-100"
+                      >
+                        <Send className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">Einladung zur Organisation senden</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            {musiker.email && (
+              <div className="flex items-center gap-1">
+                <Mail className="w-4 h-4" />
+                <span className="truncate">{musiker.email}</span>
+              </div>
+            )}
+            {musiker.telefon && (
+              <div className="flex items-center gap-1">
+                <Phone className="w-4 h-4" />
+                <span>{musiker.telefon}</span>
+              </div>
+            )}
+            {musiker.tagessatz_netto && (
+              <div className="flex items-center gap-1">
+                <DollarSign className="w-4 h-4" />
+                <span className="font-medium">{musiker.tagessatz_netto}€ / Tag</span>
+              </div>
+            )}
+          </div>
+
+          {musiker.genre && musiker.genre.length > 0 && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
+              <Music className="w-4 h-4" />
+              <span className="truncate">{musiker.genre.join(', ')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -249,17 +361,39 @@ export default function MusikerPage() {
           </Button>
         </div>
 
-        {/* Suche */}
+        {/* Suche & View Toggle */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Musiker oder Instrument suchen..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Musiker oder Instrument suchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {/* View Mode Toggle */}
+              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -278,17 +412,25 @@ export default function MusikerPage() {
           </div>
         )}
 
-        {/* Musiker Grid */}
+        {/* Musiker Grid/List */}
         {activeMusiker.length > 0 ? (
           <>
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               Aktive Musiker ({activeMusiker.length})
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              {activeMusiker.map((m) => (
-                <MusikerCard key={m.id} musiker={m} />
-              ))}
-            </div>
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                {activeMusiker.map((m) => (
+                  <MusikerCard key={m.id} musiker={m} />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3 mb-8">
+                {activeMusiker.map((m) => (
+                  <MusikerListItem key={m.id} musiker={m} />
+                ))}
+              </div>
+            )}
           </>
         ) : !showForm && (
           <Card className="border-dashed mb-8">
@@ -309,11 +451,19 @@ export default function MusikerPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-4 mt-8">
               Inaktive Musiker ({inactiveMusiker.length})
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {inactiveMusiker.map((m) => (
-                <MusikerCard key={m.id} musiker={m} />
-              ))}
-            </div>
+            {viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {inactiveMusiker.map((m) => (
+                  <MusikerCard key={m.id} musiker={m} />
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {inactiveMusiker.map((m) => (
+                  <MusikerListItem key={m.id} musiker={m} />
+                ))}
+              </div>
+            )}
           </>
         )}
       </div>
