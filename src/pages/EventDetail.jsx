@@ -1,6 +1,7 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
@@ -20,11 +21,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import EventForm from "@/components/events/EventForm";
 
 export default function EventDetailPage() {
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const eventId = urlParams.get('id');
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -45,10 +49,33 @@ export default function EventDetailPage() {
     enabled: !!event?.kunde_id,
   });
 
+  const { data: kunden = [] } = useQuery({
+    queryKey: ['kunden', event?.org_id],
+    queryFn: () => base44.entities.Kunde.filter({ org_id: event.org_id }),
+    enabled: !!event?.org_id,
+  });
+
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', eventId],
     queryFn: () => base44.entities.EventMusiker.filter({ event_id: eventId }),
     enabled: !!eventId,
+  });
+
+  const updateEventMutation = useMutation({
+    mutationFn: async (eventData) => {
+      console.log("Aktualisiere Event:", eventData);
+      return await base44.entities.Event.update(eventId, eventData);
+    },
+    onSuccess: (data) => {
+      console.log("Event erfolgreich aktualisiert:", data);
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      console.error("Fehler beim Aktualisieren:", error);
+      alert("Fehler beim Aktualisieren des Events: " + (error.message || "Unbekannter Fehler"));
+    }
   });
 
   if (isLoading || !event) {
@@ -96,6 +123,39 @@ export default function EventDetailPage() {
     }
   };
 
+  const handleUpdateSubmit = (data) => {
+    updateEventMutation.mutate(data);
+  };
+
+  // Wenn im Bearbeitungsmodus, zeige das Formular
+  if (isEditing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(false)}
+              className="gap-2 mb-4"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Zurück zur Übersicht
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event bearbeiten</h1>
+            <p className="text-gray-600">{event.titel}</p>
+          </div>
+          <EventForm
+            event={event}
+            onSubmit={handleUpdateSubmit}
+            onCancel={() => setIsEditing(false)}
+            kunden={kunden}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
@@ -133,6 +193,7 @@ export default function EventDetailPage() {
               <Button
                 variant="default"
                 size="sm"
+                onClick={() => setIsEditing(true)}
                 className="gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
               >
                 <Edit className="w-4 h-4" />
