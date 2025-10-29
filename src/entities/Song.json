@@ -1,0 +1,53 @@
+{
+  "name": "Song",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Song-Titel"
+    },
+    "kuenstler_original": {
+      "type": "string",
+      "description": "Original-K\u00fcnstler"
+    },
+    "tonart": {
+      "type": "string",
+      "description": "Tonart (z.B. C-Dur, Am)"
+    },
+    "bpm": {
+      "type": "number",
+      "description": "Tempo in BPM"
+    },
+    "laenge": {
+      "type": "string",
+      "description": "L\u00e4nge in MM:SS"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags f\u00fcr Kategorisierung"
+    },
+    "lead_sheet_url": {
+      "type": "string",
+      "description": "URL zum Lead Sheet"
+    },
+    "audio_demo_url": {
+      "type": "string",
+      "description": "URL zur Audio-Demo"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Notizen zum Song"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel"
+  ]
+}
