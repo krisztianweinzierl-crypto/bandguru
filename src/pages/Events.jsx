@@ -1,0 +1,237 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Plus, Calendar, Search, Filter, MapPin, Clock, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import EventForm from "../components/events/EventForm";
+
+export default function EventsPage() {
+  const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("alle");
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+  }, []);
+
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events', currentOrgId],
+    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }, '-datum_von'),
+    enabled: !!currentOrgId,
+  });
+
+  const { data: kunden = [] } = useQuery({
+    queryKey: ['kunden', currentOrgId],
+    queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
+  const createEventMutation = useMutation({
+    mutationFn: (eventData) => base44.entities.Event.create({ ...eventData, org_id: currentOrgId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      setShowForm(false);
+    },
+  });
+
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = event.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         event.ort_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "alle" || event.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const upcomingEvents = filteredEvents.filter(e => new Date(e.datum_von) > new Date());
+  const pastEvents = filteredEvents.filter(e => new Date(e.datum_von) <= new Date());
+
+  const statusColors = {
+    entwurf: "bg-gray-100 text-gray-800 border-gray-200",
+    angefragt: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    bestätigt: "bg-green-100 text-green-800 border-green-200",
+    durchgeführt: "bg-blue-100 text-blue-800 border-blue-200",
+    abgerechnet: "bg-purple-100 text-purple-800 border-purple-200",
+    storniert: "bg-red-100 text-red-800 border-red-200"
+  };
+
+  const handleSubmit = (data) => {
+    createEventMutation.mutate(data);
+  };
+
+  const EventCard = ({ event }) => {
+    const kunde = kunden.find(k => k.id === event.kunde_id);
+    
+    return (
+      <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4" style={{ borderLeftColor: statusColors[event.status]?.includes('green') ? '#22c55e' : statusColors[event.status]?.includes('blue') ? '#3b82f6' : '#94a3b8' }}>
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg mb-1 truncate">{event.titel}</CardTitle>
+                <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    {format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {format(new Date(event.datum_von), 'HH:mm')} Uhr
+                  </div>
+                </div>
+              </div>
+              <Badge className={`${statusColors[event.status]} border`}>
+                {event.status}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-2">
+              {event.ort_name && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span className="truncate">{event.ort_name}</span>
+                </div>
+              )}
+              {kunde && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <User className="w-4 h-4 text-gray-400" />
+                  <span className="truncate">{kunde.firmenname}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Events</h1>
+            <p className="text-gray-600">Verwalte alle deine Veranstaltungen</p>
+          </div>
+          <Button 
+            onClick={() => setShowForm(true)}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Event erstellen
+          </Button>
+        </div>
+
+        {/* Filter & Suche */}
+        <Card className="mb-6 border-none shadow-md">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Events durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full md:w-48">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alle">Alle Status</SelectItem>
+                  <SelectItem value="entwurf">Entwurf</SelectItem>
+                  <SelectItem value="angefragt">Angefragt</SelectItem>
+                  <SelectItem value="bestätigt">Bestätigt</SelectItem>
+                  <SelectItem value="durchgeführt">Durchgeführt</SelectItem>
+                  <SelectItem value="abgerechnet">Abgerechnet</SelectItem>
+                  <SelectItem value="storniert">Storniert</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Event Form */}
+        {showForm && (
+          <div className="mb-6">
+            <EventForm 
+              onSubmit={handleSubmit}
+              onCancel={() => setShowForm(false)}
+              kunden={kunden}
+            />
+          </div>
+        )}
+
+        {/* Events Liste */}
+        <Tabs defaultValue="upcoming" className="space-y-6">
+          <TabsList className="bg-white border shadow-sm">
+            <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+              Anstehend ({upcomingEvents.length})
+            </TabsTrigger>
+            <TabsTrigger value="past" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+              Vergangen ({pastEvents.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="upcoming" className="space-y-4">
+            {upcomingEvents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {upcomingEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            ) : (
+              <Card className="border-dashed">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-semibold mb-2">Keine anstehenden Events</h3>
+                  <p className="text-gray-500 mb-4">Erstelle dein erstes Event</p>
+                  <Button onClick={() => setShowForm(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Event erstellen
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="past" className="space-y-4">
+            {pastEvents.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pastEvents.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            ) : (
+              <Card className="border-dashed">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p className="text-gray-500">Keine vergangenen Events</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
