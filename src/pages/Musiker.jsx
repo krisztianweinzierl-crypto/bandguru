@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Music, Mail, Phone, DollarSign, Languages, Tag } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Plus, Search, Music, Mail, Phone, DollarSign, Languages, Tag, MoreVertical, Edit, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,9 +12,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import MusikerForm from "@/components/musiker/MusikerForm";
 
 export default function MusikerPage() {
+  const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingMusiker, setEditingMusiker] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDropdownId, setShowDropdownId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -25,12 +30,52 @@ export default function MusikerPage() {
     enabled: !!currentOrgId,
   });
 
+  const { data: organisation } = useQuery({
+    queryKey: ['organisation', currentOrgId],
+    queryFn: async () => {
+      const orgs = await base44.entities.Organisation.filter({ id: currentOrgId });
+      return orgs[0];
+    },
+    enabled: !!currentOrgId,
+  });
+
   const createMusikerMutation = useMutation({
     mutationFn: (data) => base44.entities.Musiker.create({ ...data, org_id: currentOrgId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['musiker'] });
       setShowForm(false);
+      setEditingMusiker(null);
     },
+  });
+
+  const updateMusikerMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Musiker.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['musiker'] });
+      setShowForm(false);
+      setEditingMusiker(null);
+    },
+  });
+
+  const sendInvitationMutation = useMutation({
+    mutationFn: async (musiker) => {
+      if (!musiker.email) {
+        throw new Error("Musiker hat keine E-Mail-Adresse");
+      }
+      
+      await base44.integrations.Core.SendEmail({
+        to: musiker.email,
+        subject: `Einladung zu ${organisation.name} auf Bandguru`,
+        body: `Hallo ${musiker.name},\n\ndu wurdest eingeladen, ${organisation.name} auf Bandguru als Musiker beizutreten.\n\nBitte melde dich an unter: ${window.location.origin}\n\nViele Grüße\n${organisation.name}`
+      });
+    },
+    onSuccess: (_, musiker) => {
+      alert(`Einladung wurde an ${musiker.email} versendet!`);
+      setShowDropdownId(null);
+    },
+    onError: (error) => {
+      alert("Fehler beim Versenden der Einladung: " + error.message);
+    }
   });
 
   const filteredMusiker = musiker.filter(m => 
@@ -42,7 +87,27 @@ export default function MusikerPage() {
   const inactiveMusiker = filteredMusiker.filter(m => !m.aktiv);
 
   const handleSubmit = (data) => {
-    createMusikerMutation.mutate(data);
+    if (editingMusiker) {
+      updateMusikerMutation.mutate({ id: editingMusiker.id, data });
+    } else {
+      createMusikerMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (musiker) => {
+    setEditingMusiker(musiker);
+    setShowForm(true);
+    setShowDropdownId(null);
+  };
+
+  const handleSendInvitation = (musiker) => {
+    if (confirm(`Möchtest du wirklich eine Einladung an ${musiker.email} senden?`)) {
+      sendInvitationMutation.mutate(musiker);
+    }
+  };
+
+  const handleCardClick = (musikerId) => {
+    navigate(createPageUrl(`MusikerDetail?id=${musikerId}`));
   };
 
   const MusikerCard = ({ musiker }) => {
@@ -51,7 +116,10 @@ export default function MusikerPage() {
     const color = colors[Math.abs(musiker.name?.charCodeAt(0) || 0) % colors.length];
 
     return (
-      <Card className="hover:shadow-lg transition-all duration-200">
+      <Card 
+        className="hover:shadow-lg transition-all duration-200 cursor-pointer relative"
+        onClick={() => handleCardClick(musiker.id)}
+      >
         <CardHeader className="pb-4">
           <div className="flex items-start gap-4">
             <Avatar className={`w-14 h-14 ${color} text-white text-lg font-bold`}>
@@ -69,8 +137,57 @@ export default function MusikerPage() {
                 </div>
               )}
             </div>
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDropdownId(showDropdownId === musiker.id ? null : musiker.id);
+                }}
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+
+              {showDropdownId === musiker.id && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdownId(null);
+                    }}
+                  />
+                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(musiker);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium">Musiker bearbeiten</span>
+                    </button>
+                    
+                    {musiker.email && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSendInvitation(musiker);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-100"
+                      >
+                        <Send className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">Einladung zur Organisation senden</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             {!musiker.aktiv && (
-              <Badge variant="outline" className="bg-gray-100">
+              <Badge variant="outline" className="bg-gray-100 absolute top-4 right-4">
                 Inaktiv
               </Badge>
             )}
@@ -121,7 +238,10 @@ export default function MusikerPage() {
             <p className="text-gray-600">Verwalte deinen Musiker-Pool</p>
           </div>
           <Button 
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setEditingMusiker(null);
+              setShowForm(true);
+            }}
             className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -148,8 +268,12 @@ export default function MusikerPage() {
         {showForm && (
           <div className="mb-6">
             <MusikerForm 
+              musiker={editingMusiker}
               onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingMusiker(null);
+              }}
             />
           </div>
         )}
