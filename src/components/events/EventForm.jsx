@@ -37,7 +37,17 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Daten bereinigen - leere Strings und undefined entfernen
+    const cleanData = {};
+    Object.keys(formData).forEach(key => {
+      const value = formData[key];
+      if (value !== "" && value !== null && value !== undefined) {
+        cleanData[key] = value;
+      }
+    });
+    
+    onSubmit(cleanData);
   };
 
   const handleChange = (field, value) => {
@@ -79,7 +89,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
 
                 <div className="space-y-2">
                   <Label htmlFor="kunde">Kunde</Label>
-                  <Select value={formData.kunde_id} onValueChange={(value) => handleChange('kunde_id', value)}>
+                  <Select value={formData.kunde_id || ""} onValueChange={(value) => handleChange('kunde_id', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Kunde auswählen" />
                     </SelectTrigger>
@@ -113,11 +123,12 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
 
                 <div className="space-y-2">
                   <Label htmlFor="event_typ">Event-Typ</Label>
-                  <Select value={formData.event_typ} onValueChange={(value) => handleChange('event_typ', value)}>
+                  <Select value={formData.event_typ || ""} onValueChange={(value) => handleChange('event_typ', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Typ auswählen" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value={null}>Kein Typ</SelectItem>
                       <SelectItem value="Hochzeit">Hochzeit</SelectItem>
                       <SelectItem value="Corporate Event">Corporate Event</SelectItem>
                       <SelectItem value="Geburtstag">Geburtstag</SelectItem>
@@ -210,7 +221,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
                         id="anzahl_gaeste"
                         type="number"
                         value={formData.anzahl_gaeste}
-                        onChange={(e) => handleChange('anzahl_gaeste', parseInt(e.target.value))}
+                        onChange={(e) => handleChange('anzahl_gaeste', e.target.value ? parseInt(e.target.value) : "")}
                         placeholder="z.B. 150"
                       />
                     </div>
