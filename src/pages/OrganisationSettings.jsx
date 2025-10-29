@@ -10,7 +10,8 @@ import {
   Crown,
   Shield,
   Copy,
-  Check
+  Check,
+  Save
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,8 @@ export default function OrganisationSettingsPage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("Musiker");
   const [copied, setCopied] = useState(false);
+  const [orgFormData, setOrgFormData] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -38,6 +41,19 @@ export default function OrganisationSettingsPage() {
     },
     enabled: !!currentOrgId,
   });
+
+  // Initialize form data when organisation loads
+  useEffect(() => {
+    if (organisation && !orgFormData) {
+      setOrgFormData({
+        name: organisation.name || "",
+        adresse: organisation.adresse || "",
+        steuernummer: organisation.steuernummer || "",
+        waehrung: organisation.waehrung || "EUR",
+        primary_color: organisation.primary_color || "#3B82F6"
+      });
+    }
+  }, [organisation]);
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
@@ -54,13 +70,12 @@ export default function OrganisationSettingsPage() {
     mutationFn: (data) => base44.entities.Organisation.update(currentOrgId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organisation'] });
+      setHasChanges(false);
     },
   });
 
   const inviteMemberMutation = useMutation({
     mutationFn: async ({ email, rolle }) => {
-      // Hier würde normalerweise eine E-Mail-Einladung versendet
-      // Für jetzt erstellen wir einfach einen Platzhalter
       await base44.integrations.Core.SendEmail({
         to: email,
         subject: `Einladung zu ${organisation.name} auf Bandguru`,
@@ -80,8 +95,13 @@ export default function OrganisationSettingsPage() {
     },
   });
 
-  const handleOrgUpdate = (field, value) => {
-    updateOrgMutation.mutate({ [field]: value });
+  const handleFormChange = (field, value) => {
+    setOrgFormData(prev => ({ ...prev, [field]: value }));
+    setHasChanges(true);
+  };
+
+  const handleSaveChanges = () => {
+    updateOrgMutation.mutate(orgFormData);
   };
 
   const handleInvite = (e) => {
@@ -98,7 +118,7 @@ export default function OrganisationSettingsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!organisation) {
+  if (!organisation || !orgFormData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Organisation...</p>
@@ -136,8 +156,8 @@ export default function OrganisationSettingsPage() {
                   <Label htmlFor="org-name">Name der Organisation</Label>
                   <Input
                     id="org-name"
-                    value={organisation.name}
-                    onChange={(e) => handleOrgUpdate('name', e.target.value)}
+                    value={orgFormData.name}
+                    onChange={(e) => handleFormChange('name', e.target.value)}
                     disabled={!isManager}
                   />
                 </div>
@@ -146,8 +166,8 @@ export default function OrganisationSettingsPage() {
                   <Label htmlFor="org-adresse">Adresse</Label>
                   <Input
                     id="org-adresse"
-                    value={organisation.adresse || ""}
-                    onChange={(e) => handleOrgUpdate('adresse', e.target.value)}
+                    value={orgFormData.adresse}
+                    onChange={(e) => handleFormChange('adresse', e.target.value)}
                     placeholder="Straße, PLZ Ort"
                     disabled={!isManager}
                   />
@@ -157,8 +177,8 @@ export default function OrganisationSettingsPage() {
                   <Label htmlFor="org-steuernummer">Steuernummer</Label>
                   <Input
                     id="org-steuernummer"
-                    value={organisation.steuernummer || ""}
-                    onChange={(e) => handleOrgUpdate('steuernummer', e.target.value)}
+                    value={orgFormData.steuernummer}
+                    onChange={(e) => handleFormChange('steuernummer', e.target.value)}
                     disabled={!isManager}
                   />
                 </div>
@@ -168,8 +188,8 @@ export default function OrganisationSettingsPage() {
                     <Label htmlFor="org-waehrung">Währung</Label>
                     <select
                       id="org-waehrung"
-                      value={organisation.waehrung}
-                      onChange={(e) => handleOrgUpdate('waehrung', e.target.value)}
+                      value={orgFormData.waehrung}
+                      onChange={(e) => handleFormChange('waehrung', e.target.value)}
                       className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
                       disabled={!isManager}
                     >
@@ -185,8 +205,8 @@ export default function OrganisationSettingsPage() {
                     <Input
                       id="org-color"
                       type="color"
-                      value={organisation.primary_color}
-                      onChange={(e) => handleOrgUpdate('primary_color', e.target.value)}
+                      value={orgFormData.primary_color}
+                      onChange={(e) => handleFormChange('primary_color', e.target.value)}
                       className="h-10 cursor-pointer"
                       disabled={!isManager}
                     />
@@ -198,6 +218,20 @@ export default function OrganisationSettingsPage() {
                     <Shield className="w-4 h-4 inline mr-2" />
                     Nur Band Manager können diese Einstellungen ändern
                   </p>
+                )}
+
+                {/* Save Button */}
+                {isManager && hasChanges && (
+                  <div className="pt-4 border-t">
+                    <Button
+                      onClick={handleSaveChanges}
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      disabled={updateOrgMutation.isPending}
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {updateOrgMutation.isPending ? "Speichere..." : "Änderungen speichern"}
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </Card>
