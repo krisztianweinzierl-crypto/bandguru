@@ -1,0 +1,54 @@
+{
+  "name": "Kunde",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "firmenname": {
+      "type": "string",
+      "description": "Firmenname"
+    },
+    "ansprechpartner": {
+      "type": "string",
+      "description": "Name des Ansprechpartners"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse"
+    },
+    "telefon": {
+      "type": "string",
+      "description": "Telefonnummer"
+    },
+    "adresse": {
+      "type": "string",
+      "description": "Vollst\u00e4ndige Adresse"
+    },
+    "ust_id": {
+      "type": "string",
+      "description": "Umsatzsteuer-ID"
+    },
+    "zahlungsziel_tage": {
+      "type": "number",
+      "default": 14,
+      "description": "Zahlungsziel in Tagen"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags f\u00fcr Kategorisierung"
+    }
+  },
+  "required": [
+    "org_id",
+    "firmenname"
+  ]
+}
