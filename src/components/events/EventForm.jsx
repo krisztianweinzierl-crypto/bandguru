@@ -11,14 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { X, Save, MapPin, Search, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings } from "lucide-react";
 
 export default function EventForm({ onSubmit, onCancel, kunden, event = null }) {
   const [formData, setFormData] = useState(event || {
     titel: "",
     kunde_id: "",
-    status: "entwurf",
+    status: "angefragt",
     datum_von: "",
     datum_bis: "",
     ort_name: "",
@@ -38,15 +37,15 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Pflichtfelder müssen immer dabei sein
+    // Pflichtfelder
     const cleanData = {
       titel: formData.titel,
       datum_von: formData.datum_von,
       datum_bis: formData.datum_bis,
-      status: formData.status || "entwurf"
+      status: formData.status || "angefragt"
     };
     
-    // Optionale Felder nur hinzufügen wenn ausgefüllt
+    // Optionale Felder
     if (formData.kunde_id) cleanData.kunde_id = formData.kunde_id;
     if (formData.ort_name) cleanData.ort_name = formData.ort_name;
     if (formData.ort_adresse) cleanData.ort_adresse = formData.ort_adresse;
@@ -61,7 +60,6 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     if (formData.interne_notizen) cleanData.interne_notizen = formData.interne_notizen;
     if (formData.oeffentliche_notizen) cleanData.oeffentliche_notizen = formData.oeffentliche_notizen;
     
-    console.log("Sending cleaned data:", cleanData);
     onSubmit(cleanData);
   };
 
@@ -70,266 +68,375 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
   };
 
   return (
-    <Card className="border-none shadow-lg">
-      <CardHeader className="border-b">
-        <div className="flex justify-between items-center">
-          <CardTitle>{event ? "Event bearbeiten" : "Neues Event"}</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onCancel}>
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <Tabs defaultValue="grunddaten" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="grunddaten">Grunddaten</TabsTrigger>
-              <TabsTrigger value="zeitplan">Zeitplan</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="notizen">Notizen</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="grunddaten" className="space-y-6 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="titel">Event-Titel *</Label>
-                  <Input
-                    id="titel"
-                    value={formData.titel}
-                    onChange={(e) => handleChange('titel', e.target.value)}
-                    placeholder="z.B. Hochzeit Müller"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="kunde">Kunde</Label>
-                  <Select value={formData.kunde_id || ""} onValueChange={(value) => handleChange('kunde_id', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Kunde auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={null}>Kein Kunde</SelectItem>
-                      {kunden.map((kunde) => (
-                        <SelectItem key={kunde.id} value={kunde.id}>
-                          {kunde.firmenname}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="entwurf">Entwurf</SelectItem>
-                      <SelectItem value="angefragt">Angefragt</SelectItem>
-                      <SelectItem value="bestätigt">Bestätigt</SelectItem>
-                      <SelectItem value="durchgeführt">Durchgeführt</SelectItem>
-                      <SelectItem value="abgerechnet">Abgerechnet</SelectItem>
-                      <SelectItem value="storniert">Storniert</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="event_typ">Event-Typ</Label>
-                  <Select value={formData.event_typ || ""} onValueChange={(value) => handleChange('event_typ', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Typ auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={null}>Kein Typ</SelectItem>
-                      <SelectItem value="Hochzeit">Hochzeit</SelectItem>
-                      <SelectItem value="Corporate Event">Corporate Event</SelectItem>
-                      <SelectItem value="Geburtstag">Geburtstag</SelectItem>
-                      <SelectItem value="Konzert">Konzert</SelectItem>
-                      <SelectItem value="Festival">Festival</SelectItem>
-                      <SelectItem value="Private Feier">Private Feier</SelectItem>
-                      <SelectItem value="Sonstiges">Sonstiges</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ort_name">Veranstaltungsort</Label>
-                  <Input
-                    id="ort_name"
-                    value={formData.ort_name}
-                    onChange={(e) => handleChange('ort_name', e.target.value)}
-                    placeholder="z.B. Hotel Adler"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="ort_adresse">Ort-Adresse</Label>
-                  <Input
-                    id="ort_adresse"
-                    value={formData.ort_adresse}
-                    onChange={(e) => handleChange('ort_adresse', e.target.value)}
-                    placeholder="Straße, PLZ Ort"
-                  />
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="zeitplan" className="space-y-6 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="datum_von">Start-Datum & Zeit *</Label>
-                  <Input
-                    id="datum_von"
-                    type="datetime-local"
-                    value={formData.datum_von}
-                    onChange={(e) => handleChange('datum_von', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="datum_bis">End-Datum & Zeit *</Label>
-                  <Input
-                    id="datum_bis"
-                    type="datetime-local"
-                    value={formData.datum_bis}
-                    onChange={(e) => handleChange('datum_bis', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="get_in_zeit">Get-In Zeit</Label>
-                  <Input
-                    id="get_in_zeit"
-                    type="time"
-                    value={formData.get_in_zeit}
-                    onChange={(e) => handleChange('get_in_zeit', e.target.value)}
-                    placeholder="HH:mm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="soundcheck_zeit">Soundcheck Zeit</Label>
-                  <Input
-                    id="soundcheck_zeit"
-                    type="time"
-                    value={formData.soundcheck_zeit}
-                    onChange={(e) => handleChange('soundcheck_zeit', e.target.value)}
-                    placeholder="HH:mm"
-                  />
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="details" className="space-y-6 mt-6">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-semibold mb-4">Publikum & Ambiente</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="anzahl_gaeste">Anzahl der Gäste</Label>
-                      <Input
-                        id="anzahl_gaeste"
-                        type="number"
-                        value={formData.anzahl_gaeste}
-                        onChange={(e) => handleChange('anzahl_gaeste', e.target.value ? parseInt(e.target.value) : "")}
-                        placeholder="z.B. 150"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="dresscode">Dresscode</Label>
-                      <Input
-                        id="dresscode"
-                        value={formData.dresscode}
-                        onChange={(e) => handleChange('dresscode', e.target.value)}
-                        placeholder="z.B. Elegant chic, Business"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold mb-4">Hotel-Informationen</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="hotel_name">Hotel-Name</Label>
-                      <Input
-                        id="hotel_name"
-                        value={formData.hotel_name}
-                        onChange={(e) => handleChange('hotel_name', e.target.value)}
-                        placeholder="z.B. Steigenberger Hotel"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="hotel_adresse">Hotel-Adresse</Label>
-                      <Input
-                        id="hotel_adresse"
-                        value={formData.hotel_adresse}
-                        onChange={(e) => handleChange('hotel_adresse', e.target.value)}
-                        placeholder="Straße, PLZ Ort"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold mb-4">Technische Informationen</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="technik_hinweise">Technik</Label>
-                    <Textarea
-                      id="technik_hinweise"
-                      value={formData.technik_hinweise}
-                      onChange={(e) => handleChange('technik_hinweise', e.target.value)}
-                      placeholder="z.B. PA wird vom Veranstalter gestellt, Backline vorhanden..."
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="notizen" className="space-y-6 mt-6">
-              <div className="space-y-2">
-                <Label htmlFor="interne_notizen">Interne Notizen</Label>
-                <Textarea
-                  id="interne_notizen"
-                  value={formData.interne_notizen}
-                  onChange={(e) => handleChange('interne_notizen', e.target.value)}
-                  placeholder="Notizen, die nur für das Team sichtbar sind..."
-                  rows={5}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="oeffentliche_notizen">Öffentliche Notizen</Label>
-                <Textarea
-                  id="oeffentliche_notizen"
-                  value={formData.oeffentliche_notizen}
-                  onChange={(e) => handleChange('oeffentliche_notizen', e.target.value)}
-                  placeholder="Notizen, die der Kunde sehen kann..."
-                  rows={5}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Abbrechen
-            </Button>
-            <Button type="submit" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-              <Save className="w-4 h-4 mr-2" />
-              Speichern
-            </Button>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Details */}
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b bg-white">
+          <CardTitle className="text-xl font-bold">Details</CardTitle>
+          <p className="text-sm text-gray-500">Grundlegende Informationen zum Event</p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6 bg-white">
+          {/* Client */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Client
+            </Label>
+            <div className="flex gap-2">
+              <Select value={formData.kunde_id || ""} onValueChange={(value) => handleChange('kunde_id', value)}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Kunden wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {kunden.map((kunde) => (
+                    <SelectItem key={kunde.id} value={kunde.id}>
+                      {kunde.firmenname}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="icon">
+                +
+              </Button>
+            </div>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+
+          {/* Event-Titel */}
+          <div className="space-y-2">
+            <Label htmlFor="titel">Event-Titel</Label>
+            <Input
+              id="titel"
+              value={formData.titel}
+              onChange={(e) => handleChange('titel', e.target.value)}
+              placeholder="z.B. PHD Jahrestagung"
+              required
+            />
+          </div>
+
+          {/* Datum & Status */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="datum">Datum</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  id="datum"
+                  type="date"
+                  value={formData.datum_von?.split('T')[0] || ""}
+                  onChange={(e) => {
+                    const date = e.target.value;
+                    handleChange('datum_von', date + 'T20:00:00');
+                    handleChange('datum_bis', date + 'T23:59:00');
+                  }}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="anfrage">Anfrage</SelectItem>
+                  <SelectItem value="angebot_erstellt">Angebot erstellt</SelectItem>
+                  <SelectItem value="angebot_angenommen">Angebot angenommen</SelectItem>
+                  <SelectItem value="wartet_auf_bestaetigung">Wartet auf Bestätigung</SelectItem>
+                  <SelectItem value="angefragt">Wartet auf Musiker</SelectItem>
+                  <SelectItem value="bestätigt">Bestätigt</SelectItem>
+                  <SelectItem value="abgesagt">Abgesagt</SelectItem>
+                  <SelectItem value="zurückgezogen">Zurückgezogen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MapPin className="w-4 h-4" />
+              Location / Venue *
+            </Label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Input
+                  value={formData.ort_adresse}
+                  onChange={(e) => handleChange('ort_adresse', e.target.value)}
+                  placeholder="z.B. Schwanthalerstraße 13, 80336 München"
+                />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+              <Button type="button" variant="outline" className="gap-2">
+                <MapPin className="w-4 h-4" />
+                Maps
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Zeitplan & Ablauf */}
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b bg-white">
+          <CardTitle className="text-xl font-bold">Zeitplan & Ablauf</CardTitle>
+          <p className="text-sm text-gray-500">Zeitliche Details und Ablauf des Events</p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6 bg-white">
+          {/* Startzeit & Endzeit */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="startzeit">Startzeit</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  id="startzeit"
+                  type="time"
+                  value={formData.datum_von?.split('T')[1]?.substring(0, 5) || "20:00"}
+                  onChange={(e) => {
+                    const date = formData.datum_von?.split('T')[0] || new Date().toISOString().split('T')[0];
+                    handleChange('datum_von', date + 'T' + e.target.value + ':00');
+                  }}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endzeit">Endzeit</Label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  id="endzeit"
+                  type="time"
+                  value={formData.datum_bis?.split('T')[1]?.substring(0, 5) || "00:00"}
+                  onChange={(e) => {
+                    const date = formData.datum_bis?.split('T')[0] || formData.datum_von?.split('T')[0] || new Date().toISOString().split('T')[0];
+                    handleChange('datum_bis', date + 'T' + e.target.value + ':00');
+                  }}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Get-In, Soundcheck, Abbau */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="getin" className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-blue-500" />
+                Get-In Zeit
+              </Label>
+              <Input
+                id="getin"
+                type="time"
+                value={formData.get_in_zeit}
+                onChange={(e) => handleChange('get_in_zeit', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="soundcheck" className="flex items-center gap-2">
+                <span className="text-yellow-500">🎵</span>
+                Soundcheck-Zeit
+              </Label>
+              <Input
+                id="soundcheck"
+                type="time"
+                value={formData.soundcheck_zeit}
+                onChange={(e) => handleChange('soundcheck_zeit', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="abbau" className="flex items-center gap-2">
+                <span className="text-purple-500">🎸</span>
+                Abbau-Zeit
+              </Label>
+              <Input
+                id="abbau"
+                type="time"
+                placeholder="--:--"
+              />
+            </div>
+          </div>
+
+          {/* Ablaufplan */}
+          <div className="space-y-2">
+            <Label htmlFor="ablaufplan">Ablaufplan</Label>
+            <Textarea
+              id="ablaufplan"
+              value={formData.oeffentliche_notizen}
+              onChange={(e) => handleChange('oeffentliche_notizen', e.target.value)}
+              placeholder="Detaillierter Ablauf des Events..."
+              rows={6}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Publikum & Ambiente */}
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b bg-white">
+          <CardTitle className="text-xl font-bold">Publikum & Ambiente</CardTitle>
+          <p className="text-sm text-gray-500">Details über die Veranstaltung und das Publikum</p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="eventtyp" className="flex items-center gap-2">
+                <span className="text-purple-500">🎉</span>
+                Event-Typ
+              </Label>
+              <Select value={formData.event_typ || ""} onValueChange={(value) => handleChange('event_typ', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Typ auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Firmenveranstaltung">Firmenveranstaltung</SelectItem>
+                  <SelectItem value="Hochzeit">Hochzeit</SelectItem>
+                  <SelectItem value="Geburtstag">Geburtstag</SelectItem>
+                  <SelectItem value="Konzert">Konzert</SelectItem>
+                  <SelectItem value="Festival">Festival</SelectItem>
+                  <SelectItem value="Private Feier">Private Feier</SelectItem>
+                  <SelectItem value="Sonstiges">Sonstiges</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gaeste" className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-500" />
+                Anzahl der Gäste
+              </Label>
+              <Input
+                id="gaeste"
+                type="number"
+                value={formData.anzahl_gaeste}
+                onChange={(e) => handleChange('anzahl_gaeste', e.target.value ? parseInt(e.target.value) : "")}
+                placeholder="z.B. 300"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dresscode" className="flex items-center gap-2">
+                <Shirt className="w-4 h-4 text-gray-500" />
+                Dresscode
+              </Label>
+              <Input
+                id="dresscode"
+                value={formData.dresscode}
+                onChange={(e) => handleChange('dresscode', e.target.value)}
+                placeholder="z.B. Elegant chic"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="verpflegung" className="flex items-center gap-2">
+                <Utensils className="w-4 h-4 text-orange-500" />
+                Verpflegung
+              </Label>
+              <Input
+                id="verpflegung"
+                placeholder="z.B. Buffet & Getränke inklusive"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Hotel-Informationen */}
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b bg-white">
+          <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
+          <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6 bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="hotelname" className="flex items-center gap-2">
+                <Hotel className="w-4 h-4" />
+                Hotel-Name
+              </Label>
+              <Input
+                id="hotelname"
+                value={formData.hotel_name}
+                onChange={(e) => handleChange('hotel_name', e.target.value)}
+                placeholder="z.B. Steigenberger Hotel"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hoteladresse" className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Hotel-Adresse
+              </Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="hoteladresse"
+                    value={formData.hotel_adresse}
+                    onChange={(e) => handleChange('hotel_adresse', e.target.value)}
+                    placeholder="z.B. Arnulf-Klett-Platz 7, 70173 Stuttgart"
+                  />
+                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                </div>
+                <Button type="button" variant="outline" className="gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Maps
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Zusätzliche Informationen */}
+      <Card className="border border-gray-200 shadow-sm">
+        <CardHeader className="border-b bg-white">
+          <CardTitle className="text-xl font-bold">Zusätzliche Informationen</CardTitle>
+          <p className="text-sm text-gray-500">Weitere wichtige Details</p>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6 bg-white">
+          <div className="space-y-2">
+            <Label htmlFor="technik" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Technische Anforderungen
+            </Label>
+            <Textarea
+              id="technik"
+              value={formData.technik_hinweise}
+              onChange={(e) => handleChange('technik_hinweise', e.target.value)}
+              placeholder="z.B. PA wird vom Veranstalter gestellt"
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notizen">Notizen</Label>
+            <Textarea
+              id="notizen"
+              value={formData.interne_notizen}
+              onChange={(e) => handleChange('interne_notizen', e.target.value)}
+              placeholder="Weitere wichtige Informationen..."
+              rows={4}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex justify-end gap-3">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Abbrechen
+        </Button>
+        <Button type="submit" className="bg-gray-900 hover:bg-gray-800 gap-2">
+          <Save className="w-4 h-4" />
+          Änderungen speichern
+        </Button>
+      </div>
+    </form>
   );
 }
