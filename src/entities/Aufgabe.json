@@ -1,0 +1,69 @@
+{
+  "name": "Aufgabe",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Aufgabentitel"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Beschreibung"
+    },
+    "prioritaet": {
+      "type": "string",
+      "enum": [
+        "niedrig",
+        "normal",
+        "hoch"
+      ],
+      "default": "normal",
+      "description": "Priorit\u00e4t"
+    },
+    "faellig_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "F\u00e4lligkeitsdatum"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "offen",
+        "in_arbeit",
+        "erledigt"
+      ],
+      "default": "offen",
+      "description": "Status"
+    },
+    "zugewiesen_an": {
+      "type": "string",
+      "description": "User-ID des Zust\u00e4ndigen"
+    },
+    "bezug_typ": {
+      "type": "string",
+      "enum": [
+        "event",
+        "kunde",
+        "musiker",
+        "frei"
+      ],
+      "description": "Typ der Verkn\u00fcpfung"
+    },
+    "bezug_id": {
+      "type": "string",
+      "description": "ID des verkn\u00fcpften Objekts"
+    },
+    "parent_task_id": {
+      "type": "string",
+      "description": "ID der \u00fcbergeordneten Aufgabe (f\u00fcr Unteraufgaben)"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel"
+  ]
+}
