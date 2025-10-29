@@ -38,15 +38,30 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Daten bereinigen - leere Strings und undefined entfernen
-    const cleanData = {};
-    Object.keys(formData).forEach(key => {
-      const value = formData[key];
-      if (value !== "" && value !== null && value !== undefined) {
-        cleanData[key] = value;
-      }
-    });
+    // Pflichtfelder müssen immer dabei sein
+    const cleanData = {
+      titel: formData.titel,
+      datum_von: formData.datum_von,
+      datum_bis: formData.datum_bis,
+      status: formData.status || "entwurf"
+    };
     
+    // Optionale Felder nur hinzufügen wenn ausgefüllt
+    if (formData.kunde_id) cleanData.kunde_id = formData.kunde_id;
+    if (formData.ort_name) cleanData.ort_name = formData.ort_name;
+    if (formData.ort_adresse) cleanData.ort_adresse = formData.ort_adresse;
+    if (formData.get_in_zeit) cleanData.get_in_zeit = formData.get_in_zeit;
+    if (formData.soundcheck_zeit) cleanData.soundcheck_zeit = formData.soundcheck_zeit;
+    if (formData.event_typ) cleanData.event_typ = formData.event_typ;
+    if (formData.anzahl_gaeste) cleanData.anzahl_gaeste = formData.anzahl_gaeste;
+    if (formData.dresscode) cleanData.dresscode = formData.dresscode;
+    if (formData.hotel_name) cleanData.hotel_name = formData.hotel_name;
+    if (formData.hotel_adresse) cleanData.hotel_adresse = formData.hotel_adresse;
+    if (formData.technik_hinweise) cleanData.technik_hinweise = formData.technik_hinweise;
+    if (formData.interne_notizen) cleanData.interne_notizen = formData.interne_notizen;
+    if (formData.oeffentliche_notizen) cleanData.oeffentliche_notizen = formData.oeffentliche_notizen;
+    
+    console.log("Sending cleaned data:", cleanData);
     onSubmit(cleanData);
   };
 
