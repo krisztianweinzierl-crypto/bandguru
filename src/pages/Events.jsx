@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Calendar, Search, Filter, MapPin, Clock, User } from "lucide-react";
+import { Plus, Calendar, Search, Filter, MapPin, Clock, User, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,7 @@ export default function EventsPage() {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -81,12 +82,12 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter(e => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    entwurf: "bg-gray-100 text-gray-800 border-gray-200",
-    angefragt: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    bestätigt: "bg-green-100 text-green-800 border-green-200",
-    durchgeführt: "bg-blue-100 text-blue-800 border-blue-200",
-    abgerechnet: "bg-purple-100 text-purple-800 border-purple-200",
-    storniert: "bg-red-100 text-red-800 border-red-200"
+    entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200", label: "Entwurf" },
+    angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-200", label: "Wartet auf Musiker" },
+    bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-200", label: "Bestätigt" },
+    durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200", label: "Durchgeführt" },
+    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200", label: "Abgerechnet" },
+    storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200", label: "Storniert" }
   };
 
   const handleSubmit = (data) => {
@@ -96,10 +97,11 @@ export default function EventsPage() {
 
   const EventCard = ({ event }) => {
     const kunde = kunden.find(k => k.id === event.kunde_id);
+    const statusStyle = statusColors[event.status] || statusColors.entwurf;
     
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4" style={{ borderLeftColor: statusColors[event.status]?.includes('green') ? '#22c55e' : statusColors[event.status]?.includes('blue') ? '#3b82f6' : '#94a3b8' }}>
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4" style={{ borderLeftColor: event.status === 'bestätigt' ? '#22c55e' : event.status === 'angefragt' ? '#f97316' : '#94a3b8' }}>
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
@@ -115,8 +117,8 @@ export default function EventsPage() {
                   </div>
                 </div>
               </div>
-              <Badge className={`${statusColors[event.status]} border`}>
-                {event.status}
+              <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
+                {statusStyle.label}
               </Badge>
             </div>
           </CardHeader>
@@ -137,6 +139,56 @@ export default function EventsPage() {
             </div>
           </CardContent>
         </Card>
+      </Link>
+    );
+  };
+
+  const EventListItem = ({ event }) => {
+    const kunde = kunden.find(k => k.id === event.kunde_id);
+    const statusStyle = statusColors[event.status] || statusColors.entwurf;
+    
+    return (
+      <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4">
+          <div className="flex-shrink-0">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex flex-col items-center justify-center text-white">
+              <span className="text-xs font-medium">
+                {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
+              </span>
+              <span className="text-2xl font-bold">
+                {format(new Date(event.datum_von), 'd')}
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+              <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
+                {statusStyle.label}
+              </Badge>
+            </div>
+            
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                {format(new Date(event.datum_von), 'HH:mm')} Uhr
+              </div>
+              {event.ort_name && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  <span className="truncate">{event.ort_name}</span>
+                </div>
+              )}
+              {kunde && (
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  <span className="truncate">{kunde.firmenname}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </Link>
     );
   };
@@ -190,13 +242,33 @@ export default function EventsPage() {
                 <SelectContent>
                   <SelectItem value="alle">Alle Status</SelectItem>
                   <SelectItem value="entwurf">Entwurf</SelectItem>
-                  <SelectItem value="angefragt">Angefragt</SelectItem>
+                  <SelectItem value="angefragt">Wartet auf Musiker</SelectItem>
                   <SelectItem value="bestätigt">Bestätigt</SelectItem>
                   <SelectItem value="durchgeführt">Durchgeführt</SelectItem>
                   <SelectItem value="abgerechnet">Abgerechnet</SelectItem>
                   <SelectItem value="storniert">Storniert</SelectItem>
                 </SelectContent>
               </Select>
+              
+              {/* View Mode Toggle */}
+              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -223,11 +295,19 @@ export default function EventsPage() {
 
           <TabsContent value="upcoming" className="space-y-4">
             {upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {upcomingEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
+              viewMode === "grid" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {upcomingEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {upcomingEvents.map((event) => (
+                    <EventListItem key={event.id} event={event} />
+                  ))}
+                </div>
+              )
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
@@ -245,11 +325,19 @@ export default function EventsPage() {
 
           <TabsContent value="past" className="space-y-4">
             {pastEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pastEvents.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
+              viewMode === "grid" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pastEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {pastEvents.map((event) => (
+                    <EventListItem key={event.id} event={event} />
+                  ))}
+                </div>
+              )
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
