@@ -76,7 +76,13 @@ export default function Layout({ children, currentPageName }) {
         // Aktuelle Organisation aus localStorage oder erste verwenden
         const savedOrgId = localStorage.getItem('currentOrgId');
         const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
-        setCurrentOrg(org);
+        
+        // WICHTIG: org_id in localStorage speichern
+        if (org) {
+          localStorage.setItem('currentOrgId', org.id);
+          console.log("Organisation gesetzt:", org.id);
+          setCurrentOrg(org);
+        }
       }
     } catch (error) {
       console.error("Fehler beim Laden:", error);
@@ -87,7 +93,7 @@ export default function Layout({ children, currentPageName }) {
     const org = organisations.find(o => o.id === orgId);
     setCurrentOrg(org);
     localStorage.setItem('currentOrgId', orgId);
-    window.location.reload(); // Seite neu laden für neue Org-Daten
+    window.location.reload();
   };
 
   const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrg?.id);
@@ -118,7 +124,7 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600" />
+          <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Lade Organisationen...</p>
         </div>
