@@ -1,0 +1,72 @@
+{
+  "name": "Musiker",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "K\u00fcnstlername"
+    },
+    "instrumente": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Liste der Instrumente"
+    },
+    "genre": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Musikgenres"
+    },
+    "sprachen": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Gesprochene Sprachen"
+    },
+    "buchungsbedingungen": {
+      "type": "string",
+      "description": "Buchungsbedingungen (Markdown)"
+    },
+    "tagessatz_netto": {
+      "type": "number",
+      "description": "Tagessatz netto"
+    },
+    "reisespesen_regeln": {
+      "type": "string",
+      "description": "Regeln f\u00fcr Reisespesen"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse"
+    },
+    "telefon": {
+      "type": "string",
+      "description": "Telefonnummer"
+    },
+    "notfallkontakt": {
+      "type": "string",
+      "description": "Notfallkontakt"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "aktiv": {
+      "type": "boolean",
+      "default": true,
+      "description": "Aktiv-Status"
+    }
+  },
+  "required": [
+    "org_id",
+    "name"
+  ]
+}
