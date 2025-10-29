@@ -50,6 +50,49 @@
       "default": "Europe/Berlin",
       "description": "Zeitzone"
     },
+    "get_in_zeit": {
+      "type": "string",
+      "format": "time",
+      "description": "Get-In Zeit (HH:mm)"
+    },
+    "soundcheck_zeit": {
+      "type": "string",
+      "format": "time",
+      "description": "Soundcheck Zeit (HH:mm)"
+    },
+    "event_typ": {
+      "type": "string",
+      "enum": [
+        "Hochzeit",
+        "Corporate Event",
+        "Geburtstag",
+        "Konzert",
+        "Festival",
+        "Private Feier",
+        "Sonstiges"
+      ],
+      "description": "Event-Typ"
+    },
+    "anzahl_gaeste": {
+      "type": "number",
+      "description": "Erwartete Anzahl der G\u00e4ste"
+    },
+    "dresscode": {
+      "type": "string",
+      "description": "Dresscode f\u00fcr Musiker (z.B. Elegant chic, Business, Casual)"
+    },
+    "hotel_name": {
+      "type": "string",
+      "description": "Name des Hotels f\u00fcr \u00dcbernachtung"
+    },
+    "hotel_adresse": {
+      "type": "string",
+      "description": "Adresse des Hotels"
+    },
+    "technik_hinweise": {
+      "type": "string",
+      "description": "Technische Hinweise (z.B. PA vorhanden, Backline gestellt)"
+    },
     "finanz_status": {
       "type": "string",
       "enum": [
