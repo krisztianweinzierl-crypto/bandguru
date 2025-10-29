@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import MusikerForm from "../components/musiker/MusikerForm";
+import MusikerForm from "@/components/musiker/MusikerForm";
 
 export default function MusikerPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import EventForm from "../components/events/EventForm";
+import EventForm from "@/components/events/EventForm";
 
 export default function EventsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);

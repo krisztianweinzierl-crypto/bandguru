@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import KundenForm from "../components/kunden/KundenForm";
+import KundenForm from "@/components/kunden/KundenForm";
 
 export default function KundenPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
