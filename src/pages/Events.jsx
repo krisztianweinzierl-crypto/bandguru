@@ -44,11 +44,19 @@ export default function EventsPage() {
   });
 
   const createEventMutation = useMutation({
-    mutationFn: (eventData) => base44.entities.Event.create({ ...eventData, org_id: currentOrgId }),
-    onSuccess: () => {
+    mutationFn: async (eventData) => {
+      console.log("Speichere Event:", eventData);
+      return await base44.entities.Event.create({ ...eventData, org_id: currentOrgId });
+    },
+    onSuccess: (data) => {
+      console.log("Event erfolgreich erstellt:", data);
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowForm(false);
     },
+    onError: (error) => {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern des Events: " + (error.message || "Unbekannter Fehler"));
+    }
   });
 
   const filteredEvents = events.filter(event => {
@@ -71,6 +79,7 @@ export default function EventsPage() {
   };
 
   const handleSubmit = (data) => {
+    console.log("handleSubmit aufgerufen mit:", data);
     createEventMutation.mutate(data);
   };
 
