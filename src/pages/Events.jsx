@@ -45,8 +45,14 @@ export default function EventsPage() {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
-      console.log("Speichere Event:", eventData);
-      return await base44.entities.Event.create({ ...eventData, org_id: currentOrgId });
+      const orgId = localStorage.getItem('currentOrgId');
+      console.log("Speichere Event mit org_id:", orgId);
+      console.log("Event-Daten:", eventData);
+      
+      const dataToSend = { ...eventData, org_id: orgId };
+      console.log("Vollständige Daten zum Senden:", dataToSend);
+      
+      return await base44.entities.Event.create(dataToSend);
     },
     onSuccess: (data) => {
       console.log("Event erfolgreich erstellt:", data);
