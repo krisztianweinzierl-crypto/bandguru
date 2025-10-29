@@ -13,7 +13,11 @@ import {
   ExternalLink,
   Clock,
   Users as UsersIcon,
-  FileText
+  FileText,
+  Shirt,
+  Hotel,
+  Settings,
+  File
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -250,42 +254,35 @@ export default function EventDetailPage() {
               <CardContent className="p-6 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Datum */}
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Datum</p>
-                        <p className="font-semibold text-gray-900">
-                          {format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Datum</p>
+                      <p className="font-medium text-gray-900">
+                        {format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}
+                      </p>
                     </div>
                   </div>
 
                   {/* Veranstaltungsort */}
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Veranstaltungsort</p>
-                        <p className="font-semibold text-gray-900">{event.ort_name || 'Nicht angegeben'}</p>
-                        {event.ort_adresse && (
-                          <p className="text-sm text-gray-600 mt-0.5">{event.ort_adresse}</p>
-                        )}
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Veranstaltungsort</p>
+                      <p className="font-medium text-gray-900">
+                        {event.ort_adresse || event.ort_name || 'Nicht angegeben'}
+                      </p>
                     </div>
                   </div>
 
                   {/* Kunde */}
-                  <div>
-                    <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
-                      <div>
-                        <p className="text-sm text-gray-500 mb-1">Kunde</p>
-                        <p className="font-semibold text-gray-900">
-                          {kunde ? kunde.firmenname : 'No Client Linked'}
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Kunde</p>
+                      <p className="font-medium text-gray-900">
+                        {kunde ? kunde.firmenname : 'No Client Linked'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -316,12 +313,12 @@ export default function EventDetailPage() {
                   <p className="text-gray-700 mb-4 font-medium">{event.ort_adresse || event.ort_name}</p>
                   
                   {/* Map Placeholder */}
-                  <div className="bg-gray-100 rounded-lg p-12 text-center border border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200">
                     <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                     <p className="text-gray-600 font-medium mb-2">{event.ort_adresse || event.ort_name}</p>
                     <button
                       onClick={openInMaps}
-                      className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      className="text-cyan-500 hover:text-cyan-600 font-medium text-sm"
                     >
                       View on Google Maps
                     </button>
@@ -329,6 +326,159 @@ export default function EventDetailPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Zeitplan */}
+            <Card className="border border-gray-200 shadow-sm">
+              <CardHeader className="border-b bg-white">
+                <CardTitle className="text-xl font-bold">Zeitplan</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 bg-white">
+                <div className="space-y-4">
+                  {/* Veranstaltungszeit */}
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-green-500 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Veranstaltungszeit</p>
+                      <p className="font-medium text-gray-900">
+                        {format(new Date(event.datum_von), 'HH:mm')} - {format(new Date(event.datum_bis), 'HH:mm')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Get-In Zeit */}
+                  {event.get_in_zeit && (
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-5 h-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Get-In Zeit</p>
+                        <p className="font-medium text-gray-900">{event.get_in_zeit}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Soundcheck-Zeit */}
+                  {event.soundcheck_zeit && (
+                    <div className="flex items-start gap-3">
+                      <span className="text-yellow-500 text-xl mt-0.5">☀️</span>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Soundcheck-Zeit</p>
+                        <p className="font-medium text-gray-900">{event.soundcheck_zeit}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Publikum & Ambiente */}
+            <Card className="border border-gray-200 shadow-sm">
+              <CardHeader className="border-b bg-white">
+                <CardTitle className="text-xl font-bold">Publikum & Ambiente</CardTitle>
+                <p className="text-sm text-gray-500">Details über die Veranstaltung und das Publikum</p>
+              </CardHeader>
+              <CardContent className="p-6 bg-white">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Event-Typ */}
+                  {event.event_typ && (
+                    <div className="flex items-start gap-3">
+                      <span className="text-purple-500 text-xl mt-0.5">🎉</span>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Event-Typ</p>
+                        <p className="font-medium text-gray-900">{event.event_typ}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Anzahl der Gäste */}
+                  {event.anzahl_gaeste && (
+                    <div className="flex items-start gap-3">
+                      <UsersIcon className="w-5 h-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Anzahl der Gäste</p>
+                        <p className="font-medium text-gray-900">{event.anzahl_gaeste}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dresscode */}
+                  {event.dresscode && (
+                    <div className="flex items-start gap-3">
+                      <Shirt className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Dresscode</p>
+                        <p className="font-medium text-gray-900">{event.dresscode}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Hotel-Informationen */}
+            {(event.hotel_name || event.hotel_adresse) && (
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="border-b bg-white">
+                  <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
+                  <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                </CardHeader>
+                <CardContent className="p-6 bg-white">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Hotel-Name */}
+                    {event.hotel_name && (
+                      <div className="flex items-start gap-3">
+                        <Hotel className="w-5 h-5 text-gray-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Hotel-Name</p>
+                          <p className="font-medium text-gray-900">{event.hotel_name}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hotel-Adresse */}
+                    {event.hotel_adresse && (
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm text-gray-500 mb-1">Hotel-Adresse</p>
+                          <p className="font-medium text-gray-900">{event.hotel_adresse}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Zusätzliche Informationen */}
+            <Card className="border border-gray-200 shadow-sm">
+              <CardHeader className="border-b bg-white">
+                <CardTitle className="text-xl font-bold">Zusätzliche Informationen</CardTitle>
+                <p className="text-sm text-gray-500">Weitere wichtige Details</p>
+              </CardHeader>
+              <CardContent className="p-6 bg-white space-y-4">
+                {/* Technik */}
+                <div className="flex items-start gap-3">
+                  <Settings className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Technik</p>
+                    <p className="font-medium text-gray-900">
+                      {event.technik_hinweise || 'Nicht angegeben'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Notizen */}
+                <div className="flex items-start gap-3">
+                  <File className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">Notizen</p>
+                    <p className="font-medium text-gray-900">
+                      {event.interne_notizen || 'Nicht angegeben'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Platzhalter für andere Tabs */}
