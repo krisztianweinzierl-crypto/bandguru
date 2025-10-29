@@ -1,0 +1,95 @@
+{
+  "name": "Ausgabe",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event (optional)"
+    },
+    "musiker_id": {
+      "type": "string",
+      "description": "Referenz zum Musiker (optional)"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Titel/Beschreibung der Ausgabe"
+    },
+    "kategorie": {
+      "type": "string",
+      "enum": [
+        "gage",
+        "reisekosten",
+        "unterkunft",
+        "equipment",
+        "marketing",
+        "verwaltung",
+        "steuern",
+        "versicherung",
+        "studio",
+        "software",
+        "sonstiges"
+      ],
+      "description": "Kategorie der Ausgabe"
+    },
+    "betrag": {
+      "type": "number",
+      "description": "Ausgabenbetrag"
+    },
+    "waehrung": {
+      "type": "string",
+      "default": "EUR",
+      "description": "W\u00e4hrung"
+    },
+    "datum": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum der Ausgabe"
+    },
+    "zahlungsmethode": {
+      "type": "string",
+      "enum": [
+        "\u00fcberweisung",
+        "kreditkarte",
+        "paypal",
+        "bar",
+        "lastschrift",
+        "andere"
+      ],
+      "description": "Zahlungsmethode"
+    },
+    "beleg_url": {
+      "type": "string",
+      "description": "URL zum Beleg/Quittung"
+    },
+    "steuerlich_absetzbar": {
+      "type": "boolean",
+      "default": true,
+      "description": "Ist steuerlich absetzbar"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Zus\u00e4tzliche Notizen"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ausstehend",
+        "bezahlt",
+        "erstattet"
+      ],
+      "default": "bezahlt",
+      "description": "Status der Ausgabe"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel",
+    "kategorie",
+    "betrag",
+    "datum"
+  ]
+}
