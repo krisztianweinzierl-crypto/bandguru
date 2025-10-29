@@ -6,6 +6,7 @@ import EventDetail from './pages/EventDetail';
 import Onboarding from './pages/Onboarding';
 import OrganisationSettings from './pages/OrganisationSettings';
 import Finanzen from './pages/Finanzen';
+import Rechnungen from './pages/Rechnungen';
 import Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "Onboarding": Onboarding,
     "OrganisationSettings": OrganisationSettings,
     "Finanzen": Finanzen,
+    "Rechnungen": Rechnungen,
 }
 
 export const pagesConfig = {
