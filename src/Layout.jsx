@@ -34,14 +34,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -52,6 +44,7 @@ export default function Layout({ children, currentPageName }) {
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
 
   useEffect(() => {
     loadUserAndOrg();
@@ -103,6 +96,7 @@ export default function Layout({ children, currentPageName }) {
     const org = organisations.find(o => o.id === orgId);
     setCurrentOrg(org);
     localStorage.setItem('currentOrgId', orgId);
+    setShowOrgSwitcher(false);
     window.location.reload();
   };
 
@@ -174,50 +168,60 @@ export default function Layout({ children, currentPageName }) {
               </div>
 
               {/* Organisation Switcher */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between h-auto py-3 px-3 hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <div 
-                        className="w-5 h-5 rounded flex-shrink-0"
-                        style={{ backgroundColor: currentOrg.primary_color }}
-                      />
-                      <span className="truncate font-medium text-sm">{currentOrg.name}</span>
-                    </div>
-                    <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64" align="start">
-                  <DropdownMenuLabel className="text-xs text-gray-500 font-normal">
-                    Organisation wechseln
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {organisations.map((org) => (
-                    <DropdownMenuItem
-                      key={org.id}
-                      onClick={() => handleOrgChange(org.id)}
-                      className="flex items-center gap-3 py-3 cursor-pointer"
-                    >
-                      <div 
-                        className="w-6 h-6 rounded flex-shrink-0"
-                        style={{ backgroundColor: org.primary_color }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{org.name}</p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {mitgliedschaften.find(m => m.org_id === org.id)?.rolle}
-                        </p>
+              <div className="relative">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
+                  className="w-full justify-between h-auto py-3 px-3 hover:bg-blue-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div 
+                      className="w-5 h-5 rounded flex-shrink-0"
+                      style={{ backgroundColor: currentOrg.primary_color }}
+                    />
+                    <span className="truncate font-medium text-sm">{currentOrg.name}</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+                </Button>
+
+                {showOrgSwitcher && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowOrgSwitcher(false)}
+                    />
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="p-2 text-xs text-gray-500 font-medium border-b">
+                        Organisation wechseln
                       </div>
-                      {org.id === currentOrg.id && (
-                        <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      {organisations.map((org) => {
+                        const mitglied = mitgliedschaften.find(m => m.org_id === org.id);
+                        return (
+                          <button
+                            key={org.id}
+                            onClick={() => handleOrgChange(org.id)}
+                            className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors"
+                          >
+                            <div 
+                              className="w-6 h-6 rounded flex-shrink-0"
+                              style={{ backgroundColor: org.primary_color }}
+                            />
+                            <div className="flex-1 min-w-0 text-left">
+                              <p className="font-medium text-sm truncate">{org.name}</p>
+                              <p className="text-xs text-gray-500 truncate">
+                                {mitglied?.rolle}
+                              </p>
+                            </div>
+                            {org.id === currentOrg.id && (
+                              <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </SidebarHeader>
           
