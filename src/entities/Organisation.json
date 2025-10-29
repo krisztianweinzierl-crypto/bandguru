@@ -1,0 +1,55 @@
+{
+  "name": "Organisation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name der Organisation/Band"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL zum Logo"
+    },
+    "primary_color": {
+      "type": "string",
+      "description": "Prim\u00e4rfarbe in HEX",
+      "default": "#3B82F6"
+    },
+    "adresse": {
+      "type": "string",
+      "description": "Vollst\u00e4ndige Adresse"
+    },
+    "steuernummer": {
+      "type": "string",
+      "description": "Steuernummer"
+    },
+    "waehrung": {
+      "type": "string",
+      "enum": [
+        "EUR",
+        "USD",
+        "CHF",
+        "GBP"
+      ],
+      "default": "EUR",
+      "description": "Standard-W\u00e4hrung"
+    },
+    "zeitzone": {
+      "type": "string",
+      "default": "Europe/Berlin",
+      "description": "Zeitzone"
+    },
+    "rechnungspraefix": {
+      "type": "string",
+      "description": "Pr\u00e4fix f\u00fcr Rechnungsnummern"
+    },
+    "magic_link_tage": {
+      "type": "number",
+      "default": 14,
+      "description": "G\u00fcltigkeit Magic-Links in Tagen"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
