@@ -4,6 +4,7 @@ import Musiker from './pages/Musiker';
 import Kunden from './pages/Kunden';
 import EventDetail from './pages/EventDetail';
 import Onboarding from './pages/Onboarding';
+import OrganisationSettings from './pages/OrganisationSettings';
 import Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Kunden": Kunden,
     "EventDetail": EventDetail,
     "Onboarding": Onboarding,
+    "OrganisationSettings": OrganisationSettings,
 }
 
 export const pagesConfig = {

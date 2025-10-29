@@ -1,0 +1,349 @@
+import React, { useState, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  Building2, 
+  Users, 
+  Mail, 
+  Trash2, 
+  UserPlus,
+  Crown,
+  Shield,
+  Copy,
+  Check
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+export default function OrganisationSettingsPage() {
+  const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("Musiker");
+  const [copied, setCopied] = useState(false);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+  }, []);
+
+  const { data: organisation } = useQuery({
+    queryKey: ['organisation', currentOrgId],
+    queryFn: async () => {
+      const orgs = await base44.entities.Organisation.filter({ id: currentOrgId });
+      return orgs[0];
+    },
+    enabled: !!currentOrgId,
+  });
+
+  const { data: mitglieder = [] } = useQuery({
+    queryKey: ['mitglieder', currentOrgId],
+    queryFn: () => base44.entities.Mitglied.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const updateOrgMutation = useMutation({
+    mutationFn: (data) => base44.entities.Organisation.update(currentOrgId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organisation'] });
+    },
+  });
+
+  const inviteMemberMutation = useMutation({
+    mutationFn: async ({ email, rolle }) => {
+      // Hier würde normalerweise eine E-Mail-Einladung versendet
+      // Für jetzt erstellen wir einfach einen Platzhalter
+      await base44.integrations.Core.SendEmail({
+        to: email,
+        subject: `Einladung zu ${organisation.name} auf Bandguru`,
+        body: `Du wurdest eingeladen, ${organisation.name} auf Bandguru als ${rolle} beizutreten.\n\nBitte melde dich an unter: ${window.location.origin}`
+      });
+    },
+    onSuccess: () => {
+      setInviteEmail("");
+      alert("Einladung wurde versendet!");
+    },
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (mitgliedId) => base44.entities.Mitglied.delete(mitgliedId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
+    },
+  });
+
+  const handleOrgUpdate = (field, value) => {
+    updateOrgMutation.mutate({ [field]: value });
+  };
+
+  const handleInvite = (e) => {
+    e.preventDefault();
+    inviteMemberMutation.mutate({ email: inviteEmail, rolle: inviteRole });
+  };
+
+  const currentMitglied = mitglieder.find(m => m.user_id === user?.id);
+  const isManager = currentMitglied?.rolle === "Band Manager";
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!organisation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+        <p className="text-gray-600">Lade Organisation...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Organisations-Einstellungen
+          </h1>
+          <p className="text-gray-600">Verwalte deine Organisation und Mitglieder</p>
+        </div>
+
+        <Tabs defaultValue="general" className="space-y-6">
+          <TabsList className="bg-white border shadow-sm">
+            <TabsTrigger value="general">Allgemein</TabsTrigger>
+            <TabsTrigger value="members">Mitglieder</TabsTrigger>
+          </TabsList>
+
+          {/* Allgemein Tab */}
+          <TabsContent value="general" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-blue-600" />
+                  <CardTitle>Organisations-Details</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="org-name">Name der Organisation</Label>
+                  <Input
+                    id="org-name"
+                    value={organisation.name}
+                    onChange={(e) => handleOrgUpdate('name', e.target.value)}
+                    disabled={!isManager}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="org-adresse">Adresse</Label>
+                  <Input
+                    id="org-adresse"
+                    value={organisation.adresse || ""}
+                    onChange={(e) => handleOrgUpdate('adresse', e.target.value)}
+                    placeholder="Straße, PLZ Ort"
+                    disabled={!isManager}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="org-steuernummer">Steuernummer</Label>
+                  <Input
+                    id="org-steuernummer"
+                    value={organisation.steuernummer || ""}
+                    onChange={(e) => handleOrgUpdate('steuernummer', e.target.value)}
+                    disabled={!isManager}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="org-waehrung">Währung</Label>
+                    <select
+                      id="org-waehrung"
+                      value={organisation.waehrung}
+                      onChange={(e) => handleOrgUpdate('waehrung', e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                      disabled={!isManager}
+                    >
+                      <option value="EUR">EUR (€)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="CHF">CHF (Fr.)</option>
+                      <option value="GBP">GBP (£)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="org-color">Primärfarbe</Label>
+                    <Input
+                      id="org-color"
+                      type="color"
+                      value={organisation.primary_color}
+                      onChange={(e) => handleOrgUpdate('primary_color', e.target.value)}
+                      className="h-10 cursor-pointer"
+                      disabled={!isManager}
+                    />
+                  </div>
+                </div>
+
+                {!isManager && (
+                  <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                    <Shield className="w-4 h-4 inline mr-2" />
+                    Nur Band Manager können diese Einstellungen ändern
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Organisation ID */}
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle>Organisations-ID</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2">
+                  <Input value={organisation.id} readOnly className="font-mono text-sm" />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => copyToClipboard(organisation.id)}
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  Diese ID wird für technische Integrationen benötigt
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Mitglieder Tab */}
+          <TabsContent value="members" className="space-y-6">
+            {/* Mitglied einladen */}
+            {isManager && (
+              <Card className="border-none shadow-lg">
+                <CardHeader className="border-b">
+                  <div className="flex items-center gap-2">
+                    <UserPlus className="w-5 h-5 text-blue-600" />
+                    <CardTitle>Mitglied einladen</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <form onSubmit={handleInvite} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="md:col-span-2 space-y-2">
+                        <Label htmlFor="invite-email">E-Mail-Adresse</Label>
+                        <Input
+                          id="invite-email"
+                          type="email"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          placeholder="musiker@beispiel.de"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="invite-role">Rolle</Label>
+                        <select
+                          id="invite-role"
+                          value={inviteRole}
+                          onChange={(e) => setInviteRole(e.target.value)}
+                          className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                        >
+                          <option value="Band Manager">Band Manager</option>
+                          <option value="Musiker">Musiker</option>
+                        </select>
+                      </div>
+                    </div>
+                    <Button
+                      type="submit"
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      disabled={inviteMemberMutation.isPending}
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      {inviteMemberMutation.isPending ? "Einladung wird versendet..." : "Einladung versenden"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Mitglieder Liste */}
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  <CardTitle>Mitglieder ({mitglieder.length})</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  {mitglieder.map((mitglied) => (
+                    <div
+                      key={mitglied.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {mitglied.user_id?.[0]?.toUpperCase() || "?"}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{mitglied.user_id}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge
+                              variant="outline"
+                              className={
+                                mitglied.rolle === "Band Manager"
+                                  ? "bg-purple-50 text-purple-700 border-purple-200"
+                                  : "bg-blue-50 text-blue-700 border-blue-200"
+                              }
+                            >
+                              {mitglied.rolle === "Band Manager" && <Crown className="w-3 h-3 mr-1" />}
+                              {mitglied.rolle}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className={
+                                mitglied.status === "aktiv"
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-gray-50 text-gray-700 border-gray-200"
+                              }
+                            >
+                              {mitglied.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      {isManager && mitglied.user_id !== user?.id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm("Möchtest du dieses Mitglied wirklich entfernen?")) {
+                              removeMemberMutation.mutate(mitglied.id);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}
