@@ -1,0 +1,50 @@
+{
+  "name": "EventMusiker",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event"
+    },
+    "musiker_id": {
+      "type": "string",
+      "description": "Referenz zum Musiker"
+    },
+    "rolle": {
+      "type": "string",
+      "description": "Rolle/Instrument bei diesem Event"
+    },
+    "calltime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Calltime f\u00fcr den Musiker"
+    },
+    "gage_netto": {
+      "type": "number",
+      "description": "Gage netto"
+    },
+    "spesen": {
+      "type": "number",
+      "description": "Spesen pauschal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "angefragt",
+        "zugesagt",
+        "abgelehnt",
+        "ersetzt"
+      ],
+      "default": "angefragt",
+      "description": "Status der Zusage"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Notizen zur Buchung"
+    }
+  },
+  "required": [
+    "event_id",
+    "musiker_id"
+  ]
+}
