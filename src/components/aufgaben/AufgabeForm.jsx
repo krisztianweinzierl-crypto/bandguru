@@ -26,13 +26,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Hauptaufgabe erstellen/updaten
-    await onSubmit(formData);
-    
-    // Unteraufgaben erstellen (nur bei neuen Aufgaben)
-    if (!aufgabe && unteraufgaben.length > 0) {
-      // TODO: Nach Hauptaufgabe erstellen, Unteraufgaben mit parent_task_id erstellen
-    }
+    // Sende sowohl Hauptaufgabe als auch Unteraufgaben
+    await onSubmit(formData, unteraufgaben);
   };
 
   const handleChange = (field, value) => {
@@ -161,7 +156,7 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                   <SelectContent>
                     <SelectItem value={null}>Keine (Hauptaufgabe)</SelectItem>
                     {hauptAufgaben
-                      .filter(a => a.id !== aufgabe?.id) // Nicht sich selbst als Parent
+                      .filter(a => a.id !== aufgabe?.id)
                       .map((a) => (
                         <SelectItem key={a.id} value={a.id}>
                           {a.titel}
@@ -229,7 +224,7 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addUnteraufgabe}
+                    onClick={addUnteraufgaben}
                     className="w-full"
                   >
                     <Plus className="w-4 h-4 mr-2" />
