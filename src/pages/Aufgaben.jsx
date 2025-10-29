@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -60,7 +61,32 @@ export default function AufgabenPage() {
   });
 
   const createAufgabeMutation = useMutation({
-    mutationFn: (data) => base44.entities.Aufgabe.create({ ...data, org_id: currentOrgId }),
+    mutationFn: async ({ hauptaufgabe, unteraufgaben }) => {
+      // 1. Hauptaufgabe erstellen
+      const createdHauptaufgabe = await base44.entities.Aufgabe.create({ 
+        ...hauptaufgabe, 
+        org_id: currentOrgId 
+      });
+      
+      // 2. Unteraufgaben erstellen (falls vorhanden)
+      if (unteraufgaben && unteraufgaben.length > 0) {
+        const unteraufgabenData = unteraufgaben
+          .filter(u => u.titel && u.titel.trim()) // Nur Unteraufgaben mit Titel
+          .map(u => ({
+            titel: u.titel,
+            prioritaet: u.prioritaet || 'normal',
+            status: 'offen',
+            org_id: currentOrgId,
+            parent_task_id: createdHauptaufgabe.id
+          }));
+        
+        if (unteraufgabenData.length > 0) {
+          await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
+        }
+      }
+      
+      return createdHauptaufgabe;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
       setShowForm(false);
@@ -86,11 +112,13 @@ export default function AufgabenPage() {
     },
   });
 
-  const handleSubmit = (data) => {
+  const handleSubmit = (hauptaufgabe, unteraufgaben = []) => {
     if (editingAufgabe) {
-      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data });
+      // Bei Bearbeitung nur Hauptaufgabe updaten
+      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data: hauptaufgabe });
     } else {
-      createAufgabeMutation.mutate(data);
+      // Bei neuer Aufgabe: Hauptaufgabe + Unteraufgaben erstellen
+      createAufgabeMutation.mutate({ hauptaufgabe, unteraufgaben });
     }
   };
 
