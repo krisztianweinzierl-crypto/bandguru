@@ -28,9 +28,7 @@ export default function EventsPage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const orgId = localStorage.getItem('currentOrgId');
-    console.log("Lade currentOrgId:", orgId);
-    setCurrentOrgId(orgId);
+    setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
   const { data: events = [], isLoading } = useQuery({
@@ -47,21 +45,8 @@ export default function EventsPage() {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
-      console.log("CurrentOrgId:", currentOrgId);
-      console.log("Speichere Event mit Daten:", eventData);
-      
-      if (!currentOrgId) {
-        throw new Error("Keine Organisation ausgewählt!");
-      }
-      
-      const dataToSave = { 
-        ...eventData, 
-        org_id: currentOrgId 
-      };
-      
-      console.log("Finale Daten zum Speichern:", dataToSave);
-      
-      return await base44.entities.Event.create(dataToSave);
+      console.log("Speichere Event:", eventData);
+      return await base44.entities.Event.create({ ...eventData, org_id: currentOrgId });
     },
     onSuccess: (data) => {
       console.log("Event erfolgreich erstellt:", data);
@@ -144,14 +129,6 @@ export default function EventsPage() {
       </Link>
     );
   };
-
-  if (!currentOrgId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Lade Organisation...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
