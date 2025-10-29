@@ -16,7 +16,8 @@ import {
   Building2,
   ChevronDown,
   Menu,
-  LogOut
+  LogOut,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,7 @@ export default function Layout({ children, currentPageName }) {
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUserAndOrg();
@@ -77,15 +79,20 @@ export default function Layout({ children, currentPageName }) {
         const savedOrgId = localStorage.getItem('currentOrgId');
         const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
         
-        // WICHTIG: org_id in localStorage speichern
         if (org) {
           localStorage.setItem('currentOrgId', org.id);
           console.log("Organisation gesetzt:", org.id);
           setCurrentOrg(org);
         }
+        setLoading(false);
+      } else {
+        // Keine Organisation gefunden - zum Onboarding
+        setLoading(false);
+        window.location.href = createPageUrl('Onboarding');
       }
     } catch (error) {
       console.error("Fehler beim Laden:", error);
+      setLoading(false);
     }
   };
 
@@ -120,13 +127,25 @@ export default function Layout({ children, currentPageName }) {
 
   const navigationItems = isManager ? managerNavItems : musikerNavItems;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
+          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
+          <p className="text-gray-600">Lade Daten...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Lade Organisationen...</p>
+          <p className="text-gray-600">Keine Organisation gefunden. Weiterleitung zum Onboarding...</p>
         </div>
       </div>
     );
@@ -199,6 +218,31 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {isManager && (
+              <SidebarGroup className="mt-4">
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                  Verwaltung
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
+                          location.pathname === createPageUrl("OrganisationSettings") ? 'bg-blue-50 text-blue-700' : ''
+                        }`}
+                      >
+                        <Link to={createPageUrl("OrganisationSettings")} className="flex items-center gap-3 px-3 py-2">
+                          <Settings className="w-4 h-4" />
+                          <span className="font-medium">Einstellungen</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
