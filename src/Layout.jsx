@@ -17,7 +17,8 @@ import {
   ChevronDown,
   Menu,
   LogOut,
-  Settings
+  Settings,
+  Check
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,13 +35,15 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -170,26 +173,51 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
 
-              {organisations.length > 1 && (
-                <Select value={currentOrg.id} onValueChange={handleOrgChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {organisations.map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-4 h-4 rounded"
-                            style={{ backgroundColor: org.primary_color }}
-                          />
-                          {org.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              {/* Organisation Switcher */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-between h-auto py-3 px-3 hover:bg-blue-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div 
+                        className="w-5 h-5 rounded flex-shrink-0"
+                        style={{ backgroundColor: currentOrg.primary_color }}
+                      />
+                      <span className="truncate font-medium text-sm">{currentOrg.name}</span>
+                    </div>
+                    <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-64" align="start">
+                  <DropdownMenuLabel className="text-xs text-gray-500 font-normal">
+                    Organisation wechseln
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {organisations.map((org) => (
+                    <DropdownMenuItem
+                      key={org.id}
+                      onClick={() => handleOrgChange(org.id)}
+                      className="flex items-center gap-3 py-3 cursor-pointer"
+                    >
+                      <div 
+                        className="w-6 h-6 rounded flex-shrink-0"
+                        style={{ backgroundColor: org.primary_color }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{org.name}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {mitgliedschaften.find(m => m.org_id === org.id)?.rolle}
+                        </p>
+                      </div>
+                      {org.id === currentOrg.id && (
+                        <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </SidebarHeader>
           
