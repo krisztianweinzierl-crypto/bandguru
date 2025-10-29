@@ -1,0 +1,55 @@
+{
+  "name": "Zahlung",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "rechnung_id": {
+      "type": "string",
+      "description": "Referenz zur Rechnung"
+    },
+    "betrag": {
+      "type": "number",
+      "description": "Zahlungsbetrag"
+    },
+    "waehrung": {
+      "type": "string",
+      "default": "EUR",
+      "description": "W\u00e4hrung"
+    },
+    "zahlungsdatum": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum der Zahlung"
+    },
+    "zahlungsmethode": {
+      "type": "string",
+      "enum": [
+        "\u00fcberweisung",
+        "kreditkarte",
+        "paypal",
+        "bar",
+        "stripe",
+        "andere"
+      ],
+      "description": "Zahlungsmethode"
+    },
+    "referenz": {
+      "type": "string",
+      "description": "Zahlungsreferenz/Transaktionsnummer"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Notizen zur Zahlung"
+    }
+  },
+  "required": [
+    "org_id",
+    "rechnung_id",
+    "betrag",
+    "zahlungsdatum",
+    "zahlungsmethode"
+  ]
+}
