@@ -28,7 +28,9 @@ export default function EventsPage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+    const orgId = localStorage.getItem('currentOrgId');
+    console.log("Geladene org_id aus localStorage:", orgId);
+    setCurrentOrgId(orgId);
   }, []);
 
   const { data: events = [], isLoading } = useQuery({
@@ -45,11 +47,14 @@ export default function EventsPage() {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
-      const orgId = localStorage.getItem('currentOrgId');
-      console.log("Speichere Event mit org_id:", orgId);
-      console.log("Event-Daten:", eventData);
+      console.log("currentOrgId State:", currentOrgId);
+      console.log("Event-Daten vor Ergänzung:", eventData);
       
-      const dataToSend = { ...eventData, org_id: orgId };
+      if (!currentOrgId) {
+        throw new Error("Keine Organisation ausgewählt. Bitte lade die Seite neu.");
+      }
+      
+      const dataToSend = { ...eventData, org_id: currentOrgId };
       console.log("Vollständige Daten zum Senden:", dataToSend);
       
       return await base44.entities.Event.create(dataToSend);
@@ -136,6 +141,18 @@ export default function EventsPage() {
     );
   };
 
+  if (!currentOrgId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-gray-600">Lade Organisation...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -153,7 +170,6 @@ export default function EventsPage() {
           </Button>
         </div>
 
-        {/* Filter & Suche */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -185,7 +201,6 @@ export default function EventsPage() {
           </CardContent>
         </Card>
 
-        {/* Event Form */}
         {showForm && (
           <div className="mb-6">
             <EventForm 
@@ -196,7 +211,6 @@ export default function EventsPage() {
           </div>
         )}
 
-        {/* Events Liste */}
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
