@@ -1,0 +1,107 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Event-Titel"
+    },
+    "kunde_id": {
+      "type": "string",
+      "description": "Referenz zum Kunden"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "entwurf",
+        "angefragt",
+        "best\u00e4tigt",
+        "durchgef\u00fchrt",
+        "abgerechnet",
+        "storniert"
+      ],
+      "default": "entwurf",
+      "description": "Event-Status"
+    },
+    "datum_von": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start-Datum und -Zeit"
+    },
+    "datum_bis": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End-Datum und -Zeit"
+    },
+    "ort_name": {
+      "type": "string",
+      "description": "Name des Veranstaltungsortes"
+    },
+    "ort_adresse": {
+      "type": "string",
+      "description": "Adresse des Veranstaltungsortes"
+    },
+    "zeitzone": {
+      "type": "string",
+      "default": "Europe/Berlin",
+      "description": "Zeitzone"
+    },
+    "finanz_status": {
+      "type": "string",
+      "enum": [
+        "offen",
+        "teilweise",
+        "bezahlt",
+        "r\u00fcckerstattung"
+      ],
+      "default": "offen",
+      "description": "Finanzstatus"
+    },
+    "besetzung_anforderung": {
+      "type": "object",
+      "description": "Soll-Besetzung als JSON (z.B. {'Gitarre': 1, 'Gesang': 1})"
+    },
+    "interne_notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "oeffentliche_notizen": {
+      "type": "string",
+      "description": "\u00d6ffentliche Notizen f\u00fcr Kundenansicht"
+    },
+    "vertrag_id": {
+      "type": "string",
+      "description": "Referenz zum Vertrag"
+    },
+    "vertrag_status": {
+      "type": "string",
+      "enum": [
+        "kein_vertrag",
+        "entwurf",
+        "versendet",
+        "unterschrieben"
+      ],
+      "default": "kein_vertrag",
+      "description": "Vertragsstatus"
+    },
+    "magic_link_token": {
+      "type": "string",
+      "description": "Token f\u00fcr Kunden-Magic-Link"
+    },
+    "magic_link_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Ablaufdatum des Magic-Links"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel",
+    "datum_von",
+    "datum_bis"
+  ]
+}
