@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Plus, GripVertical, Trash2 } from "lucide-react";
+import { X, Save, Plus, GripVertical, Trash2, Clock } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSongs }) {
@@ -21,6 +21,30 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
 
   const [selectedSongId, setSelectedSongId] = useState("");
   const [tagInput, setTagInput] = useState("");
+
+  // Automatische Berechnung der Gesamtdauer
+  useEffect(() => {
+    if (formData.songs.length > 0) {
+      const totalMinutes = formData.songs.reduce((sum, songItem) => {
+        const song = allSongs.find(s => s.id === songItem.song_id);
+        if (song && song.laenge) {
+          // Parse MM:SS format
+          const parts = song.laenge.split(':');
+          if (parts.length === 2) {
+            const minutes = parseInt(parts[0]) || 0;
+            const seconds = parseInt(parts[1]) || 0;
+            return sum + minutes + (seconds / 60);
+          }
+        }
+        return sum;
+      }, 0);
+      
+      // Runde auf ganze Minuten
+      setFormData(prev => ({ ...prev, gesamtdauer: Math.round(totalMinutes) }));
+    } else {
+      setFormData(prev => ({ ...prev, gesamtdauer: 0 }));
+    }
+  }, [formData.songs, allSongs]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -155,6 +179,7 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
                   {availableSongs.map((song) => (
                     <SelectItem key={song.id} value={song.id}>
                       {song.titel} - {song.kuenstler_original || 'Unbekannt'}
+                      {song.laenge && ` (${song.laenge})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -209,6 +234,12 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                  {song.laenge && (
+                                    <Badge variant="outline" className="text-xs">
+                                      <Clock className="w-3 h-3 mr-1" />
+                                      {song.laenge}
+                                    </Badge>
+                                  )}
                                   {song.bpm && (
                                     <Badge variant="outline" className="text-xs">
                                       {song.bpm} BPM
@@ -242,16 +273,18 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
             </div>
           )}
 
-          {/* Gesamtdauer */}
+          {/* Gesamtdauer (automatisch berechnet) */}
           <div className="space-y-2">
-            <Label htmlFor="gesamtdauer">Gesamtdauer (Minuten)</Label>
-            <Input
-              id="gesamtdauer"
-              type="number"
-              value={formData.gesamtdauer}
-              onChange={(e) => handleChange('gesamtdauer', e.target.value ? parseInt(e.target.value) : 0)}
-              placeholder="z.B. 68"
-            />
+            <Label>Gesamtdauer (automatisch berechnet)</Label>
+            <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <Clock className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-2xl font-bold text-blue-900">{formData.gesamtdauer} Min.</p>
+                <p className="text-xs text-blue-700">
+                  Basierend auf {formData.songs.length} {formData.songs.length === 1 ? 'Song' : 'Songs'}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Tags */}
