@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SongForm from "@/components/repertoire/SongForm";
+import SetlistForm from "@/components/repertoire/SetlistForm";
 
 export default function RepertoirePage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -92,6 +94,22 @@ export default function RepertoirePage() {
     },
   });
 
+  const handleSongSubmit = (data) => {
+    if (editingSong) {
+      updateSongMutation.mutate({ id: editingSong.id, data });
+    } else {
+      createSongMutation.mutate(data);
+    }
+  };
+
+  const handleSetlistSubmit = (data) => {
+    if (editingSetlist) {
+      updateSetlistMutation.mutate({ id: editingSetlist.id, data });
+    } else {
+      createSetlistMutation.mutate(data);
+    }
+  };
+
   const filteredSongs = songs.filter(s => {
     const matchesSearch = s.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -167,6 +185,18 @@ export default function RepertoirePage() {
                 </Button>
               </div>
             </div>
+
+            {/* Song Form */}
+            {showSongForm && (
+              <SongForm
+                song={editingSong}
+                onSubmit={handleSongSubmit}
+                onCancel={() => {
+                  setShowSongForm(false);
+                  setEditingSong(null);
+                }}
+              />
+            )}
 
             {/* Suche & Filter */}
             <Card className="border-none shadow-md">
@@ -251,7 +281,11 @@ export default function RepertoirePage() {
                           <td className="p-4">
                             <div className="flex justify-end gap-2">
                               {song.lead_sheet_url && (
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => window.open(song.lead_sheet_url, '_blank')}
+                                >
                                   Noten ansehen
                                 </Button>
                               )}
@@ -318,6 +352,20 @@ export default function RepertoirePage() {
                 Neue Setlist
               </Button>
             </div>
+
+            {/* Setlist Form */}
+            {showSetlistForm && (
+              <SetlistForm
+                setlist={editingSetlist}
+                onSubmit={handleSetlistSubmit}
+                onCancel={() => {
+                  setShowSetlistForm(false);
+                  setEditingSetlist(null);
+                }}
+                events={events}
+                allSongs={songs}
+              />
+            )}
 
             {/* Suche */}
             <Card className="border-none shadow-md">
