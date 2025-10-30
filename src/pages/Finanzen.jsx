@@ -1,17 +1,17 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  DollarSign,
+  Euro, // Changed from DollarSign to Euro
   TrendingUp,
   TrendingDown,
   FileText,
   CreditCard,
   AlertCircle,
   Calendar,
-  Euro,
   Receipt,
   PieChart,
   ArrowUpRight,
@@ -157,7 +157,7 @@ export default function FinanzenPage() {
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Gewinn/Verlust</CardTitle>
                 <div className={`p-2 ${gewinn >= 0 ? 'bg-blue-100' : 'bg-orange-100'} rounded-lg`}>
-                  <DollarSign className={`w-5 h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
+                  <Euro className={`w-5 h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} /> {/* Changed from DollarSign to Euro */}
                 </div>
               </div>
             </CardHeader>
