@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Plus, Trash2, GripVertical } from "lucide-react";
+import { X, Save, Plus, Trash2 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
-export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, hauptAufgaben }) {
+export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, hauptAufgaben, allAufgaben }) {
   const [formData, setFormData] = useState(aufgabe || {
     titel: "",
     beschreibung: "",
@@ -21,11 +22,20 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   });
 
   const [unteraufgaben, setUnteraufgaben] = useState([]);
+  const [existingUnteraufgaben, setExistingUnteraufgaben] = useState([]);
+
+  // Lade existierende Unteraufgaben beim Bearbeiten
+  useEffect(() => {
+    if (aufgabe && allAufgaben) {
+      const existing = allAufgaben.filter(a => a.parent_task_id === aufgabe.id);
+      setExistingUnteraufgaben(existing);
+    }
+  }, [aufgabe, allAufgaben]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Sende sowohl Hauptaufgabe als auch Unteraufgaben
+    // Sende sowohl Hauptaufgabe als auch neue Unteraufgaben
     await onSubmit(formData, unteraufgaben);
   };
 
@@ -46,6 +56,21 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   const removeUnteraufgabe = (index) => {
     setUnteraufgaben(prev => prev.filter((_, i) => i !== index));
   };
+
+  const removeExistingUnteraufgabe = async (unteraufgabe) => {
+    if (confirm(`Möchtest du "${unteraufgabe.titel}" wirklich löschen?`)) {
+      try {
+        await base44.entities.Aufgabe.delete(unteraufgabe.id);
+        setExistingUnteraufgaben(prev => prev.filter(u => u.id !== unteraufgabe.id));
+      } catch (error) {
+        console.error("Fehler beim Löschen:", error);
+        alert("Fehler beim Löschen der Unteraufgabe");
+      }
+    }
+  };
+
+  // Zeige Unteraufgaben-Sektion nur für Hauptaufgaben (nicht für Unteraufgaben)
+  const showUnteraufgabenSection = !formData.parent_task_id;
 
   return (
     <Card className="border-none shadow-lg">
@@ -167,8 +192,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
             )}
           </div>
 
-          {/* Unteraufgaben (nur für neue Hauptaufgaben) */}
-          {!aufgabe && !formData.parent_task_id && (
+          {/* Unteraufgaben (nur für Hauptaufgaben) */}
+          {showUnteraufgabenSection && (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label>Unteraufgaben</Label>
@@ -184,47 +209,80 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                 </Button>
               </div>
 
-              {unteraufgaben.length > 0 && (
-                <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
-                  {unteraufgaben.map((unteraufgabe, index) => (
-                    <div key={index} className="flex gap-2 items-start">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <div className="md:col-span-2">
-                          <Input
-                            value={unteraufgabe.titel}
-                            onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
-                            placeholder={`Unteraufgabe ${index + 1}...`}
-                          />
+              {/* Existierende Unteraufgaben (beim Bearbeiten) */}
+              {existingUnteraufgaben.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 font-medium">Vorhandene Unteraufgaben:</p>
+                  <div className="space-y-2 border rounded-lg p-4 bg-blue-50">
+                    {existingUnteraufgaben.map((unteraufgabe) => (
+                      <div key={unteraufgabe.id} className="flex gap-2 items-center bg-white p-3 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{unteraufgabe.titel}</p>
+                          <p className="text-sm text-gray-500">
+                            Status: {unteraufgabe.status} • Priorität: {unteraufgabe.prioritaet}
+                          </p>
                         </div>
-                        <Select 
-                          value={unteraufgabe.prioritaet} 
-                          onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeExistingUnteraufgabe(unteraufgabe)}
+                          className="text-red-600 hover:text-red-700"
                         >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="niedrig">Niedrig</SelectItem>
-                            <SelectItem value="normal">Normal</SelectItem>
-                            <SelectItem value="hoch">Hoch</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeUnteraufgabe(index)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {unteraufgaben.length === 0 && (
+              {/* Neue Unteraufgaben hinzufügen */}
+              {unteraufgaben.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 font-medium">Neue Unteraufgaben:</p>
+                  <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
+                    {unteraufgaben.map((unteraufgabe, index) => (
+                      <div key={index} className="flex gap-2 items-start">
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+                          <div className="md:col-span-2">
+                            <Input
+                              value={unteraufgabe.titel}
+                              onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
+                              placeholder={`Unteraufgabe ${index + 1}...`}
+                            />
+                          </div>
+                          <Select 
+                            value={unteraufgabe.prioritaet} 
+                            onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="niedrig">Niedrig</SelectItem>
+                              <SelectItem value="normal">Normal</SelectItem>
+                              <SelectItem value="hoch">Hoch</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeUnteraufgabe(index)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State (nur wenn keine Unteraufgaben existieren) */}
+              {existingUnteraufgaben.length === 0 && unteraufgaben.length === 0 && (
                 <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
                   <p className="text-sm text-gray-500 mb-2">Noch keine Unteraufgaben</p>
                   <Button
