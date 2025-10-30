@@ -31,7 +31,6 @@ export default function EventsPage() {
 
   useEffect(() => {
     const orgId = localStorage.getItem('currentOrgId');
-    console.log("Geladene org_id aus localStorage:", orgId);
     setCurrentOrgId(orgId);
   }, []);
 
@@ -49,20 +48,14 @@ export default function EventsPage() {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
-      console.log("currentOrgId State:", currentOrgId);
-      console.log("Event-Daten vor Ergänzung:", eventData);
-      
       if (!currentOrgId) {
         throw new Error("Keine Organisation ausgewählt. Bitte lade die Seite neu.");
       }
       
       const dataToSend = { ...eventData, org_id: currentOrgId };
-      console.log("Vollständige Daten zum Senden:", dataToSend);
-      
       return await base44.entities.Event.create(dataToSend);
     },
     onSuccess: (data) => {
-      console.log("Event erfolgreich erstellt:", data);
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowForm(false);
     },
@@ -83,16 +76,15 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter(e => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200", label: "Entwurf" },
-    angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-200", label: "Wartet auf Musiker" },
-    bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-200", label: "Bestätigt" },
-    durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200", label: "Durchgeführt" },
-    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200", label: "Abgerechnet" },
-    storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200", label: "Storniert" }
+    entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Entwurf" },
+    angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400", label: "Wartet auf Musiker" },
+    bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500", label: "Bestätigt" },
+    durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Durchgeführt" },
+    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400", label: "Abgerechnet" },
+    storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400", label: "Storniert" }
   };
 
   const handleSubmit = (data) => {
-    console.log("handleSubmit aufgerufen mit:", data);
     createEventMutation.mutate(data);
   };
 
@@ -102,7 +94,7 @@ export default function EventsPage() {
     
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <Card className="hover:shadow-lg transition-all duration-200 border-l-4" style={{ borderLeftColor: event.status === 'bestätigt' ? '#22c55e' : event.status === 'angefragt' ? '#f97316' : '#94a3b8' }}>
+        <Card className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass}`}>
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
@@ -150,7 +142,7 @@ export default function EventsPage() {
     
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4">
+        <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
           <div className="flex-shrink-0">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex flex-col items-center justify-center text-white">
               <span className="text-xs font-medium">
