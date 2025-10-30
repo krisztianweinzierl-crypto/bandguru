@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Plus, GripVertical, Trash2, Clock } from "lucide-react";
+import { X, Save, Plus, GripVertical, Trash2, Clock, FileText } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSongs }) {
@@ -102,6 +103,164 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
 
   const removeTag = (index) => {
     handleChange('tags', formData.tags.filter((_, i) => i !== index));
+  };
+
+  const handleExportPDF = () => {
+    // Erstelle eine neue Seite für den Druck
+    const printWindow = window.open('', '_blank');
+    const event = events.find(e => e.id === formData.event_id);
+    
+    const songsList = formData.songs.map((songItem, index) => {
+      const song = allSongs.find(s => s.id === songItem.song_id);
+      if (!song) return '';
+      
+      return `
+        <tr>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${index + 1}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+            <div style="font-weight: 600; color: #111827; margin-bottom: 4px;">${song.titel}</div>
+            <div style="color: #6b7280; font-size: 14px;">${song.kuenstler_original || '-'}</div>
+          </td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.laenge || '-'}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.bpm ? song.bpm + ' BPM' : '-'}</td>
+          <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${song.tonart || '-'}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${formData.name} - Setlist</title>
+          <style>
+            @media print {
+              @page { margin: 2cm; }
+              body { margin: 0; }
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              padding: 40px;
+              color: #111827;
+              max-width: 1000px;
+              margin: 0 auto;
+            }
+            h1 {
+              color: #111827;
+              margin-bottom: 8px;
+              font-size: 32px;
+            }
+            .subtitle {
+              color: #6b7280;
+              margin-bottom: 32px;
+              font-size: 16px;
+            }
+            .info-section {
+              background: #f9fafb;
+              padding: 20px;
+              border-radius: 8px;
+              margin-bottom: 32px;
+              display: flex;
+              gap: 40px;
+            }
+            .info-item {
+              display: flex;
+              flex-direction: column;
+            }
+            .info-label {
+              color: #6b7280;
+              font-size: 12px;
+              text-transform: uppercase;
+              font-weight: 600;
+              margin-bottom: 4px;
+            }
+            .info-value {
+              color: #111827;
+              font-size: 16px;
+              font-weight: 600;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 24px;
+            }
+            thead {
+              background: #f9fafb;
+            }
+            th {
+              padding: 12px;
+              text-align: left;
+              font-size: 12px;
+              font-weight: 600;
+              color: #6b7280;
+              text-transform: uppercase;
+              border-bottom: 2px solid #e5e7eb;
+            }
+            .footer {
+              margin-top: 48px;
+              padding-top: 24px;
+              border-top: 1px solid #e5e7eb;
+              text-align: center;
+              color: #9ca3af;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${formData.name}</h1>
+          ${formData.beschreibung ? `<p class="subtitle">${formData.beschreibung}</p>` : ''}
+          
+          <div class="info-section">
+            ${event ? `
+              <div class="info-item">
+                <div class="info-label">Event</div>
+                <div class="info-value">${event.titel}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Datum</div>
+                <div class="info-value">${new Date(event.datum_von).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+              </div>
+            ` : ''}
+            <div class="info-item">
+              <div class="info-label">Anzahl Songs</div>
+              <div class="info-value">${formData.songs.length}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Gesamtdauer</div>
+              <div class="info-value">${formData.gesamtdauer} Min.</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Song</th>
+                <th style="width: 100px; text-align: center;">Länge</th>
+                <th style="width: 100px; text-align: center;">Tempo</th>
+                <th style="width: 100px; text-align: center;">Tonart</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${songsList}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            Erstellt mit Bandguru • ${new Date().toLocaleDateString('de-DE')}
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Warte kurz und öffne dann den Druck-Dialog
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   const availableSongs = allSongs.filter(s => 
@@ -322,14 +481,29 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Abbrechen
-            </Button>
-            <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
-              <Save className="w-4 h-4 mr-2" />
-              {setlist ? 'Speichern' : 'Setlist erstellen'}
-            </Button>
+          <div className="flex justify-between items-center pt-4 border-t">
+            <div>
+              {formData.songs.length > 0 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleExportPDF}
+                  className="gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Als PDF exportieren
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Abbrechen
+              </Button>
+              <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+                <Save className="w-4 h-4 mr-2" />
+                {setlist ? 'Speichern' : 'Setlist erstellen'}
+              </Button>
+            </div>
           </div>
         </form>
       </CardContent>
