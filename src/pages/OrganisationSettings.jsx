@@ -11,7 +11,8 @@ import {
   Shield,
   Copy,
   Check,
-  Save
+  Save,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +20,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function OrganisationSettingsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("Musiker");
+  const [inviteName, setInviteName] = useState("");
+  const [inviteMessage, setInviteMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
@@ -75,17 +79,47 @@ export default function OrganisationSettingsPage() {
   });
 
   const inviteMemberMutation = useMutation({
-    mutationFn: async ({ email, rolle }) => {
+    mutationFn: async ({ email, rolle, name, message }) => {
+      const appUrl = window.location.origin;
+      
+      // Persönliche Nachricht wenn vorhanden
+      const personalMessage = message ? `\n\n"${message}"\n` : "";
+      
+      const emailBody = `Hey ${name || 'du'}! 👋
+
+${user?.full_name || 'Jemand'} hat dich zu "${organisation.name}" auf Bandguru eingeladen! 
+
+🎸 Du wurdest als ${rolle} hinzugefügt.${personalMessage}
+
+Mit Bandguru kannst du:
+✨ Events & Auftritte verwalten
+💰 Gagen & Finanzen im Blick behalten
+📋 Aufgaben & Deadlines managen
+💬 Mit dem Team kommunizieren
+
+Klingt gut? Dann melde dich jetzt an:
+👉 ${appUrl}
+
+Falls du Fragen hast, einfach auf diese Mail antworten!
+
+Viele Grüße
+Das ${organisation.name} Team 🎵`;
+
       await base44.integrations.Core.SendEmail({
         to: email,
-        subject: `Einladung zu ${organisation.name} auf Bandguru`,
-        body: `Du wurdest eingeladen, ${organisation.name} auf Bandguru als ${rolle} beizutreten.\n\nBitte melde dich an unter: ${window.location.origin}`
+        subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
+        body: emailBody
       });
     },
     onSuccess: () => {
       setInviteEmail("");
-      alert("Einladung wurde versendet!");
+      setInviteName("");
+      setInviteMessage("");
+      alert("🎉 Einladung wurde versendet!");
     },
+    onError: (error) => {
+      alert("❌ Fehler beim Versenden: " + error.message);
+    }
   });
 
   const removeMemberMutation = useMutation({
@@ -106,7 +140,12 @@ export default function OrganisationSettingsPage() {
 
   const handleInvite = (e) => {
     e.preventDefault();
-    inviteMemberMutation.mutate({ email: inviteEmail, rolle: inviteRole });
+    inviteMemberMutation.mutate({ 
+      email: inviteEmail, 
+      rolle: inviteRole,
+      name: inviteName,
+      message: inviteMessage
+    });
   };
 
   const currentMitglied = mitglieder.find(m => m.user_id === user?.id);
@@ -269,21 +308,26 @@ export default function OrganisationSettingsPage() {
                     <UserPlus className="w-5 h-5 text-blue-600" />
                     <CardTitle>Mitglied einladen</CardTitle>
                   </div>
+                  <p className="text-sm text-gray-500">
+                    Lade neue Band Manager oder Musiker zu deiner Organisation ein
+                  </p>
                 </CardHeader>
                 <CardContent className="p-6">
                   <form onSubmit={handleInvite} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="md:col-span-2 space-y-2">
-                        <Label htmlFor="invite-email">E-Mail-Adresse</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="invite-name">Name (optional)</Label>
                         <Input
-                          id="invite-email"
-                          type="email"
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                          placeholder="musiker@beispiel.de"
-                          required
+                          id="invite-name"
+                          value={inviteName}
+                          onChange={(e) => setInviteName(e.target.value)}
+                          placeholder="z.B. Max Mustermann"
                         />
+                        <p className="text-xs text-gray-500">
+                          Wird die E-Mail persönlicher machen
+                        </p>
                       </div>
+                      
                       <div className="space-y-2">
                         <Label htmlFor="invite-role">Rolle</Label>
                         <select
@@ -297,12 +341,64 @@ export default function OrganisationSettingsPage() {
                         </select>
                       </div>
                     </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="invite-email">E-Mail-Adresse *</Label>
+                      <Input
+                        id="invite-email"
+                        type="email"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        placeholder="musiker@beispiel.de"
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="invite-message">Persönliche Nachricht (optional)</Label>
+                      <Textarea
+                        id="invite-message"
+                        value={inviteMessage}
+                        onChange={(e) => setInviteMessage(e.target.value)}
+                        placeholder="z.B. Freue mich auf die Zusammenarbeit mit dir!"
+                        rows={3}
+                      />
+                      <p className="text-xs text-gray-500">
+                        Füge eine persönliche Note hinzu – wird in der E-Mail als Zitat angezeigt
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        E-Mail Vorschau
+                      </h4>
+                      <div className="text-sm text-blue-800 space-y-2">
+                        <p><strong>Betreff:</strong> 🎵 Einladung zu {organisation.name} auf Bandguru</p>
+                        <div className="bg-white p-3 rounded border border-blue-100 text-gray-700 whitespace-pre-line">
+Hey {inviteName || 'du'}! 👋
+
+{user?.full_name || 'Jemand'} hat dich zu "{organisation.name}" auf Bandguru eingeladen!
+
+🎸 Du wurdest als {inviteRole} hinzugefügt.
+{inviteMessage && `\n"${inviteMessage}"\n`}
+Mit Bandguru kannst du:
+✨ Events & Auftritte verwalten
+💰 Gagen & Finanzen im Blick behalten
+📋 Aufgaben & Deadlines managen
+💬 Mit dem Team kommunizieren
+
+Klingt gut? Dann melde dich jetzt an...
+                        </div>
+                      </div>
+                    </div>
+
                     <Button
                       type="submit"
                       className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
                       disabled={inviteMemberMutation.isPending}
                     >
-                      <Mail className="w-4 h-4 mr-2" />
+                      <Send className="w-4 h-4 mr-2" />
                       {inviteMemberMutation.isPending ? "Einladung wird versendet..." : "Einladung versenden"}
                     </Button>
                   </form>
