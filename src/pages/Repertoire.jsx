@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SongForm from "@/components/repertoire/SongForm";
 import SetlistForm from "@/components/repertoire/SetlistForm";
+import SongImport from "@/components/repertoire/SongImport"; // Added import for SongImport
 
 export default function RepertoirePage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -18,6 +20,7 @@ export default function RepertoirePage() {
   const [genreFilter, setGenreFilter] = useState("alle");
   const [showSongForm, setShowSongForm] = useState(false);
   const [showSetlistForm, setShowSetlistForm] = useState(false);
+  const [showImport, setShowImport] = useState(false); // Added showImport state
   const [editingSong, setEditingSong] = useState(null);
   const [editingSetlist, setEditingSetlist] = useState(null);
   const queryClient = useQueryClient();
@@ -110,6 +113,12 @@ export default function RepertoirePage() {
     }
   };
 
+  // Added handleImportSuccess function
+  const handleImportSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['songs'] });
+    setShowImport(false);
+  };
+
   const filteredSongs = songs.filter(s => {
     const matchesSearch = s.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -169,7 +178,10 @@ export default function RepertoirePage() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowImport(true)} // Updated onClick handler
+                >
                   <Upload className="w-4 h-4 mr-2" />
                   Importieren
                 </Button>
@@ -185,6 +197,15 @@ export default function RepertoirePage() {
                 </Button>
               </div>
             </div>
+
+            {/* Import Component */}
+            {showImport && (
+              <SongImport
+                onClose={() => setShowImport(false)}
+                onSuccess={handleImportSuccess}
+                orgId={currentOrgId}
+              />
+            )}
 
             {/* Song Form */}
             {showSongForm && (
@@ -353,7 +374,6 @@ export default function RepertoirePage() {
               </Button>
             </div>
 
-            {/* Setlist Form */}
             {showSetlistForm && (
               <SetlistForm
                 setlist={editingSetlist}
