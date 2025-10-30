@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, X } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 
 export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunden = [], events = [], vorlagen = [] }) {
   const [formData, setFormData] = useState(vertrag || {
@@ -19,7 +20,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
     unterzeichnen_bis: "",
     eventinformationen_anzeigen: true,
     im_kundenportal_sichtbar: true,
-    notizen: ""
+    notizen: "",
+    vorlage_id: ""
   });
 
   const [alsVorlageSpeichern, setAlsVorlageSpeichern] = useState(false);
@@ -33,12 +35,72 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleVorlageSelect = (vorlageId) => {
+  const handleVorlageSelect = async (vorlageId) => {
     if (!vorlageId) return;
+    
     const vorlage = vorlagen.find(v => v.id === vorlageId);
-    if (vorlage) {
-      handleChange('inhalt', vorlage.inhalt);
+    if (!vorlage) return;
+
+    // Verwendungszähler erhöhen
+    await base44.entities.Vertragsvorlage.update(vorlageId, {
+      verwendungen: (vorlage.verwendungen || 0) + 1
+    });
+
+    // Platzhalter ersetzen
+    let inhalt = vorlage.inhalt;
+    
+    // Kunde-Daten
+    if (formData.kunde_id) {
+      const kunde = kunden.find(k => k.id === formData.kunde_id);
+      if (kunde) {
+        inhalt = inhalt.replace(/\{\{kunde_name\}\}/g, kunde.firmenname || '');
+        inhalt = inhalt.replace(/\{\{kunde_adresse\}\}/g, kunde.adresse || '');
+      }
     }
+
+    // Event-Daten
+    if (formData.event_id) {
+      const event = events.find(e => e.id === formData.event_id);
+      if (event) {
+        inhalt = inhalt.replace(/\{\{event_titel\}\}/g, event.titel || '');
+        
+        if (event.datum_von) {
+          const datum = new Date(event.datum_von);
+          const formatiertesDatum = datum.toLocaleDateString('de-DE', { 
+            day: '2-digit', 
+            month: 'long', 
+            year: 'numeric' 
+          });
+          inhalt = inhalt.replace(/\{\{event_datum\}\}/g, formatiertesDatum);
+        }
+        
+        inhalt = inhalt.replace(/\{\{event_ort\}\}/g, event.ort_name || event.ort_adresse || '');
+      }
+    }
+
+    // Organisation-Daten
+    const orgId = localStorage.getItem('currentOrgId');
+    if (orgId) {
+      try {
+        const orgs = await base44.entities.Organisation.filter({ id: orgId });
+        if (orgs.length > 0) {
+          inhalt = inhalt.replace(/\{\{organisation_name\}\}/g, orgs[0].name || '');
+        }
+      } catch (error) {
+        console.error("Fehler beim Laden der Organisation:", error);
+      }
+    }
+
+    // Heutiges Datum
+    const heute = new Date().toLocaleDateString('de-DE', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    inhalt = inhalt.replace(/\{\{datum_heute\}\}/g, heute);
+
+    handleChange('inhalt', inhalt);
+    handleChange('vorlage_id', vorlageId);
   };
 
   const modules = {
@@ -86,25 +148,6 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               >
                 Als Vorlage speichern
               </label>
-            </div>
-          )}
-
-          {/* Vorlage auswählen */}
-          {vorlagen.length > 0 && !vertrag && (
-            <div className="space-y-2">
-              <Label>Vorlage verwenden (optional)</Label>
-              <Select onValueChange={handleVorlageSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Vorlage auswählen..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {vorlagen.map(v => (
-                    <SelectItem key={v.id} value={v.id}>
-                      {v.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           )}
 
@@ -163,6 +206,28 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               </Select>
             </div>
           </div>
+
+          {/* Vorlage auswählen - NACH Kunde & Event */}
+          {vorlagen.length > 0 && !vertrag && (
+            <div className="space-y-2">
+              <Label>Vorlage verwenden (optional)</Label>
+              <Select onValueChange={handleVorlageSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Vorlage auswählen..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {vorlagen.map(v => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                💡 Tipp: Wähle zuerst Kunde und Event aus, damit die Platzhalter automatisch ersetzt werden
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Unterzeichnen bis */}
