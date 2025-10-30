@@ -69,21 +69,34 @@ export default function LeadsPage() {
   });
 
   const filteredLeads = leads.filter(l => {
-    const matchesSearch = l.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         l.firmenname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         l.kontaktperson?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = 
+      l.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.firmenname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.kontaktperson?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "alle" || l.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+  // Note: The following variables (offeneLeads, ueberfaelligeLeads, bezahlteLeads)
+  // are defined in the outline but not used in the final return JSX structure.
+  // They are kept as per the outline's instruction.
+  const offeneLeads = filteredLeads.filter(l => 
+    ['versendet', 'teilweise_bezahlt'].includes(l.status)
+  );
+  const ueberfaelligeLeads = filteredLeads.filter(l => 
+    l.status === 'überfällig' || 
+    (l.status === 'versendet' && new Date(l.faelligkeitsdatum) < new Date())
+  );
+  const bezahlteLeads = filteredLeads.filter(l => l.status === 'bezahlt');
+
   const statusColors = {
-    neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
-    kontaktiert: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
-    qualifiziert: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
-    angebot: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-200" },
-    verhandlung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-200" },
-    gewonnen: { bg: "bg-green-100", text: "text-green-800", border: "border-green-200" },
-    verloren: { bg: "bg-red-100", text: "text-red-800", border: "border-red-200" }
+    neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    kontaktiert: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
+    qualifiziert: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400" },
+    angebot: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400" },
+    verhandlung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400", borderClass: "border-l-yellow-400" },
+    gewonnen: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500" },
+    verloren: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400" }
   };
 
   const statusLabels = {
@@ -126,8 +139,7 @@ export default function LeadsPage() {
 
     return (
       <Card 
-        className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4"
-        style={{ borderLeftColor: statusStyle.border.replace('border-', '#') }}
+        className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
         onClick={() => handleCardClick(lead.id)}
       >
         <CardHeader className="pb-4">
@@ -241,7 +253,7 @@ export default function LeadsPage() {
 
     return (
       <div 
-        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer"
+        className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
         onClick={() => handleCardClick(lead.id)}
       >
         <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
@@ -364,7 +376,6 @@ export default function LeadsPage() {
           </Button>
         </div>
 
-        {/* Statistiken */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-none shadow-lg">
             <CardContent className="p-6">
@@ -423,7 +434,6 @@ export default function LeadsPage() {
           </Card>
         </div>
 
-        {/* Suche & Filter */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex gap-4">
@@ -473,7 +483,6 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
-        {/* Lead Form */}
         {showForm && (
           <div className="mb-6">
             <LeadForm
@@ -488,7 +497,6 @@ export default function LeadsPage() {
           </div>
         )}
 
-        {/* Leads Grid/List */}
         {filteredLeads.length > 0 ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
