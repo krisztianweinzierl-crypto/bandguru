@@ -423,6 +423,7 @@ export default function LeadsPage() {
           </Card>
         </div>
 
+        {/* Suche & Filter */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex gap-4">
@@ -472,6 +473,7 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
+        {/* Lead Form */}
         {showForm && (
           <div className="mb-6">
             <LeadForm
@@ -486,6 +488,7 @@ export default function LeadsPage() {
           </div>
         )}
 
+        {/* Leads Grid/List */}
         {filteredLeads.length > 0 ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
