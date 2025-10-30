@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -18,7 +19,8 @@ import {
   Menu,
   LogOut,
   Settings,
-  Check
+  Check,
+  CalendarDays // Added CalendarDays icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -105,6 +107,7 @@ export default function Layout({ children, currentPageName }) {
 
   const managerNavItems = [
     { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays }, // New item for manager
     { title: "Events", url: createPageUrl("Events"), icon: Calendar },
     { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
     { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
@@ -116,6 +119,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const musikerNavItems = [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays }, // New item for musician
     { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar },
     { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
     { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
