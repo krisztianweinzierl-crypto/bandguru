@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ export default function KundenPage() {
   const [editingKunde, setEditingKunde] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
   const queryClient = useQueryClient();
 
   useEffect(() => {
