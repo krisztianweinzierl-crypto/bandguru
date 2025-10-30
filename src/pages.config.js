@@ -13,6 +13,7 @@ import KundenDetail from './pages/KundenDetail';
 import Aufgaben from './pages/Aufgaben';
 import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
+import Repertoire from './pages/Repertoire';
 import Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "Aufgaben": Aufgaben,
     "Leads": Leads,
     "LeadDetail": LeadDetail,
+    "Repertoire": Repertoire,
 }
 
 export const pagesConfig = {
