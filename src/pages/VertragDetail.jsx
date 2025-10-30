@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +17,9 @@ import {
   PenTool,
   X,
   Check,
-  Trash2
+  Trash2,
+  ExternalLink,
+  Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +40,7 @@ export default function VertragDetailPage() {
   const [showUnterschriftModal, setShowUnterschriftModal] = useState(false);
   const [unterschriftTyp, setUnterschriftTyp] = useState(null); // 'kunde' oder 'organisation'
   const [unterschriftName, setUnterschriftName] = useState("");
+  const [copiedLink, setCopiedLink] = useState(false);
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
@@ -98,13 +102,16 @@ export default function VertragDetailPage() {
         throw new Error("Kunde hat keine E-Mail-Adresse");
       }
 
+      const kundenLink = `${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`;
+
       const emailBody = `Sehr geehrte Damen und Herren,
 
 anbei erhalten Sie den Vertrag "${vertrag.titel}" zur Durchsicht und Unterschrift.
 
 ${vertrag.unterzeichnen_bis ? `Bitte unterzeichnen Sie den Vertrag bis zum ${format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}.` : ''}
 
-Sie können den Vertrag online einsehen und unterzeichnen.
+Sie können den Vertrag online einsehen und unterzeichnen unter:
+${kundenLink}
 
 Mit freundlichen Grüßen
 Ihr Team`;
@@ -242,7 +249,121 @@ Ihr Team`;
   };
 
   const handleDownloadPDF = () => {
-    alert("PDF-Download wird in Kürze verfügbar sein");
+    // PDF-Generierung vorbereiten
+    const printWindow = window.open('', '_blank');
+    const vertragHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${vertrag.titel}</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px; 
+            max-width: 800px; 
+            margin: 0 auto;
+          }
+          h1 { color: #333; margin-bottom: 10px; }
+          .header { margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+          .content { margin-bottom: 40px; line-height: 1.6; }
+          .signature-section { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 60px; 
+            page-break-inside: avoid;
+          }
+          .signature-box { 
+            width: 45%; 
+            border: 2px solid #ddd; 
+            padding: 20px; 
+            border-radius: 8px;
+          }
+          .signature-box h3 { margin-top: 0; margin-bottom: 15px; }
+          .signature-img { 
+            width: 100%; 
+            height: 100px; 
+            object-fit: contain; 
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+          }
+          .signature-info { font-size: 14px; color: #666; }
+          .event-info {
+            background: #f0f7ff;
+            padding: 20px;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 30px;
+            border-radius: 4px;
+          }
+          @media print {
+            body { padding: 20px; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${vertrag.titel}</h1>
+          ${vertrag.vertragsnummer ? `<p><strong>Vertragsnummer:</strong> ${vertrag.vertragsnummer}</p>` : ''}
+          <p><strong>Status:</strong> ${statusColors[vertrag.status]?.label || 'Unbekannt'}</p>
+        </div>
+
+        ${vertrag.eventinformationen_anzeigen && event ? `
+          <div class="event-info">
+            <h3>Event-Details</h3>
+            <p><strong>Datum:</strong> ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</p>
+            ${event.ort_name ? `<p><strong>Ort:</strong> ${event.ort_name}</p>` : ''}
+            ${event.ort_adresse ? `<p><strong>Adresse:</strong> ${event.ort_adresse}</p>` : ''}
+          </div>
+        ` : ''}
+
+        <div class="content">
+          ${vertrag.inhalt}
+        </div>
+
+        <div class="signature-section">
+          <div class="signature-box">
+            <h3>Kunde</h3>
+            ${vertrag.unterschrift_kunde ? `
+              <img src="${vertrag.unterschrift_kunde}" alt="Unterschrift Kunde" class="signature-img" />
+              <div class="signature-info">
+                <p><strong>${vertrag.unterschrift_kunde_name}</strong></p>
+                <p>${format(new Date(vertrag.unterschrift_kunde_datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
+              </div>
+            ` : '<p style="color: #999; font-style: italic;">Noch nicht unterzeichnet</p>'}
+          </div>
+
+          <div class="signature-box">
+            <h3>Organisation</h3>
+            ${vertrag.unterschrift_organisation ? `
+              <img src="${vertrag.unterschrift_organisation}" alt="Unterschrift Organisation" class="signature-img" />
+              <div class="signature-info">
+                <p><strong>${vertrag.unterschrift_organisation_name}</strong></p>
+                <p>${format(new Date(vertrag.unterschrift_organisation_datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
+              </div>
+            ` : '<p style="color: #999; font-style: italic;">Noch nicht unterzeichnet</p>'}
+          </div>
+        </div>
+
+        <div class="no-print" style="margin-top: 40px; text-align: center;">
+          <button onclick="window.print()" style="padding: 12px 24px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px;">
+            Als PDF drucken
+          </button>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(vertragHTML);
+    printWindow.document.close();
+  };
+
+  const copyKundenLink = () => {
+    const kundenLink = `${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`;
+    navigator.clipboard.writeText(kundenLink);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   if (isLoading || !vertrag) {
@@ -488,6 +609,41 @@ Ihr Team`;
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Kundenportal-Link */}
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-lg font-bold">Kundenportal-Link</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-3">
+                <p className="text-sm text-gray-600">
+                  Teile diesen Link mit dem Kunden zum Unterschreiben:
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={`${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`}
+                    readOnly
+                    className="text-sm"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={copyKundenLink}
+                  >
+                    {copiedLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2"
+                  onClick={() => window.open(`${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`, '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Kundenansicht öffnen
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Details */}
             <Card className="border-none shadow-lg">
               <CardHeader className="border-b">

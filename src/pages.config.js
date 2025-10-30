@@ -19,6 +19,7 @@ import Kalender from './pages/Kalender';
 import Vertraege from './pages/Vertraege';
 import VertragDetail from './pages/VertragDetail';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
+import VertragKundenansicht from './pages/VertragKundenansicht';
 import Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "Vertraege": Vertraege,
     "VertragDetail": VertragDetail,
     "Vertragsvorlagen": Vertragsvorlagen,
+    "VertragKundenansicht": VertragKundenansicht,
 }
 
 export const pagesConfig = {
