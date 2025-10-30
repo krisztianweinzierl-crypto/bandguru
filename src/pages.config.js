@@ -16,6 +16,7 @@ import LeadDetail from './pages/LeadDetail';
 import Repertoire from './pages/Repertoire';
 import Nachrichten from './pages/Nachrichten';
 import Kalender from './pages/Kalender';
+import Vertraege from './pages/Vertraege';
 import Layout from './Layout.jsx';
 
 
@@ -38,6 +39,7 @@ export const PAGES = {
     "Repertoire": Repertoire,
     "Nachrichten": Nachrichten,
     "Kalender": Kalender,
+    "Vertraege": Vertraege,
 }
 
 export const pagesConfig = {
