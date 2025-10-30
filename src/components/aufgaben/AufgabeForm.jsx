@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Plus, Trash2 } from "lucide-react";
+import { X, Save, Plus, Trash2, GripVertical } from "lucide-react";
 
 export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, hauptAufgaben }) {
   const [formData, setFormData] = useState(aufgabe || {
@@ -21,7 +21,6 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   });
 
   const [unteraufgaben, setUnteraufgaben] = useState([]);
-  const [showUnteraufgaben, setShowUnteraufgaben] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -173,62 +172,70 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label>Unteraufgaben</Label>
-                {!showUnteraufgaben && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowUnteraufgaben(true)}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Unteraufgaben hinzufügen
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addUnteraufgabe}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Unteraufgabe hinzufügen
+                </Button>
               </div>
 
-              {showUnteraufgaben && (
-                <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
+              {unteraufgaben.length > 0 && (
+                <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
                   {unteraufgaben.map((unteraufgabe, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={unteraufgabe.titel}
-                        onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
-                        placeholder="Unteraufgabe..."
-                        className="flex-1"
-                      />
-                      <Select 
-                        value={unteraufgabe.prioritaet} 
-                        onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="niedrig">Niedrig</SelectItem>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="hoch">Hoch</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div key={index} className="flex gap-2 items-start">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div className="md:col-span-2">
+                          <Input
+                            value={unteraufgabe.titel}
+                            onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
+                            placeholder={`Unteraufgabe ${index + 1}...`}
+                          />
+                        </div>
+                        <Select 
+                          value={unteraufgabe.prioritaet} 
+                          onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="niedrig">Niedrig</SelectItem>
+                            <SelectItem value="normal">Normal</SelectItem>
+                            <SelectItem value="hoch">Hoch</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => removeUnteraufgabe(index)}
+                        className="text-red-600 hover:text-red-700"
                       >
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   ))}
-                  
+                </div>
+              )}
+
+              {unteraufgaben.length === 0 && (
+                <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                  <p className="text-sm text-gray-500 mb-2">Noch keine Unteraufgaben</p>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addUnteraufgaben}
-                    className="w-full"
+                    onClick={addUnteraufgabe}
+                    className="gap-2"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Weitere Unteraufgabe
+                    <Plus className="w-4 h-4" />
+                    Erste Unteraufgabe hinzufügen
                   </Button>
                 </div>
               )}
