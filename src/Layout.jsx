@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -20,7 +19,8 @@ import {
   LogOut,
   Settings,
   Check,
-  CalendarDays // Added CalendarDays icon
+  CalendarDays,
+  ChevronRight
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +47,7 @@ export default function Layout({ children, currentPageName }) {
   const [organisations, setOrganisations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
+  const [expandedMenus, setExpandedMenus] = useState({});
 
   useEffect(() => {
     loadUserAndOrg();
@@ -57,7 +58,6 @@ export default function Layout({ children, currentPageName }) {
       const userData = await base44.auth.me();
       setUser(userData);
 
-      // Mitgliedschaften laden
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
@@ -65,7 +65,6 @@ export default function Layout({ children, currentPageName }) {
       setMitgliedschaften(mitglieder);
 
       if (mitglieder.length > 0) {
-        // Organisationen laden
         const orgIds = [...new Set(mitglieder.map(m => m.org_id))];
         const orgs = await Promise.all(
           orgIds.map(id => base44.entities.Organisation.filter({ id }))
@@ -73,18 +72,15 @@ export default function Layout({ children, currentPageName }) {
         const orgList = orgs.flat();
         setOrganisations(orgList);
 
-        // Aktuelle Organisation aus localStorage oder erste verwenden
         const savedOrgId = localStorage.getItem('currentOrgId');
         const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
         
         if (org) {
           localStorage.setItem('currentOrgId', org.id);
-          console.log("Organisation gesetzt:", org.id);
           setCurrentOrg(org);
         }
         setLoading(false);
       } else {
-        // Keine Organisation gefunden - zum Onboarding
         setLoading(false);
         window.location.href = createPageUrl('Onboarding');
       }
@@ -102,13 +98,26 @@ export default function Layout({ children, currentPageName }) {
     window.location.reload();
   };
 
+  const toggleMenu = (menuKey) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuKey]: !prev[menuKey]
+    }));
+  };
+
   const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrg?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
 
   const managerNavItems = [
     { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays }, // New item for manager
-    { title: "Events", url: createPageUrl("Events"), icon: Calendar },
+    { 
+      title: "Events", 
+      icon: Calendar,
+      submenu: [
+        { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+        { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }
+      ]
+    },
     { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
     { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
     { title: "Finanzen", url: createPageUrl("Finanzen"), icon: DollarSign },
@@ -119,14 +128,32 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const musikerNavItems = [
-    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays }, // New item for musician
-    { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar },
+    { 
+      title: "Events", 
+      icon: Calendar,
+      submenu: [
+        { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+        { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }
+      ]
+    },
     { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
     { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
     { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare },
   ];
 
   const navigationItems = isManager ? managerNavItems : musikerNavItems;
+
+  // Check if current page is in submenu
+  useEffect(() => {
+    navigationItems.forEach((item, index) => {
+      if (item.submenu) {
+        const isActive = item.submenu.some(sub => location.pathname === sub.url);
+        if (isActive && !expandedMenus[index]) {
+          setExpandedMenus(prev => ({ ...prev, [index]: true }));
+        }
+      }
+    });
+  }, [location.pathname]);
 
   if (loading) {
     return (
@@ -171,7 +198,6 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
 
-              {/* Organisation Switcher */}
               <div className="relative">
                 <Button 
                   variant="outline" 
@@ -236,19 +262,55 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {navigationItems.map((item) => (
+                  {navigationItems.map((item, index) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg mb-1 ${
-                          location.pathname === item.url ? 'bg-blue-50 text-blue-700' : ''
-                        }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
-                          <item.icon className="w-4 h-4" />
-                          <span className="font-medium">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
+                      {item.submenu ? (
+                        <>
+                          <button
+                            onClick={() => toggleMenu(index)}
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 ${
+                              item.submenu.some(sub => location.pathname === sub.url) ? 'bg-blue-50 text-blue-700' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <item.icon className="w-4 h-4" />
+                              <span className="font-medium">{item.title}</span>
+                            </div>
+                            <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
+                          </button>
+                          
+                          {expandedMenus[index] && (
+                            <div className="ml-4 mb-1 space-y-1">
+                              {item.submenu.map((subItem) => (
+                                <SidebarMenuButton
+                                  key={subItem.title}
+                                  asChild
+                                  className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
+                                    location.pathname === subItem.url ? 'bg-blue-50 text-blue-700' : ''
+                                  }`}
+                                >
+                                  <Link to={subItem.url} className="flex items-center gap-3 px-3 py-2">
+                                    <subItem.icon className="w-4 h-4" />
+                                    <span className="font-medium">{subItem.title}</span>
+                                  </Link>
+                                </SidebarMenuButton>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <SidebarMenuButton 
+                          asChild 
+                          className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg mb-1 ${
+                            location.pathname === item.url ? 'bg-blue-50 text-blue-700' : ''
+                          }`}
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
+                            <item.icon className="w-4 h-4" />
+                            <span className="font-medium">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      )}
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
