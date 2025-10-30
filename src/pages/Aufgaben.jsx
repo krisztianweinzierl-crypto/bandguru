@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,7 +11,6 @@ import {
   Calendar as CalendarIcon,
   User,
   AlertCircle,
-  ChevronDown,
   ChevronRight,
   MoreVertical,
   Edit,
@@ -187,7 +185,7 @@ export default function AufgabenPage() {
     const assignedMitglied = mitglieder.find(m => m.user_id === aufgabe.zugewiesen_an);
 
     return (
-      <div className={`${level > 0 ? 'ml-8' : ''}`}>
+      <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
         <div 
           className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
             aufgabe.status === 'erledigt' ? 'opacity-60' : ''
@@ -197,12 +195,12 @@ export default function AufgabenPage() {
           {hasUnteraufgaben ? (
             <button
               onClick={() => toggleExpand(aufgabe.id)}
-              className="mt-1 text-gray-400 hover:text-gray-600"
+              className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
             >
-              {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
             </button>
           ) : (
-            <div className="w-4" />
+            <div className="w-5" />
           )}
 
           {/* Checkbox */}
@@ -223,6 +221,11 @@ export default function AufgabenPage() {
               <div className="flex-1 min-w-0">
                 <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                   {aufgabe.titel}
+                  {hasUnteraufgaben && (
+                    <span className="ml-2 text-xs text-gray-500">
+                      ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                    </span>
+                  )}
                 </p>
                 {aufgabe.beschreibung && (
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
@@ -258,12 +261,6 @@ export default function AufgabenPage() {
                       <Clock className="w-3 h-3 mr-1" />
                       In Arbeit
                     </Badge>
-                  )}
-
-                  {hasUnteraufgaben && (
-                    <span className="text-xs text-gray-500">
-                      {unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length} Unteraufgaben
-                    </span>
                   )}
                 </div>
               </div>
