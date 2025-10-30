@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -20,7 +21,8 @@ import {
   Settings,
   Check,
   CalendarDays,
-  ChevronRight
+  ChevronRight,
+  FileSignature
 } from "lucide-react";
 import {
   Sidebar,
@@ -120,6 +122,7 @@ export default function Layout({ children, currentPageName }) {
     },
     { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
     { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
+    { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
     { title: "Finanzen", url: createPageUrl("Finanzen"), icon: DollarSign },
     { title: "Leads", url: createPageUrl("Leads"), icon: Target },
     { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
