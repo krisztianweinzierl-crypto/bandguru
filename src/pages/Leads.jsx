@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Target, Mail, Phone, Calendar, DollarSign, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp } from "lucide-react";
+import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [viewMode, setViewMode] = useState("grid");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function LeadsPage() {
           )}
           {lead.erwarteter_umsatz && (
             <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-              <DollarSign className="w-4 h-4" />
+              <Euro className="w-4 h-4" />
               <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
             </div>
           )}
@@ -327,7 +328,7 @@ export default function LeadsPage() {
             )}
             {lead.erwarteter_umsatz && (
               <div className="flex items-center gap-1 font-medium text-green-600">
-                <DollarSign className="w-4 h-4" />
+                <Euro className="w-4 h-4" />
                 <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
               </div>
             )}
@@ -397,7 +398,7 @@ export default function LeadsPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-100 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                  <Euro className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Gewonnene</p>
@@ -411,7 +412,7 @@ export default function LeadsPage() {
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-purple-100 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-purple-600" />
+                  <Euro className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Umsatzpotenzial</p>
@@ -422,7 +423,6 @@ export default function LeadsPage() {
           </Card>
         </div>
 
-        {/* Suche & Filter */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex gap-4">
@@ -472,7 +472,6 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
-        {/* Lead Form */}
         {showForm && (
           <div className="mb-6">
             <LeadForm
@@ -487,7 +486,6 @@ export default function LeadsPage() {
           </div>
         )}
 
-        {/* Leads Grid/List */}
         {filteredLeads.length > 0 ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
