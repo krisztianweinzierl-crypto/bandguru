@@ -23,9 +23,14 @@ import {
   Circle,
   CheckCircle2,
   AlertCircle,
-  ChevronRight, // Added
-  MoreVertical, // Added
-  Trash2 // Added
+  ChevronRight,
+  MoreVertical,
+  Trash2,
+  Upload, // Added
+  File, // Added
+  Download, // Added
+  Eye, // Added
+  X // Added - not used but added as per outline
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +42,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import AufgabeForm from "@/components/aufgaben/AufgabeForm"; // Added
+import AufgabeForm from "@/components/aufgaben/AufgabeForm";
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -47,9 +52,13 @@ export default function LeadDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [showAufgabeForm, setShowAufgabeForm] = useState(false);
-  const [editingAufgabe, setEditingAufgabe] = useState(null); // Added
-  const [expandedTasks, setExpandedTasks] = useState({}); // Added
-  const [showDropdownId, setShowDropdownId] = useState(null); // Added
+  const [editingAufgabe, setEditingAufgabe] = useState(null);
+  const [expandedTasks, setExpandedTasks] = useState({});
+  const [showDropdownId, setShowDropdownId] = useState(null);
+  const [uploadingFile, setUploadingFile] = useState(false); // Added
+  const [fileDescription, setFileDescription] = useState(""); // Added
+  const [fileKategorie, setFileKategorie] = useState("sonstiges"); // Added
+  const [showFileDropdownId, setShowFileDropdownId] = useState(null); // Added
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead', leadId],
@@ -71,6 +80,16 @@ export default function LeadDetailPage() {
     queryFn: () => base44.entities.Aufgabe.filter({ 
       org_id: lead.org_id,
       bezug_typ: 'frei',
+      bezug_id: leadId
+    }, '-created_date'),
+    enabled: !!lead?.org_id && !!leadId,
+  });
+
+  const { data: dateien = [] } = useQuery({ // Added
+    queryKey: ['leadDateien', leadId, lead?.org_id],
+    queryFn: () => base44.entities.Datei.filter({
+      org_id: lead.org_id,
+      bezug_typ: 'lead',
       bezug_id: leadId
     }, '-created_date'),
     enabled: !!lead?.org_id && !!leadId,
@@ -193,6 +212,90 @@ export default function LeadDetailPage() {
     },
   });
 
+  const deleteDateiMutation = useMutation({ // Added
+    mutationFn: (id) => base44.entities.Datei.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leadDateien'] });
+      setShowFileDropdownId(null);
+    },
+  });
+
+  const handleFileUpload = async (event) => { // Added
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    try {
+      // 1. Datei hochladen
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
+      
+      // 2. Datei-Eintrag in DB erstellen
+      await base44.entities.Datei.create({
+        org_id: lead.org_id,
+        file_url: uploadResult.file_url,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        bezug_typ: 'lead',
+        bezug_id: leadId,
+        beschreibung: fileDescription,
+        kategorie: fileKategorie
+      });
+
+      // 3. State zurücksetzen und Liste neu laden
+      queryClient.invalidateQueries({ queryKey: ['leadDateien'] });
+      setFileDescription("");
+      setFileKategorie("sonstiges");
+      event.target.value = ""; // Clear the file input
+    } catch (error) {
+      console.error("Fehler beim Hochladen:", error);
+      alert("Fehler beim Hochladen der Datei: " + error.message);
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const handleDeleteFile = (datei) => { // Added
+    if (confirm(`Möchtest du die Datei "${datei.file_name}" wirklich löschen?`)) {
+      deleteDateiMutation.mutate(datei.id);
+    }
+  };
+
+  const getFileIcon = (fileType) => { // Added
+    if (fileType?.startsWith('image/')) return '🖼️';
+    if (fileType?.includes('pdf')) return '📄';
+    if (fileType?.includes('word') || fileType?.includes('document')) return '📝';
+    if (fileType?.includes('excel') || fileType?.includes('spreadsheet')) return '📊';
+    if (fileType?.includes('zip') || fileType?.includes('rar')) return '🗜️';
+    return '📎';
+  };
+
+  const formatFileSize = (bytes) => { // Added
+    if (!bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const kategorieLabels = { // Added
+    vertrag: "Vertrag",
+    angebot: "Angebot", 
+    rechnung: "Rechnung",
+    technische_unterlagen: "Technische Unterlagen",
+    bilder: "Bilder",
+    sonstiges: "Sonstiges"
+  };
+
+  const kategorieBadges = { // Added
+    vertrag: "bg-blue-100 text-blue-800",
+    angebot: "bg-purple-100 text-purple-800",
+    rechnung: "bg-green-100 text-green-800",
+    technische_unterlagen: "bg-orange-100 text-orange-800",
+    bilder: "bg-pink-100 text-pink-800",
+    sonstiges: "bg-gray-100 text-gray-800"
+  };
+
   const handleStatusChange = (newStatus) => {
     updateLeadMutation.mutate({ ...lead, status: newStatus });
   };
@@ -307,7 +410,7 @@ export default function LeadDetailPage() {
     const hasUnteraufgaben = unteraufgaben.length > 0;
     const isExpanded = expandedTasks[aufgabe.id];
     const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
-    const assignedMitgliedForTask = mitglieder.find(m => m.id === aufgabe.zugewiesen_an); // Corrected to use member id
+    const assignedMitgliedForTask = mitglieder.find(m => m.user_id === aufgabe.zugewiesen_an); // Corrected to use member id
 
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
@@ -701,8 +804,15 @@ export default function LeadDetailPage() {
                     </Badge>
                   )}
                 </TabsTrigger>
+                <TabsTrigger value="dateien"> {/* Modified */}
+                  Dateien
+                  {dateien.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {dateien.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="emails">E-Mails</TabsTrigger>
-                <TabsTrigger value="dateien">Dateien</TabsTrigger>
                 <TabsTrigger value="verlauf">Verlauf</TabsTrigger>
               </TabsList>
 
@@ -821,18 +931,169 @@ export default function LeadDetailPage() {
                 </Card>
               </TabsContent>
 
+              {/* Dateien Tab - Added */}
+              <TabsContent value="dateien">
+                <Card className="border-none shadow-lg">
+                  <CardHeader className="border-b">
+                    <CardTitle>Dateien hochladen</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fileKategorie">Kategorie</Label>
+                          <Select value={fileKategorie} onValueChange={setFileKategorie}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Kategorie wählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="vertrag">Vertrag</SelectItem>
+                              <SelectItem value="angebot">Angebot</SelectItem>
+                              <SelectItem value="rechnung">Rechnung</SelectItem>
+                              <SelectItem value="technische_unterlagen">Technische Unterlagen</SelectItem>
+                              <SelectItem value="bilder">Bilder</SelectItem>
+                              <SelectItem value="sonstiges">Sonstiges</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="fileDescription">Beschreibung (optional)</Label>
+                          <Input
+                            id="fileDescription"
+                            value={fileDescription}
+                            onChange={(e) => setFileDescription(e.target.value)}
+                            placeholder="z.B. Vertragsentwurf vom 15.10."
+                          />
+                        </div>
+                      </div>
+
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          id="file-upload"
+                          className="hidden"
+                          onChange={handleFileUpload}
+                          disabled={uploadingFile}
+                        />
+                        <label
+                          htmlFor="file-upload"
+                          className="cursor-pointer flex flex-col items-center"
+                        >
+                          <Upload className="w-12 h-12 text-gray-400 mb-4" />
+                          <p className="text-sm font-medium text-gray-700 mb-2">
+                            {uploadingFile ? "Lädt hoch..." : "Klicke zum Hochladen oder ziehe Dateien hierher"}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            PDF, Word, Excel, Bilder und mehr (max. 10MB)
+                          </p>
+                        </label>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {dateien.length > 0 && (
+                  <Card className="border-none shadow-lg mt-6">
+                    <CardHeader className="border-b">
+                      <CardTitle>Hochgeladene Dateien ({dateien.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="divide-y">
+                        {dateien.map((datei) => (
+                          <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                            <div className="text-3xl">{getFileIcon(datei.file_type)}</div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
+                                <Badge className={`${kategorieBadges[datei.kategorie]} text-xs`}>
+                                  {kategorieLabels[datei.kategorie]}
+                                </Badge>
+                              </div>
+                              
+                              {datei.beschreibung && (
+                                <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
+                              )}
+                              
+                              <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                <span>{formatFileSize(datei.file_size)}</span>
+                                <span>•</span>
+                                <span>{format(new Date(datei.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={datei.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Öffnen"
+                              >
+                                <Eye className="w-4 h-4 text-gray-600" />
+                              </a>
+                              
+                              <a
+                                href={datei.file_url}
+                                download={datei.file_name}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Herunterladen"
+                              >
+                                <Download className="w-4 h-4 text-gray-600" />
+                              </a>
+
+                              <div className="relative">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => setShowFileDropdownId(showFileDropdownId === datei.id ? null : datei.id)}
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+
+                                {showFileDropdownId === datei.id && (
+                                  <>
+                                    <div 
+                                      className="fixed inset-0 z-40" 
+                                      onClick={() => setShowFileDropdownId(null)}
+                                    />
+                                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                                      <button
+                                        onClick={() => handleDeleteFile(datei)}
+                                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                        Löschen
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {dateien.length === 0 && !uploadingFile && (
+                  <Card className="border-dashed border-2 mt-6">
+                    <CardContent className="p-12 text-center">
+                      <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
+                      <p className="text-gray-500">Lade die erste Datei für diesen Lead hoch</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
               <TabsContent value="emails">
                 <Card className="border-none shadow-lg">
                   <CardContent className="p-12 text-center">
                     <p className="text-gray-500">E-Mail-Feature kommt bald...</p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="dateien">
-                <Card className="border-none shadow-lg">
-                  <CardContent className="p-12 text-center">
-                    <p className="text-gray-500">Dateien-Feature kommt bald...</p>
                   </CardContent>
                 </Card>
               </TabsContent>
