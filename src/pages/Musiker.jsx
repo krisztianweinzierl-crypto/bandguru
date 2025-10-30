@@ -4,12 +4,12 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, Mail, Phone, DollarSign, Languages, Tag, MoreVertical, Edit, Send, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, Music, Mail, Phone, Euro, Edit, Trash2, MoreVertical, LayoutGrid, List, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MusikerForm from "@/components/musiker/MusikerForm";
 
 export default function MusikerPage() {
@@ -18,6 +18,7 @@ export default function MusikerPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingMusiker, setEditingMusiker] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [instrumentFilter, setInstrumentFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
   const queryClient = useQueryClient();
@@ -26,18 +27,9 @@ export default function MusikerPage() {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
-  const { data: musiker = [], isLoading } = useQuery({
+  const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', currentOrgId],
-    queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
-  });
-
-  const { data: organisation } = useQuery({
-    queryKey: ['organisation', currentOrgId],
-    queryFn: async () => {
-      const orgs = await base44.entities.Organisation.filter({ id: currentOrgId });
-      return orgs[0];
-    },
+    queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }, '-created_date'),
     enabled: !!currentOrgId,
   });
 
@@ -56,37 +48,29 @@ export default function MusikerPage() {
       queryClient.invalidateQueries({ queryKey: ['musiker'] });
       setShowForm(false);
       setEditingMusiker(null);
-    },
-  });
-
-  const sendInvitationMutation = useMutation({
-    mutationFn: async (musiker) => {
-      if (!musiker.email) {
-        throw new Error("Musiker hat keine E-Mail-Adresse");
-      }
-      
-      await base44.integrations.Core.SendEmail({
-        to: musiker.email,
-        subject: `Einladung zu ${organisation.name} auf Bandguru`,
-        body: `Hallo ${musiker.name},\n\ndu wurdest eingeladen, ${organisation.name} auf Bandguru als Musiker beizutreten.\n\nBitte melde dich an unter: ${window.location.origin}\n\nViele Grüße\n${organisation.name}`
-      });
-    },
-    onSuccess: (_, musiker) => {
-      alert(`Einladung wurde an ${musiker.email} versendet!`);
       setShowDropdownId(null);
     },
-    onError: (error) => {
-      alert("Fehler beim Versenden der Einladung: " + error.message);
-    }
   });
 
-  const filteredMusiker = musiker.filter(m => 
-    m.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.instrumente?.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const deleteMusikerMutation = useMutation({
+    mutationFn: (id) => base44.entities.Musiker.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['musiker'] });
+      setShowDropdownId(null);
+    },
+  });
 
-  const activeMusiker = filteredMusiker.filter(m => m.aktiv);
-  const inactiveMusiker = filteredMusiker.filter(m => !m.aktiv);
+  const filteredMusiker = musiker.filter(m => {
+    const matchesSearch = m.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          m.instrumente?.some(i => i.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                          false; // Ensure boolean
+    const matchesInstrument = instrumentFilter === "alle" || 
+                              m.instrumente?.includes(instrumentFilter) ||
+                              false; // Ensure boolean
+    return matchesSearch && matchesInstrument;
+  });
+
+  const allInstrumente = [...new Set(musiker.flatMap(m => m.instrumente || []))].sort();
 
   const handleSubmit = (data) => {
     if (editingMusiker) {
@@ -102,9 +86,9 @@ export default function MusikerPage() {
     setShowDropdownId(null);
   };
 
-  const handleSendInvitation = (musiker) => {
-    if (confirm(`Möchtest du wirklich eine Einladung an ${musiker.email} senden?`)) {
-      sendInvitationMutation.mutate(musiker);
+  const handleDelete = (musiker) => {
+    if (confirm(`Möchtest du ${musiker.name} wirklich löschen?`)) {
+      deleteMusikerMutation.mutate(musiker.id);
     }
   };
 
@@ -124,18 +108,23 @@ export default function MusikerPage() {
       >
         <CardHeader className="pb-4">
           <div className="flex items-start gap-4">
-            <Avatar className={`w-14 h-14 ${color} text-white text-lg font-bold`}>
-              <AvatarFallback className={color}>{initials}</AvatarFallback>
-            </Avatar>
+            <div className={`w-14 h-14 ${color} rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0`}>
+              {initials}
+            </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{musiker.name}</CardTitle>
               {musiker.instrumente && musiker.instrumente.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {musiker.instrumente.map((instrument, i) => (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {musiker.instrumente.slice(0, 2).map((instrument, i) => (
                     <Badge key={i} variant="secondary" className="text-xs">
                       {instrument}
                     </Badge>
                   ))}
+                  {musiker.instrumente.length > 2 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{musiker.instrumente.length - 2}
+                    </Badge>
+                  )}
                 </div>
               )}
             </div>
@@ -171,28 +160,20 @@ export default function MusikerPage() {
                       <Edit className="w-4 h-4 text-gray-600" />
                       <span className="text-sm font-medium">Musiker bearbeiten</span>
                     </button>
-                    
-                    {musiker.email && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSendInvitation(musiker);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-100"
-                      >
-                        <Send className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium">Einladung zur Organisation senden</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(musiker);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm font-medium">Musiker löschen</span>
+                    </button>
                   </div>
                 </>
               )}
             </div>
-            {!musiker.aktiv && (
-              <Badge variant="outline" className="bg-gray-100 absolute top-4 right-4">
-                Inaktiv
-              </Badge>
-            )}
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
@@ -209,9 +190,9 @@ export default function MusikerPage() {
             </div>
           )}
           {musiker.tagessatz_netto && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <DollarSign className="w-4 h-4 text-gray-400" />
-              <span className="font-medium">{musiker.tagessatz_netto}€ / Tag</span>
+            <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+              <Euro className="w-4 h-4" />
+              <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / Tag</span>
             </div>
           )}
           {musiker.genre && musiker.genre.length > 0 && (
@@ -220,11 +201,8 @@ export default function MusikerPage() {
               <span className="truncate">{musiker.genre.join(', ')}</span>
             </div>
           )}
-          {musiker.sprachen && musiker.sprachen.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Languages className="w-4 h-4 text-gray-400" />
-              <span className="truncate">{musiker.sprachen.join(', ')}</span>
-            </div>
+          {!musiker.aktiv && (
+            <Badge variant="outline" className="mt-2 text-xs">Inaktiv</Badge>
           )}
         </CardContent>
       </Card>
@@ -241,9 +219,9 @@ export default function MusikerPage() {
         className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer"
         onClick={() => handleCardClick(musiker.id)}
       >
-        <Avatar className={`w-12 h-12 ${color} text-white text-lg font-bold flex-shrink-0`}>
-          <AvatarFallback className={color}>{initials}</AvatarFallback>
-        </Avatar>
+        <div className={`w-12 h-12 ${color} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}>
+          {initials}
+        </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-2">
@@ -259,6 +237,9 @@ export default function MusikerPage() {
                 </div>
               )}
             </div>
+            {!musiker.aktiv && (
+              <Badge variant="outline" className="flex-shrink-0 text-xs">Inaktiv</Badge>
+            )}
             <div className="relative flex-shrink-0">
               <Button 
                 variant="ghost" 
@@ -291,19 +272,16 @@ export default function MusikerPage() {
                       <Edit className="w-4 h-4 text-gray-600" />
                       <span className="text-sm font-medium">Musiker bearbeiten</span>
                     </button>
-                    
-                    {musiker.email && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSendInvitation(musiker);
-                        }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t border-gray-100"
-                      >
-                        <Send className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium">Einladung zur Organisation senden</span>
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(musiker);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm font-medium">Musiker löschen</span>
+                    </button>
                   </div>
                 </>
               )}
@@ -324,19 +302,18 @@ export default function MusikerPage() {
               </div>
             )}
             {musiker.tagessatz_netto && (
+              <div className="flex items-center gap-1 font-medium text-green-600">
+                <Euro className="w-4 h-4" />
+                <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / Tag</span>
+              </div>
+            )}
+            {musiker.genre && musiker.genre.length > 0 && (
               <div className="flex items-center gap-1">
-                <DollarSign className="w-4 h-4" />
-                <span className="font-medium">{musiker.tagessatz_netto}€ / Tag</span>
+                <Music className="w-4 h-4" />
+                <span className="truncate">{musiker.genre.join(', ')}</span>
               </div>
             )}
           </div>
-
-          {musiker.genre && musiker.genre.length > 0 && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-              <Music className="w-4 h-4" />
-              <span className="truncate">{musiker.genre.join(', ')}</span>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -348,7 +325,7 @@ export default function MusikerPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Musiker</h1>
-            <p className="text-gray-600">Verwalte deinen Musiker-Pool</p>
+            <p className="text-gray-600">Verwalte dein Musiker-Portfolio</p>
           </div>
           <Button 
             onClick={() => {
@@ -362,21 +339,31 @@ export default function MusikerPage() {
           </Button>
         </div>
 
-        {/* Suche & View Toggle */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
-            <div className="flex gap-4">
-              <div className="relative flex-1">
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="relative flex-1 min-w-[200px]">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
-                  placeholder="Musiker oder Instrument suchen..."
+                  placeholder="Musiker durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              
-              {/* View Mode Toggle */}
+              <Select value={instrumentFilter} onValueChange={setInstrumentFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Instrumente filtern" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alle">Alle Instrumente</SelectItem>
+                  {allInstrumente.map((instrument) => (
+                    <SelectItem key={instrument} value={instrument}>
+                      {instrument}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
@@ -399,10 +386,9 @@ export default function MusikerPage() {
           </CardContent>
         </Card>
 
-        {/* Musiker Form */}
         {showForm && (
           <div className="mb-6">
-            <MusikerForm 
+            <MusikerForm
               musiker={editingMusiker}
               onSubmit={handleSubmit}
               onCancel={() => {
@@ -413,30 +399,24 @@ export default function MusikerPage() {
           </div>
         )}
 
-        {/* Musiker Grid/List */}
-        {activeMusiker.length > 0 ? (
-          <>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Aktive Musiker ({activeMusiker.length})
-            </h2>
-            {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-                {activeMusiker.map((m) => (
-                  <MusikerCard key={m.id} musiker={m} />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3 mb-8">
-                {activeMusiker.map((m) => (
-                  <MusikerListItem key={m.id} musiker={m} />
-                ))}
-              </div>
-            )}
-          </>
-        ) : !showForm && (
-          <Card className="border-dashed mb-8">
+        {filteredMusiker.length > 0 ? (
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredMusiker.map((m) => (
+                <MusikerCard key={m.id} musiker={m} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredMusiker.map((m) => (
+                <MusikerListItem key={m.id} musiker={m} />
+              ))}
+            </div>
+          )
+        ) : (
+          <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Musiker gefunden</h3>
               <p className="text-gray-500 mb-4">Füge deinen ersten Musiker hinzu</p>
               <Button onClick={() => setShowForm(true)}>
@@ -445,27 +425,6 @@ export default function MusikerPage() {
               </Button>
             </CardContent>
           </Card>
-        )}
-
-        {inactiveMusiker.length > 0 && (
-          <>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 mt-8">
-              Inaktive Musiker ({inactiveMusiker.length})
-            </h2>
-            {viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {inactiveMusiker.map((m) => (
-                  <MusikerCard key={m.id} musiker={m} />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {inactiveMusiker.map((m) => (
-                  <MusikerListItem key={m.id} musiker={m} />
-                ))}
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>
