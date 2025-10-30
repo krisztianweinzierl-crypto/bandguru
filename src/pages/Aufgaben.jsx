@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -93,7 +94,27 @@ export default function AufgabenPage() {
   });
 
   const updateAufgabeMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Aufgabe.update(id, data),
+    mutationFn: async ({ id, data, unteraufgaben }) => {
+      // 1. Hauptaufgabe updaten
+      await base44.entities.Aufgabe.update(id, data);
+      
+      // 2. Neue Unteraufgaben erstellen (falls vorhanden)
+      if (unteraufgaben && unteraufgaben.length > 0) {
+        const unteraufgabenData = unteraufgaben
+          .filter(u => u.titel && u.titel.trim())
+          .map(u => ({
+            titel: u.titel,
+            prioritaet: u.prioritaet || 'normal',
+            status: 'offen',
+            org_id: currentOrgId,
+            parent_task_id: id
+          }));
+        
+        if (unteraufgabenData.length > 0) {
+          await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
+        }
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
       setShowForm(false);
@@ -112,8 +133,8 @@ export default function AufgabenPage() {
 
   const handleSubmit = (hauptaufgabe, unteraufgaben = []) => {
     if (editingAufgabe) {
-      // Bei Bearbeitung nur Hauptaufgabe updaten
-      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data: hauptaufgabe });
+      // Bei Bearbeitung: Hauptaufgabe updaten + neue Unteraufgaben erstellen
+      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data: hauptaufgabe, unteraufgaben });
     } else {
       // Bei neuer Aufgabe: Hauptaufgabe + Unteraufgaben erstellen
       createAufgabeMutation.mutate({ hauptaufgabe, unteraufgaben });
@@ -124,7 +145,8 @@ export default function AufgabenPage() {
     const newStatus = aufgabe.status === 'erledigt' ? 'offen' : 'erledigt';
     updateAufgabeMutation.mutate({
       id: aufgabe.id,
-      data: { ...aufgabe, status: newStatus }
+      data: { ...aufgabe, status: newStatus },
+      unteraufgaben: [] // Keine neuen Unteraufgaben beim Status-Toggle
     });
   };
 
@@ -377,6 +399,7 @@ export default function AufgabenPage() {
               }}
               mitglieder={mitglieder}
               hauptAufgaben={hauptAufgaben}
+              allAufgaben={aufgaben}
             />
           </div>
         )}
