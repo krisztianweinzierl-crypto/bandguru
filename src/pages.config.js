@@ -14,6 +14,7 @@ import Aufgaben from './pages/Aufgaben';
 import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
 import Repertoire from './pages/Repertoire';
+import Nachrichten from './pages/Nachrichten';
 import Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "Leads": Leads,
     "LeadDetail": LeadDetail,
     "Repertoire": Repertoire,
+    "Nachrichten": Nachrichten,
 }
 
 export const pagesConfig = {
