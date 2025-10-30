@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import LeadForm from "@/components/leads/LeadForm";
 
 export default function LeadsPage() {
   const navigate = useNavigate();
@@ -111,11 +111,7 @@ export default function LeadsPage() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData);
-    
+  const handleSubmit = (data) => {
     if (editingLead) {
       updateLeadMutation.mutate({ id: editingLead.id, data });
     } else {
@@ -476,19 +472,19 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
-        {/* Lead Form - kommt später */}
+        {/* Lead Form */}
         {showForm && (
-          <Card className="mb-6 border-none shadow-lg">
-            <CardHeader className="border-b">
-              <CardTitle>{editingLead ? "Lead bearbeiten" : "Neuer Lead"}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <p className="text-gray-500">Formular wird noch implementiert...</p>
-              <Button onClick={() => setShowForm(false)} className="mt-4">
-                Schließen
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="mb-6">
+            <LeadForm
+              lead={editingLead}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingLead(null);
+              }}
+              mitglieder={mitglieder}
+            />
+          </div>
         )}
 
         {/* Leads Grid/List */}
