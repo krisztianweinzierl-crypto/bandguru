@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +22,10 @@ import {
   Clock,
   Circle,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ChevronRight, // Added
+  MoreVertical, // Added
+  Trash2 // Added
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,6 +37,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import AufgabeForm from "@/components/aufgaben/AufgabeForm"; // Added
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -42,13 +47,9 @@ export default function LeadDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [newNote, setNewNote] = useState("");
   const [showAufgabeForm, setShowAufgabeForm] = useState(false);
-  const [newAufgabe, setNewAufgabe] = useState({
-    titel: "",
-    beschreibung: "",
-    prioritaet: "normal",
-    faellig_am: "",
-    status: "offen"
-  });
+  const [editingAufgabe, setEditingAufgabe] = useState(null); // Added
+  const [expandedTasks, setExpandedTasks] = useState({}); // Added
+  const [showDropdownId, setShowDropdownId] = useState(null); // Added
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead', leadId],
@@ -103,24 +104,92 @@ export default function LeadDetailPage() {
   });
 
   const createAufgabeMutation = useMutation({
-    mutationFn: (data) => base44.entities.Aufgabe.create(data),
+    mutationFn: async ({ hauptaufgabe, unteraufgaben }) => {
+      const createdHauptaufgabe = await base44.entities.Aufgabe.create({
+        ...hauptaufgabe,
+        org_id: lead.org_id,
+        bezug_typ: 'frei',
+        bezug_id: leadId
+      });
+      
+      if (unteraufgaben && unteraufgaben.length > 0) {
+        const unteraufgabenData = unteraufgaben
+          .filter(u => u.titel && u.titel.trim())
+          .map(u => ({
+            titel: u.titel,
+            beschreibung: u.beschreibung,
+            prioritaet: u.prioritaet || 'normal',
+            faellig_am: u.faellig_am,
+            status: 'offen',
+            org_id: lead.org_id,
+            bezug_typ: 'frei',
+            bezug_id: leadId,
+            parent_task_id: createdHauptaufgabe.id,
+            zugewiesen_an: u.zugewiesen_an // Make sure to pass assigned user for subtasks too
+          }));
+        
+        if (unteraufgabenData.length > 0) {
+          await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
+        }
+      }
+      
+      return createdHauptaufgabe;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadAufgaben'] });
       setShowAufgabeForm(false);
-      setNewAufgabe({
-        titel: "",
-        beschreibung: "",
-        prioritaet: "normal",
-        faellig_am: "",
-        status: "offen"
-      });
+      setEditingAufgabe(null);
     },
   });
 
   const updateAufgabeMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Aufgabe.update(id, data),
+    mutationFn: async ({ id, data, unteraufgaben }) => {
+      await base44.entities.Aufgabe.update(id, data);
+      
+      if (unteraufgaben && unteraufgaben.length > 0) {
+        // Handle new subtasks if any are passed during an update
+        const newUnteraufgabenData = unteraufgaben
+          .filter(u => u.titel && u.titel.trim() && !u.id) // Only create new ones without an ID
+          .map(u => ({
+            titel: u.titel,
+            beschreibung: u.beschreibung,
+            prioritaet: u.prioritaet || 'normal',
+            faellig_am: u.faellig_am,
+            status: 'offen',
+            org_id: lead.org_id,
+            bezug_typ: 'frei',
+            bezug_id: leadId,
+            parent_task_id: id,
+            zugewiesen_an: u.zugewiesen_an
+          }));
+        
+        if (newUnteraufgabenData.length > 0) {
+          await base44.entities.Aufgabe.bulkCreate(newUnteraufgabenData);
+        }
+
+        // Handle updates to existing subtasks (if any are sent with IDs)
+        const updatedUnteraufgabenData = unteraufgaben
+          .filter(u => u.titel && u.titel.trim() && u.id)
+          .map(u => base44.entities.Aufgabe.update(u.id, u));
+        
+        if (updatedUnteraufgabenData.length > 0) {
+          await Promise.all(updatedUnteraufgabenData);
+        }
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadAufgaben'] });
+      setShowAufgabeForm(false);
+      setEditingAufgabe(null);
+      setShowDropdownId(null);
+    },
+  });
+
+  const deleteAufgabeMutation = useMutation({
+    mutationFn: (id) => base44.entities.Aufgabe.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leadAufgaben'] });
+      setShowDropdownId(null);
     },
   });
 
@@ -139,14 +208,11 @@ export default function LeadDetailPage() {
     }
   };
 
-  const handleAddAufgabe = () => {
-    if (newAufgabe.titel.trim()) {
-      createAufgabeMutation.mutate({
-        ...newAufgabe,
-        org_id: lead.org_id,
-        bezug_typ: 'frei',
-        bezug_id: leadId
-      });
+  const handleAufgabeSubmit = (hauptaufgabe, unteraufgaben = []) => {
+    if (editingAufgabe) {
+      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data: hauptaufgabe, unteraufgaben });
+    } else {
+      createAufgabeMutation.mutate({ hauptaufgabe, unteraufgaben });
     }
   };
 
@@ -154,8 +220,25 @@ export default function LeadDetailPage() {
     const newStatus = aufgabe.status === 'erledigt' ? 'offen' : 'erledigt';
     updateAufgabeMutation.mutate({
       id: aufgabe.id,
-      data: { ...aufgabe, status: newStatus }
+      data: { ...aufgabe, status: newStatus },
+      unteraufgaben: [] // Pass an empty array to indicate no subtask changes from this action
     });
+  };
+
+  const handleEditAufgabe = (aufgabe) => {
+    setEditingAufgabe(aufgabe);
+    setShowAufgabeForm(true);
+    setShowDropdownId(null);
+  };
+
+  const handleDeleteAufgabe = (aufgabe) => {
+    if (window.confirm(`Möchtest du die Aufgabe "${aufgabe.titel}" wirklich löschen? Alle Unteraufgaben werden ebenfalls gelöscht.`)) {
+      deleteAufgabeMutation.mutate(aufgabe.id);
+    }
+  };
+
+  const toggleExpand = (taskId) => {
+    setExpandedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
   const handleConvertToEvent = () => {
@@ -170,6 +253,16 @@ export default function LeadDetailPage() {
       </div>
     );
   }
+
+  // Aufgaben gruppieren
+  const hauptAufgaben = aufgaben.filter(a => !a.parent_task_id);
+  const unteraufgabenMap = aufgaben.reduce((acc, aufgabe) => {
+    if (aufgabe.parent_task_id) {
+      if (!acc[aufgabe.parent_task_id]) acc[aufgabe.parent_task_id] = [];
+      acc[aufgabe.parent_task_id].push(aufgabe);
+    }
+    return acc;
+  }, {});
 
   const statusColors = {
     neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
@@ -206,8 +299,148 @@ export default function LeadDetailPage() {
   const statusStyle = statusColors[lead.status] || statusColors.neu;
   const assignedMitglied = mitglieder.find(m => m.user_id === lead.zugewiesen_an);
 
-  const offeneAufgaben = aufgaben.filter(a => a.status === 'offen').length;
-  const erledigtAufgaben = aufgaben.filter(a => a.status === 'erledigt').length;
+  const offeneAufgaben = hauptAufgaben.filter(a => a.status === 'offen').length;
+  const erledigtAufgaben = hauptAufgaben.filter(a => a.status === 'erledigt').length;
+
+  const AufgabeItem = ({ aufgabe, level = 0 }) => {
+    const unteraufgaben = unteraufgabenMap[aufgabe.id] || [];
+    const hasUnteraufgaben = unteraufgaben.length > 0;
+    const isExpanded = expandedTasks[aufgabe.id];
+    const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
+    const assignedMitgliedForTask = mitglieder.find(m => m.id === aufgabe.zugewiesen_an); // Corrected to use member id
+
+    return (
+      <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+        <div 
+          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+            aufgabe.status === 'erledigt' ? 'opacity-60' : ''
+          }`}
+        >
+          {/* Expand/Collapse Button */}
+          {hasUnteraufgaben ? (
+            <button
+              onClick={() => toggleExpand(aufgabe.id)}
+              className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
+            >
+              <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+            </button>
+          ) : (
+            <div className="w-5" />
+          )}
+
+          {/* Checkbox */}
+          <button
+            onClick={() => handleToggleAufgabeStatus(aufgabe)}
+            className="mt-1"
+          >
+            {aufgabe.status === 'erledigt' ? (
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+            ) : (
+              <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
+            )}
+          </button>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  {aufgabe.titel}
+                  {hasUnteraufgaben && (
+                    <span className="ml-2 text-xs text-gray-500">
+                      ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                    </span>
+                  )}
+                </p>
+                {aufgabe.beschreibung && (
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
+                )}
+                
+                {/* Meta Info */}
+                <div className="flex flex-wrap items-center gap-3 mt-2">
+                  {aufgabe.faellig_am && (
+                    <div className={`flex items-center gap-1 text-xs ${
+                      isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
+                    }`}>
+                      <Calendar className="w-3 h-3" />
+                      {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
+                    </div>
+                  )}
+                  
+                  {assignedMitgliedForTask && (
+                    <Badge variant="outline" className="text-xs">
+                      <User className="w-3 h-3 mr-1" />
+                      {assignedMitgliedForTask.name}
+                    </Badge>
+                  )}
+
+                  {aufgabe.prioritaet !== 'normal' && (
+                    <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
+                      {aufgabe.prioritaet === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
+                      {aufgabe.prioritaet}
+                    </Badge>
+                  )}
+
+                  {aufgabe.status === 'in_arbeit' && (
+                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                      <Clock className="w-3 h-3 mr-1" />
+                      In Arbeit
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setShowDropdownId(showDropdownId === aufgabe.id ? null : aufgabe.id)}
+                >
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+
+                {showDropdownId === aufgabe.id && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowDropdownId(null)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                      <button
+                        onClick={() => handleEditAufgabe(aufgabe)}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                      >
+                        <Edit className="w-4 h-4" />
+                        Bearbeiten
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAufgabe(aufgabe)}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Löschen
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Unteraufgaben */}
+        {hasUnteraufgaben && isExpanded && (
+          <div className="mt-1">
+            {unteraufgaben.map(unteraufgabe => (
+              <AufgabeItem key={unteraufgabe.id} aufgabe={unteraufgabe} level={level + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
@@ -276,7 +509,7 @@ export default function LeadDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-xs text-gray-600 mb-2 block">Status</label>
+                  <Label className="text-xs text-gray-600 mb-2 block">Status</Label>
                   <Select value={lead.status} onValueChange={handleStatusChange}>
                     <SelectTrigger className={`${statusStyle.bg} ${statusStyle.text} border-none`}>
                       <SelectValue />
@@ -403,9 +636,9 @@ export default function LeadDetailPage() {
                     <p className="text-xs text-gray-500 mb-1">Zugewiesen an</p>
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        {assignedMitglied.rolle?.[0]}
+                        {assignedMitglied.name?.[0]}
                       </div>
-                      <span className="text-sm font-medium">{assignedMitglied.rolle}</span>
+                      <span className="text-sm font-medium">{assignedMitglied.name}</span>
                     </div>
                   </div>
                 )}
@@ -462,7 +695,7 @@ export default function LeadDetailPage() {
                 <TabsTrigger value="notizen">Notizen</TabsTrigger>
                 <TabsTrigger value="aufgaben">
                   Aufgaben
-                  {aufgaben.length > 0 && (
+                  {hauptAufgaben.length > 0 && (
                     <Badge variant="secondary" className="ml-2">
                       {offeneAufgaben}
                     </Badge>
@@ -524,14 +757,16 @@ export default function LeadDetailPage() {
 
               {/* Aufgaben Tab */}
               <TabsContent value="aufgaben">
-                {/* Neue Aufgabe erstellen */}
                 <Card className="border-none shadow-lg">
                   <CardHeader className="border-b">
                     <div className="flex justify-between items-center">
                       <CardTitle>Aufgaben für diesen Lead</CardTitle>
                       <Button 
                         size="sm"
-                        onClick={() => setShowAufgabeForm(!showAufgabeForm)}
+                        onClick={() => {
+                          setEditingAufgabe(null);
+                          setShowAufgabeForm(!showAufgabeForm);
+                        }}
                         className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
                       >
                         <Plus className="w-4 h-4 mr-2" />
@@ -545,153 +780,26 @@ export default function LeadDetailPage() {
 
                   {showAufgabeForm && (
                     <CardContent className="p-6 border-b bg-gray-50">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="aufgabe-titel">Aufgabe *</Label>
-                          <Input
-                            id="aufgabe-titel"
-                            value={newAufgabe.titel}
-                            onChange={(e) => setNewAufgabe({ ...newAufgabe, titel: e.target.value })}
-                            placeholder="z.B. Angebot versenden"
-                            autoFocus
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="aufgabe-beschreibung">Beschreibung</Label>
-                          <Textarea
-                            id="aufgabe-beschreibung"
-                            value={newAufgabe.beschreibung}
-                            onChange={(e) => setNewAufgabe({ ...newAufgabe, beschreibung: e.target.value })}
-                            placeholder="Weitere Details..."
-                            rows={3}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="aufgabe-prioritaet">Priorität</Label>
-                            <Select 
-                              value={newAufgabe.prioritaet} 
-                              onValueChange={(value) => setNewAufgabe({ ...newAufgabe, prioritaet: value })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="niedrig">Niedrig</SelectItem>
-                                <SelectItem value="normal">Normal</SelectItem>
-                                <SelectItem value="hoch">Hoch</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="aufgabe-faellig">Fälligkeitsdatum</Label>
-                            <Input
-                              id="aufgabe-faellig"
-                              type="date"
-                              value={newAufgabe.faellig_am}
-                              onChange={(e) => setNewAufgabe({ ...newAufgabe, faellig_am: e.target.value })}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end gap-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setShowAufgabeForm(false);
-                              setNewAufgabe({
-                                titel: "",
-                                beschreibung: "",
-                                prioritaet: "normal",
-                                faellig_am: "",
-                                status: "offen"
-                              });
-                            }}
-                          >
-                            Abbrechen
-                          </Button>
-                          <Button 
-                            size="sm"
-                            onClick={handleAddAufgabe}
-                            disabled={!newAufgabe.titel.trim() || createAufgabeMutation.isPending}
-                            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            {createAufgabeMutation.isPending ? "Erstellt..." : "Aufgabe erstellen"}
-                          </Button>
-                        </div>
-                      </div>
+                      <AufgabeForm
+                        aufgabe={editingAufgabe}
+                        onSubmit={handleAufgabeSubmit}
+                        onCancel={() => {
+                          setShowAufgabeForm(false);
+                          setEditingAufgabe(null);
+                        }}
+                        mitglieder={mitglieder}
+                        hauptAufgaben={hauptAufgaben}
+                        allAufgaben={aufgaben} // Pass allAufgaben for parent task selection
+                      />
                     </CardContent>
                   )}
 
                   <CardContent className="p-0">
-                    {aufgaben.length > 0 ? (
+                    {hauptAufgaben.length > 0 ? (
                       <div className="divide-y">
-                        {aufgaben.map((aufgabe) => {
-                          const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
-                          const assignedMitglied = mitglieder.find(m => m.user_id === aufgabe.zugewiesen_an);
-
-                          return (
-                            <div 
-                              key={aufgabe.id}
-                              className={`group flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors ${
-                                aufgabe.status === 'erledigt' ? 'opacity-60' : ''
-                              }`}
-                            >
-                              {/* Checkbox */}
-                              <button
-                                onClick={() => handleToggleAufgabeStatus(aufgabe)}
-                                className="mt-1"
-                              >
-                                {aufgabe.status === 'erledigt' ? (
-                                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                ) : (
-                                  <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
-                                )}
-                              </button>
-
-                              {/* Content */}
-                              <div className="flex-1 min-w-0">
-                                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                                  {aufgabe.titel}
-                                </p>
-                                {aufgabe.beschreibung && (
-                                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
-                                )}
-                                
-                                {/* Meta Info */}
-                                <div className="flex flex-wrap items-center gap-3 mt-2">
-                                  {aufgabe.faellig_am && (
-                                    <div className={`flex items-center gap-1 text-xs ${
-                                      isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
-                                    }`}>
-                                      <Calendar className="w-3 h-3" />
-                                      {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
-                                    </div>
-                                  )}
-                                  
-                                  {assignedMitglied && (
-                                    <Badge variant="outline" className="text-xs">
-                                      <User className="w-3 h-3 mr-1" />
-                                      {assignedMitglied.rolle}
-                                    </Badge>
-                                  )}
-
-                                  {aufgabe.prioritaet !== 'normal' && (
-                                    <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
-                                      {aufgabe.prioritaet === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
-                                      {aufgabe.prioritaet}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
+                        {hauptAufgaben.map((aufgabe) => (
+                          <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                        ))}
                       </div>
                     ) : (
                       <div className="p-12 text-center">
