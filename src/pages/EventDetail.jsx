@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +8,6 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
-  User,
   Edit,
   Mail,
   ExternalLink,
@@ -17,12 +17,24 @@ import {
   Shirt,
   Hotel,
   Settings,
-  File
+  File,
+  Plus,
+  MoreVertical,
+  Trash2,
+  X,
+  Euro,
+  MessageSquare,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
@@ -33,6 +45,14 @@ export default function EventDetailPage() {
   const eventId = urlParams.get('id');
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const [showMusikerForm, setShowMusikerForm] = useState(false);
+  const [selectedMusikerId, setSelectedMusikerId] = useState("");
+  const [musikerRolle, setMusikerRolle] = useState("");
+  const [musikerGage, setMusikerGage] = useState("");
+  const [musikerCalltime, setMusikerCalltime] = useState("");
+  const [musikerNotizen, setMusikerNotizen] = useState("");
+  const [showDropdownId, setShowDropdownId] = useState(null);
+  const [editingEventMusiker, setEditingEventMusiker] = useState(null); // This state isn't explicitly used for editing in the provided outline but kept for consistency
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -65,6 +85,12 @@ export default function EventDetailPage() {
     enabled: !!eventId,
   });
 
+  const { data: musiker = [] } = useQuery({
+    queryKey: ['musiker', event?.org_id],
+    queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
+    enabled: !!event?.org_id,
+  });
+
   const updateEventMutation = useMutation({
     mutationFn: async (eventData) => {
       console.log("Aktualisiere Event:", eventData);
@@ -82,6 +108,133 @@ export default function EventDetailPage() {
     }
   });
 
+  const addMusikerMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.EventMusiker.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      setShowMusikerForm(false);
+      resetMusikerForm();
+    },
+    onError: (error) => {
+      console.error("Fehler beim Hinzufügen des Musikers:", error);
+      alert("Fehler beim Hinzufügen des Musikers: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
+
+  const updateEventMusikerMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.EventMusiker.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      setShowDropdownId(null);
+      setEditingEventMusiker(null);
+    },
+    onError: (error) => {
+      console.error("Fehler beim Aktualisieren des Musiker-Status:", error);
+      alert("Fehler beim Aktualisieren des Musiker-Status: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
+
+  const deleteEventMusikerMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.entities.EventMusiker.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      setShowDropdownId(null);
+    },
+    onError: (error) => {
+      console.error("Fehler beim Entfernen des Musikers:", error);
+      alert("Fehler beim Entfernen des Musikers: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
+
+  const sendEinladungMutation = useMutation({
+    mutationFn: async ({ eventMusikerId, musikerData }) => {
+      const eventMusikerEntry = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
+      const em = eventMusikerEntry[0];
+      
+      const emailBody = `Hey ${musikerData.name}! 👋
+
+Du wurdest für folgendes Event angefragt:
+
+🎵 Event: ${event.titel}
+📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr
+📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}
+🎸 Rolle: ${em.rolle}
+💰 Gage: €${em.gage_netto}
+
+${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}Bitte gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
+
+Viele Grüße
+Das Team`;
+
+      await base44.integrations.Core.SendEmail({
+        to: musikerData.email,
+        subject: `🎵 Event-Anfrage: ${event.titel}`,
+        body: emailBody
+      });
+
+      return musikerData;
+    },
+    onSuccess: (musikerData) => {
+      alert(`✅ Einladung wurde an ${musikerData.name} versendet!`);
+    },
+    onError: (error) => {
+      console.error("Fehler beim Versenden der Einladung:", error);
+      alert("❌ Fehler beim Versenden der Einladung: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
+
+  const resetMusikerForm = () => {
+    setSelectedMusikerId("");
+    setMusikerRolle("");
+    setMusikerGage("");
+    setMusikerCalltime("");
+    setMusikerNotizen("");
+  };
+
+  const handleAddMusiker = () => {
+    if (!selectedMusikerId) return;
+
+    const selectedMusiker = musiker.find(m => m.id === selectedMusikerId);
+    
+    addMusikerMutation.mutate({
+      event_id: eventId,
+      musiker_id: selectedMusikerId,
+      rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
+      gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
+      calltime: musikerCalltime || event.datum_von, // Default to event start date if not specified
+      status: "angefragt",
+      notizen: musikerNotizen
+    });
+  };
+
+  const handleRemoveMusiker = (eventMusikerId) => {
+    if (confirm("Möchtest du diesen Musiker wirklich vom Event entfernen?")) {
+      deleteEventMusikerMutation.mutate(eventMusikerId);
+    }
+  };
+
+  const handleUpdateStatus = (eventMusikerId, newStatus) => {
+    updateEventMusikerMutation.mutate({
+      id: eventMusikerId,
+      data: { status: newStatus }
+    });
+  };
+
+  const handleSendEinladung = (eventMusikerId, musikerId) => {
+    const musikerData = musiker.find(m => m.id === musikerId);
+    if (musikerData?.email) {
+      sendEinladungMutation.mutate({ eventMusikerId, musikerData });
+    } else {
+      alert("Dieser Musiker hat keine E-Mail-Adresse hinterlegt.");
+    }
+  };
+
   if (isLoading || !event) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
@@ -97,6 +250,13 @@ export default function EventDetailPage() {
     durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
     abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" },
     storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
+  };
+
+  const musikerStatusColors = {
+    angefragt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-l-blue-400", label: "Angefragt" },
+    zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-l-green-500", label: "Zugesagt" },
+    abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-l-red-400", label: "Abgelehnt" },
+    ersetzt: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400", label: "Ersetzt" }
   };
 
   const statusInfo = statusColors[event.status] || statusColors.entwurf;
@@ -192,7 +352,7 @@ export default function EventDetailPage() {
                 className="gap-2"
               >
                 <Calendar className="w-4 h-4" />
-                Zu Google Kalender hinzufügen
+                Zu Kalender
               </Button>
               <Button
                 variant="default"
@@ -201,7 +361,7 @@ export default function EventDetailPage() {
                 className="gap-2 bg-gray-900 hover:bg-gray-800"
               >
                 <Edit className="w-4 h-4" />
-                Event bearbeiten
+                Bearbeiten
               </Button>
               {kunde && (
                 <Button
@@ -211,7 +371,7 @@ export default function EventDetailPage() {
                   className="gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  Kunde per E-Mail kontaktieren
+                  Kunde kontaktieren
                 </Button>
               )}
             </div>
@@ -228,19 +388,13 @@ export default function EventDetailPage() {
               Übersicht
             </TabsTrigger>
             <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Musiker
-            </TabsTrigger>
-            <TabsTrigger value="bandbuilder" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Band Builder
+              Musiker ({eventMusiker.length})
             </TabsTrigger>
             <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Aufgaben
             </TabsTrigger>
             <TabsTrigger value="finanzen" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Finanzen
-            </TabsTrigger>
-            <TabsTrigger value="verwaltung" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Verwaltung
             </TabsTrigger>
           </TabsList>
 
@@ -281,7 +435,7 @@ export default function EventDetailPage() {
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Kunde</p>
                       <p className="font-medium text-gray-900">
-                        {kunde ? kunde.firmenname : 'No Client Linked'}
+                        {kunde ? kunde.firmenname : 'Kein Kunde verknüpft'}
                       </p>
                     </div>
                   </div>
@@ -481,29 +635,284 @@ export default function EventDetailPage() {
             </Card>
           </TabsContent>
 
+          {/* Musiker Tab */}
+          <TabsContent value="musiker" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl font-bold">Gebuchte Musiker</CardTitle>
+                  <Button
+                    onClick={() => setShowMusikerForm(true)}
+                    size="sm"
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Musiker hinzufügen
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {showMusikerForm && (
+                  <Card className="mb-6 bg-blue-50 border-blue-200">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-semibold text-lg">Musiker hinzufügen</h3>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setShowMusikerForm(false);
+                            resetMusikerForm();
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Musiker auswählen <span className="text-red-500">*</span></Label>
+                          <Select value={selectedMusikerId} onValueChange={(value) => {
+                            setSelectedMusikerId(value);
+                            const m = musiker.find(mus => mus.id === value);
+                            if (m) {
+                              setMusikerRolle(m.instrumente?.[0] || "");
+                              setMusikerGage(m.tagessatz_netto?.toString() || "");
+                            }
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Musiker wählen..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {musiker.map((m) => (
+                                <SelectItem key={m.id} value={m.id}>
+                                  {m.name} {m.instrumente?.length > 0 && `(${m.instrumente.join(', ')})`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
+                            <Input
+                              value={musikerRolle}
+                              onChange={(e) => setMusikerRolle(e.target.value)}
+                              placeholder="z.B. Gitarre, Gesang"
+                            />
+                          </div>
+                          <div>
+                            <Label>Gage (netto)</Label>
+                            <Input
+                              type="number"
+                              value={musikerGage}
+                              onChange={(e) => setMusikerGage(e.target.value)}
+                              placeholder="0.00"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label>Calltime</Label>
+                          <Input
+                            type="datetime-local"
+                            value={musikerCalltime}
+                            onChange={(e) => setMusikerCalltime(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <Label>Notizen</Label>
+                          <Textarea
+                            value={musikerNotizen}
+                            onChange={(e) => setMusikerNotizen(e.target.value)}
+                            placeholder="Zusätzliche Informationen..."
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setShowMusikerForm(false);
+                              resetMusikerForm();
+                            }}
+                          >
+                            Abbrechen
+                          </Button>
+                          <Button
+                            onClick={handleAddMusiker}
+                            disabled={!selectedMusikerId || addMusikerMutation.isPending}
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                          >
+                            Musiker hinzufügen
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="space-y-4">
+                  {eventMusiker.length > 0 ? (
+                    eventMusiker.map((em) => {
+                      const musikerData = musiker.find(m => m.id === em.musiker_id);
+                      const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
+                      const initials = musikerData?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+                      
+                      return (
+                        <Card key={em.id} className={`border-l-4 ${statusStyle.border}`}>
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-4">
+                              <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-4 mb-2">
+                                  <div>
+                                    <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
+                                    <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
+                                      {statusStyle.label}
+                                    </Badge>
+                                  </div>
+                                  <div className="relative">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => setShowDropdownId(showDropdownId === em.id ? null : em.id)}
+                                    >
+                                      <MoreVertical className="w-4 h-4" />
+                                    </Button>
+
+                                    {showDropdownId === em.id && (
+                                      <>
+                                        <div 
+                                          className="fixed inset-0 z-40" 
+                                          onClick={() => setShowDropdownId(null)}
+                                        />
+                                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                                          {em.status === 'angefragt' && (
+                                            <>
+                                              <button
+                                                onClick={() => handleUpdateStatus(em.id, 'zugesagt')}
+                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                                              >
+                                                Als zugesagt markieren
+                                              </button>
+                                              <button
+                                                onClick={() => handleUpdateStatus(em.id, 'abgelehnt')}
+                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                              >
+                                                Als abgelehnt markieren
+                                              </button>
+                                            </>
+                                          )}
+                                          {musikerData?.email && (
+                                            <button
+                                              onClick={() => handleSendEinladung(em.id, em.musiker_id)}
+                                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                            >
+                                              <Send className="w-4 h-4" />
+                                              Einladung senden
+                                            </button>
+                                          )}
+                                          <button
+                                            onClick={() => handleRemoveMusiker(em.id)}
+                                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                                          >
+                                            <Trash2 className="w-4 h-4" />
+                                            Entfernen
+                                          </button>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <p className="text-sm text-gray-600 mb-3">{em.rolle}</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div className="flex items-center gap-2 text-gray-600">
+                                    <Calendar className="w-4 h-4" />
+                                    <div>
+                                      <p className="text-xs text-gray-500">Eingeladen am</p>
+                                      <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                    </div>
+                                  </div>
+
+                                  {em.status === 'zugesagt' && (
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <Calendar className="w-4 h-4 text-green-600" />
+                                      <div>
+                                        <p className="text-xs text-gray-500">Zugesagt am</p>
+                                        <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <div className="flex items-center gap-2 text-gray-600">
+                                    <Euro className="w-4 h-4" />
+                                    <div>
+                                      <p className="text-xs text-gray-500">Gage (netto)</p>
+                                      <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                    </div>
+                                  </div>
+
+                                  {em.calltime && (
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <Clock className="w-4 h-4" />
+                                      <div>
+                                        <p className="text-xs text-gray-500">Calltime</p>
+                                        <p className="font-medium">{format(new Date(em.calltime), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {em.notizen && (
+                                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                    <div className="flex items-start gap-2 text-sm">
+                                      <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
+                                      <div>
+                                        <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
+                                        <p className="text-gray-700">{em.notizen}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-12">
+                      <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                      <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
+                      <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
+                      <Button
+                        onClick={() => setShowMusikerForm(true)}
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Ersten Musiker hinzufügen
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Platzhalter für andere Tabs */}
-          <TabsContent value="musiker">
-            <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="p-12 text-center">
-                <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Musiker-Verwaltung</h3>
-                <p className="text-gray-500">Diese Funktion wird in Kürze verfügbar sein</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="bandbuilder">
-            <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="p-12 text-center">
-                <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Band Builder</h3>
-                <p className="text-gray-500">Diese Funktion wird in Kürze verfügbar sein</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="aufgaben">
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border-none shadow-lg">
               <CardContent className="p-12 text-center">
                 <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-semibold mb-2">Aufgaben</h3>
@@ -513,20 +922,10 @@ export default function EventDetailPage() {
           </TabsContent>
 
           <TabsContent value="finanzen">
-            <Card className="border border-gray-200 shadow-sm">
+            <Card className="border-none shadow-lg">
               <CardContent className="p-12 text-center">
                 <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-semibold mb-2">Finanzen</h3>
-                <p className="text-gray-500">Diese Funktion wird in Kürze verfügbar sein</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="verwaltung">
-            <Card className="border border-gray-200 shadow-sm">
-              <CardContent className="p-12 text-center">
-                <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Verwaltung</h3>
                 <p className="text-gray-500">Diese Funktion wird in Kürze verfügbar sein</p>
               </CardContent>
             </Card>
