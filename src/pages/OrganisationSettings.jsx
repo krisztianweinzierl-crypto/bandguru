@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,9 +12,7 @@ import {
   Copy,
   Check,
   Save,
-  Send,
-  ExternalLink, // Added
-  X // Added
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,8 +31,6 @@ export default function OrganisationSettingsPage() {
   const [copied, setCopied] = useState(false);
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
-  const [showEmailPreview, setShowEmailPreview] = useState(false); // Added
-  const [emailPreviewText, setEmailPreviewText] = useState(""); // Added
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -51,7 +46,6 @@ export default function OrganisationSettingsPage() {
     enabled: !!currentOrgId,
   });
 
-  // Initialize form data when organisation loads
   useEffect(() => {
     if (organisation && !orgFormData) {
       setOrgFormData({
@@ -83,7 +77,51 @@ export default function OrganisationSettingsPage() {
     },
   });
 
-  // The previous inviteMemberMutation has been removed as per the outline.
+  const inviteMemberMutation = useMutation({
+    mutationFn: async (data) => {
+      const appUrl = window.location.origin;
+      const personalMessage = data.message ? `\n\n"${data.message}"\n` : "";
+      
+      const emailBody = `Hey ${data.name || 'du'}! 👋
+
+${user?.full_name || 'Jemand'} hat dich zu "${organisation.name}" auf Bandguru eingeladen! 
+
+🎸 Du wurdest als ${data.rolle} hinzugefügt.${personalMessage}
+
+Mit Bandguru kannst du:
+✨ Events & Auftritte verwalten
+💰 Gagen & Finanzen im Blick behalten
+📋 Aufgaben & Deadlines managen
+💬 Mit dem Team kommunizieren
+
+Klingt gut? Dann melde dich jetzt an:
+👉 ${appUrl}
+
+Falls du Fragen hast, einfach auf diese Mail antworten!
+
+Viele Grüße
+Das ${organisation.name} Team 🎵`;
+
+      await base44.integrations.Core.SendEmail({
+        to: data.email,
+        subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
+        body: emailBody
+      });
+
+      return data;
+    },
+    onSuccess: () => {
+      alert("✅ Einladung wurde erfolgreich versendet!");
+      setInviteEmail("");
+      setInviteName("");
+      setInviteMessage("");
+      setInviteRole("Musiker");
+    },
+    onError: (error) => {
+      console.error("Fehler beim Versenden der Einladung:", error);
+      alert("❌ Fehler beim Versenden der Einladung: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
 
   const removeMemberMutation = useMutation({
     mutationFn: (mitgliedId) => base44.entities.Mitglied.delete(mitgliedId),
@@ -104,48 +142,12 @@ export default function OrganisationSettingsPage() {
   const handleInvite = (e) => {
     e.preventDefault();
     
-    const appUrl = window.location.origin;
-    const personalMessage = inviteMessage ? `\n\n"${inviteMessage}"\n` : "";
-    
-    const emailBody = `Hey ${inviteName || 'du'}! 👋
-
-${user?.full_name || 'Jemand'} hat dich zu "${organisation.name}" auf Bandguru eingeladen! 
-
-🎸 Du wurdest als ${inviteRole} hinzugefügt.${personalMessage}
-
-Mit Bandguru kannst du:
-✨ Events & Auftritte verwalten
-💰 Gagen & Finanzen im Blick behalten
-📋 Aufgaben & Deadlines managen
-💬 Mit dem Team kommunizieren
-
-Klingt gut? Dann melde dich jetzt an:
-👉 ${appUrl}
-
-Falls du Fragen hast, einfach auf diese Mail antworten!
-
-Viele Grüße
-Das ${organisation.name} Team 🎵`;
-
-    setEmailPreviewText(emailBody);
-    setShowEmailPreview(true);
-  };
-
-  const copyEmailToClipboard = () => {
-    navigator.clipboard.writeText(emailPreviewText);
-    alert("✅ E-Mail-Text wurde kopiert! Du kannst ihn jetzt in deinem E-Mail-Programm einfügen.");
-  };
-
-  const openEmailClient = () => {
-    const subject = encodeURIComponent(`🎵 Einladung zu ${organisation.name} auf Bandguru`);
-    const body = encodeURIComponent(emailPreviewText);
-    window.location.href = `mailto:${inviteEmail}?subject=${subject}&body=${body}`;
-    
-    // Form zurücksetzen
-    setInviteEmail("");
-    setInviteName("");
-    setInviteMessage("");
-    setShowEmailPreview(false);
+    inviteMemberMutation.mutate({
+      email: inviteEmail,
+      name: inviteName,
+      rolle: inviteRole,
+      message: inviteMessage
+    });
   };
 
   const currentMitglied = mitglieder.find(m => m.user_id === user?.id);
@@ -259,7 +261,6 @@ Das ${organisation.name} Team 🎵`;
                   </p>
                 )}
 
-                {/* Save Button */}
                 {isManager && hasChanges && (
                   <div className="pt-4 border-t">
                     <Button
@@ -275,7 +276,6 @@ Das ${organisation.name} Team 🎵`;
               </CardContent>
             </Card>
 
-            {/* Organisation ID */}
             <Card className="border-none shadow-lg">
               <CardHeader className="border-b">
                 <CardTitle>Organisations-ID</CardTitle>
@@ -309,7 +309,7 @@ Das ${organisation.name} Team 🎵`;
                     <CardTitle>Mitglied einladen</CardTitle>
                   </div>
                   <p className="text-sm text-gray-500">
-                    Erstelle eine Einladung per E-Mail für neue Band Manager oder Musiker
+                    Lade neue Band Manager oder Musiker per E-Mail zu deiner Organisation ein
                   </p>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -365,10 +365,10 @@ Das ${organisation.name} Team 🎵`;
                     <Button
                       type="submit"
                       className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                      // Removed disabled={inviteMemberMutation.isPending}
+                      disabled={inviteMemberMutation.isPending}
                     >
-                      <Mail className="w-4 h-4 mr-2" /> {/* Changed icon from Send to Mail */}
-                      Einladung vorbereiten {/* Changed text */}
+                      <Send className="w-4 h-4 mr-2" />
+                      {inviteMemberMutation.isPending ? "Wird versendet..." : "Einladung versenden"}
                     </Button>
                   </form>
                 </CardContent>
@@ -443,64 +443,6 @@ Das ${organisation.name} Team 🎵`;
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* E-Mail Preview Modal */}
-      {showEmailPreview && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full">
-            <CardHeader className="border-b">
-              <div className="flex justify-between items-center">
-                <CardTitle>Einladungs-E-Mail vorbereitet</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowEmailPreview(false)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-900 mb-2">
-                  <strong>An:</strong> {inviteEmail}
-                </p>
-                <p className="text-sm text-blue-900">
-                  <strong>Betreff:</strong> 🎵 Einladung zu {organisation.name} auf Bandguru
-                </p>
-              </div>
-
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
-                <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">
-                  {emailPreviewText}
-                </pre>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  onClick={copyEmailToClipboard}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  Text kopieren
-                </Button>
-                <Button
-                  onClick={openEmailClient}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  In E-Mail-Programm öffnen
-                </Button>
-              </div>
-
-              <p className="text-xs text-gray-500 text-center">
-                Dein Standard-E-Mail-Programm wird geöffnet. Du kannst den Text dort bearbeiten und versenden.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
