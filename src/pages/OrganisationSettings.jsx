@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -102,11 +103,17 @@ Falls du Fragen hast, einfach auf diese Mail antworten!
 Viele Grüße
 Das ${organisation.name} Team 🎵`;
 
-      await base44.integrations.Core.SendEmail({
+      // Backend Function verwenden statt Core.SendEmail
+      const response = await base44.functions.invoke('sendEmail', {
         to: data.email,
         subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
-        body: emailBody
+        body: emailBody,
+        from_name: organisation.name
       });
+
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'E-Mail konnte nicht versendet werden');
+      }
 
       return data;
     },
