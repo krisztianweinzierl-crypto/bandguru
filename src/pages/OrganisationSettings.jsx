@@ -103,19 +103,42 @@ Falls du Fragen hast, einfach auf diese Mail antworten!
 Viele Grüße
 Das ${organisation.name} Team 🎵`;
 
-      // Backend Function verwenden statt Core.SendEmail
-      const response = await base44.functions.invoke('sendEmail', {
-        to: data.email,
-        subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
-        body: emailBody,
-        from_name: organisation.name
-      });
+      try {
+        const response = await base44.functions.invoke('sendEmail', {
+          to: data.email,
+          subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
+          body: emailBody,
+          from_name: organisation.name
+        });
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'E-Mail konnte nicht versendet werden');
+        console.log('sendEmail response:', response);
+
+        // Check if response has data
+        if (!response || !response.data) {
+          throw new Error('Keine Antwort vom Server erhalten');
+        }
+
+        // Check for success
+        if (!response.data.success) {
+          const errorMsg = response.data.error || response.data.details || 'Unbekannter Fehler';
+          throw new Error(errorMsg);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('Detaillierter Fehler:', error);
+        
+        // Better error messages
+        if (error.response?.status === 500) {
+          throw new Error('Server-Fehler: Bitte überprüfe deine Mailgun-Einstellungen (MAILGUN_API_KEY und MAILGUN_DOMAIN)');
+        } else if (error.response?.status === 401) {
+          throw new Error('Authentifizierung fehlgeschlagen');
+        } else if (error.message) {
+          throw new Error(error.message);
+        } else {
+          throw new Error('E-Mail konnte nicht versendet werden');
+        }
       }
-
-      return data;
     },
     onSuccess: () => {
       alert("✅ Einladung wurde erfolgreich versendet!");
@@ -126,7 +149,10 @@ Das ${organisation.name} Team 🎵`;
     },
     onError: (error) => {
       console.error("Fehler beim Versenden der Einladung:", error);
-      alert("❌ Fehler beim Versenden der Einladung: " + (error.message || "Unbekannter Fehler"));
+      
+      // Show detailed error
+      const errorMessage = error.message || "Unbekannter Fehler";
+      alert(`❌ Fehler beim Versenden der Einladung:\n\n${errorMessage}\n\nBitte überprüfe:\n- Mailgun API Key korrekt?\n- Mailgun Domain korrekt?\n- Domain verifiziert bei Mailgun?`);
     }
   });
 
