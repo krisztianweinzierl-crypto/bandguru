@@ -146,7 +146,6 @@ export default function Layout({ children, currentPageName }) {
 
   const navigationItems = isManager ? managerNavItems : musikerNavItems;
 
-  // Check if current page is in submenu
   useEffect(() => {
     navigationItems.forEach((item, index) => {
       if (item.submenu) {
@@ -162,7 +161,11 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4 animate-pulse"
+          />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Lade Daten...</p>
         </div>
@@ -174,7 +177,11 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <Building2 className="w-16 h-16 mx-auto mb-4 text-blue-600 animate-pulse" />
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4 animate-pulse"
+          />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Keine Organisation gefunden. Weiterleitung zum Onboarding...</p>
         </div>
@@ -188,13 +195,12 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-gray-200">
           <SidebarHeader className="border-b border-gray-200 p-4">
             <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-lg"
-                  style={{ backgroundColor: currentOrg.primary_color }}
-                >
-                  {currentOrg.name?.[0]?.toUpperCase() || "B"}
-                </div>
+              <div className="flex items-center gap-3">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                  alt="Bandguru Logo"
+                  className="w-12 h-12 object-contain"
+                />
                 <div className="flex-1 min-w-0">
                   <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
                   <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
@@ -377,6 +383,11 @@ export default function Layout({ children, currentPageName }) {
               <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                alt="Bandguru Logo"
+                className="w-8 h-8 object-contain"
+              />
               <h1 className="text-xl font-semibold">Bandguru</h1>
             </div>
           </header>
