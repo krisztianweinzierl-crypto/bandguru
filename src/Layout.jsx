@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import AuthWrapper from "@/components/auth/AuthWrapper";
 import {
   LayoutDashboard,
   Calendar,
@@ -41,13 +40,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-function LayoutContent({ children, currentPageName }) {
+export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
 
@@ -57,8 +57,16 @@ function LayoutContent({ children, currentPageName }) {
 
   const loadUserAndOrg = async () => {
     try {
-      // User ist bereits eingeloggt (durch AuthWrapper geprüft)
+      // Versuche User-Daten zu laden
       const userData = await base44.auth.me();
+      
+      if (!userData) {
+        // Kein User - warte einfach, Base44 sollte Login-Seite anzeigen
+        setAuthError(true);
+        setLoading(false);
+        return;
+      }
+
       setUser(userData);
 
       const mitglieder = await base44.entities.Mitglied.filter({ 
@@ -89,8 +97,11 @@ function LayoutContent({ children, currentPageName }) {
       }
     } catch (error) {
       console.error("Fehler beim Laden:", error);
+      // Wenn Fehler wegen fehlender Authentifizierung, zeige Hinweis
+      if (error.message?.includes('logged in') || error.response?.status === 401 || error.response?.status === 403) {
+        setAuthError(true);
+      }
       setLoading(false);
-      base44.auth.redirectToLogin();
     }
   };
 
@@ -170,6 +181,30 @@ function LayoutContent({ children, currentPageName }) {
           />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Lade Daten...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center max-w-md mx-auto p-8">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4"
+          />
+          <h2 className="text-2xl font-bold mb-4">Anmeldung erforderlich</h2>
+          <p className="text-gray-600 mb-6">
+            Du musst angemeldet sein, um auf Bandguru zuzugreifen.
+          </p>
+          <Button 
+            onClick={() => window.location.reload()}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+          >
+            Zur Anmeldung
+          </Button>
         </div>
       </div>
     );
@@ -400,13 +435,5 @@ function LayoutContent({ children, currentPageName }) {
         </main>
       </div>
     </SidebarProvider>
-  );
-}
-
-export default function Layout({ children, currentPageName }) {
-  return (
-    <AuthWrapper>
-      <LayoutContent children={children} currentPageName={currentPageName} />
-    </AuthWrapper>
   );
 }
