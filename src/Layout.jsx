@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import AuthWrapper from "@/components/auth/AuthWrapper";
 import {
   LayoutDashboard,
   Calendar,
@@ -40,7 +41,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
@@ -56,18 +57,7 @@ export default function Layout({ children, currentPageName }) {
 
   const loadUserAndOrg = async () => {
     try {
-      // Erst prüfen, ob User eingeloggt ist
-      const isAuthenticated = await base44.auth.isAuthenticated();
-      
-      if (!isAuthenticated) {
-        // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
-        console.log("User not authenticated, redirecting to login...");
-        setLoading(false);
-        base44.auth.redirectToLogin();
-        return;
-      }
-
-      // Nur wenn eingeloggt, User-Daten laden
+      // User ist bereits eingeloggt (durch AuthWrapper geprüft)
       const userData = await base44.auth.me();
       setUser(userData);
 
@@ -99,7 +89,6 @@ export default function Layout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error("Fehler beim Laden:", error);
-      // Bei jedem Fehler zur Login-Seite weiterleiten
       setLoading(false);
       base44.auth.redirectToLogin();
     }
@@ -411,5 +400,13 @@ export default function Layout({ children, currentPageName }) {
         </main>
       </div>
     </SidebarProvider>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <AuthWrapper>
+      <LayoutContent children={children} currentPageName={currentPageName} />
+    </AuthWrapper>
   );
 }
