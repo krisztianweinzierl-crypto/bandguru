@@ -60,10 +60,11 @@ Deno.serve(async (req) => {
         formData.append('subject', subject);
         formData.append('text', body);
 
-        console.log('Sending email via Mailgun to:', to);
+        console.log('Sending email via Mailgun EU to:', to);
 
-        const mailgunUrl = `https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
-        console.log('Mailgun URL:', mailgunUrl);
+        // EU Region API URL verwenden
+        const mailgunUrl = `https://api.eu.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`;
+        console.log('Mailgun URL (EU):', mailgunUrl);
 
         const mailgunResponse = await fetch(mailgunUrl, {
             method: 'POST',
