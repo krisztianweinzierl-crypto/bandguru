@@ -1,5 +1,4 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -15,7 +14,9 @@ import {
 
 export default function LandingPage() {
   const handleLogin = () => {
-    base44.auth.redirectToLogin();
+    // KEIN base44.auth.redirectToLogin() mehr!
+    // Direkte Weiterleitung zur Login-Seite
+    window.location.href = '/login';
   };
 
   return (

@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -30,46 +29,101 @@ export default function VertragKundenansichtPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [organisation, setOrganisation] = useState(null);
 
+  // DIREKTER API-CALL OHNE BASE44 SDK!
+  const fetchVertrag = async () => {
+    const response = await fetch(`https://app.base44.com/api/entities/Vertrag/filter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: { id: vertragId },
+        limit: 1
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Vertrag nicht gefunden');
+    }
+    
+    const data = await response.json();
+    return data[0];
+  };
+
+  const fetchKunde = async (kundeId) => {
+    const response = await fetch(`https://app.base44.com/api/entities/Kunde/filter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: { id: kundeId },
+        limit: 1
+      })
+    });
+    
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data[0];
+  };
+
+  const fetchEvent = async (eventId) => {
+    const response = await fetch(`https://app.base44.com/api/entities/Event/filter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: { id: eventId },
+        limit: 1
+      })
+    });
+    
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data[0];
+  };
+
+  const fetchOrganisation = async (orgId) => {
+    const response = await fetch(`https://app.base44.com/api/entities/Organisation/filter`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query: { id: orgId },
+        limit: 1
+      })
+    });
+    
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data[0];
+  };
+
   const { data: vertrag, isLoading, error } = useQuery({
     queryKey: ['vertrag-kunde', vertragId],
-    queryFn: async () => {
-      const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
-      if (vertraege.length === 0) {
-        throw new Error("Vertrag nicht gefunden");
-      }
-      return vertraege[0];
-    },
+    queryFn: fetchVertrag,
     enabled: !!vertragId,
   });
 
   const { data: kunde } = useQuery({
     queryKey: ['kunde', vertrag?.kunde_id],
-    queryFn: async () => {
-      if (!vertrag?.kunde_id) return null;
-      const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
-      return kunden[0];
-    },
+    queryFn: () => fetchKunde(vertrag.kunde_id),
     enabled: !!vertrag?.kunde_id,
   });
 
   const { data: event } = useQuery({
     queryKey: ['event', vertrag?.event_id],
-    queryFn: async () => {
-      if (!vertrag?.event_id) return null;
-      const events = await base44.entities.Event.filter({ id: vertrag.event_id });
-      return events[0];
-    },
+    queryFn: () => fetchEvent(vertrag.event_id),
     enabled: !!vertrag?.event_id,
   });
 
-  // Organisation laden
   useEffect(() => {
     if (vertrag?.org_id) {
-      base44.entities.Organisation.filter({ id: vertrag.org_id })
-        .then(orgs => {
-          if (orgs.length > 0) {
-            setOrganisation(orgs[0]);
-          }
+      fetchOrganisation(vertrag.org_id)
+        .then(org => {
+          if (org) setOrganisation(org);
         })
         .catch(err => console.error("Fehler beim Laden der Organisation:", err));
     }
@@ -83,12 +137,23 @@ export default function VertragKundenansichtPage() {
         unterschrift_kunde_datum: new Date().toISOString(),
       };
       
-      // Wenn Organisation auch unterschrieben hat, Status auf unterzeichnet setzen
       if (vertrag.unterschrift_organisation) {
         updateData.status = 'unterzeichnet';
       }
 
-      return await base44.entities.Vertrag.update(vertragId, updateData);
+      const response = await fetch(`https://app.base44.com/api/entities/Vertrag/${vertragId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Fehler beim Speichern der Unterschrift');
+      }
+
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId] });
@@ -98,7 +163,6 @@ export default function VertragKundenansichtPage() {
     },
   });
 
-  // Canvas Setup
   useEffect(() => {
     if (showUnterschriftModal && canvasRef.current) {
       const canvas = canvasRef.current;
@@ -185,7 +249,6 @@ export default function VertragKundenansichtPage() {
     );
   }
 
-  // Wenn nicht im Kundenportal sichtbar
   if (!vertrag.im_kundenportal_sichtbar) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
