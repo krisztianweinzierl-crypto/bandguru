@@ -48,40 +48,35 @@ export default function Layout({ children, currentPageName }) {
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
 
   useEffect(() => {
-    // Verzögere Auth-Check minimal, um LandingPage zuerst zu rendern
-    const timer = setTimeout(() => {
-      checkAuthAndLoadData();
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    checkAuthAndLoadData();
   }, []);
 
   const checkAuthAndLoadData = async () => {
     try {
       console.log("🔍 Checking authentication...");
       
-      // Sehr defensive Auth-Prüfung mit mehreren Fallback-Mechanismen
+      // Versuche User-Daten zu laden
       let userData = null;
       
       try {
         userData = await base44.auth.me();
       } catch (authError) {
-        console.log("⚠️ Auth check failed (expected for non-logged users):", authError.message);
-        // Fehler beim Auth-Check = nicht eingeloggt
+        console.log("⚠️ Auth check failed (user not logged in)");
+        // Nicht eingeloggt
         setIsAuthenticated(false);
-        setIsCheckingAuth(false);
+        setInitialLoadComplete(true);
         return;
       }
       
       if (!userData || !userData.id) {
-        console.log("ℹ️ No user data found - showing landing page");
+        console.log("ℹ️ No user data found");
         setIsAuthenticated(false);
-        setIsCheckingAuth(false);
+        setInitialLoadComplete(true);
         return;
       }
 
@@ -113,17 +108,17 @@ export default function Layout({ children, currentPageName }) {
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
         }
-        setIsCheckingAuth(false);
+        setInitialLoadComplete(true);
       } else {
         // Keine Organisation gefunden - Weiterleitung zum Onboarding
-        setIsCheckingAuth(false);
+        setInitialLoadComplete(true);
         window.location.href = createPageUrl('Onboarding');
       }
     } catch (error) {
       console.error("❌ Unexpected error during auth check:", error);
       // Bei JEDEM Fehler: Zeige Landing Page
       setIsAuthenticated(false);
-      setIsCheckingAuth(false);
+      setInitialLoadComplete(true);
     }
   };
 
@@ -192,9 +187,25 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [location.pathname]);
 
-  // WICHTIG: Zeige IMMER Landing Page während Auth-Check läuft
-  // Oder wenn nicht authentifiziert
-  if (isCheckingAuth || !isAuthenticated) {
+  // Initial Load: Zeige neutralen Loading Screen
+  if (!initialLoadComplete) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4 animate-pulse"
+          />
+          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
+          <p className="text-gray-600">Wird geladen...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Nach Initial Load: Wenn nicht eingeloggt, zeige Landing Page
+  if (!isAuthenticated) {
     return <LandingPage />;
   }
 
