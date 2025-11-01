@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import LandingPage from "@/pages/Landing";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -47,26 +48,28 @@ export default function Layout({ children, currentPageName }) {
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
 
   useEffect(() => {
-    loadUserAndOrg();
+    checkAuthAndLoadData();
   }, []);
 
-  const loadUserAndOrg = async () => {
+  const checkAuthAndLoadData = async () => {
     try {
       // Versuche User-Daten zu laden
       const userData = await base44.auth.me();
       
       if (!userData) {
-        // Kein User - warte einfach, Base44 sollte Login-Seite anzeigen
-        setAuthError(true);
+        // Kein User eingeloggt - zeige Landing Page
+        setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
+      // User ist eingeloggt
+      setIsAuthenticated(true);
       setUser(userData);
 
       const mitglieder = await base44.entities.Mitglied.filter({ 
@@ -96,11 +99,9 @@ export default function Layout({ children, currentPageName }) {
         window.location.href = createPageUrl('Onboarding');
       }
     } catch (error) {
-      console.error("Fehler beim Laden:", error);
-      // Wenn Fehler wegen fehlender Authentifizierung, zeige Hinweis
-      if (error.message?.includes('logged in') || error.response?.status === 401 || error.response?.status === 403) {
-        setAuthError(true);
-      }
+      console.error("Auth check failed:", error);
+      // Bei Fehler: User ist nicht eingeloggt
+      setIsAuthenticated(false);
       setLoading(false);
     }
   };
@@ -186,28 +187,9 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  if (authError) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center max-w-md mx-auto p-8">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
-            alt="Bandguru Logo"
-            className="w-24 h-24 mx-auto mb-4"
-          />
-          <h2 className="text-2xl font-bold mb-4">Anmeldung erforderlich</h2>
-          <p className="text-gray-600 mb-6">
-            Du musst angemeldet sein, um auf Bandguru zuzugreifen.
-          </p>
-          <Button 
-            onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-          >
-            Zur Anmeldung
-          </Button>
-        </div>
-      </div>
-    );
+  // Wenn nicht eingeloggt: Zeige Landing Page
+  if (!isAuthenticated) {
+    return <LandingPage />;
   }
 
   if (!currentOrg) {

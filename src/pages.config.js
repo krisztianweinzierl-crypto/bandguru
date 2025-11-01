@@ -20,6 +20,7 @@ import Vertraege from './pages/Vertraege';
 import VertragDetail from './pages/VertragDetail';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import VertragKundenansicht from './pages/VertragKundenansicht';
+import Landing from './pages/Landing';
 import Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "VertragDetail": VertragDetail,
     "Vertragsvorlagen": Vertragsvorlagen,
     "VertragKundenansicht": VertragKundenansicht,
+    "Landing": Landing,
 }
 
 export const pagesConfig = {
