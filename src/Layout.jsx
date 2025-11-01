@@ -21,7 +21,9 @@ import {
   Check,
   CalendarDays,
   ChevronRight,
-  FileSignature
+  FileSignature,
+  Plus,
+  ArrowRight
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,21 +41,20 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
-  // WICHTIG: Diese Seiten benötigen KEIN Layout
-  const pagesWithoutLayout = ['VertragKundenansicht', 'Onboarding'];
-  const isPageWithoutLayout = pagesWithoutLayout.includes(currentPageName);
+  // Nur Vertragsansicht benötigt kein Layout
+  const isPublicPage = currentPageName === 'VertragKundenansicht';
   
-  // Wenn es eine Seite ohne Layout ist, rendere nur den Content
-  if (isPageWithoutLayout) {
-    console.log(`📄 Page "${currentPageName}" wird OHNE Layout gerendert`);
+  if (isPublicPage) {
     return <>{children}</>;
   }
 
-  // Ab hier: Nur für geschützte Seiten (mit Auth & Layout)
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -62,6 +63,15 @@ export default function Layout({ children, currentPageName }) {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [orgData, setOrgData] = useState({
+    name: "",
+    adresse: "",
+    steuernummer: "",
+    waehrung: "EUR",
+    zeitzone: "Europe/Berlin",
+    primary_color: "#3B82F6"
+  });
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -69,38 +79,37 @@ export default function Layout({ children, currentPageName }) {
 
   const checkAuthAndLoadData = async () => {
     try {
-      console.log("🔍 Layout: Checking authentication...");
+      console.log("🔍 Checking authentication...");
       
       let userData = null;
       
       try {
         userData = await base44.auth.me();
       } catch (authError) {
-        console.log("⚠️ Layout: Auth check failed - user not logged in");
+        console.log("⚠️ Auth check failed");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
       }
       
       if (!userData || !userData.id) {
-        console.log("ℹ️ Layout: No user data found");
+        console.log("ℹ️ No user data found");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
       }
 
-      console.log("✅ Layout: User authenticated:", userData.email);
+      console.log("✅ User authenticated:", userData.email);
       
       setUser(userData);
       setIsAuthenticated(true);
 
-      // Prüfe Mitgliedschaften
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
       });
       
-      console.log(`📋 Layout: ${mitglieder.length} aktive Mitgliedschaften gefunden`);
+      console.log(`📋 ${mitglieder.length} Mitgliedschaften gefunden`);
       setMitgliedschaften(mitglieder);
 
       if (mitglieder.length > 0) {
@@ -115,26 +124,51 @@ export default function Layout({ children, currentPageName }) {
         const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
         
         if (org) {
-          console.log("✅ Layout: Organisation geladen:", org.name);
+          console.log("✅ Organisation geladen:", org.name);
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
         }
         setInitialLoadComplete(true);
       } else {
-        // Keine Organisation gefunden - Weiterleitung zum Onboarding
-        console.log("⚠️ Layout: Keine Organisation gefunden, redirect zu Onboarding");
+        // Keine Organisation - zeige Onboarding IM Layout
+        console.log("ℹ️ Keine Organisation gefunden - zeige Onboarding");
+        setShowOnboarding(true);
         setInitialLoadComplete(true);
-        
-        // Verhindere Schleife: Nur weiterleiten wenn NICHT bereits auf Onboarding
-        if (window.location.pathname !== createPageUrl('Onboarding')) {
-          console.log("🔄 Layout: Leite zu Onboarding weiter...");
-          window.location.href = createPageUrl('Onboarding');
-        }
       }
     } catch (error) {
-      console.error("❌ Layout: Unexpected error during auth check:", error);
+      console.error("❌ Error during auth check:", error);
       setIsAuthenticated(false);
       setInitialLoadComplete(true);
+    }
+  };
+
+  const handleCreateOrg = async (e) => {
+    e.preventDefault();
+    
+    if (!orgData.name.trim()) {
+      alert("Bitte gib einen Namen für deine Organisation ein");
+      return;
+    }
+
+    try {
+      console.log("🚀 Erstelle Organisation...");
+      
+      const org = await base44.entities.Organisation.create(orgData);
+      console.log("✅ Organisation erstellt:", org.id);
+      
+      await base44.entities.Mitglied.create({
+        org_id: org.id,
+        user_id: user.id,
+        rolle: "Band Manager",
+        status: "aktiv"
+      });
+      console.log("✅ Mitgliedschaft erstellt");
+      
+      localStorage.setItem('currentOrgId', org.id);
+      window.location.reload();
+    } catch (error) {
+      console.error("❌ Fehler:", error);
+      alert("Fehler beim Erstellen der Organisation: " + error.message);
     }
   };
 
@@ -203,7 +237,7 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [location.pathname]);
 
-  // Während Auth-Check läuft: Loading Screen
+  // Loading
   if (!initialLoadComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -220,7 +254,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Nicht eingeloggt: Base44 zeigt automatisch Login-Screen
+  // Nicht eingeloggt
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -232,6 +266,96 @@ export default function Layout({ children, currentPageName }) {
           />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Authentifizierung läuft...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Onboarding anzeigen (KEINE Organisation)
+  if (showOnboarding) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                alt="Bandguru Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
+            </div>
+            <p className="text-xl text-gray-600">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
+          </div>
+
+          <Card className="border-none shadow-xl">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+              <CardTitle className="text-xl">Deine Organisation erstellen</CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              <form onSubmit={handleCreateOrg} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-base font-semibold">
+                    Name deiner Band / Organisation *
+                  </Label>
+                  <Input
+                    id="name"
+                    value={orgData.name}
+                    onChange={(e) => setOrgData({...orgData, name: e.target.value})}
+                    placeholder="z.B. Die Fantastischen Vier"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="adresse">Adresse (optional)</Label>
+                  <Input
+                    id="adresse"
+                    value={orgData.adresse}
+                    onChange={(e) => setOrgData({...orgData, adresse: e.target.value})}
+                    placeholder="z.B. Musterstraße 123, 12345 Berlin"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="waehrung">Währung</Label>
+                    <select
+                      id="waehrung"
+                      value={orgData.waehrung}
+                      onChange={(e) => setOrgData({...orgData, waehrung: e.target.value})}
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                    >
+                      <option value="EUR">EUR (€)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="CHF">CHF (Fr.)</option>
+                      <option value="GBP">GBP (£)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="color">Primärfarbe</Label>
+                    <Input
+                      id="color"
+                      type="color"
+                      value={orgData.primary_color}
+                      onChange={(e) => setOrgData({...orgData, primary_color: e.target.value})}
+                      className="h-10 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                >
+                  Organisation erstellen
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -254,7 +378,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // User ist authentifiziert und Organisation ist geladen - zeige App
+  // Normale App mit Sidebar
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
