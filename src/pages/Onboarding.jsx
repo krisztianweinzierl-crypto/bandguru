@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [orgData, setOrgData] = useState({
     name: "",
     adresse: "",
@@ -21,12 +22,58 @@ export default function OnboardingPage() {
     primary_color: "#3B82F6"
   });
 
+  useEffect(() => {
+    checkUserAndOrg();
+  }, []);
+
+  const checkUserAndOrg = async () => {
+    try {
+      console.log("🔍 Onboarding: Checking user and organisation...");
+      
+      const userData = await base44.auth.me();
+      
+      if (!userData) {
+        console.log("❌ No user found, redirecting to login");
+        window.location.href = '/login';
+        return;
+      }
+
+      console.log("✅ User found:", userData.email);
+      setUser(userData);
+
+      // Prüfe ob User bereits Mitglied einer Organisation ist
+      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        user_id: userData.id
+      });
+
+      console.log("📋 Mitgliedschaften gefunden:", mitgliedschaften.length);
+
+      if (mitgliedschaften.length > 0) {
+        // User hat bereits eine Organisation - zum Dashboard
+        console.log("✅ User hat bereits Organisation, redirect zu Dashboard");
+        const orgId = mitgliedschaften[0].org_id;
+        localStorage.setItem('currentOrgId', orgId);
+        window.location.href = createPageUrl('Dashboard');
+        return;
+      }
+
+      // User hat keine Organisation - Onboarding anzeigen
+      console.log("ℹ️ Keine Organisation gefunden, zeige Onboarding");
+      setIsLoading(false);
+      
+    } catch (error) {
+      console.error("❌ Fehler beim Laden:", error);
+      setIsLoading(false);
+    }
+  };
+
   const createOrgMutation = useMutation({
     mutationFn: async (data) => {
-      const user = await base44.auth.me();
+      console.log("🚀 Erstelle Organisation...");
       
       // 1. Organisation erstellen
       const org = await base44.entities.Organisation.create(data);
+      console.log("✅ Organisation erstellt:", org.id);
       
       // 2. Mitgliedschaft erstellen
       await base44.entities.Mitglied.create({
@@ -35,24 +82,48 @@ export default function OnboardingPage() {
         rolle: "Band Manager",
         status: "aktiv"
       });
+      console.log("✅ Mitgliedschaft erstellt");
       
       return org;
     },
     onSuccess: (org) => {
+      console.log("🎉 Onboarding erfolgreich abgeschlossen");
       localStorage.setItem('currentOrgId', org.id);
-      navigate(createPageUrl('Dashboard'));
-      window.location.reload();
+      // Harte Weiterleitung mit Reload
+      window.location.href = createPageUrl('Dashboard');
     },
     onError: (error) => {
-      console.error("Fehler beim Erstellen der Organisation:", error);
+      console.error("❌ Fehler beim Erstellen der Organisation:", error);
       alert("Fehler beim Erstellen der Organisation. Bitte versuche es erneut.");
     }
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!orgData.name.trim()) {
+      alert("Bitte gib einen Namen für deine Organisation ein");
+      return;
+    }
+
     createOrgMutation.mutate(orgData);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4 animate-pulse"
+          />
+          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
+          <p className="text-gray-600">Prüfe Zugang...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
@@ -60,7 +131,11 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Music className="w-12 h-12 text-blue-600" />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+              alt="Bandguru Logo"
+              className="w-16 h-16 object-contain"
+            />
             <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
           </div>
           <p className="text-xl text-gray-600">Willkommen! Lass uns deine Band einrichten.</p>

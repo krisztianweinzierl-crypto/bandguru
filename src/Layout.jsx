@@ -49,6 +49,7 @@ export default function Layout({ children, currentPageName }) {
   
   // Wenn es eine Seite ohne Layout ist, rendere nur den Content
   if (isPageWithoutLayout) {
+    console.log(`📄 Page "${currentPageName}" wird OHNE Layout gerendert`);
     return <>{children}</>;
   }
 
@@ -68,35 +69,38 @@ export default function Layout({ children, currentPageName }) {
 
   const checkAuthAndLoadData = async () => {
     try {
-      console.log("🔍 Checking authentication...");
+      console.log("🔍 Layout: Checking authentication...");
       
       let userData = null;
       
       try {
         userData = await base44.auth.me();
       } catch (authError) {
-        console.log("⚠️ Auth check failed - redirecting to login");
+        console.log("⚠️ Layout: Auth check failed - user not logged in");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
       }
       
       if (!userData || !userData.id) {
-        console.log("ℹ️ No user data found - redirecting to login");
+        console.log("ℹ️ Layout: No user data found");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
       }
 
-      console.log("✅ User authenticated:", userData.email);
+      console.log("✅ Layout: User authenticated:", userData.email);
       
       setUser(userData);
       setIsAuthenticated(true);
 
+      // Prüfe Mitgliedschaften
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
       });
+      
+      console.log(`📋 Layout: ${mitglieder.length} aktive Mitgliedschaften gefunden`);
       setMitgliedschaften(mitglieder);
 
       if (mitglieder.length > 0) {
@@ -111,18 +115,24 @@ export default function Layout({ children, currentPageName }) {
         const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
         
         if (org) {
+          console.log("✅ Layout: Organisation geladen:", org.name);
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
         }
         setInitialLoadComplete(true);
       } else {
         // Keine Organisation gefunden - Weiterleitung zum Onboarding
-        console.log("ℹ️ No organisation found - redirecting to Onboarding");
+        console.log("⚠️ Layout: Keine Organisation gefunden, redirect zu Onboarding");
         setInitialLoadComplete(true);
-        window.location.href = createPageUrl('Onboarding');
+        
+        // Verhindere Schleife: Nur weiterleiten wenn NICHT bereits auf Onboarding
+        if (window.location.pathname !== createPageUrl('Onboarding')) {
+          console.log("🔄 Layout: Leite zu Onboarding weiter...");
+          window.location.href = createPageUrl('Onboarding');
+        }
       }
     } catch (error) {
-      console.error("❌ Unexpected error during auth check:", error);
+      console.error("❌ Layout: Unexpected error during auth check:", error);
       setIsAuthenticated(false);
       setInitialLoadComplete(true);
     }
