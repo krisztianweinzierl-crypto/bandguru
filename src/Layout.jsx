@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -57,6 +56,18 @@ export default function Layout({ children, currentPageName }) {
 
   const loadUserAndOrg = async () => {
     try {
+      // Erst prüfen, ob User eingeloggt ist
+      const isAuthenticated = await base44.auth.isAuthenticated();
+      
+      if (!isAuthenticated) {
+        // Wenn nicht eingeloggt, zur Login-Seite weiterleiten
+        console.log("User not authenticated, redirecting to login...");
+        setLoading(false);
+        base44.auth.redirectToLogin();
+        return;
+      }
+
+      // Nur wenn eingeloggt, User-Daten laden
       const userData = await base44.auth.me();
       setUser(userData);
 
@@ -88,7 +99,9 @@ export default function Layout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error("Fehler beim Laden:", error);
+      // Bei jedem Fehler zur Login-Seite weiterleiten
       setLoading(false);
+      base44.auth.redirectToLogin();
     }
   };
 
