@@ -43,16 +43,16 @@ import { Button } from "@/components/ui/button";
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
-  // WICHTIG: Vertragsansicht benötigt KEIN Layout und KEINE Auth
-  // Diese Seite muss öffentlich zugänglich sein (Magic-Links)
-  const isPublicPage = currentPageName === 'VertragKundenansicht';
+  // WICHTIG: Diese Seiten benötigen KEIN Layout
+  const pagesWithoutLayout = ['VertragKundenansicht', 'Onboarding'];
+  const isPageWithoutLayout = pagesWithoutLayout.includes(currentPageName);
   
-  // Wenn es eine öffentliche Seite ist, rendere nur den Content ohne Layout
-  if (isPublicPage) {
+  // Wenn es eine Seite ohne Layout ist, rendere nur den Content
+  if (isPageWithoutLayout) {
     return <>{children}</>;
   }
 
-  // Ab hier: Nur für geschützte Seiten (mit Auth)
+  // Ab hier: Nur für geschützte Seiten (mit Auth & Layout)
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -76,7 +76,6 @@ export default function Layout({ children, currentPageName }) {
         userData = await base44.auth.me();
       } catch (authError) {
         console.log("⚠️ Auth check failed - redirecting to login");
-        // Nicht eingeloggt - Base44 zeigt automatisch Login-Screen
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
@@ -117,6 +116,8 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
+        // Keine Organisation gefunden - Weiterleitung zum Onboarding
+        console.log("ℹ️ No organisation found - redirecting to Onboarding");
         setInitialLoadComplete(true);
         window.location.href = createPageUrl('Onboarding');
       }
@@ -210,7 +211,6 @@ export default function Layout({ children, currentPageName }) {
   }
 
   // Nicht eingeloggt: Base44 zeigt automatisch Login-Screen
-  // Wir zeigen nur einen kurzen Loading Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
