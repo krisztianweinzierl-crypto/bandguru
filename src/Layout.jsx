@@ -39,7 +39,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import LandingPage from "@/pages/Landing";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -76,14 +75,15 @@ export default function Layout({ children, currentPageName }) {
       try {
         userData = await base44.auth.me();
       } catch (authError) {
-        console.log("⚠️ Auth check failed (user not logged in)");
+        console.log("⚠️ Auth check failed - redirecting to login");
+        // Nicht eingeloggt - Base44 zeigt automatisch Login-Screen
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
       }
       
       if (!userData || !userData.id) {
-        console.log("ℹ️ No user data found");
+        console.log("ℹ️ No user data found - redirecting to login");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
@@ -192,6 +192,7 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [location.pathname]);
 
+  // Während Auth-Check läuft: Loading Screen
   if (!initialLoadComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -208,10 +209,25 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
+  // Nicht eingeloggt: Base44 zeigt automatisch Login-Screen
+  // Wir zeigen nur einen kurzen Loading Screen
   if (!isAuthenticated) {
-    return <LandingPage />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+            alt="Bandguru Logo"
+            className="w-24 h-24 mx-auto mb-4 animate-pulse"
+          />
+          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
+          <p className="text-gray-600">Authentifizierung läuft...</p>
+        </div>
+      </div>
+    );
   }
 
+  // Warte auf Organisation
   if (!currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -228,6 +244,7 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
+  // User ist authentifiziert und Organisation ist geladen - zeige App
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
