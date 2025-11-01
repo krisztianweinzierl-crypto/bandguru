@@ -47,31 +47,51 @@ export default function Layout({ children, currentPageName }) {
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
   const [organisations, setOrganisations] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
 
   useEffect(() => {
-    checkAuthAndLoadData();
+    // Verzögere Auth-Check minimal, um LandingPage zuerst zu rendern
+    const timer = setTimeout(() => {
+      checkAuthAndLoadData();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const checkAuthAndLoadData = async () => {
     try {
-      // Versuche User-Daten zu laden
-      const userData = await base44.auth.me();
+      console.log("🔍 Checking authentication...");
       
-      if (!userData) {
-        // Kein User eingeloggt - zeige Landing Page
+      // Sehr defensive Auth-Prüfung mit mehreren Fallback-Mechanismen
+      let userData = null;
+      
+      try {
+        userData = await base44.auth.me();
+      } catch (authError) {
+        console.log("⚠️ Auth check failed (expected for non-logged users):", authError.message);
+        // Fehler beim Auth-Check = nicht eingeloggt
         setIsAuthenticated(false);
-        setLoading(false);
+        setIsCheckingAuth(false);
+        return;
+      }
+      
+      if (!userData || !userData.id) {
+        console.log("ℹ️ No user data found - showing landing page");
+        setIsAuthenticated(false);
+        setIsCheckingAuth(false);
         return;
       }
 
-      // User ist eingeloggt
-      setIsAuthenticated(true);
+      console.log("✅ User authenticated:", userData.email);
+      
+      // User ist eingeloggt - lade App-Daten
       setUser(userData);
+      setIsAuthenticated(true);
 
+      // Lade Mitgliedschaften
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
@@ -93,16 +113,17 @@ export default function Layout({ children, currentPageName }) {
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
         }
-        setLoading(false);
+        setIsCheckingAuth(false);
       } else {
-        setLoading(false);
+        // Keine Organisation gefunden - Weiterleitung zum Onboarding
+        setIsCheckingAuth(false);
         window.location.href = createPageUrl('Onboarding');
       }
     } catch (error) {
-      console.error("Auth check failed:", error);
-      // Bei Fehler: User ist nicht eingeloggt
+      console.error("❌ Unexpected error during auth check:", error);
+      // Bei JEDEM Fehler: Zeige Landing Page
       setIsAuthenticated(false);
-      setLoading(false);
+      setIsCheckingAuth(false);
     }
   };
 
@@ -171,27 +192,13 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [location.pathname]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
-            alt="Bandguru Logo"
-            className="w-24 h-24 mx-auto mb-4 animate-pulse"
-          />
-          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Lade Daten...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Wenn nicht eingeloggt: Zeige Landing Page
-  if (!isAuthenticated) {
+  // WICHTIG: Zeige IMMER Landing Page während Auth-Check läuft
+  // Oder wenn nicht authentifiziert
+  if (isCheckingAuth || !isAuthenticated) {
     return <LandingPage />;
   }
 
+  // Warte auf Organisation
   if (!currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -202,12 +209,13 @@ export default function Layout({ children, currentPageName }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse"
           />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Keine Organisation gefunden. Weiterleitung zum Onboarding...</p>
+          <p className="text-gray-600">Lade Organisation...</p>
         </div>
       </div>
     );
   }
 
+  // User ist authentifiziert und Organisation ist geladen - zeige App
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
