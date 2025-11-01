@@ -43,6 +43,17 @@ import LandingPage from "@/pages/Landing";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  
+  // WICHTIG: Vertragsansicht benötigt KEIN Layout und KEINE Auth
+  // Diese Seite muss öffentlich zugänglich sein (Magic-Links)
+  const isPublicPage = currentPageName === 'VertragKundenansicht';
+  
+  // Wenn es eine öffentliche Seite ist, rendere nur den Content ohne Layout
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
+
+  // Ab hier: Nur für geschützte Seiten (mit Auth)
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -60,14 +71,12 @@ export default function Layout({ children, currentPageName }) {
     try {
       console.log("🔍 Checking authentication...");
       
-      // Versuche User-Daten zu laden
       let userData = null;
       
       try {
         userData = await base44.auth.me();
       } catch (authError) {
         console.log("⚠️ Auth check failed (user not logged in)");
-        // Nicht eingeloggt
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
@@ -82,11 +91,9 @@ export default function Layout({ children, currentPageName }) {
 
       console.log("✅ User authenticated:", userData.email);
       
-      // User ist eingeloggt - lade App-Daten
       setUser(userData);
       setIsAuthenticated(true);
 
-      // Lade Mitgliedschaften
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
@@ -110,13 +117,11 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
-        // Keine Organisation gefunden - Weiterleitung zum Onboarding
         setInitialLoadComplete(true);
         window.location.href = createPageUrl('Onboarding');
       }
     } catch (error) {
       console.error("❌ Unexpected error during auth check:", error);
-      // Bei JEDEM Fehler: Zeige Landing Page
       setIsAuthenticated(false);
       setInitialLoadComplete(true);
     }
@@ -187,7 +192,6 @@ export default function Layout({ children, currentPageName }) {
     });
   }, [location.pathname]);
 
-  // Initial Load: Zeige neutralen Loading Screen
   if (!initialLoadComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -204,12 +208,10 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Nach Initial Load: Wenn nicht eingeloggt, zeige Landing Page
   if (!isAuthenticated) {
     return <LandingPage />;
   }
 
-  // Warte auf Organisation
   if (!currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -226,7 +228,6 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // User ist authentifiziert und Organisation ist geladen - zeige App
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gray-50">
