@@ -157,7 +157,7 @@ export default function Layout({ children, currentPageName }) {
           status: "eingeladen"
         });
         
-        console.log(`📨 ${invites.length} schwebende Einladungen gefunden`);
+        console.log(`📨 ${invites.length} schwebende Einladungen gefunden`, invites);
         
         if (invites.length > 0) {
           // Lade die zugehörigen Organisationen
@@ -167,15 +167,24 @@ export default function Layout({ children, currentPageName }) {
           );
           const orgList = orgs.flat();
           
+          console.log("🏢 Organisationen geladen:", orgList);
+          
           // Kombiniere Einladungen mit Organisationen
           const invitesWithOrgs = invites.map(invite => ({
             ...invite,
             organisation: orgList.find(o => o.id === invite.org_id)
           }));
           
+          console.log("✅ Einladungen mit Orgs:", invitesWithOrgs);
+          
+          // WICHTIG: States in der richtigen Reihenfolge setzen
           setPendingInvites(invitesWithOrgs);
-          setShowPendingInvites(true);
-          setInitialLoadComplete(true);
+          
+          // Kurze Verzögerung damit pendingInvites State gesetzt wird
+          setTimeout(() => {
+            setShowPendingInvites(true);
+            setInitialLoadComplete(true);
+          }, 100);
         } else {
           // Keine Einladungen - zeige Onboarding
           console.log("ℹ️ Keine Einladungen - zeige Onboarding");
