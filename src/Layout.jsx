@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -23,7 +24,11 @@ import {
   ChevronRight,
   FileSignature,
   Plus,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  Guitar, // Added icon
+  Zap, // Added icon
+  Shield // Added icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -86,7 +91,7 @@ export default function Layout({ children, currentPageName }) {
       try {
         userData = await base44.auth.me();
       } catch (authError) {
-        console.log("⚠️ Auth check failed");
+        console.log("⚠️ Auth check failed - user not logged in");
         setIsAuthenticated(false);
         setInitialLoadComplete(true);
         return;
@@ -130,7 +135,7 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
-        // Keine Organisation - zeige Onboarding IM Layout
+        // Keine Organisation - zeige Onboarding
         console.log("ℹ️ Keine Organisation gefunden - zeige Onboarding");
         setShowOnboarding(true);
         setInitialLoadComplete(true);
@@ -254,19 +259,227 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Nicht eingeloggt
+  // Landing Page für nicht eingeloggte User
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="text-center">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
-            alt="Bandguru Logo"
-            className="w-24 h-24 mx-auto mb-4 animate-pulse"
-          />
-          <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Authentifizierung läuft...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        {/* Header */}
+        <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                alt="Bandguru Logo"
+                className="w-12 h-12 object-contain"
+              />
+              <h1 className="text-2xl font-bold text-gray-900">Bandguru</h1>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline"
+                onClick={() => base44.auth.redirectToLogin()}
+                className="hidden sm:flex"
+              >
+                Anmelden
+              </Button>
+              <Button 
+                onClick={() => base44.auth.redirectToLogin()}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              >
+                Kostenlos starten
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        {/* Hero Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              Das ultimative Band-Management Tool
+            </div>
+            
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Verwalte deine Band
+              <br />
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                professionell & einfach
+              </span>
+            </h2>
+            
+            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+              Events organisieren, Musiker koordinieren, Kunden verwalten, Finanzen im Blick behalten – 
+              alles an einem Ort. Für Bands, die mehr wollen.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg"
+                onClick={() => base44.auth.redirectToLogin()}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-lg h-14 px-8"
+              >
+                Jetzt kostenlos starten
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button 
+                size="lg"
+                variant="outline"
+                onClick={() => base44.auth.redirectToLogin()}
+                className="text-lg h-14 px-8"
+              >
+                Anmelden
+              </Button>
+            </div>
+          </div>
+
+          {/* Screenshot/Preview */}
+          <div className="mt-20 relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent rounded-3xl blur-3xl" />
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/87a1fd4b2_Bildschirmfoto2025-11-02um073357.png"
+              alt="Bandguru Dashboard Preview"
+              className="relative rounded-2xl shadow-2xl border border-gray-200 w-full"
+            />
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="bg-white py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Alles, was deine Band braucht
+              </h3>
+              <p className="text-xl text-gray-600">
+                Von Event-Management bis zur Rechnungsstellung
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <Calendar className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <CardTitle>Event-Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Plane und verwalte alle deine Auftritte an einem Ort. Mit Kalender, Checklisten und automatischen Erinnerungen.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <Users className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <CardTitle>Musiker-Pool</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Verwalte dein Musiker-Netzwerk mit Verfügbarkeiten, Instrumenten und Gagen. Perfekt für flexible Besetzungen.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <DollarSign className="w-6 h-6 text-green-600" />
+                  </div>
+                  <CardTitle>Finanzen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Erstelle Rechnungen, verfolge Zahlungen und behalte Ausgaben im Blick. Alles für eine saubere Buchhaltung.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                    <Target className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <CardTitle>Lead-Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Verfolge Anfragen von der ersten Kontaktaufnahme bis zum gebuchten Event. Nie wieder eine Opportunity verpassen.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                    <Music className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <CardTitle>Repertoire</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Verwalte Songs, Setlisten und Arrangements. Perfekt für die Planung eurer Shows.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                    <FileSignature className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <CardTitle>Verträge</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Erstelle professionelle Verträge mit digitaler Unterschrift. Rechtssicher und unkompliziert.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="bg-gradient-to-br from-blue-500 to-indigo-600 py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Bereit loszulegen?
+            </h3>
+            <p className="text-xl text-blue-100 mb-10">
+              Erstelle dein kostenloses Konto und manage deine Band professionell
+            </p>
+            <Button 
+              size="lg"
+              onClick={() => base44.auth.redirectToLogin()}
+              className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-14 px-8"
+            >
+              Jetzt kostenlos starten
+              <Zap className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-gray-400 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                alt="Bandguru Logo"
+                className="w-8 h-8 object-contain opacity-80"
+              />
+              <span className="text-lg font-semibold text-white">Bandguru</span>
+            </div>
+            <p className="text-sm">
+              © 2025 Bandguru. Professionelles Band-Management für Musiker.
+            </p>
+          </div>
+        </footer>
       </div>
     );
   }
