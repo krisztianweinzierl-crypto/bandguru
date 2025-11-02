@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
 import {
   LayoutDashboard,
   Calendar,
@@ -28,7 +30,8 @@ import {
   Sparkles,
   Guitar,
   Zap,
-  Shield
+  Shield,
+  UserPlus
 } from "lucide-react";
 import {
   Sidebar,
@@ -69,6 +72,8 @@ export default function Layout({ children, currentPageName }) {
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [pendingInvites, setPendingInvites] = useState([]);
+  const [showPendingInvites, setShowPendingInvites] = useState(false);
   const [orgData, setOrgData] = useState({
     name: "",
     adresse: "",
@@ -123,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
         status: "aktiv" 
       });
       
-      console.log(`📋 ${mitglieder.length} Mitgliedschaften gefunden`);
+      console.log(`📋 ${mitglieder.length} aktive Mitgliedschaften gefunden`);
       setMitgliedschaften(mitglieder);
 
       if (mitglieder.length > 0) {
@@ -144,15 +149,50 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
-        console.log("ℹ️ Keine Organisation gefunden - zeige Onboarding");
-        setShowOnboarding(true);
-        setInitialLoadComplete(true);
+        // Keine aktiven Mitgliedschaften - prüfe auf schwebende Einladungen
+        console.log("ℹ️ Keine aktive Mitgliedschaft - prüfe auf Einladungen...");
+        
+        const invites = await base44.entities.Mitglied.filter({ 
+          invite_email: userData.email,
+          status: "eingeladen"
+        });
+        
+        console.log(`📨 ${invites.length} schwebende Einladungen gefunden`);
+        
+        if (invites.length > 0) {
+          // Lade die zugehörigen Organisationen
+          const orgIds = [...new Set(invites.map(i => i.org_id))];
+          const orgs = await Promise.all(
+            orgIds.map(id => base44.entities.Organisation.filter({ id }))
+          );
+          const orgList = orgs.flat();
+          
+          // Kombiniere Einladungen mit Organisationen
+          const invitesWithOrgs = invites.map(invite => ({
+            ...invite,
+            organisation: orgList.find(o => o.id === invite.org_id)
+          }));
+          
+          setPendingInvites(invitesWithOrgs);
+          setShowPendingInvites(true);
+          setInitialLoadComplete(true);
+        } else {
+          // Keine Einladungen - zeige Onboarding
+          console.log("ℹ️ Keine Einladungen - zeige Onboarding");
+          setShowOnboarding(true);
+          setInitialLoadComplete(true);
+        }
       }
     } catch (error) {
       console.error("❌ Error during auth check:", error);
       setIsAuthenticated(false);
       setInitialLoadComplete(true);
     }
+  };
+
+  const handleAcceptInvite = (invite) => {
+    // Weiterleitung zur AcceptInvite-Seite mit Token
+    window.location.href = createPageUrl(`AcceptInvite?token=${invite.invite_token}`);
   };
 
   const handleCreateOrg = async (e) => {
@@ -504,7 +544,107 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // Onboarding anzeigen (KEINE Organisation)
+  // Schwebende Einladungen anzeigen
+  if (showPendingInvites && pendingInvites.length > 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
+                alt="Bandguru Logo"
+                className="w-16 h-16 object-contain"
+              />
+              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
+            </div>
+            <p className="text-xl text-gray-600">
+              Willkommen {user?.full_name || user?.email}! 🎉
+            </p>
+            <p className="text-gray-600 mt-2">
+              Du wurdest zu {pendingInvites.length === 1 ? 'einer Organisation' : `${pendingInvites.length} Organisationen`} eingeladen!
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {pendingInvites.map((invite) => (
+              <Card key={invite.id} className="border-none shadow-xl hover:shadow-2xl transition-all">
+                <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                      style={{ backgroundColor: invite.organisation?.primary_color || '#3B82F6' }}
+                    >
+                      {invite.organisation?.name?.[0]?.toUpperCase() || 'B'}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl text-white">
+                        {invite.organisation?.name || 'Organisation'}
+                      </CardTitle>
+                      <p className="text-blue-100 text-sm mt-1">
+                        Rolle: <span className="font-semibold">{invite.rolle}</span>
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
+                      <UserPlus className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-700">
+                          Du wurdest als <span className="font-semibold">{invite.rolle}</span> eingeladen.
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Klicke auf "Einladung annehmen" um der Organisation beizutreten.
+                        </p>
+                      </div>
+                    </div>
+
+                    {invite.invite_expires_at && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          Gültig bis: {format(new Date(invite.invite_expires_at), 'dd. MMM yyyy', { locale: de })}
+                        </span>
+                      </div>
+                    )}
+
+                    <Button
+                      onClick={() => handleAcceptInvite(invite)}
+                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 h-12"
+                    >
+                      <Check className="w-5 h-5 mr-2" />
+                      Einladung annehmen
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500 mb-4">
+              Oder möchtest du lieber deine eigene Organisation erstellen?
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPendingInvites(false);
+                setShowOnboarding(true);
+              }}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Eigene Organisation erstellen
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Onboarding anzeigen (KEINE Organisation UND KEINE Einladungen)
   if (showOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
