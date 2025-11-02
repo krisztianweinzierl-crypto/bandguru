@@ -26,9 +26,9 @@ import {
   Plus,
   ArrowRight,
   Sparkles,
-  Guitar, // Added icon
-  Zap, // Added icon
-  Shield // Added icon
+  Guitar,
+  Zap,
+  Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -77,6 +77,15 @@ export default function Layout({ children, currentPageName }) {
     zeitzone: "Europe/Berlin",
     primary_color: "#3B82F6"
   });
+
+  // Prüfe ob wir im iframe (Preview-Modus) sind
+  const isInIframe = () => {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
+    }
+  };
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -135,7 +144,6 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
-        // Keine Organisation - zeige Onboarding
         console.log("ℹ️ Keine Organisation gefunden - zeige Onboarding");
         setShowOnboarding(true);
         setInitialLoadComplete(true);
@@ -183,6 +191,19 @@ export default function Layout({ children, currentPageName }) {
     localStorage.setItem('currentOrgId', orgId);
     setShowOrgSwitcher(false);
     window.location.reload();
+  };
+
+  const handleLogout = () => {
+    if (isInIframe()) {
+      // Im Preview-Modus: Einfach zur Login-Seite redirecten
+      console.log("🔄 Preview-Modus: Redirect zu Login");
+      localStorage.clear();
+      window.location.href = '/login';
+    } else {
+      // Normaler Browser: Standard Logout
+      console.log("🔄 Normaler Logout");
+      base44.auth.logout();
+    }
   };
 
   const toggleMenu = (menuKey) => {
@@ -771,7 +792,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
             <button
-              onClick={() => base44.auth.logout()}
+              onClick={handleLogout}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />
