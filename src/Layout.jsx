@@ -195,10 +195,10 @@ export default function Layout({ children, currentPageName }) {
 
   const handleLogout = () => {
     if (isInIframe()) {
-      // Im Preview-Modus: Einfach zur Login-Seite redirecten
-      console.log("🔄 Preview-Modus: Redirect zu Login");
-      localStorage.clear();
-      window.location.href = '/login';
+      // Im Preview-Modus: Zeige Hinweis und lade neu
+      if (confirm("Im Preview-Modus kann das Abmelden zu Problemen führen. Möchtest du die Seite neu laden?")) {
+        window.location.reload();
+      }
     } else {
       // Normaler Browser: Standard Logout
       console.log("🔄 Normaler Logout");
