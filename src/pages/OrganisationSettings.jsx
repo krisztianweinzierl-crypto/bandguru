@@ -34,6 +34,19 @@ export default function OrganisationSettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const queryClient = useQueryClient();
 
+  // Helper function to create page URLs.
+  // In a real application, this would typically come from a routing library
+  // or a centralized utility. For this implementation, we'll map 'AcceptInvite'
+  // to a known path.
+  const createPageUrl = (pageName) => {
+    switch (pageName) {
+      case 'AcceptInvite':
+        return '/accept-invite'; // Assuming your app has a route /accept-invite
+      default:
+        return '/';
+    }
+  };
+
   useEffect(() => {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
@@ -57,7 +70,7 @@ export default function OrganisationSettingsPage() {
         primary_color: organisation.primary_color || "#3B82F6"
       });
     }
-  }, [organisation]);
+  }, [organisation, orgFormData]);
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
@@ -80,10 +93,33 @@ export default function OrganisationSettingsPage() {
 
   const inviteMemberMutation = useMutation({
     mutationFn: async (data) => {
-      const appUrl = window.location.origin;
-      const personalMessage = data.message ? `\n\n"${data.message}"\n` : "";
+      // 1. Token generieren
+      const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
       
-      const emailBody = `Hey ${data.name || 'du'}! 👋
+      // 2. Ablaufdatum (30 Tage)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      
+      let createdMitglied = null; // Declare here so it's accessible in catch block
+
+      try {
+        // 3. Mitglied-Eintrag mit Status "eingeladen" erstellen
+        createdMitglied = await base44.entities.Mitglied.create({
+          org_id: currentOrgId,
+          rolle: data.rolle,
+          status: "eingeladen",
+          invite_token: token,
+          invite_email: data.email,
+          invite_name: data.name || data.email, // Use email as fallback for name
+          invite_expires_at: expiresAt.toISOString()
+        });
+
+        // 4. Personalisierten Link generieren
+        const inviteUrl = `${window.location.origin}${createPageUrl('AcceptInvite')}?token=${token}`;
+        
+        const personalMessage = data.message ? `\n\n"${data.message}"\n` : "";
+        
+        const emailBody = `Hey ${data.name || 'du'}! 👋
 
 ${user?.full_name || 'Jemand'} hat dich zu "${organisation.name}" auf Bandguru eingeladen! 
 
@@ -95,15 +131,16 @@ Mit Bandguru kannst du:
 📋 Aufgaben & Deadlines managen
 💬 Mit dem Team kommunizieren
 
-Klingt gut? Dann melde dich jetzt an:
-👉 ${appUrl}
+**Klicke hier, um die Einladung anzunehmen:**
+👉 ${inviteUrl}
+
+⏰ Diese Einladung ist 30 Tage gültig.
 
 Falls du Fragen hast, einfach auf diese Mail antworten!
 
 Viele Grüße
 Das ${organisation.name} Team 🎵`;
 
-      try {
         const response = await base44.functions.invoke('sendEmail', {
           to: data.email,
           subject: `🎵 Einladung zu ${organisation.name} auf Bandguru`,
@@ -111,26 +148,32 @@ Das ${organisation.name} Team 🎵`;
           from_name: organisation.name
         });
 
-        console.log('sendEmail response:', response);
-
-        // Check if response has data
         if (!response || !response.data) {
           throw new Error('Keine Antwort vom Server erhalten');
         }
 
-        // Check for success
         if (!response.data.success) {
+          // Bei Fehler: Mitglied wieder löschen
+          await base44.entities.Mitglied.delete(createdMitglied.id);
           const errorMsg = response.data.error || response.data.details || 'Unbekannter Fehler';
           throw new Error(errorMsg);
         }
 
-        return data;
+        return createdMitglied;
       } catch (error) {
+        // Bei Fehler: Mitglied wieder löschen, falls es erstellt wurde
+        if (createdMitglied && createdMitglied.id) {
+          try {
+            await base44.entities.Mitglied.delete(createdMitglied.id);
+          } catch (e) {
+            console.error('Fehler beim Löschen des Mitglieds nach fehlgeschlagenem E-Mail-Versand:', e);
+          }
+        }
+        
         console.error('Detaillierter Fehler:', error);
         
-        // Better error messages
         if (error.response?.status === 500) {
-          throw new Error('Server-Fehler: Bitte überprüfe deine Mailgun-Einstellungen (MAILGUN_API_KEY und MAILGUN_DOMAIN)');
+          throw new Error('Server-Fehler: Bitte überprüfe deine Mailgun-Einstellungen');
         } else if (error.response?.status === 401) {
           throw new Error('Authentifizierung fehlgeschlagen');
         } else if (error.message) {
@@ -140,8 +183,9 @@ Das ${organisation.name} Team 🎵`;
         }
       }
     },
-    onSuccess: () => {
-      alert("✅ Einladung wurde erfolgreich versendet!");
+    onSuccess: (mitglied) => {
+      queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
+      alert(`✅ Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`);
       setInviteEmail("");
       setInviteName("");
       setInviteMessage("");
@@ -150,7 +194,6 @@ Das ${organisation.name} Team 🎵`;
     onError: (error) => {
       console.error("Fehler beim Versenden der Einladung:", error);
       
-      // Show detailed error
       const errorMessage = error.message || "Unbekannter Fehler";
       alert(`❌ Fehler beim Versenden der Einladung:\n\n${errorMessage}\n\nBitte überprüfe:\n- Mailgun API Key korrekt?\n- Mailgun Domain korrekt?\n- Domain verifiziert bei Mailgun?`);
     }
@@ -418,58 +461,67 @@ Das ${organisation.name} Team 🎵`;
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-3">
-                  {mitglieder.map((mitglied) => (
-                    <div
-                      key={mitglied.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {mitglied.user_id?.[0]?.toUpperCase() || "?"}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{mitglied.user_id}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge
-                              variant="outline"
-                              className={
-                                mitglied.rolle === "Band Manager"
-                                  ? "bg-purple-50 text-purple-700 border-purple-200"
-                                  : "bg-blue-50 text-blue-700 border-blue-200"
-                              }
-                            >
-                              {mitglied.rolle === "Band Manager" && <Crown className="w-3 h-3 mr-1" />}
-                              {mitglied.rolle}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className={
-                                mitglied.status === "aktiv"
-                                  ? "bg-green-50 text-green-700 border-green-200"
-                                  : "bg-gray-50 text-gray-700 border-gray-200"
-                              }
-                            >
-                              {mitglied.status}
-                            </Badge>
+                  {mitglieder.map((mitglied) => {
+                    const displayUserName = mitglied.user_id ? user?.full_name || mitglied.user_id : (mitglied.invite_name || mitglied.invite_email);
+                    const displayInitial = (displayUserName?.[0] || '?').toUpperCase();
+                    const isInvited = mitglied.status === "eingeladen";
+
+                    return (
+                      <div
+                        key={mitglied.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                            {displayInitial}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {displayUserName}
+                              {isInvited && <span className="text-sm text-gray-500 ml-2">(eingeladen)</span>}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge
+                                variant="outline"
+                                className={
+                                  mitglied.rolle === "Band Manager"
+                                    ? "bg-purple-50 text-purple-700 border-purple-200"
+                                    : "bg-blue-50 text-blue-700 border-blue-200"
+                                }
+                              >
+                                {mitglied.rolle === "Band Manager" && <Crown className="w-3 h-3 mr-1" />}
+                                {mitglied.rolle}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  mitglied.status === "aktiv"
+                                    ? "bg-green-50 text-green-700 border-green-200"
+                                    : "bg-gray-50 text-gray-700 border-gray-200"
+                                }
+                              >
+                                {mitglied.status}
+                              </Badge>
+                            </div>
                           </div>
                         </div>
+                        {isManager && mitglied.user_id !== user?.id && ( // Only show delete if not current user and manager
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              if (confirm("Möchtest du dieses Mitglied wirklich entfernen?")) {
+                                removeMemberMutation.mutate(mitglied.id);
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
-                      {isManager && mitglied.user_id !== user?.id && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            if (confirm("Möchtest du dieses Mitglied wirklich entfernen?")) {
-                              removeMemberMutation.mutate(mitglied.id);
-                            }
-                          }}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

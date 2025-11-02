@@ -19,6 +19,7 @@ import Vertraege from './pages/Vertraege';
 import VertragDetail from './pages/VertragDetail';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import VertragKundenansicht from './pages/VertragKundenansicht';
+import AcceptInvite from './pages/AcceptInvite';
 import Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "VertragDetail": VertragDetail,
     "Vertragsvorlagen": Vertragsvorlagen,
     "VertragKundenansicht": VertragKundenansicht,
+    "AcceptInvite": AcceptInvite,
 }
 
 export const pagesConfig = {
