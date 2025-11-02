@@ -193,16 +193,15 @@ export default function Layout({ children, currentPageName }) {
     window.location.reload();
   };
 
-  const handleLogout = () => {
-    if (isInIframe()) {
-      // Im Preview-Modus: Zeige Hinweis und lade neu
-      if (confirm("Im Preview-Modus kann das Abmelden zu Problemen führen. Möchtest du die Seite neu laden?")) {
-        window.location.reload();
-      }
-    } else {
-      // Normaler Browser: Standard Logout
-      console.log("🔄 Normaler Logout");
-      base44.auth.logout();
+  const handleLogout = async () => {
+    try {
+      // Logout durchführen (funktioniert in beiden Modi)
+      await base44.auth.logout();
+    } catch (error) {
+      // Fallback: LocalStorage löschen und manuell zur Login-Seite
+      console.log("⚠️ Logout-Fehler, verwende Fallback:", error);
+      localStorage.clear();
+      window.location.href = window.location.origin;
     }
   };
 
