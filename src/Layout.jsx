@@ -192,7 +192,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleAcceptInvite = (invite) => {
     // Weiterleitung zur AcceptInvite-Seite mit Token
-    window.location.href = createPageUrl(`AcceptInvite?token=${invite.invite_token}`);
+    window.location.href = `${createPageUrl('AcceptInvite')}?token=${invite.invite_token}`;
   };
 
   const handleCreateOrg = async (e) => {
