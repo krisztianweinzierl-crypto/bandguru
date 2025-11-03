@@ -61,7 +61,7 @@ export default function FinanzenPage() {
 
   const gesamtAusgaben = ausgaben
     .filter(a => a.status === 'bezahlt')
-    .reduce((sum, a) => sum + (a.betrag || 0), 0);
+    .reduce((sum, a => sum + (a.betrag || 0), 0);
 
   const gewinn = gesamtEinnahmen - gesamtAusgaben;
 
@@ -99,10 +99,10 @@ export default function FinanzenPage() {
               <Button 
                 variant="outline"
                 style={{ 
-                  borderColor: 'rgb(46, 196, 182)', 
-                  color: 'rgb(46, 196, 182)' 
+                  borderColor: '#E4C590', 
+                  color: '#E4C590' 
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Receipt className="w-4 h-4 mr-2" />

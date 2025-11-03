@@ -282,11 +282,11 @@ export default function EventsPage() {
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': 'rgb(46, 196, 182)'
+                '--active-bg': '#E4C590'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -294,7 +294,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: rgb(46, 196, 182)"
+              data-active-style="background-color: #E4C590"
             >
               Anstehend ({upcomingEvents.length})
             </TabsTrigger>
@@ -302,11 +302,11 @@ export default function EventsPage() {
               value="past"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': 'rgb(46, 196, 182)'
+                '--active-bg': '#E4C590'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -314,7 +314,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: rgb(46, 196, 182)"
+              data-active-style="background-color: #E4C590"
             >
               Vergangen ({pastEvents.length})
             </TabsTrigger>
@@ -379,7 +379,7 @@ export default function EventsPage() {
 
       <style>{`
         [data-state="active"][data-active-style] {
-          background-color: rgb(46, 196, 182) !important;
+          background-color: #E4C590 !important;
         }
       `}</style>
     </div>
