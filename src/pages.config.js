@@ -22,6 +22,7 @@ import VertragKundenansicht from './pages/VertragKundenansicht';
 import AcceptInvite from './pages/AcceptInvite';
 import MusikerDashboard from './pages/MusikerDashboard';
 import BuchungsbedingungVorlagen from './pages/BuchungsbedingungVorlagen';
+import MeineEvents from './pages/MeineEvents';
 import Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "AcceptInvite": AcceptInvite,
     "MusikerDashboard": MusikerDashboard,
     "BuchungsbedingungVorlagen": BuchungsbedingungVorlagen,
+    "MeineEvents": MeineEvents,
 }
 
 export const pagesConfig = {
