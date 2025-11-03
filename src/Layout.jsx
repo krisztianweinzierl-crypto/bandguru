@@ -71,6 +71,7 @@ export default function Layout({ children, currentPageName }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({});
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [pendingInvites, setPendingInvites] = useState([]);
@@ -1027,39 +1028,57 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Avatar className="w-9 h-9">
-                <AvatarImage src={user?.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                  {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 text-sm truncate">
-                  {user?.full_name || user?.email}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
-              </div>
-            </div>
-            
-            {/* Profil-Link für Musiker */}
-            {!isManager && (
-              <Link 
-                to={createPageUrl('MusikerProfil')}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors mb-2"
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors"
               >
-                <UserCircle className="w-4 h-4" />
-                Mein Profil
-              </Link>
-            )}
-            
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Abmelden
-            </button>
+                <Avatar className="w-9 h-9">
+                  <AvatarImage src={user?.avatar_url} />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-medium text-gray-900 text-sm truncate">
+                    {user?.full_name || user?.email}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showUserMenu && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowUserMenu(false)}
+                  />
+                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                    {!isManager && (
+                      <Link 
+                        to={createPageUrl('MusikerProfil')}
+                        onClick={() => setShowUserMenu(false)}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <UserCircle className="w-4 h-4" />
+                        Mein Profil
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        handleLogout();
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Abmelden
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </SidebarFooter>
         </Sidebar>
 
