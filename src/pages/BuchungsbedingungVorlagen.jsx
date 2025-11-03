@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,13 +6,15 @@ import { Plus, Search, FileText, Edit, Trash2, Copy, ArrowLeft } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea if it's used elsewhere, though not for 'inhalt'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function BuchungsbedingungVorlagenPage() {
   const navigate = useNavigate();
@@ -142,6 +145,21 @@ export default function BuchungsbedingungVorlagenPage() {
 
   const aktiveVorlagen = vorlagen.filter(v => v.aktiv).length;
   const gesamtVerwendungen = vorlagen.reduce((sum, v) => sum + (v.verwendungen || 0), 0);
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline',
+    'list', 'bullet'
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
@@ -277,14 +295,17 @@ export default function BuchungsbedingungVorlagenPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="inhalt">Buchungsbedingungen *</Label>
-                  <Textarea
-                    id="inhalt"
-                    value={formData.inhalt}
-                    onChange={(e) => setFormData({...formData, inhalt: e.target.value})}
-                    placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr, ..."
-                    rows={8}
-                    required
-                  />
+                  <div className="border border-gray-200 rounded-lg">
+                    <ReactQuill
+                      theme="snow"
+                      value={formData.inhalt}
+                      onChange={(value) => setFormData({...formData, inhalt: value})}
+                      modules={modules}
+                      formats={formats}
+                      placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr, ..."
+                      className="min-h-[200px]"
+                    />
+                  </div>
                   <p className="text-xs text-gray-500">
                     Diese Bedingungen werden bei der Musiker-Buchung angezeigt und müssen akzeptiert werden
                   </p>
@@ -345,7 +366,8 @@ export default function BuchungsbedingungVorlagenPage() {
                   </CardHeader>
                   <CardContent className="pt-0 space-y-3">
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-700 line-clamp-3">{vorlage.inhalt}</p>
+                      {/* Dangerously set inner HTML for content, assuming it's sanitized HTML from ReactQuill */}
+                      <div className="text-sm text-gray-700 line-clamp-3 quill-content" dangerouslySetInnerHTML={{ __html: vorlage.inhalt }}></div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
