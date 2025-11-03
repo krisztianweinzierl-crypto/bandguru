@@ -23,6 +23,7 @@ import AcceptInvite from './pages/AcceptInvite';
 import MusikerDashboard from './pages/MusikerDashboard';
 import BuchungsbedingungVorlagen from './pages/BuchungsbedingungVorlagen';
 import MeineEvents from './pages/MeineEvents';
+import acceptInvite from './pages/accept-invite';
 import Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "MusikerDashboard": MusikerDashboard,
     "BuchungsbedingungVorlagen": BuchungsbedingungVorlagen,
     "MeineEvents": MeineEvents,
+    "acceptInvite": acceptInvite,
 }
 
 export const pagesConfig = {
