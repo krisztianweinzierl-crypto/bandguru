@@ -480,6 +480,12 @@ Das ${organisation.name} Team 🎵`;
                               {displayUserName}
                               {isInvited && <span className="text-sm text-gray-500 ml-2">(eingeladen)</span>}
                             </p>
+                            {isInvited && mitglied.invite_email && (
+                              <p className="text-sm text-gray-600 flex items-center gap-1 mt-0.5">
+                                <Mail className="w-3 h-3" />
+                                {mitglied.invite_email}
+                              </p>
+                            )}
                             <div className="flex items-center gap-2 mt-1">
                               <Badge
                                 variant="outline"
