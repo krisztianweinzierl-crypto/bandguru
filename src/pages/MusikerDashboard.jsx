@@ -82,84 +82,97 @@ export default function MusikerDashboard() {
           console.log("   - invite_email:", mitgliedschaften[0].invite_email);
         }
 
-        // SCHRITT 2: Versuche Musiker zu finden
-        console.log("\n📋 SCHRITT 2: Suche Musiker-Profil...");
+        // SCHRITT 2: Lade ALLE Musiker der Organisation für Debug
+        console.log("\n📋 SCHRITT 2: Lade ALLE Musiker der Organisation...");
+        const alleMusiker = await base44.entities.Musiker.filter({ 
+          org_id: orgId
+        });
+        console.log("   Musiker in Organisation:", alleMusiker.length);
+        alleMusiker.forEach((m, i) => {
+          console.log(`   ${i+1}. Name: ${m.name}`);
+          console.log(`      ID: ${m.id}`);
+          console.log(`      Email: ${m.email}`);
+          console.log(`      Aktiv: ${m.aktiv}`);
+          console.log(`      Email lowercase: ${m.email?.toLowerCase()}`);
+          console.log(`      User Email lowercase: ${user.email.toLowerCase()}`);
+          console.log(`      Match: ${m.email?.toLowerCase() === user.email.toLowerCase()}`);
+        });
+
+        // SCHRITT 3: Versuche Musiker zu finden
+        console.log("\n📋 SCHRITT 3: Suche Musiker-Profil...");
         let gefundenerMusiker = null;
 
-        // Methode 2a: Über musiker_id in Mitgliedschaft
+        // Methode 3a: Über musiker_id in Mitgliedschaft
         if (mitgliedschaften.length > 0 && mitgliedschaften[0].musiker_id) {
-          console.log("   🔍 Methode 2a: Suche über musiker_id =", mitgliedschaften[0].musiker_id);
+          console.log("   🔍 Methode 3a: Suche über musiker_id =", mitgliedschaften[0].musiker_id);
           const musikerById = await base44.entities.Musiker.filter({ 
             id: mitgliedschaften[0].musiker_id
           });
           
           if (musikerById.length > 0) {
             console.log("   ✅ Musiker gefunden über musiker_id!");
-            console.log("   - Name:", musikerById[0].name);
-            console.log("   - Email:", musikerById[0].email);
-            console.log("   - Aktiv:", musikerById[0].aktiv);
             gefundenerMusiker = musikerById[0];
           } else {
             console.log("   ❌ Kein Musiker mit dieser ID gefunden");
           }
         }
 
-        // Methode 2b: Über User E-Mail
+        // Methode 3b: Case-insensitive E-Mail-Suche über ALLE Musiker
         if (!gefundenerMusiker) {
-          console.log("   🔍 Methode 2b: Suche über user.email =", user.email);
-          const musikerByEmail = await base44.entities.Musiker.filter({ 
-            org_id: orgId,
-            email: user.email,
-            aktiv: true
-          });
+          console.log("   🔍 Methode 3b: Case-insensitive E-Mail-Suche über alle Musiker...");
+          console.log("   Suche nach:", user.email);
           
-          console.log("   Ergebnis:", musikerByEmail.length, "Musiker gefunden");
-          if (musikerByEmail.length > 0) {
-            console.log("   ✅ Musiker gefunden über E-Mail!");
-            console.log("   - Name:", musikerByEmail[0].name);
-            console.log("   - ID:", musikerByEmail[0].id);
-            gefundenerMusiker = musikerByEmail[0];
-
-            // BONUS: Aktualisiere Mitgliedschaft
+          gefundenerMusiker = alleMusiker.find(m => 
+            m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && 
+            m.aktiv === true
+          );
+          
+          if (gefundenerMusiker) {
+            console.log("   ✅ Musiker gefunden über E-Mail-Match!");
+            console.log("   - Name:", gefundenerMusiker.name);
+            console.log("   - ID:", gefundenerMusiker.id);
+            console.log("   - Email:", gefundenerMusiker.email);
+            
+            // REPARATUR: Mitgliedschaft aktualisieren
             if (mitgliedschaften.length > 0 && !mitgliedschaften[0].musiker_id) {
-              console.log("   🔧 Aktualisiere Mitgliedschaft mit musiker_id...");
+              console.log("   🔧 REPARATUR: Aktualisiere Mitgliedschaft mit musiker_id...");
               await base44.entities.Mitglied.update(mitgliedschaften[0].id, {
-                musiker_id: musikerByEmail[0].id
+                musiker_id: gefundenerMusiker.id
               });
-              console.log("   ✅ Mitgliedschaft aktualisiert!");
+              console.log("   ✅ Mitgliedschaft repariert!");
             }
           } else {
             console.log("   ❌ Kein Musiker mit dieser E-Mail gefunden");
           }
         }
 
-        // Methode 2c: Über invite_email in Mitgliedschaft
+        // Methode 3c: Über invite_email in Mitgliedschaft
         if (!gefundenerMusiker && mitgliedschaften.length > 0 && mitgliedschaften[0].invite_email) {
-          console.log("   🔍 Methode 2c: Suche über invite_email =", mitgliedschaften[0].invite_email);
-          const musikerByInviteEmail = await base44.entities.Musiker.filter({ 
-            org_id: orgId,
-            email: mitgliedschaften[0].invite_email,
-            aktiv: true
-          });
+          console.log("   🔍 Methode 3c: Suche über invite_email =", mitgliedschaften[0].invite_email);
           
-          console.log("   Ergebnis:", musikerByInviteEmail.length, "Musiker gefunden");
-          if (musikerByInviteEmail.length > 0) {
+          gefundenerMusiker = alleMusiker.find(m => 
+            m.email?.toLowerCase().trim() === mitgliedschaften[0].invite_email.toLowerCase().trim() && 
+            m.aktiv === true
+          );
+          
+          if (gefundenerMusiker) {
             console.log("   ✅ Musiker gefunden über invite_email!");
-            console.log("   - Name:", musikerByInviteEmail[0].name);
-            console.log("   - ID:", musikerByInviteEmail[0].id);
-            gefundenerMusiker = musikerByInviteEmail[0];
-
-            // Aktualisiere Mitgliedschaft
-            console.log("   🔧 Aktualisiere Mitgliedschaft mit musiker_id...");
+            console.log("   - Name:", gefundenerMusiker.name);
+            console.log("   - ID:", gefundenerMusiker.id);
+            
+            // REPARATUR: Mitgliedschaft aktualisieren
+            console.log("   🔧 REPARATUR: Aktualisiere Mitgliedschaft mit musiker_id...");
             await base44.entities.Mitglied.update(mitgliedschaften[0].id, {
-              musiker_id: musikerByInviteEmail[0].id
+              musiker_id: gefundenerMusiker.id
             });
-            console.log("   ✅ Mitgliedschaft aktualisiert!");
+            console.log("   ✅ Mitgliedschaft repariert!");
+          } else {
+            console.log("   ❌ Kein Musiker mit invite_email gefunden");
           }
         }
 
-        // SCHRITT 3: Ergebnis
-        console.log("\n📋 SCHRITT 3: Ergebnis");
+        // SCHRITT 4: Ergebnis
+        console.log("\n📋 SCHRITT 4: Ergebnis");
         if (gefundenerMusiker) {
           console.log("✅ === MUSIKER ERFOLGREICH GELADEN ===");
           console.log("   - ID:", gefundenerMusiker.id);
@@ -183,13 +196,16 @@ export default function MusikerDashboard() {
         } else {
           console.log("❌ === KEIN MUSIKER-PROFIL GEFUNDEN ===");
           console.log("\n📋 DIAGNOSE:");
-          console.log("1. Überprüfe, ob ein Musiker-Profil existiert:");
-          console.log("   - Mit E-Mail:", user.email);
+          console.log("1. Überprüfte E-Mail-Adressen:");
+          console.log("   - User Email:", user.email);
           if (mitgliedschaften.length > 0 && mitgliedschaften[0].invite_email) {
-            console.log("   - ODER mit invite_email:", mitgliedschaften[0].invite_email);
+            console.log("   - Invite Email:", mitgliedschaften[0].invite_email);
           }
-          console.log("2. Stelle sicher, dass der Musiker aktiv ist (aktiv: true)");
-          console.log("3. Stelle sicher, dass org_id korrekt ist:", orgId);
+          console.log("2. Gefundene Musiker in Organisation:", alleMusiker.length);
+          console.log("3. Aktive Musiker:", alleMusiker.filter(m => m.aktiv).length);
+          console.log("4. E-Mail-Matches:", alleMusiker.filter(m => 
+            m.email?.toLowerCase().trim() === user.email.toLowerCase().trim()
+          ).length);
           
           setErrorMessage(
             "Kein Musiker-Profil gefunden für deine E-Mail-Adresse: " + user.email + 
@@ -735,7 +751,7 @@ export default function MusikerDashboard() {
               </Button>
               <Button
                 onClick={handleSubmitResponse}
-                disabled={updateEventMusikerMutation.isPending}
+                disabled={updateEventMusikerMutation.isPending || (responseType === 'zugesagt' && selectedEventMusiker?.buchungsbedingungen && !bedingungenAkzeptiert)}
                 className={
                   responseType === 'zugesagt' ? 'bg-green-600 hover:bg-green-700' :
                   responseType === 'optional' ? 'bg-blue-600 hover:bg-blue-700' :
