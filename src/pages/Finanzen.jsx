@@ -96,7 +96,15 @@ export default function FinanzenPage() {
               </Button>
             </Link>
             <Link to={createPageUrl("Ausgaben")}>
-              <Button variant="outline" className="border-teal-500 text-teal-600 hover:bg-teal-50">
+              <Button 
+                variant="outline"
+                style={{ 
+                  borderColor: 'rgb(46, 196, 182)', 
+                  color: 'rgb(46, 196, 182)' 
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
                 <Receipt className="w-4 h-4 mr-2" />
                 Ausgaben
               </Button>

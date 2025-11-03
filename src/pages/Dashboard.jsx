@@ -66,12 +66,12 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: 'rgb(46, 196, 182)' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Nächste Events</CardTitle>
-                <div className="p-2 bg-teal-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-teal-600" />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(46, 196, 182, 0.15)' }}>
+                  <Calendar className="w-5 h-5" style={{ color: 'rgb(46, 196, 182)' }} />
                 </div>
               </div>
             </CardHeader>
@@ -203,19 +203,46 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  style={{ 
+                    borderColor: 'rgb(46, 196, 182)', 
+                    color: 'rgb(46, 196, 182)' 
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  style={{ 
+                    borderColor: 'rgb(46, 196, 182)', 
+                    color: 'rgb(46, 196, 182)' 
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  style={{ 
+                    borderColor: 'rgb(46, 196, 182)', 
+                    color: 'rgb(46, 196, 182)' 
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>

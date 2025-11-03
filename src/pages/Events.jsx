@@ -278,10 +278,44 @@ export default function EventsPage() {
 
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger value="upcoming" className="data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700">
+            <TabsTrigger 
+              value="upcoming"
+              className="data-[state=active]:text-white"
+              style={{
+                '--active-bg': 'rgb(46, 196, 182)'
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.getAttribute('data-state').includes('active')) {
+                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.getAttribute('data-state').includes('active')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+              data-active-style="background-color: rgb(46, 196, 182)"
+            >
               Anstehend ({upcomingEvents.length})
             </TabsTrigger>
-            <TabsTrigger value="past" className="data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700">
+            <TabsTrigger 
+              value="past"
+              className="data-[state=active]:text-white"
+              style={{
+                '--active-bg': 'rgb(46, 196, 182)'
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.getAttribute('data-state').includes('active')) {
+                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.getAttribute('data-state').includes('active')) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
+              data-active-style="background-color: rgb(46, 196, 182)"
+            >
               Vergangen ({pastEvents.length})
             </TabsTrigger>
           </TabsList>
@@ -342,6 +376,12 @@ export default function EventsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <style>{`
+        [data-state="active"][data-active-style] {
+          background-color: rgb(46, 196, 182) !important;
+        }
+      `}</style>
     </div>
   );
 }

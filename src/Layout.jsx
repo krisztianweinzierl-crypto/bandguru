@@ -858,7 +858,9 @@ export default function Layout({ children, currentPageName }) {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
-                  className="w-full justify-between h-auto py-3 px-3 hover:bg-teal-50 transition-colors"
+                  className="w-full justify-between h-auto py-3 px-3 transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div 
@@ -899,7 +901,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {org.id === currentOrg.id && (
-                              <Check className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'rgb(46, 196, 182)' }} />
                             )}
                           </button>
                         );
@@ -924,9 +926,23 @@ export default function Layout({ children, currentPageName }) {
                         <>
                           <button
                             onClick={() => toggleMenu(index)}
-                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 ${
-                              item.submenu.some(sub => location.pathname === sub.url) ? 'bg-teal-50 text-teal-700' : ''
-                            }`}
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
+                            style={item.submenu.some(sub => location.pathname === sub.url) ? {
+                              backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                              color: 'rgb(46, 196, 182)'
+                            } : {}}
+                            onMouseEnter={(e) => {
+                              if (!item.submenu.some(sub => location.pathname === sub.url)) {
+                                e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                                e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!item.submenu.some(sub => location.pathname === sub.url)) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '';
+                              }
+                            }}
                           >
                             <div className="flex items-center gap-3">
                               <item.icon className="w-4 h-4" />
@@ -941,11 +957,28 @@ export default function Layout({ children, currentPageName }) {
                                 <SidebarMenuButton
                                   key={subItem.title}
                                   asChild
-                                  className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
-                                    location.pathname === subItem.url ? 'bg-teal-50 text-teal-700' : ''
-                                  }`}
+                                  className="transition-colors duration-200 rounded-lg"
                                 >
-                                  <Link to={subItem.url} className="flex items-center gap-3 px-3 py-2">
+                                  <Link 
+                                    to={subItem.url} 
+                                    className="flex items-center gap-3 px-3 py-2"
+                                    style={location.pathname === subItem.url ? {
+                                      backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                                      color: 'rgb(46, 196, 182)'
+                                    } : {}}
+                                    onMouseEnter={(e) => {
+                                      if (location.pathname !== subItem.url) {
+                                        e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                                        e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      if (location.pathname !== subItem.url) {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                        e.currentTarget.style.color = '';
+                                      }
+                                    }}
+                                  >
                                     <subItem.icon className="w-4 h-4" />
                                     <span className="font-medium">{subItem.title}</span>
                                   </Link>
@@ -957,11 +990,28 @@ export default function Layout({ children, currentPageName }) {
                       ) : (
                         <SidebarMenuButton 
                           asChild 
-                          className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg mb-1 ${
-                            location.pathname === item.url ? 'bg-teal-50 text-teal-700' : ''
-                          }`}
+                          className="transition-colors duration-200 rounded-lg mb-1"
                         >
-                          <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
+                          <Link 
+                            to={item.url} 
+                            className="flex items-center gap-3 px-3 py-2"
+                            style={location.pathname === item.url ? {
+                              backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                              color: 'rgb(46, 196, 182)'
+                            } : {}}
+                            onMouseEnter={(e) => {
+                              if (location.pathname !== item.url) {
+                                e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                                e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (location.pathname !== item.url) {
+                                e.currentTarget.style.backgroundColor = 'transparent';
+                                e.currentTarget.style.color = '';
+                              }
+                            }}
+                          >
                             <item.icon className="w-4 h-4" />
                             <span className="font-medium">{item.title}</span>
                           </Link>
@@ -983,9 +1033,23 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem>
                       <button
                         onClick={() => toggleMenu('settings')}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 ${
-                          [createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? 'bg-teal-50 text-teal-700' : ''
-                        }`}
+                        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
+                        style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
+                          backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                          color: 'rgb(46, 196, 182)'
+                        } : {}}
+                        onMouseEnter={(e) => {
+                          if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                            e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                            e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '';
+                          }
+                        }}
                       >
                         <div className="flex items-center gap-3">
                           <Settings className="w-4 h-4" />
@@ -998,22 +1062,56 @@ export default function Layout({ children, currentPageName }) {
                         <div className="ml-4 mb-1 space-y-1">
                           <SidebarMenuButton
                             asChild
-                            className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
-                              location.pathname === createPageUrl("OrganisationSettings") ? 'bg-teal-50 text-teal-700' : ''
-                            }`}
+                            className="transition-colors duration-200 rounded-lg"
                           >
-                            <Link to={createPageUrl("OrganisationSettings")} className="flex items-center gap-3 px-3 py-2">
+                            <Link 
+                              to={createPageUrl("OrganisationSettings")} 
+                              className="flex items-center gap-3 px-3 py-2"
+                              style={location.pathname === createPageUrl("OrganisationSettings") ? {
+                                backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                                color: 'rgb(46, 196, 182)'
+                              } : {}}
+                              onMouseEnter={(e) => {
+                                if (location.pathname !== createPageUrl("OrganisationSettings")) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                                  e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (location.pathname !== createPageUrl("OrganisationSettings")) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '';
+                                }
+                              }}
+                            >
                               <Building2 className="w-4 h-4" />
                               <span className="font-medium">Organisation</span>
                             </Link>
                           </SidebarMenuButton>
                           <SidebarMenuButton
                             asChild
-                            className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
-                              location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? 'bg-teal-50 text-teal-700' : ''
-                            }`}
+                            className="transition-colors duration-200 rounded-lg"
                           >
-                            <Link to={createPageUrl("BuchungsbedingungVorlagen")} className="flex items-center gap-3 px-3 py-2">
+                            <Link 
+                              to={createPageUrl("BuchungsbedingungVorlagen")} 
+                              className="flex items-center gap-3 px-3 py-2"
+                              style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
+                                backgroundColor: 'rgba(46, 196, 182, 0.15)',
+                                color: 'rgb(46, 196, 182)'
+                              } : {}}
+                              onMouseEnter={(e) => {
+                                if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(46, 196, 182, 0.1)';
+                                  e.currentTarget.style.color = 'rgb(46, 196, 182)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '';
+                                }
+                              }}
+                            >
                               <FileText className="w-4 h-4" />
                               <span className="font-medium">Buchungsbedingungen</span>
                             </Link>
