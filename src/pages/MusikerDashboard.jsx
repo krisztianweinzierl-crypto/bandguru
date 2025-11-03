@@ -14,7 +14,9 @@ import {
   Euro,
   AlertCircle,
   FileText,
-  Music
+  Music,
+  Users,
+  Shirt
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -183,6 +185,33 @@ export default function MusikerDashboard() {
               </div>
             )}
           </div>
+
+          {/* Publikum & Ambiente Section */}
+          {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
+            <div className="pt-2 border-t">
+              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Publikum & Ambiente</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                {event.event_typ && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span className="text-lg">🎉</span>
+                    <span>{event.event_typ}</span>
+                  </div>
+                )}
+                {event.anzahl_gaeste && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>{event.anzahl_gaeste} Gäste</span>
+                  </div>
+                )}
+                {event.dresscode && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Shirt className="w-4 h-4" />
+                    <span>{event.dresscode}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {em.notizen && (
             <div className="p-3 bg-blue-50 rounded-lg">
