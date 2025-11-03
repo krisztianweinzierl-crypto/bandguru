@@ -203,9 +203,53 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  const handleAcceptInvite = (invite) => {
-    // Weiterleitung zur AcceptInvite-Seite mit Token
-    window.location.href = `${createPageUrl('AcceptInvite')}?token=${invite.invite_token}`;
+  const handleAcceptInvite = async (invite) => {
+    console.log("🚀 === STARTE EINLADUNGS-ANNAHME (DIREKT) ===");
+    console.log("   Einladung:", invite);
+    console.log("   Mitglied ID:", invite.id);
+    console.log("   Organisation:", invite.organisation?.name);
+    console.log("   User:", user?.email);
+    
+    try {
+      // SCHRITT 1: Mitglied-Eintrag aktualisieren
+      console.log("📋 Schritt 1: Aktualisiere Mitglied-Eintrag...");
+      
+      const updateData = {
+        user_id: user.id,
+        status: "aktiv",
+        invite_token: null,
+        invite_email: null // Optional: E-Mail auch löschen
+      };
+      
+      console.log("   Update-Daten:", updateData);
+      
+      const updatedMitglied = await base44.entities.Mitglied.update(invite.id, updateData);
+      
+      console.log("✅ Mitglied erfolgreich aktualisiert!");
+      console.log("   Aktualisiertes Mitglied:", updatedMitglied);
+      
+      // SCHRITT 2: Organisation setzen
+      console.log("📋 Schritt 2: Setze currentOrgId...");
+      localStorage.setItem('currentOrgId', invite.org_id);
+      console.log("   currentOrgId gesetzt auf:", invite.org_id);
+      
+      // SCHRITT 3: Vollständiger Reload
+      console.log("📋 Schritt 3: Lade Seite neu...");
+      console.log("✅ === EINLADUNG ERFOLGREICH ANGENOMMEN ===");
+      
+      // Kurze Verzögerung für User-Feedback
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      
+    } catch (error) {
+      console.error("❌ === FEHLER BEIM ANNEHMEN DER EINLADUNG ===");
+      console.error("   Fehler:", error);
+      console.error("   Message:", error.message);
+      console.error("   Stack:", error.stack);
+      
+      alert("Fehler beim Annehmen der Einladung: " + error.message);
+    }
   };
 
   const handleCreateOrg = async (e) => {
