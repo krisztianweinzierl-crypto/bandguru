@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useNavigate } from "react-router-dom";
@@ -145,6 +146,7 @@ export default function AcceptInvitePage() {
       
       const updateData = {
         user_id: user.id,
+        email: user.email, // Added email here as requested
         status: "aktiv",
         invite_token: null // Token löschen nach Verwendung
       };

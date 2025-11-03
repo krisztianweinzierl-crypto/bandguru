@@ -108,6 +108,7 @@ export default function OrganisationSettingsPage() {
           org_id: currentOrgId,
           rolle: data.rolle,
           status: "eingeladen",
+          email: data.email, // ADDED: email field
           invite_token: token,
           invite_email: data.email,
           invite_name: data.name || data.email, // Use email as fallback for name
@@ -185,7 +186,7 @@ Das ${organisation.name} Team 🎵`;
     },
     onSuccess: (mitglied) => {
       queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
-      alert(`✅ Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`);
+      alert(`✅ Einladung wurde erfolgreich an ${mitglied.email} versendet!`); // CHANGED: mitglied.invite_email to mitglied.email
       setInviteEmail("");
       setInviteName("");
       setInviteMessage("");
