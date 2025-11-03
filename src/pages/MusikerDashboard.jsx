@@ -182,16 +182,62 @@ export default function MusikerDashboard() {
           setLoadingState("success");
           
           // Prüfe EventMusiker
-          console.log("\n📋 Prüfe EventMusiker für musiker_id:", gefundenerMusiker.id);
+          console.log("\n📋 SCHRITT 5: Prüfe EventMusiker für musiker_id:", gefundenerMusiker.id);
           const testEventMusiker = await base44.entities.EventMusiker.filter({ 
             musiker_id: gefundenerMusiker.id 
           });
           console.log("   EventMusiker gefunden:", testEventMusiker.length);
           if (testEventMusiker.length > 0) {
-            console.log("   - Erster Eintrag:");
-            console.log("     Event ID:", testEventMusiker[0].event_id);
-            console.log("     Status:", testEventMusiker[0].status);
-            console.log("     Rolle:", testEventMusiker[0].rolle);
+            console.log("   ✅ EventMusiker existieren:");
+            testEventMusiker.forEach((em, i) => {
+              console.log(`   ${i+1}. Event ID: ${em.event_id}, Status: ${em.status}, Rolle: ${em.rolle}`);
+            });
+          } else {
+            console.log("   ⚠️ === KEINE EVENTMUSIKER GEFUNDEN ===");
+            console.log("   Mögliche Ursachen:");
+            console.log("   1. Der Band Manager hat noch keinen EventMusiker-Eintrag für dich erstellt");
+            console.log("   2. Der Band Manager hat den FALSCHEN Musiker-Eintrag verwendet");
+            console.log("   ");
+            console.log("   🔍 Debug: Lass uns ALLE EventMusiker in der Organisation prüfen:");
+            const alleEventMusiker = await base44.entities.EventMusiker.filter({ org_id: orgId });
+            console.log("   Gesamt EventMusiker in Organisation:", alleEventMusiker.length);
+            
+            // Gruppiere nach musiker_id
+            const byMusikerId = {};
+            alleEventMusiker.forEach(em => {
+              if (!byMusikerId[em.musiker_id]) {
+                byMusikerId[em.musiker_id] = [];
+              }
+              byMusikerId[em.musiker_id].push(em);
+            });
+            
+            console.log("   EventMusiker gruppiert nach musiker_id:");
+            Object.entries(byMusikerId).forEach(([mid, ems]) => {
+              const mus = alleMusiker.find(m => m.id === mid);
+              console.log(`   - musiker_id: ${mid}`);
+              console.log(`     Musiker Name: ${mus?.name || 'Unbekannt'}`);
+              console.log(`     Musiker Email: ${mus?.email || 'Unbekannt'}`);
+              console.log(`     Anzahl EventMusiker: ${ems.length}`);
+            });
+            
+            // Prüfe ob es EventMusiker mit dem ANDEREN Krisz gibt
+            const andereMusikerMitGleicherEmail = alleMusiker.filter(m => 
+              m.id !== gefundenerMusiker.id && 
+              m.name?.toLowerCase().includes('krisz')
+            );
+            
+            if (andereMusikerMitGleicherEmail.length > 0) {
+              console.log("\n   ⚠️ === WICHTIGER HINWEIS ===");
+              console.log("   Es gibt andere Musiker-Profile mit ähnlichem Namen:");
+              andereMusikerMitGleicherEmail.forEach(m => {
+                console.log(`   - Name: ${m.name}, Email: ${m.email}, ID: ${m.id}`);
+                const emCount = byMusikerId[m.id]?.length || 0;
+                if (emCount > 0) {
+                  console.log(`     ⚠️ Dieser Musiker hat ${emCount} EventMusiker-Einträge!`);
+                  console.log(`     Möglicherweise wurde der FALSCHE Musiker zum Event hinzugefügt.`);
+                }
+              });
+            }
           }
         } else {
           console.log("❌ === KEIN MUSIKER-PROFIL GEFUNDEN ===");

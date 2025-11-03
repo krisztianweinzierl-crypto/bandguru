@@ -712,11 +712,22 @@ Das Team`;
                             <SelectContent>
                               {musiker.map((m) => (
                                 <SelectItem key={m.id} value={m.id}>
-                                  {m.name} {m.instrumente?.length > 0 && `(${m.instrumente.join(', ')})`}
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">{m.name}</span>
+                                    {m.email && (
+                                      <span className="text-xs text-gray-500">{m.email}</span>
+                                    )}
+                                    {m.instrumente?.length > 0 && (
+                                      <span className="text-xs text-gray-400">({m.instrumente.join(', ')})</span>
+                                    )}
+                                  </div>
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
+                          <p className="text-xs text-gray-500 mt-1">
+                            ⚠️ Wichtig: Wähle den Musiker mit der korrekten E-Mail-Adresse aus
+                          </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
