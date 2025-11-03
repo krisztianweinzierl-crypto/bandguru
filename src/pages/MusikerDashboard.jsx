@@ -223,9 +223,12 @@ export default function MusikerDashboard() {
             <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
               <div className="flex items-start gap-2">
                 <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-semibold text-amber-800 mb-1">Buchungsbedingungen:</p>
-                  <p className="text-sm text-amber-700">{em.buchungsbedingungen}</p>
+                  <div 
+                    className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
+                  />
                 </div>
               </div>
             </div>
@@ -427,11 +430,12 @@ export default function MusikerDashboard() {
 
               {responseType === 'zugesagt' && selectedEventMusiker?.buchungsbedingungen && (
                 <div className="space-y-3">
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg max-h-60 overflow-y-auto">
                     <p className="font-semibold text-sm text-amber-900 mb-2">Buchungsbedingungen:</p>
-                    <p className="text-sm text-amber-800 whitespace-pre-wrap">
-                      {selectedEventMusiker.buchungsbedingungen}
-                    </p>
+                    <div 
+                      className="text-sm text-amber-800 prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
+                    />
                   </div>
 
                   <div className="flex items-start gap-3 p-3 border rounded-lg">

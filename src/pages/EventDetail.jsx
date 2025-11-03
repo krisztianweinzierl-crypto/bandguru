@@ -32,12 +32,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for other uses if any, but replace for buchungsbedingungen
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function EventDetailPage() {
   const navigate = useNavigate();
@@ -54,6 +56,21 @@ export default function EventDetailPage() {
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null); // This state isn't explicitly used for editing in the provided outline but kept for consistency
+
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['clean']
+    ],
+  };
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline',
+    'list', 'bullet'
+  ];
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -742,11 +759,13 @@ Das Team`;
                                 value={selectedVorlageId}
                                 onValueChange={(value) => {
                                   setSelectedVorlageId(value);
-                                  const vorlage = vorlagen.find(v => v.id === value);
-                                  if (vorlage) {
-                                    setBuchungsbedingungen(vorlage.inhalt);
-                                  } else if (value === "keine") {
+                                  if (value === "keine") {
                                     setBuchungsbedingungen("");
+                                  } else {
+                                    const vorlage = vorlagen.find(v => v.id === value);
+                                    if (vorlage) {
+                                      setBuchungsbedingungen(vorlage.inhalt);
+                                    }
                                   }
                                 }}
                               >
@@ -757,20 +776,28 @@ Das Team`;
                                   <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
                                   {vorlagen.map((v) => (
                                     <SelectItem key={v.id} value={v.id}>
-                                      {v.name}
+                                      {v.name} ({v.kategorie})
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
+                              <p className="text-xs text-gray-500">
+                                Wähle eine gespeicherte Vorlage oder schreibe eigene Bedingungen
+                              </p>
                             </div>
                           )}
 
-                          <Textarea
-                            value={buchungsbedingungen}
-                            onChange={(e) => setBuchungsbedingungen(e.target.value)}
-                            placeholder="z.B. Bitte Smoking mitbringen, Probebesuch erforderlich..."
-                            rows={4}
-                          />
+                          <div className="border border-gray-200 rounded-lg">
+                            <ReactQuill
+                              theme="snow"
+                              value={buchungsbedingungen}
+                              onChange={(value) => setBuchungsbedingungen(value)}
+                              modules={modules}
+                              formats={formats}
+                              placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr..."
+                              className="min-h-[150px]"
+                            />
+                          </div>
                           <p className="text-xs text-gray-500">
                             Diese Bedingungen muss der Musiker bei Zusage akzeptieren
                           </p>
@@ -931,7 +958,7 @@ Das Team`;
                                       <FileText className="w-4 h-4 text-blue-500 mt-0.5" />
                                       <div>
                                         <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
-                                        <p className="text-gray-700">{em.buchungsbedingungen}</p>
+                                        <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}></p>
                                       </div>
                                     </div>
                                   </div>
