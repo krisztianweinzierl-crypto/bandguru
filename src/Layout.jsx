@@ -56,8 +56,8 @@ import { Label } from "@/components/ui/label";
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
-  // Nur Vertragsansicht benötigt kein Layout
-  const isPublicPage = currentPageName === 'VertragKundenansicht';
+  // Public Pages die kein Layout benötigen
+  const isPublicPage = currentPageName === 'VertragKundenansicht' || currentPageName === 'AcceptInvite';
   
   if (isPublicPage) {
     return <>{children}</>;
