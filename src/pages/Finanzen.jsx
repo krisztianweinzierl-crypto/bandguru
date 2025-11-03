@@ -61,7 +61,7 @@ export default function FinanzenPage() {
 
   const gesamtAusgaben = ausgaben
     .filter(a => a.status === 'bezahlt')
-    .reduce((sum, a => sum + (a.betrag || 0), 0);
+    .reduce((sum, a) => sum + (a.betrag || 0), 0);
 
   const gewinn = gesamtEinnahmen - gesamtAusgaben;
 
