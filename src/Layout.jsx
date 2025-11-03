@@ -124,6 +124,40 @@ export default function Layout({ children, currentPageName }) {
       setUser(userData);
       setIsAuthenticated(true);
 
+      // 🔥 NEU: ZUERST pending invites prüfen (BEVOR aktive Mitgliedschaften)
+      console.log("📨 Prüfe auf schwebende Einladungen...");
+      const invites = await base44.entities.Mitglied.filter({ 
+        invite_email: userData.email,
+        status: "eingeladen"
+      });
+      
+      console.log(`   ${invites.length} schwebende Einladungen gefunden`, invites);
+      
+      // Wenn Einladungen vorhanden sind, IMMER Einladungsansicht zeigen
+      if (invites.length > 0) {
+        console.log("🎯 Zeige Einladungsansicht");
+        
+        // Lade Organisationen für die Einladungen
+        const orgIds = [...new Set(invites.map(i => i.org_id))];
+        const orgs = await Promise.all(
+          orgIds.map(id => base44.entities.Organisation.filter({ id }))
+        );
+        const orgList = orgs.flat();
+        
+        const invitesWithOrgs = invites.map(invite => ({
+          ...invite,
+          organisation: orgList.find(o => o.id === invite.org_id)
+        }));
+        
+        setPendingInvites(invitesWithOrgs);
+        setShowPendingInvites(true);
+        setShowOnboarding(false);
+        setInitialLoadComplete(true);
+        return; // ⚠️ WICHTIG: Hier stoppen, keine aktiven Mitgliedschaften laden
+      }
+
+      // Keine Einladungen -> Aktive Mitgliedschaften prüfen
+      console.log("📋 Lade aktive Mitgliedschaften...");
       const mitglieder = await base44.entities.Mitglied.filter({ 
         user_id: userData.id,
         status: "aktiv" 
@@ -150,52 +184,11 @@ export default function Layout({ children, currentPageName }) {
         }
         setInitialLoadComplete(true);
       } else {
-        // Keine aktiven Mitgliedschaften - prüfe auf schwebende Einladungen
-        console.log("ℹ️ Keine aktive Mitgliedschaft - prüfe auf Einladungen...");
-        
-        const invites = await base44.entities.Mitglied.filter({ 
-          invite_email: userData.email,
-          status: "eingeladen"
-        });
-        
-        console.log(`📨 ${invites.length} schwebende Einladungen gefunden`, invites);
-        
-        if (invites.length > 0) {
-          // Lade die zugehörigen Organisationen
-          const orgIds = [...new Set(invites.map(i => i.org_id))];
-          const orgs = await Promise.all(
-            orgIds.map(id => base44.entities.Organisation.filter({ id }))
-          );
-          const orgList = orgs.flat();
-          
-          console.log("🏢 Organisationen geladen:", orgList);
-          
-          // Kombiniere Einladungen mit Organisationen
-          const invitesWithOrgs = invites.map(invite => ({
-            ...invite,
-            organisation: orgList.find(o => o.id === invite.org_id)
-          }));
-          
-          console.log("✅ Einladungen mit Orgs:", invitesWithOrgs);
-          console.log("🎯 SETZE JETZT STATES FÜR EINLADUNGS-ANSICHT");
-          
-          // Alle States direkt setzen - kein setTimeout
-          setPendingInvites(invitesWithOrgs);
-          setShowPendingInvites(true);
-          setShowOnboarding(false); // Wichtig!
-          setInitialLoadComplete(true);
-          
-          console.log("✅ States gesetzt - Einladungs-UI sollte jetzt rendern");
-          console.log("   - pendingInvites:", invitesWithOrgs.length);
-          console.log("   - showPendingInvites: true");
-          console.log("   - initialLoadComplete: true");
-        } else {
-          // Keine Einladungen - zeige Onboarding
-          console.log("ℹ️ Keine Einladungen - zeige Onboarding");
-          setShowOnboarding(true);
-          setShowPendingInvites(false);
-          setInitialLoadComplete(true);
-        }
+        // Keine aktiven Mitgliedschaften UND keine Einladungen -> Onboarding
+        console.log("ℹ️ Keine Mitgliedschaften und keine Einladungen - zeige Onboarding");
+        setShowOnboarding(true);
+        setShowPendingInvites(false);
+        setInitialLoadComplete(true);
       }
     } catch (error) {
       console.error("❌ Error during auth check:", error);
