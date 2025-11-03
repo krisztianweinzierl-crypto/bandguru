@@ -269,7 +269,6 @@ export default function Layout({ children, currentPageName }) {
       await base44.entities.Mitglied.create({
         org_id: org.id,
         user_id: user.id,
-        email: user.email, // Added this line as per the outline
         rolle: "Band Manager",
         status: "aktiv"
       });
