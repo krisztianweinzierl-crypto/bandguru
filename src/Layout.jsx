@@ -1041,6 +1041,18 @@ export default function Layout({ children, currentPageName }) {
                 <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
               </div>
             </div>
+            
+            {/* Profil-Link für Musiker */}
+            {!isManager && (
+              <Link 
+                to={createPageUrl('MusikerProfil')}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors mb-2"
+              >
+                <UserCircle className="w-4 h-4" />
+                Mein Profil
+              </Link>
+            )}
+            
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
