@@ -358,6 +358,17 @@ export default function Layout({ children, currentPageName }) {
         }
       }
     });
+
+    // Check for 'settings' submenu specifically
+    const settingsSubmenuUrls = [
+      createPageUrl("OrganisationSettings"),
+      createPageUrl("BuchungsbedingungVorlagen")
+    ];
+    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
+    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
+      setExpandedMenus(prev => ({ ...prev, ['settings']: true }));
+    }
+
   }, [location.pathname]);
 
   // Loading
@@ -972,17 +983,45 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
-                          location.pathname === createPageUrl("OrganisationSettings") ? 'bg-blue-50 text-blue-700' : ''
+                      <button
+                        onClick={() => toggleMenu('settings')}
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 ${
+                          [createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? 'bg-blue-50 text-blue-700' : ''
                         }`}
                       >
-                        <Link to={createPageUrl("OrganisationSettings")} className="flex items-center gap-3 px-3 py-2">
+                        <div className="flex items-center gap-3">
                           <Settings className="w-4 h-4" />
                           <span className="font-medium">Einstellungen</span>
-                        </Link>
-                      </SidebarMenuButton>
+                        </div>
+                        <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
+                      </button>
+                      
+                      {expandedMenus['settings'] && (
+                        <div className="ml-4 mb-1 space-y-1">
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
+                              location.pathname === createPageUrl("OrganisationSettings") ? 'bg-blue-50 text-blue-700' : ''
+                            }`}
+                          >
+                            <Link to={createPageUrl("OrganisationSettings")} className="flex items-center gap-3 px-3 py-2">
+                              <Building2 className="w-4 h-4" />
+                              <span className="font-medium">Organisation</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
+                              location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? 'bg-blue-50 text-blue-700' : ''
+                            }`}
+                          >
+                            <Link to={createPageUrl("BuchungsbedingungVorlagen")} className="flex items-center gap-3 px-3 py-2">
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">Buchungsbedingungen</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </div>
+                      )}
                     </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>

@@ -51,6 +51,7 @@ export default function EventDetailPage() {
   const [musikerGage, setMusikerGage] = useState("");
   const [musikerNotizen, setMusikerNotizen] = useState("");
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
+  const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null); // This state isn't explicitly used for editing in the provided outline but kept for consistency
 
@@ -88,6 +89,12 @@ export default function EventDetailPage() {
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', event?.org_id],
     queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
+    enabled: !!event?.org_id,
+  });
+
+  const { data: vorlagen = [] } = useQuery({
+    queryKey: ['buchungsbedingungVorlagen', event?.org_id],
+    queryFn: () => base44.entities.BuchungsbedingungVorlage.filter({ org_id: event.org_id, aktiv: true }),
     enabled: !!event?.org_id,
   });
 
@@ -195,6 +202,7 @@ Das Team`;
     setMusikerGage("");
     setMusikerNotizen("");
     setBuchungsbedingungen("");
+    setSelectedVorlageId("");
   };
 
   const handleAddMusiker = () => {
@@ -724,15 +732,46 @@ Das Team`;
                           />
                         </div>
 
-                        <div>
+                        <div className="space-y-3">
                           <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
+                          
+                          {vorlagen.length > 0 && (
+                            <div className="space-y-2">
+                              <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
+                              <Select
+                                value={selectedVorlageId}
+                                onValueChange={(value) => {
+                                  setSelectedVorlageId(value);
+                                  const vorlage = vorlagen.find(v => v.id === value);
+                                  if (vorlage) {
+                                    setBuchungsbedingungen(vorlage.inhalt);
+                                  } else if (value === "keine") {
+                                    setBuchungsbedingungen("");
+                                  }
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Vorlage wählen..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
+                                  {vorlagen.map((v) => (
+                                    <SelectItem key={v.id} value={v.id}>
+                                      {v.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
+
                           <Textarea
                             value={buchungsbedingungen}
                             onChange={(e) => setBuchungsbedingungen(e.target.value)}
                             placeholder="z.B. Bitte Smoking mitbringen, Probebesuch erforderlich..."
-                            rows={3}
+                            rows={4}
                           />
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-500">
                             Diese Bedingungen muss der Musiker bei Zusage akzeptieren
                           </p>
                         </div>
