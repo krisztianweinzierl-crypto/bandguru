@@ -465,6 +465,7 @@ Das ${organisation.name} Team 🎵`;
                     const displayUserName = mitglied.user_id ? user?.full_name || mitglied.user_id : (mitglied.invite_name || mitglied.invite_email);
                     const displayInitial = (displayUserName?.[0] || '?').toUpperCase();
                     const isInvited = mitglied.status === "eingeladen";
+                    const displayEmail = mitglied.invite_email || (mitglied.user_id === user?.id ? user?.email : null);
 
                     return (
                       <div
@@ -475,15 +476,15 @@ Das ${organisation.name} Team 🎵`;
                           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
                             {displayInitial}
                           </div>
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <p className="font-medium text-gray-900">
                               {displayUserName}
                               {isInvited && <span className="text-sm text-gray-500 ml-2">(eingeladen)</span>}
                             </p>
-                            {isInvited && mitglied.invite_email && (
+                            {displayEmail && (
                               <p className="text-sm text-gray-600 flex items-center gap-1 mt-0.5">
                                 <Mail className="w-3 h-3" />
-                                {mitglied.invite_email}
+                                {displayEmail}
                               </p>
                             )}
                             <div className="flex items-center gap-2 mt-1">
