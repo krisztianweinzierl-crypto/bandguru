@@ -752,40 +752,45 @@ Das Team`;
                         <div className="space-y-3">
                           <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
                           
-                          {vorlagen.length > 0 && (
-                            <div className="space-y-2">
-                              <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
-                              <Select
-                                value={selectedVorlageId}
-                                onValueChange={(value) => {
-                                  setSelectedVorlageId(value);
-                                  if (value === "keine") {
-                                    setBuchungsbedingungen("");
-                                  } else {
-                                    const vorlage = vorlagen.find(v => v.id === value);
-                                    if (vorlage) {
-                                      setBuchungsbedingungen(vorlage.inhalt);
-                                    }
+                          <div className="space-y-2">
+                            <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
+                            <Select
+                              value={selectedVorlageId}
+                              onValueChange={(value) => {
+                                setSelectedVorlageId(value);
+                                if (value === "keine") {
+                                  setBuchungsbedingungen("");
+                                } else {
+                                  const vorlage = vorlagen.find(v => v.id === value);
+                                  if (vorlage) {
+                                    setBuchungsbedingungen(vorlage.inhalt);
                                   }
-                                }}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Vorlage wählen..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
-                                  {vorlagen.map((v) => (
-                                    <SelectItem key={v.id} value={v.id}>
-                                      {v.name} ({v.kategorie})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                }
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Vorlage wählen..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
+                                {vorlagen.map((v) => (
+                                  <SelectItem key={v.id} value={v.id}>
+                                    {v.name} ({v.kategorie})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {vorlagen.length === 0 && (
+                              <p className="text-xs text-amber-600">
+                                Noch keine Vorlagen vorhanden. Erstelle Vorlagen unter Einstellungen → Buchungsbedingungen
+                              </p>
+                            )}
+                            {vorlagen.length > 0 && (
                               <p className="text-xs text-gray-500">
                                 Wähle eine gespeicherte Vorlage oder schreibe eigene Bedingungen
                               </p>
-                            </div>
-                          )}
+                            )}
+                          </div>
 
                           <div className="border border-gray-200 rounded-lg">
                             <ReactQuill
