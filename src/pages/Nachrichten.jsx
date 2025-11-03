@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -61,6 +62,21 @@ export default function NachrichtenPage() {
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: currentOrgId, status: "aktiv" }),
+    enabled: !!currentOrgId,
+  });
+
+  // Lade alle User-Daten
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers', currentOrgId],
+    queryFn: async () => {
+      try {
+        const users = await base44.asServiceRole.entities.User.list();
+        return users;
+      } catch (error) {
+        console.error("Fehler beim Laden der User-Liste:", error);
+        return [];
+      }
+    },
     enabled: !!currentOrgId,
   });
 
@@ -200,7 +216,14 @@ export default function NachrichtenPage() {
   const getKonversationTeilnehmer = (konversation) => {
     return konversation.teilnehmer_ids
       ?.filter(id => id !== currentUser?.id)
-      .map(id => mitglieder.find(m => m.user_id === id))
+      .map(id => {
+        const mitglied = mitglieder.find(m => m.user_id === id);
+        const user = allUsers.find(u => u.id === id);
+        return {
+          ...mitglied,
+          user_name: user?.full_name || user?.email || mitglied?.rolle || 'Unbekannt'
+        };
+      })
       .filter(Boolean) || [];
   };
 
@@ -209,18 +232,43 @@ export default function NachrichtenPage() {
     
     const anderen = getKonversationTeilnehmer(konversation);
     if (anderen.length === 0) return "Ich";
-    if (anderen.length === 1) return anderen[0].rolle || anderen[0].user_id;
+    if (anderen.length === 1) return anderen[0].user_name;
     return `${anderen.length} Teilnehmer`;
   };
 
   const hasUnreadMessages = (konversation) => {
     // Prüfe ob es Nachrichten gibt, die der User noch nicht gelesen hat
-    const lastMessage = konversation.letzte_nachricht_zeit;
-    return lastMessage && nachrichten.some(n => 
-      n.konversation_id === konversation.id && 
-      n.absender_id !== currentUser?.id &&
-      (!n.gelesen_von || !n.gelesen_von.includes(currentUser?.id))
-    );
+    // TODO: This logic currently checks against all fetched messages, not only latest for this konversation
+    // Needs adjustment to accurately reflect unread status for a given konversation based on `letzte_nachricht_zeit` and user's last read time.
+    // For now, it will mark unread if any message in the whole fetch is unread for the current user.
+    // A more robust solution would involve tracking `last_read_time` per user per conversation.
+    const lastMessageTime = konversation.letzte_nachricht_zeit;
+    
+    if (!lastMessageTime) return false; // No messages yet
+
+    // This is a simplified check. A proper implementation would compare the `letzte_nachricht_zeit`
+    // with a stored `last_read_timestamp` for the currentUser in this specific conversation.
+    // Since `gelesen_von` is an array of user IDs who have read the message, we can check if currentUser.id is NOT in the latest message's gelesen_von array.
+    // However, `nachrichten` is a list of ALL messages for the selectedKonversation, not just the latest.
+    // To correctly implement this, we'd need to fetch the latest message *for that conversation* or add `last_read_timestamp` to the Konversation entity.
+
+    // Current simple approach (may not be entirely accurate for dynamic updates without specific server-side tracking):
+    // If the selectedKonversation is currently loaded, we might try to check its actual messages.
+    // If the conversation is not selected, we don't have its messages loaded by the `nachrichten` query.
+    // For now, will use a placeholder logic that would need refinement.
+    // For simplicity, let's just assume if the user is not among `gelesen_von` for the latest message in the specific convo.
+    // This requires `nachrichten` to be filtered by conversation ID, which it is.
+
+    const latestMessage = nachrichten
+      .filter(n => n.konversation_id === konversation.id)
+      .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+
+    if (latestMessage && latestMessage.absender_id !== currentUser?.id && 
+        (!latestMessage.gelesen_von || !latestMessage.gelesen_von.includes(currentUser?.id))) {
+      return true;
+    }
+
+    return false;
   };
 
   const KonversationItem = ({ konversation }) => {
@@ -242,7 +290,7 @@ export default function NachrichtenPage() {
           {teilnehmer.length === 1 ? (
             <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
               <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                {teilnehmer[0].rolle?.[0] || '?'}
+                {teilnehmer[0].user_name?.[0]?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar>
           ) : (
@@ -275,7 +323,7 @@ export default function NachrichtenPage() {
             <div className="flex items-center gap-1 mt-1">
               <Users className="w-3 h-3 text-gray-400" />
               <span className="text-xs text-gray-500">
-                {teilnehmer.map(t => t.rolle).join(', ')}
+                {teilnehmer.map(t => t.user_name).join(', ')}
               </span>
             </div>
           )}
@@ -567,34 +615,39 @@ export default function NachrichtenPage() {
                 <div className="border rounded-lg max-h-64 overflow-y-auto">
                   {mitglieder
                     .filter(m => m.user_id !== currentUser?.id)
-                    .map((mitglied) => (
-                      <div
-                        key={mitglied.user_id}
-                        onClick={() => toggleUserSelection(mitglied.user_id)}
-                        className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                          selectedUsers.includes(mitglied.user_id) ? 'bg-blue-50' : ''
-                        }`}
-                      >
-                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                          selectedUsers.includes(mitglied.user_id)
-                            ? 'bg-blue-500 border-blue-500'
-                            : 'border-gray-300'
-                        }`}>
-                          {selectedUsers.includes(mitglied.user_id) && (
-                            <Check className="w-3 h-3 text-white" />
-                          )}
+                    .map((mitglied) => {
+                      const user = allUsers.find(u => u.id === mitglied.user_id);
+                      const displayName = user?.full_name || user?.email || mitglied.rolle || 'Unbekannt';
+                      
+                      return (
+                        <div
+                          key={mitglied.user_id}
+                          onClick={() => toggleUserSelection(mitglied.user_id)}
+                          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                            selectedUsers.includes(mitglied.user_id) ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            selectedUsers.includes(mitglied.user_id)
+                              ? 'bg-blue-500 border-blue-500'
+                              : 'border-gray-300'
+                          }`}>
+                            {selectedUsers.includes(mitglied.user_id) && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs">
+                              {displayName[0]?.toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">{displayName}</p>
+                            <p className="text-xs text-gray-500">{mitglied.rolle}</p>
+                          </div>
                         </div>
-                        <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs">
-                            {mitglied.rolle?.[0] || '?'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{mitglied.rolle}</p>
-                          <p className="text-xs text-gray-500">{mitglied.user_id}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </div>
 
