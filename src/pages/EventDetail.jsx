@@ -32,7 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; // Keep Textarea for other uses if any, but replace for buchungsbedingungen
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
@@ -55,7 +55,7 @@ export default function EventDetailPage() {
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [editingEventMusiker, setEditingEventMusiker] = useState(null); // This state isn't explicitly used for editing in the provided outline but kept for consistency
+  const [editingEventMusiker, setEditingEventMusiker] = useState(null);
 
   const modules = {
     toolbar: [
@@ -136,8 +136,38 @@ export default function EventDetailPage() {
     mutationFn: async (data) => {
       return await base44.entities.EventMusiker.create(data);
     },
-    onSuccess: () => {
+    onSuccess: async (createdEventMusiker, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      
+      // Benachrichtigung für Musiker erstellen
+      try {
+        const selectedMusiker = musiker.find(m => m.id === variables.musiker_id);
+        
+        // Finde die Mitgliedschaft des Musikers
+        const mitgliedschaften = await base44.entities.Mitglied.filter({
+          org_id: event.org_id,
+          musiker_id: selectedMusiker.id,
+          status: "aktiv"
+        });
+        
+        if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
+          await base44.entities.Benachrichtigung.create({
+            org_id: event.org_id,
+            user_id: mitgliedschaften[0].user_id,
+            typ: 'event_einladung',
+            titel: `Neue Event-Anfrage: ${event.titel}`,
+            nachricht: `Du wurdest für "${event.titel}" am ${format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })} angefragt.`,
+            link_url: createPageUrl('MusikerDashboard'),
+            bezug_typ: 'event',
+            bezug_id: event.id,
+            icon: 'Calendar',
+            prioritaet: 'hoch'
+          });
+        }
+      } catch (error) {
+        console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+      }
+      
       setShowMusikerForm(false);
       resetMusikerForm();
     },

@@ -26,6 +26,21 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
 
+// Helper function to create page URLs for notifications
+const createPageUrl = (pageName) => {
+  // This is a placeholder. In a real application, you would use your router's
+  // method to generate paths or a more robust mapping.
+  switch (pageName) {
+    case 'Aufgaben':
+      return '/app/aufgaben'; // Example path
+    case 'Dashboard':
+      return '/app/dashboard';
+    // Add other cases as needed for your application's routes
+    default:
+      return '/app';
+  }
+};
+
 export default function AufgabenPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -62,28 +77,55 @@ export default function AufgabenPage() {
   const createAufgabeMutation = useMutation({
     mutationFn: async ({ hauptaufgabe, unteraufgaben }) => {
       // 1. Hauptaufgabe erstellen
-      const createdHauptaufgabe = await base44.entities.Aufgabe.create({ 
-        ...hauptaufgabe, 
-        org_id: currentOrgId 
+      const createdHauptaufgabe = await base44.entities.Aufgabe.create({
+        ...hauptaufgabe,
+        org_id: currentOrgId
       });
-      
+
       // 2. Unteraufgaben erstellen (falls vorhanden)
       if (unteraufgaben && unteraufgaben.length > 0) {
-        const unteraufgabenData = unteraufgaben
+        const unteraufgabenPromises = unteraufgaben
           .filter(u => u.titel && u.titel.trim()) // Nur Unteraufgaben mit Titel
-          .map(u => ({
-            titel: u.titel,
-            prioritaet: u.prioritaet || 'normal',
-            status: 'offen',
-            org_id: currentOrgId,
-            parent_task_id: createdHauptaufgabe.id
-          }));
-        
-        if (unteraufgabenData.length > 0) {
-          await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
+          .map(unteraufgabe =>
+            base44.entities.Aufgabe.create({
+              org_id: currentOrgId,
+              titel: unteraufgabe.titel,
+              prioritaet: unteraufgabe.prioritaet || "normal",
+              status: "offen",
+              parent_task_id: createdHauptaufgabe.id,
+              // Inherit assignee from parent task if not explicitly set for subtask
+              zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
+            })
+          );
+
+        if (unteraufgabenPromises.length > 0) {
+          await Promise.all(unteraufgabenPromises);
         }
       }
-      
+
+      // Benachrichtigung erstellen, wenn Hauptaufgabe zugewiesen wurde
+      if (hauptaufgabe.zugewiesen_an) {
+        try {
+          // No need to fetch currentUser again, currentUserId is already available
+          // const currentUser = await base44.auth.me();
+
+          await base44.entities.Benachrichtigung.create({
+            org_id: currentOrgId,
+            user_id: hauptaufgabe.zugewiesen_an,
+            typ: 'aufgabe_zugewiesen',
+            titel: 'Neue Aufgabe zugewiesen',
+            nachricht: `Dir wurde die Aufgabe "${hauptaufgabe.titel}" zugewiesen`,
+            link_url: createPageUrl('Aufgaben'),
+            bezug_typ: 'aufgabe',
+            bezug_id: createdHauptaufgabe.id,
+            icon: 'CheckCircle',
+            prioritaet: hauptaufgabe.prioritaet === 'hoch' ? 'hoch' : 'normal'
+          });
+        } catch (error) {
+          console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+        }
+      }
+
       return createdHauptaufgabe;
     },
     onSuccess: () => {
@@ -94,24 +136,51 @@ export default function AufgabenPage() {
   });
 
   const updateAufgabeMutation = useMutation({
-    mutationFn: async ({ id, data, unteraufgaben }) => {
+    mutationFn: async ({ aufgabeId, hauptaufgabe, unteraufgaben }) => {
+      const oldAufgabe = aufgaben.find(a => a.id === aufgabeId);
+
       // 1. Hauptaufgabe updaten
-      await base44.entities.Aufgabe.update(id, data);
-      
+      await base44.entities.Aufgabe.update(aufgabeId, hauptaufgabe);
+
       // 2. Neue Unteraufgaben erstellen (falls vorhanden)
       if (unteraufgaben && unteraufgaben.length > 0) {
-        const unteraufgabenData = unteraufgaben
+        const unteraufgabenPromises = unteraufgaben
           .filter(u => u.titel && u.titel.trim())
-          .map(u => ({
-            titel: u.titel,
-            prioritaet: u.prioritaet || 'normal',
-            status: 'offen',
+          .map(unteraufgabe =>
+            base44.entities.Aufgabe.create({
+              org_id: currentOrgId,
+              titel: unteraufgabe.titel,
+              prioritaet: unteraufgabe.prioritaet || "normal",
+              status: "offen",
+              parent_task_id: aufgabeId,
+              // Inherit assignee from parent task if not explicitly set for subtask
+              zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
+            })
+          );
+
+        if (unteraufgabenPromises.length > 0) {
+          await Promise.all(unteraufgabenPromises);
+        }
+      }
+
+      // Benachrichtigung erstellen, wenn Zuweisung geändert wurde
+      if (hauptaufgabe.zugewiesen_an &&
+          oldAufgabe?.zugewiesen_an !== hauptaufgabe.zugewiesen_an) {
+        try {
+          await base44.entities.Benachrichtigung.create({
             org_id: currentOrgId,
-            parent_task_id: id
-          }));
-        
-        if (unteraufgabenData.length > 0) {
-          await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
+            user_id: hauptaufgabe.zugewiesen_an,
+            typ: 'aufgabe_zugewiesen',
+            titel: 'Aufgabe zugewiesen',
+            nachricht: `Dir wurde die Aufgabe "${hauptaufgabe.titel}" zugewiesen`,
+            link_url: createPageUrl('Aufgaben'),
+            bezug_typ: 'aufgabe',
+            bezug_id: aufgabeId,
+            icon: 'CheckCircle',
+            prioritaet: hauptaufgabe.prioritaet === 'hoch' ? 'hoch' : 'normal'
+          });
+        } catch (error) {
+          console.error("Fehler beim Erstellen der Benachrichtigung:", error);
         }
       }
     },
@@ -134,7 +203,7 @@ export default function AufgabenPage() {
   const handleSubmit = (hauptaufgabe, unteraufgaben = []) => {
     if (editingAufgabe) {
       // Bei Bearbeitung: Hauptaufgabe updaten + neue Unteraufgaben erstellen
-      updateAufgabeMutation.mutate({ id: editingAufgabe.id, data: hauptaufgabe, unteraufgaben });
+      updateAufgabeMutation.mutate({ aufgabeId: editingAufgabe.id, hauptaufgabe, unteraufgaben });
     } else {
       // Bei neuer Aufgabe: Hauptaufgabe + Unteraufgaben erstellen
       createAufgabeMutation.mutate({ hauptaufgabe, unteraufgaben });
@@ -144,8 +213,8 @@ export default function AufgabenPage() {
   const handleStatusToggle = (aufgabe) => {
     const newStatus = aufgabe.status === 'erledigt' ? 'offen' : 'erledigt';
     updateAufgabeMutation.mutate({
-      id: aufgabe.id,
-      data: { ...aufgabe, status: newStatus },
+      aufgabeId: aufgabe.id,
+      hauptaufgabe: { ...aufgabe, status: newStatus },
       unteraufgaben: [] // Keine neuen Unteraufgaben beim Status-Toggle
     });
   };
@@ -208,7 +277,7 @@ export default function AufgabenPage() {
 
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
-        <div 
+        <div
           className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
             aufgabe.status === 'erledigt' ? 'opacity-60' : ''
           }`}
@@ -252,7 +321,7 @@ export default function AufgabenPage() {
                 {aufgabe.beschreibung && (
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
                 )}
-                
+
                 {/* Meta Info */}
                 <div className="flex flex-wrap items-center gap-3 mt-2">
                   {aufgabe.faellig_am && (
@@ -263,7 +332,7 @@ export default function AufgabenPage() {
                       {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
                     </div>
                   )}
-                  
+
                   {assignedMitglied && (
                     <Badge variant="outline" className="text-xs">
                       <User className="w-3 h-3 mr-1" />
@@ -300,8 +369,8 @@ export default function AufgabenPage() {
 
                 {showDropdownId === aufgabe.id && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-40" 
+                    <div
+                      className="fixed inset-0 z-40"
                       onClick={() => setShowDropdownId(null)}
                     />
                     <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
@@ -348,7 +417,7 @@ export default function AufgabenPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Aufgaben</h1>
             <p className="text-gray-600">Organisiere und verfolge deine Aufgaben</p>
           </div>
-          <Button 
+          <Button
             onClick={() => {
               setEditingAufgabe(null);
               setShowForm(true);

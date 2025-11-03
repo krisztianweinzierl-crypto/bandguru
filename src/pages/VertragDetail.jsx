@@ -126,6 +126,38 @@ Ihr Team`;
         status: 'versendet',
         versendet_am: new Date().toISOString()
       });
+      
+      // Benachrichtigung für alle Band Manager erstellen
+      try {
+        const mitglieder = await base44.entities.Mitglied.filter({
+          org_id: vertrag.org_id,
+          rolle: "Band Manager",
+          status: "aktiv"
+        });
+        
+        const currentUser = await base44.auth.me();
+        
+        const notificationPromises = mitglieder
+          .filter(m => m.user_id !== currentUser.id) // Nicht an sich selbst
+          .map(mitglied => 
+            base44.entities.Benachrichtigung.create({
+              org_id: vertrag.org_id,
+              user_id: mitglied.user_id,
+              typ: 'vertrag_unterschrieben',
+              titel: `Vertrag versendet: ${vertrag.titel}`,
+              nachricht: `Der Vertrag "${vertrag.titel}" wurde an ${kunde.firmenname} versendet`,
+              link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
+              bezug_typ: 'vertrag',
+              bezug_id: vertragId,
+              icon: 'FileSignature',
+              prioritaet: 'normal'
+            })
+          );
+        
+        await Promise.all(notificationPromises);
+      } catch (error) {
+        console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag', vertragId] });
@@ -160,7 +192,38 @@ Ihr Team`;
         }
       }
 
-      return await base44.entities.Vertrag.update(vertragId, updateData);
+      await base44.entities.Vertrag.update(vertragId, updateData);
+      
+      // Benachrichtigung erstellen, wenn Vertrag vollständig unterzeichnet
+      if ((typ === 'kunde' && vertrag.unterschrift_organisation) || 
+          (typ === 'organisation' && vertrag.unterschrift_kunde)) {
+        try {
+          const mitglieder = await base44.entities.Mitglied.filter({
+            org_id: vertrag.org_id,
+            rolle: "Band Manager",
+            status: "aktiv"
+          });
+          
+          const notificationPromises = mitglieder.map(mitglied => 
+            base44.entities.Benachrichtigung.create({
+              org_id: vertrag.org_id,
+              user_id: mitglied.user_id,
+              typ: 'vertrag_unterschrieben',
+              titel: `Vertrag vollständig unterzeichnet!`,
+              nachricht: `Der Vertrag "${vertrag.titel}" wurde von beiden Parteien unterzeichnet`,
+              link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
+              bezug_typ: 'vertrag',
+              bezug_id: vertragId,
+              icon: 'CheckCircle',
+              prioritaet: 'hoch'
+            })
+          );
+          
+          await Promise.all(notificationPromises);
+        } catch (error) {
+          console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag', vertragId] });

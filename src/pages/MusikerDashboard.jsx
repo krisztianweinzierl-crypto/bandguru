@@ -255,11 +255,70 @@ export default function MusikerDashboard() {
   });
 
   const updateEventMusikerMutation = useMutation({
-    mutationFn: async ({ id, data }) => {
-      return await base44.entities.EventMusiker.update(id, data);
+    mutationFn: async ({ eventMusikerId, newStatus, antwortNotizen }) => {
+      return await base44.entities.EventMusiker.update(eventMusikerId, {
+        status: newStatus,
+        antwort_datum: new Date().toISOString(),
+        ablehnungsgrund: newStatus === 'abgelehnt' ? antwortNotizen : null,
+        buchungsbedingungen_akzeptiert: newStatus === 'zugesagt' ? true : false
+      });
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker'] });
+      
+      // Benachrichtigung für Band Manager erstellen
+      try {
+        const eventMusikerId = variables.eventMusikerId;
+        const newStatus = variables.newStatus;
+        
+        const eventMusikerEntities = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
+        const em = eventMusikerEntities[0];
+        if (!em) {
+          console.error("EventMusiker not found for notification creation:", eventMusikerId);
+          return;
+        }
+        
+        const eventsEntities = await base44.entities.Event.filter({ id: em.event_id });
+        const event = eventsEntities[0];
+        if (!event) {
+          console.error("Event not found for notification creation:", em.event_id);
+          return;
+        }
+        
+        // Finde alle Band Manager der Organisation
+        const mitglieder = await base44.entities.Mitglied.filter({
+          org_id: currentOrgId,
+          rolle: "Band Manager",
+          status: "aktiv"
+        });
+        
+        // Erstelle Benachrichtigung für jeden Band Manager
+        const statusText = {
+          'zugesagt': 'zugesagt',
+          'abgelehnt': 'abgelehnt',
+          'optional': 'als optional markiert'
+        };
+        
+        const notificationPromises = mitglieder.map(mitglied => 
+          base44.entities.Benachrichtigung.create({
+            org_id: currentOrgId,
+            user_id: mitglied.user_id,
+            typ: newStatus === 'zugesagt' ? 'musiker_zugesagt' : 'musiker_abgelehnt',
+            titel: `${currentMusiker?.name} hat ${statusText[newStatus]}`,
+            nachricht: `${currentMusiker?.name} hat für "${event?.titel}" ${statusText[newStatus]}${newStatus === 'abgelehnt' && variables.antwortNotizen ? ` (Grund: ${variables.antwortNotizen})` : ''}`,
+            link_url: createPageUrl('EventDetail') + '?id=' + event.id,
+            bezug_typ: 'event',
+            bezug_id: event.id,
+            icon: newStatus === 'zugesagt' ? 'CheckCircle' : 'AlertCircle',
+            prioritaet: newStatus === 'zugesagt' ? 'normal' : 'hoch'
+          })
+        );
+        
+        await Promise.all(notificationPromises);
+      } catch (error) {
+        console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+      }
+      
       setShowResponseDialog(false);
       setSelectedEventMusiker(null);
       setResponseType(null);
@@ -281,26 +340,20 @@ export default function MusikerDashboard() {
   const handleSubmitResponse = () => {
     if (!selectedEventMusiker) return;
 
-    const updateData = {
-      status: responseType,
-      antwort_datum: new Date().toISOString(),
-    };
+    let notificationStatus = responseType; 
+    let notificationAblehnungsgrund = ablehnungsgrund; 
 
     if (responseType === 'zugesagt') {
       if (selectedEventMusiker.buchungsbedingungen && !bedingungenAkzeptiert) {
         alert("Bitte akzeptiere die Buchungsbedingungen");
         return;
       }
-      updateData.buchungsbedingungen_akzeptiert = true;
-    }
-
-    if (responseType === 'abgelehnt' && ablehnungsgrund) {
-      updateData.ablehnungsgrund = ablehnungsgrund;
     }
 
     updateEventMusikerMutation.mutate({
-      id: selectedEventMusiker.id,
-      data: updateData
+      eventMusikerId: selectedEventMusiker.id,
+      newStatus: notificationStatus,
+      antwortNotizen: notificationAblehnungsgrund
     });
   };
 
@@ -402,17 +455,15 @@ export default function MusikerDashboard() {
                 <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-amber-800 mb-2">Buchungsbedingungen:</p>
-                  <div className="max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-amber-100">
-                    <div 
-                      className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
-                    />
+                  <div 
+                    className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
+                  />
                   </div>
-                  <p className="text-xs text-amber-600 mt-2 italic">
-                    ℹ️ Scrolle für mehr Details
-                  </p>
-                </div>
               </div>
+              <p className="text-xs text-amber-600 mt-2 italic">
+                ℹ️ Scrolle für mehr Details
+              </p>
             </div>
           )}
 
