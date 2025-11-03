@@ -83,6 +83,20 @@ export default function OrganisationSettingsPage() {
     queryFn: () => base44.auth.me(),
   });
 
+  // Lade alle User-Daten (nur als Manager möglich)
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      try {
+        return await base44.asServiceRole.entities.User.list();
+      } catch (error) {
+        console.log("Konnte User-Liste nicht laden:", error);
+        return [];
+      }
+    },
+    enabled: !!user && !!currentOrgId,
+  });
+
   const updateOrgMutation = useMutation({
     mutationFn: (data) => base44.entities.Organisation.update(currentOrgId, data),
     onSuccess: () => {
@@ -233,6 +247,23 @@ Das ${organisation.name} Team 🎵`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Helper-Funktion um E-Mail eines Mitglieds zu ermitteln
+  const getMitgliedEmail = (mitglied) => {
+    // 1. Priorität: invite_email (bei eingeladenen oder neu akzeptierten Mitgliedern)
+    if (mitglied.invite_email) return mitglied.invite_email;
+    
+    // 2. Priorität: Aktueller User
+    if (mitglied.user_id === user?.id) return user?.email;
+    
+    // 3. Priorität: User-Daten aus der User-Entity (nur für Manager verfügbar)
+    if (mitglied.user_id && users.length > 0) {
+      const userData = users.find(u => u.id === mitglied.user_id);
+      if (userData?.email) return userData.email;
+    }
+    
+    return null;
   };
 
   if (!organisation || !orgFormData) {
@@ -465,7 +496,7 @@ Das ${organisation.name} Team 🎵`;
                     const displayUserName = mitglied.user_id ? user?.full_name || mitglied.user_id : (mitglied.invite_name || mitglied.invite_email);
                     const displayInitial = (displayUserName?.[0] || '?').toUpperCase();
                     const isInvited = mitglied.status === "eingeladen";
-                    const displayEmail = mitglied.invite_email || (mitglied.user_id === user?.id ? user?.email : null);
+                    const displayEmail = getMitgliedEmail(mitglied);
 
                     return (
                       <div
@@ -512,7 +543,7 @@ Das ${organisation.name} Team 🎵`;
                             </div>
                           </div>
                         </div>
-                        {isManager && mitglied.user_id !== user?.id && ( // Only show delete if not current user and manager
+                        {isManager && mitglied.user_id !== user?.id && (
                           <Button
                             variant="ghost"
                             size="icon"

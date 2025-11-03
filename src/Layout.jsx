@@ -270,7 +270,8 @@ export default function Layout({ children, currentPageName }) {
         org_id: org.id,
         user_id: user.id,
         rolle: "Band Manager",
-        status: "aktiv"
+        status: "aktiv",
+        invite_email: user.email // E-Mail speichern für spätere Anzeige
       });
       console.log("✅ Mitgliedschaft erstellt");
       
