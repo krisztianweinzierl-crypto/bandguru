@@ -38,14 +38,7 @@ export default function OrganisationSettingsPage() {
   // In a real application, this would typically come from a routing library
   // or a centralized utility. For this implementation, we'll map 'AcceptInvite'
   // to a known path.
-  const createPageUrl = (pageName) => {
-    switch (pageName) {
-      case 'AcceptInvite':
-        return '/accept-invite'; // Assuming your app has a route /accept-invite
-      default:
-        return '/';
-    }
-  };
+  // This helper function is now removed as it's no longer used.
 
   useEffect(() => {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
@@ -131,8 +124,8 @@ export default function OrganisationSettingsPage() {
           invite_expires_at: expiresAt.toISOString()
         });
 
-        // 4. Personalisierten Link generieren
-        const inviteUrl = `${window.location.origin}${createPageUrl('AcceptInvite')}?token=${token}`;
+        // 4. Personalisierten Link generieren - KORRIGIERT zu /AcceptInvite
+        const inviteUrl = `${window.location.origin}/AcceptInvite?token=${token}`;
         
         const personalMessage = data.message ? `\n\n"${data.message}"\n` : "";
         
