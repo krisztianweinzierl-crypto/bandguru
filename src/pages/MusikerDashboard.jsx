@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -32,7 +33,7 @@ export default function MusikerDashboard() {
   const [showResponseDialog, setShowResponseDialog] = useState(false);
   const [selectedEventMusiker, setSelectedEventMusiker] = useState(null);
   const [responseType, setResponseType] = useState(null);
-  const [bedingungen Akzeptiert, setBedingungAccepted] = useState(false);
+  const [bedingungenAkzeptiert, setBedingungenAkzeptiert] = useState(false);
   const [ablehnungsgrund, setAblehnungsgrund] = useState("");
   const queryClient = useQueryClient();
 
@@ -83,7 +84,7 @@ export default function MusikerDashboard() {
       setShowResponseDialog(false);
       setSelectedEventMusiker(null);
       setResponseType(null);
-      setBedingungAccepted(false);
+      setBedingungenAkzeptiert(false);
       setAblehnungsgrund("");
     },
   });
@@ -107,7 +108,7 @@ export default function MusikerDashboard() {
     };
 
     if (responseType === 'zugesagt') {
-      if (selectedEventMusiker.buchungsbedingungen && !bedingungAccepted) {
+      if (selectedEventMusiker.buchungsbedingungen && !bedingungenAkzeptiert) {
         alert("Bitte akzeptiere die Buchungsbedingungen");
         return;
       }
@@ -407,8 +408,8 @@ export default function MusikerDashboard() {
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Checkbox
                       id="accept-terms"
-                      checked={bedingungAccepted}
-                      onCheckedChange={setBedingungAccepted}
+                      checked={bedingungenAkzeptiert}
+                      onCheckedChange={setBedingungenAkzeptiert}
                       className="mt-0.5"
                     />
                     <label htmlFor="accept-terms" className="text-sm cursor-pointer">
@@ -445,7 +446,7 @@ export default function MusikerDashboard() {
                 variant="outline"
                 onClick={() => {
                   setShowResponseDialog(false);
-                  setBedingungAccepted(false);
+                  setBedingungenAkzeptiert(false);
                   setAblehnungsgrund("");
                 }}
               >
