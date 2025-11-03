@@ -176,19 +176,23 @@ export default function Layout({ children, currentPageName }) {
           }));
           
           console.log("✅ Einladungen mit Orgs:", invitesWithOrgs);
+          console.log("🎯 SETZE JETZT STATES FÜR EINLADUNGS-ANSICHT");
           
-          // WICHTIG: States in der richtigen Reihenfolge setzen
+          // Alle States direkt setzen - kein setTimeout
           setPendingInvites(invitesWithOrgs);
+          setShowPendingInvites(true);
+          setShowOnboarding(false); // Wichtig!
+          setInitialLoadComplete(true);
           
-          // Kurze Verzögerung damit pendingInvites State gesetzt wird
-          setTimeout(() => {
-            setShowPendingInvites(true);
-            setInitialLoadComplete(true);
-          }, 100);
+          console.log("✅ States gesetzt - Einladungs-UI sollte jetzt rendern");
+          console.log("   - pendingInvites:", invitesWithOrgs.length);
+          console.log("   - showPendingInvites: true");
+          console.log("   - initialLoadComplete: true");
         } else {
           // Keine Einladungen - zeige Onboarding
           console.log("ℹ️ Keine Einladungen - zeige Onboarding");
           setShowOnboarding(true);
+          setShowPendingInvites(false);
           setInitialLoadComplete(true);
         }
       }
