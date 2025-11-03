@@ -49,7 +49,6 @@ export default function EventDetailPage() {
   const [selectedMusikerId, setSelectedMusikerId] = useState("");
   const [musikerRolle, setMusikerRolle] = useState("");
   const [musikerGage, setMusikerGage] = useState("");
-  const [musikerCalltime, setMusikerCalltime] = useState("");
   const [musikerNotizen, setMusikerNotizen] = useState("");
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
@@ -194,7 +193,6 @@ Das Team`;
     setSelectedMusikerId("");
     setMusikerRolle("");
     setMusikerGage("");
-    setMusikerCalltime("");
     setMusikerNotizen("");
     setBuchungsbedingungen("");
   };
@@ -209,7 +207,6 @@ Das Team`;
       musiker_id: selectedMusikerId,
       rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
-      calltime: musikerCalltime || event.datum_von, // Default to event start date if not specified
       status: "angefragt",
       notizen: musikerNotizen,
       buchungsbedingungen: buchungsbedingungen
@@ -718,15 +715,6 @@ Das Team`;
                         </div>
 
                         <div>
-                          <Label>Calltime</Label>
-                          <Input
-                            type="datetime-local"
-                            value={musikerCalltime}
-                            onChange={(e) => setMusikerCalltime(e.target.value)}
-                          />
-                        </div>
-
-                        <div>
                           <Label>Notizen</Label>
                           <Textarea
                             value={musikerNotizen}
@@ -885,16 +873,6 @@ Das Team`;
                                       <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
                                     </div>
                                   </div>
-
-                                  {em.calltime && (
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Clock className="w-4 h-4" />
-                                      <div>
-                                        <p className="text-xs text-gray-500">Calltime</p>
-                                        <p className="font-medium">{format(new Date(em.calltime), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
-                                      </div>
-                                    </div>
-                                  )}
                                 </div>
 
                                 {em.notizen && (
