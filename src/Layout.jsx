@@ -636,21 +636,38 @@ export default function Layout({ children, currentPageName }) {
             ))}
           </div>
 
-          <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500 mb-4">
-              Oder möchtest du lieber deine eigene Organisation erstellen?
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowPendingInvites(false);
-                setShowOnboarding(true);
-              }}
-              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Eigene Organisation erstellen
-            </Button>
+          <div className="mt-8 space-y-4">
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-4">
+                Oder möchtest du lieber deine eigene Organisation erstellen?
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowPendingInvites(false);
+                  setShowOnboarding(true);
+                }}
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Eigene Organisation erstellen
+              </Button>
+            </div>
+
+            {/* Abmelden Button */}
+            <div className="text-center pt-4 border-t">
+              <p className="text-sm text-gray-500 mb-3">
+                Probleme beim Annehmen der Einladung?
+              </p>
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Abmelden
+              </Button>
+            </div>
           </div>
         </div>
       </div>
