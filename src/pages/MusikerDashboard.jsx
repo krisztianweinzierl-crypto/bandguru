@@ -41,19 +41,71 @@ export default function MusikerDashboard() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const orgId = localStorage.getItem('currentOrgId');
-      setCurrentOrgId(orgId);
-      
-      const user = await base44.auth.me();
-      setCurrentUser(user);
+      try {
+        console.log("🎵 === MUSIKER DASHBOARD - LADE USER ===");
+        
+        const orgId = localStorage.getItem('currentOrgId');
+        console.log("   Organisation ID:", orgId);
+        setCurrentOrgId(orgId);
+        
+        const user = await base44.auth.me();
+        console.log("   User:", user.email);
+        setCurrentUser(user);
 
-      // Finde Musiker-Profil basierend auf User
-      const musikerList = await base44.entities.Musiker.filter({ 
-        org_id: orgId,
-        email: user.email
-      });
-      if (musikerList.length > 0) {
-        setCurrentMusiker(musikerList[0]);
+        // METHODE 1: Über Mitgliedschaft (BEVORZUGT)
+        console.log("   Suche Mitgliedschaft...");
+        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+          org_id: orgId,
+          user_id: user.id,
+          status: "aktiv",
+          rolle: "Musiker"
+        });
+        
+        console.log("   Mitgliedschaften gefunden:", mitgliedschaften.length);
+        
+        if (mitgliedschaften.length > 0 && mitgliedschaften[0].musiker_id) {
+          // Musiker über Mitgliedschaft laden
+          console.log("   Lade Musiker über Mitgliedschaft ID:", mitgliedschaften[0].musiker_id);
+          const musikerList = await base44.entities.Musiker.filter({ 
+            id: mitgliedschaften[0].musiker_id
+          });
+          
+          if (musikerList.length > 0) {
+            console.log("✅ Musiker gefunden über Mitgliedschaft:", musikerList[0].name);
+            setCurrentMusiker(musikerList[0]);
+            return;
+          }
+        }
+
+        // METHODE 2: Über E-Mail (FALLBACK)
+        console.log("   ⚠️ Kein Musiker über Mitgliedschaft - versuche E-Mail-Match...");
+        const musikerListByEmail = await base44.entities.Musiker.filter({ 
+          org_id: orgId,
+          email: user.email,
+          aktiv: true
+        });
+        
+        if (musikerListByEmail.length > 0) {
+          console.log("✅ Musiker gefunden über E-Mail:", musikerListByEmail[0].name);
+          setCurrentMusiker(musikerListByEmail[0]);
+          
+          // BONUS: Mitgliedschaft aktualisieren mit musiker_id
+          if (mitgliedschaften.length > 0 && !mitgliedschaften[0].musiker_id) {
+            console.log("   Aktualisiere Mitgliedschaft mit musiker_id...");
+            await base44.entities.Mitglied.update(mitgliedschaften[0].id, {
+              musiker_id: musikerListByEmail[0].id
+            });
+            console.log("✅ Mitgliedschaft aktualisiert!");
+          }
+        } else {
+          console.log("❌ Kein Musiker-Profil gefunden für:", user.email);
+          console.log("   Bitte stelle sicher, dass:");
+          console.log("   1. Ein Musiker mit dieser E-Mail existiert");
+          console.log("   2. Der Musiker aktiv ist");
+          console.log("   3. Die Mitgliedschaft eine musiker_id hat");
+        }
+      } catch (error) {
+        console.error("❌ Fehler beim Laden des Musikers:", error);
       }
     };
     loadUser();
@@ -61,7 +113,12 @@ export default function MusikerDashboard() {
 
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', currentMusiker?.id],
-    queryFn: () => base44.entities.EventMusiker.filter({ musiker_id: currentMusiker.id }),
+    queryFn: async () => {
+      console.log("📋 Lade EventMusiker für Musiker ID:", currentMusiker.id);
+      const result = await base44.entities.EventMusiker.filter({ musiker_id: currentMusiker.id });
+      console.log("   EventMusiker gefunden:", result.length);
+      return result;
+    },
     enabled: !!currentMusiker?.id,
   });
 
@@ -69,10 +126,13 @@ export default function MusikerDashboard() {
     queryKey: ['events', eventMusiker],
     queryFn: async () => {
       const eventIds = [...new Set(eventMusiker.map(em => em.event_id))];
+      console.log("📋 Lade Events für IDs:", eventIds);
       const eventsPromises = eventIds.map(id => 
         base44.entities.Event.filter({ id }).then(res => res[0])
       );
-      return await Promise.all(eventsPromises);
+      const result = await Promise.all(eventsPromises);
+      console.log("   Events geladen:", result.length);
+      return result;
     },
     enabled: eventMusiker.length > 0,
   });
