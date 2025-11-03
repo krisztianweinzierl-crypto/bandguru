@@ -333,6 +333,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const musikerNavItems = [
+    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
     { 
       title: "Events", 
       icon: Calendar,

@@ -51,6 +51,7 @@ export default function EventDetailPage() {
   const [musikerGage, setMusikerGage] = useState("");
   const [musikerCalltime, setMusikerCalltime] = useState("");
   const [musikerNotizen, setMusikerNotizen] = useState("");
+  const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null); // This state isn't explicitly used for editing in the provided outline but kept for consistency
 
@@ -167,7 +168,7 @@ Du wurdest für folgendes Event angefragt:
 🎸 Rolle: ${em.rolle}
 💰 Gage: €${em.gage_netto}
 
-${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}Bitte gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
+${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}${em.buchungsbedingungen ? `Buchungsbedingungen: ${em.buchungsbedingungen}\n\n` : ''}Bitte gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
 
 Viele Grüße
 Das Team`;
@@ -195,6 +196,7 @@ Das Team`;
     setMusikerGage("");
     setMusikerCalltime("");
     setMusikerNotizen("");
+    setBuchungsbedingungen("");
   };
 
   const handleAddMusiker = () => {
@@ -209,7 +211,8 @@ Das Team`;
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
       calltime: musikerCalltime || event.datum_von, // Default to event start date if not specified
       status: "angefragt",
-      notizen: musikerNotizen
+      notizen: musikerNotizen,
+      buchungsbedingungen: buchungsbedingungen
     });
   };
 
@@ -253,7 +256,8 @@ Das Team`;
   };
 
   const musikerStatusColors = {
-    angefragt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-l-blue-400", label: "Angefragt" },
+    angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-l-yellow-400", label: "Angefragt" },
+    optional: { bg: "bg-blue-100", text: "text-blue-800", border: "border-l-blue-400", label: "Optional" },
     zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-l-green-500", label: "Zugesagt" },
     abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-l-red-400", label: "Abgelehnt" },
     ersetzt: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400", label: "Ersetzt" }
@@ -728,8 +732,21 @@ Das Team`;
                             value={musikerNotizen}
                             onChange={(e) => setMusikerNotizen(e.target.value)}
                             placeholder="Zusätzliche Informationen..."
+                            rows={2}
+                          />
+                        </div>
+
+                        <div>
+                          <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
+                          <Textarea
+                            value={buchungsbedingungen}
+                            onChange={(e) => setBuchungsbedingungen(e.target.value)}
+                            placeholder="z.B. Bitte Smoking mitbringen, Probebesuch erforderlich..."
                             rows={3}
                           />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Diese Bedingungen muss der Musiker bei Zusage akzeptieren
+                          </p>
                         </div>
 
                         <div className="flex justify-end gap-2">
@@ -803,6 +820,12 @@ Das Team`;
                                                 className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
                                               >
                                                 Als zugesagt markieren
+                                              </button>
+                                              <button
+                                                onClick={() => handleUpdateStatus(em.id, 'optional')}
+                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                              >
+                                                Als optional markieren
                                               </button>
                                               <button
                                                 onClick={() => handleUpdateStatus(em.id, 'abgelehnt')}
@@ -881,6 +904,17 @@ Das Team`;
                                       <div>
                                         <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
                                         <p className="text-gray-700">{em.notizen}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                {em.buchungsbedingungen && (
+                                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="flex items-start gap-2 text-sm">
+                                      <FileText className="w-4 h-4 text-blue-500 mt-0.5" />
+                                      <div>
+                                        <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
+                                        <p className="text-gray-700">{em.buchungsbedingungen}</p>
                                       </div>
                                     </div>
                                   </div>

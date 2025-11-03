@@ -20,6 +20,7 @@ import VertragDetail from './pages/VertragDetail';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import VertragKundenansicht from './pages/VertragKundenansicht';
 import AcceptInvite from './pages/AcceptInvite';
+import MusikerDashboard from './pages/MusikerDashboard';
 import Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "Vertragsvorlagen": Vertragsvorlagen,
     "VertragKundenansicht": VertragKundenansicht,
     "AcceptInvite": AcceptInvite,
+    "MusikerDashboard": MusikerDashboard,
 }
 
 export const pagesConfig = {
