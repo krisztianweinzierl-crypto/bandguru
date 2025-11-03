@@ -400,12 +400,17 @@ export default function MusikerDashboard() {
             <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
               <div className="flex items-start gap-2">
                 <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-amber-800 mb-1">Buchungsbedingungen:</p>
-                  <div 
-                    className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
-                  />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-amber-800 mb-2">Buchungsbedingungen:</p>
+                  <div className="max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-amber-100">
+                    <div 
+                      className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
+                    />
+                  </div>
+                  <p className="text-xs text-amber-600 mt-2 italic">
+                    ℹ️ Scrolle für mehr Details
+                  </p>
                 </div>
               </div>
             </div>
@@ -507,7 +512,7 @@ export default function MusikerDashboard() {
                   <li>User ID: {currentUser?.id}</li>
                 </ul>
                 <p className="mt-3 text-xs text-gray-600">
-                  Öffne die Browser-Console (F12) für detaillierte Debug-Logs
+                  Öffne die Browser-Console (F12) für detailliertere Debug-Logs
                 </p>
               </div>
 
