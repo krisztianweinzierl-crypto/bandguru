@@ -25,6 +25,7 @@ import BuchungsbedingungVorlagen from './pages/BuchungsbedingungVorlagen';
 import MeineEvents from './pages/MeineEvents';
 import acceptInvite from './pages/accept-invite';
 import MusikerProfil from './pages/MusikerProfil';
+import MeineAufgaben from './pages/MeineAufgaben';
 import Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "MeineEvents": MeineEvents,
     "acceptInvite": acceptInvite,
     "MusikerProfil": MusikerProfil,
+    "MeineAufgaben": MeineAufgaben,
 }
 
 export const pagesConfig = {
