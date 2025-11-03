@@ -858,7 +858,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
-                  className="w-full justify-between h-auto py-3 px-3 hover:bg-blue-50 transition-colors"
+                  className="w-full justify-between h-auto py-3 px-3 hover:bg-teal-50 transition-colors"
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div 
@@ -899,7 +899,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {org.id === currentOrg.id && (
-                              <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                              <Check className="w-4 h-4 text-teal-600 flex-shrink-0" />
                             )}
                           </button>
                         );
@@ -924,8 +924,8 @@ export default function Layout({ children, currentPageName }) {
                         <>
                           <button
                             onClick={() => toggleMenu(index)}
-                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 ${
-                              item.submenu.some(sub => location.pathname === sub.url) ? 'bg-blue-50 text-blue-700' : ''
+                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 ${
+                              item.submenu.some(sub => location.pathname === sub.url) ? 'bg-teal-50 text-teal-700' : ''
                             }`}
                           >
                             <div className="flex items-center gap-3">
@@ -941,8 +941,8 @@ export default function Layout({ children, currentPageName }) {
                                 <SidebarMenuButton
                                   key={subItem.title}
                                   asChild
-                                  className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
-                                    location.pathname === subItem.url ? 'bg-blue-50 text-blue-700' : ''
+                                  className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
+                                    location.pathname === subItem.url ? 'bg-teal-50 text-teal-700' : ''
                                   }`}
                                 >
                                   <Link to={subItem.url} className="flex items-center gap-3 px-3 py-2">
@@ -957,8 +957,8 @@ export default function Layout({ children, currentPageName }) {
                       ) : (
                         <SidebarMenuButton 
                           asChild 
-                          className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg mb-1 ${
-                            location.pathname === item.url ? 'bg-blue-50 text-blue-700' : ''
+                          className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg mb-1 ${
+                            location.pathname === item.url ? 'bg-teal-50 text-teal-700' : ''
                           }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
@@ -983,8 +983,8 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem>
                       <button
                         onClick={() => toggleMenu('settings')}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 ${
-                          [createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? 'bg-blue-50 text-blue-700' : ''
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 ${
+                          [createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? 'bg-teal-50 text-teal-700' : ''
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -998,8 +998,8 @@ export default function Layout({ children, currentPageName }) {
                         <div className="ml-4 mb-1 space-y-1">
                           <SidebarMenuButton
                             asChild
-                            className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
-                              location.pathname === createPageUrl("OrganisationSettings") ? 'bg-blue-50 text-blue-700' : ''
+                            className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
+                              location.pathname === createPageUrl("OrganisationSettings") ? 'bg-teal-50 text-teal-700' : ''
                             }`}
                           >
                             <Link to={createPageUrl("OrganisationSettings")} className="flex items-center gap-3 px-3 py-2">
@@ -1009,8 +1009,8 @@ export default function Layout({ children, currentPageName }) {
                           </SidebarMenuButton>
                           <SidebarMenuButton
                             asChild
-                            className={`hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 rounded-lg ${
-                              location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? 'bg-blue-50 text-blue-700' : ''
+                            className={`hover:bg-teal-50 hover:text-teal-700 transition-colors duration-200 rounded-lg ${
+                              location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? 'bg-teal-50 text-teal-700' : ''
                             }`}
                           >
                             <Link to={createPageUrl("BuchungsbedingungVorlagen")} className="flex items-center gap-3 px-3 py-2">
@@ -1035,7 +1035,7 @@ export default function Layout({ children, currentPageName }) {
               >
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
                     {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
                   </AvatarFallback>
                 </Avatar>

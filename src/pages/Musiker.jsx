@@ -197,7 +197,7 @@ export default function MusikerPage() {
           )}
           {musiker.genre && musiker.genre.length > 0 && (
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Music className="w-4 h-4 text-gray-400" />
+              <Music className="w-4 h-4" />
               <span className="truncate">{musiker.genre.join(', ')}</span>
             </div>
           )}
@@ -332,7 +332,7 @@ export default function MusikerPage() {
               setEditingMusiker(null);
               setShowForm(true);
             }}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+            className="bg-slate-800 hover:bg-slate-900 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Musiker hinzufügen

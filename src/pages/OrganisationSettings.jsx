@@ -415,7 +415,7 @@ Das ${organisation.name} Team 🎵`;
                   <div className="pt-4 border-t">
                     <Button
                       onClick={handleSaveChanges}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      className="bg-slate-800 hover:bg-slate-900 text-white"
                       disabled={updateOrgMutation.isPending}
                     >
                       <Save className="w-4 h-4 mr-2" />
@@ -514,7 +514,7 @@ Das ${organisation.name} Team 🎵`;
 
                     <Button
                       type="submit"
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      className="bg-slate-800 hover:bg-slate-900 text-white"
                       disabled={inviteMemberMutation.isPending}
                     >
                       <Send className="w-4 h-4 mr-2" />

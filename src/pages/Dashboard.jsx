@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -65,12 +66,12 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Nächste Events</CardTitle>
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-blue-600" />
+                <div className="p-2 bg-teal-100 rounded-lg">
+                  <Calendar className="w-5 h-5 text-teal-600" />
                 </div>
               </div>
             </CardHeader>
@@ -113,12 +114,12 @@ export default function Dashboard() {
           </Card>
 
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Alle Events</CardTitle>
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-purple-600" />
+                <div className="p-2 bg-slate-100 rounded-lg">
+                  <Calendar className="w-5 h-5 text-slate-600" />
                 </div>
               </div>
             </CardHeader>
@@ -196,25 +197,25 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button className="w-full justify-start bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                <Button className="w-full justify-start bg-slate-800 hover:bg-slate-900 text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start border-teal-500 text-teal-600 hover:bg-teal-50">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>

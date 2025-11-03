@@ -208,7 +208,7 @@ export default function EventsPage() {
           </div>
           <Button 
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            className="bg-slate-800 hover:bg-slate-900 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Event erstellen
@@ -278,10 +278,10 @@ export default function EventsPage() {
 
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger value="upcoming" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+            <TabsTrigger value="upcoming" className="data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700">
               Anstehend ({upcomingEvents.length})
             </TabsTrigger>
-            <TabsTrigger value="past" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+            <TabsTrigger value="past" className="data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700">
               Vergangen ({pastEvents.length})
             </TabsTrigger>
           </TabsList>

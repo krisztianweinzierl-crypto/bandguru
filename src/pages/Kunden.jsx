@@ -334,7 +334,7 @@ export default function KundenPage() {
               setEditingKunde(null);
               setShowForm(true);
             }}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+            className="bg-slate-800 hover:bg-slate-900 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Kunde anlegen

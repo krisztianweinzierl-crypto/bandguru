@@ -90,13 +90,13 @@ export default function FinanzenPage() {
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl("Rechnungen")}>
-              <Button className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
+              <Button className="bg-slate-800 hover:bg-slate-900 text-white">
                 <FileText className="w-4 h-4 mr-2" />
                 Rechnungen
               </Button>
             </Link>
             <Link to={createPageUrl("Ausgaben")}>
-              <Button variant="outline">
+              <Button variant="outline" className="border-teal-500 text-teal-600 hover:bg-teal-50">
                 <Receipt className="w-4 h-4 mr-2" />
                 Ausgaben
               </Button>
