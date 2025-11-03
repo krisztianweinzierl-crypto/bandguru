@@ -42,7 +42,7 @@ export default function NotificationBell({ user, currentOrgId }) {
       org_id: currentOrgId
     }, '-created_date', 50),
     enabled: !!user?.id && !!currentOrgId,
-    refetchInterval: 30000, // Auto-refresh alle 30 Sekunden
+    refetchInterval: 30000,
   });
 
   const ungeleseneCount = benachrichtigungen.filter(b => !b.gelesen).length;
@@ -124,14 +124,14 @@ export default function NotificationBell({ user, currentOrgId }) {
   }, [showDropdown]);
 
   return (
-    <div className="relative">
+    <div className="relative flex-shrink-0">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="notification-bell relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        className="notification-bell relative p-1.5 hover:bg-gray-100 rounded-full transition-colors"
       >
         <Bell className="w-5 h-5 text-gray-600" />
         {ungeleseneCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
             {ungeleseneCount > 9 ? '9+' : ungeleseneCount}
           </span>
         )}
@@ -143,7 +143,7 @@ export default function NotificationBell({ user, currentOrgId }) {
           <div className="notification-dropdown absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 flex items-center justify-between">
               <h3 className="font-semibold text-white flex items-center gap-2">
-                <Bell className="w-5 h-5" />
+                <Bell className="w-4 h-4" />
                 Benachrichtigungen
               </h3>
               {ungeleseneCount > 0 && (
@@ -151,7 +151,7 @@ export default function NotificationBell({ user, currentOrgId }) {
                   size="sm"
                   variant="ghost"
                   onClick={() => markAllAsReadMutation.mutate()}
-                  className="text-white hover:bg-white/20 text-xs h-7"
+                  className="text-white hover:bg-white/20 text-xs h-7 px-2"
                 >
                   Alle gelesen
                 </Button>
@@ -178,15 +178,15 @@ export default function NotificationBell({ user, currentOrgId }) {
                         )}
                         
                         <div className="flex items-start gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}>
-                            <IconComponent className="w-5 h-5" />
+                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${typeColor}`}>
+                            <IconComponent className="w-4 h-4" />
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm mb-1 ${!notification.gelesen ? 'font-semibold' : 'font-medium'}`}>
                               {notification.titel}
                             </p>
-                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                            <p className="text-xs text-gray-600 mb-1.5 line-clamp-2">
                               {notification.nachricht}
                             </p>
                             <p className="text-xs text-gray-400">
@@ -198,7 +198,7 @@ export default function NotificationBell({ user, currentOrgId }) {
                             onClick={(e) => handleDelete(e, notification.id)}
                             className="flex-shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
                           >
-                            <X className="w-4 h-4 text-gray-400" />
+                            <X className="w-3.5 h-3.5 text-gray-400" />
                           </button>
                         </div>
                       </div>
@@ -214,13 +214,12 @@ export default function NotificationBell({ user, currentOrgId }) {
             </div>
 
             {benachrichtigungen.length > 0 && (
-              <div className="border-t border-gray-200 px-4 py-2 bg-gray-50 text-center">
+              <div className="border-t border-gray-200 px-4 py-2.5 bg-gray-50 text-center">
                 <button
                   onClick={() => {
-                    // Optional: Navigiere zu einer "Alle Benachrichtigungen"-Seite
                     setShowDropdown(false);
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Alle Benachrichtigungen anzeigen
                 </button>
