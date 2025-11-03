@@ -960,10 +960,10 @@ Das Team`;
                                 {em.buchungsbedingungen && (
                                   <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <div className="flex items-start gap-2 text-sm">
-                                      <FileText className="w-4 h-4 text-blue-500 mt-0.5" />
-                                      <div>
+                                      <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                      <div className="flex-1">
                                         <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
-                                        <p className="text-gray-700" dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}></p>
+                                        <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
                                       </div>
                                     </div>
                                   </div>
