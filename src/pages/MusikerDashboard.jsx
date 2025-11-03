@@ -372,6 +372,19 @@ export default function MusikerDashboard() {
     if (!event) return null;
 
     const statusStyle = statusColors[em.status] || statusColors.angefragt;
+    const [showFullBuchungsbedingungen, setShowFullBuchungsbedingungen] = React.useState(false);
+
+    // Helper-Funktion um reinen Text aus HTML zu extrahieren
+    const getPlainTextFromHtml = (html) => {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      return div.textContent || div.innerText || '';
+    };
+
+    const buchungsbedingungenText = em.buchungsbedingungen ? getPlainTextFromHtml(em.buchungsbedingungen) : '';
+    const showMoreButton = buchungsbedingungenText.length > 150;
+    const displayText = showFullBuchungsbedingungen ? em.buchungsbedingungen : 
+      (showMoreButton ? buchungsbedingungenText.substring(0, 150) + '...' : em.buchungsbedingungen);
 
     return (
       <Card className={`border-l-4 ${statusStyle.border} hover:shadow-lg transition-all`}>
@@ -455,15 +468,24 @@ export default function MusikerDashboard() {
                 <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-amber-800 mb-2">Buchungsbedingungen:</p>
-                  <div 
-                    className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: em.buchungsbedingungen }}
-                  />
-                  </div>
+                  {showMoreButton && !showFullBuchungsbedingungen ? (
+                    <p className="text-sm text-amber-700">{displayText}</p>
+                  ) : (
+                    <div 
+                      className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: displayText }}
+                    />
+                  )}
+                  {showMoreButton && (
+                    <button
+                      onClick={() => setShowFullBuchungsbedingungen(!showFullBuchungsbedingungen)}
+                      className="text-xs text-amber-600 hover:text-amber-800 font-medium mt-2 underline"
+                    >
+                      {showFullBuchungsbedingungen ? '▲ Weniger anzeigen' : '▼ Mehr anzeigen'}
+                    </button>
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-amber-600 mt-2 italic">
-                ℹ️ Scrolle für mehr Details
-              </p>
             </div>
           )}
 
