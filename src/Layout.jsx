@@ -859,7 +859,7 @@ export default function Layout({ children, currentPageName }) {
                   variant="outline" 
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
                   className="w-full justify-between h-auto py-3 px-3 transition-colors"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -901,7 +901,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {org.id === currentOrg.id && (
-                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#E4C590' }} />
+                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#8D99AE' }} />
                             )}
                           </button>
                         );
@@ -928,13 +928,13 @@ export default function Layout({ children, currentPageName }) {
                             onClick={() => toggleMenu(index)}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
                             style={item.submenu.some(sub => location.pathname === sub.url) ? {
-                              backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                              color: '#E4C590'
+                              backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                              color: '#8D99AE'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (!item.submenu.some(sub => location.pathname === sub.url)) {
-                                e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                                e.currentTarget.style.color = '#E4C590';
+                                e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                                e.currentTarget.style.color = '#8D99AE';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -963,13 +963,13 @@ export default function Layout({ children, currentPageName }) {
                                     to={subItem.url} 
                                     className="flex items-center gap-3 px-3 py-2"
                                     style={location.pathname === subItem.url ? {
-                                      backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                                      color: '#E4C590'
+                                      backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                                      color: '#8D99AE'
                                     } : {}}
                                     onMouseEnter={(e) => {
                                       if (location.pathname !== subItem.url) {
-                                        e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                                        e.currentTarget.style.color = '#E4C590';
+                                        e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                                        e.currentTarget.style.color = '#8D99AE';
                                       }
                                     }}
                                     onMouseLeave={(e) => {
@@ -982,6 +982,7 @@ export default function Layout({ children, currentPageName }) {
                                     <subItem.icon className="w-4 h-4" />
                                     <span className="font-medium">{subItem.title}</span>
                                   </Link>
+                                
                                 </SidebarMenuButton>
                               ))}
                             </div>
@@ -996,13 +997,13 @@ export default function Layout({ children, currentPageName }) {
                             to={item.url} 
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === item.url ? {
-                              backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                              color: '#E4C590'
+                              backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                              color: '#8D99AE'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== item.url) {
-                                e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                                e.currentTarget.style.color = '#E4C590';
+                                e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                                e.currentTarget.style.color = '#8D99AE';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1035,13 +1036,13 @@ export default function Layout({ children, currentPageName }) {
                         onClick={() => toggleMenu('settings')}
                         className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
                         style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
-                          backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                          color: '#E4C590'
+                          backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                          color: '#8D99AE'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
-                            e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                            e.currentTarget.style.color = '#E4C590';
+                            e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                            e.currentTarget.style.color = '#8D99AE';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1068,13 +1069,13 @@ export default function Layout({ children, currentPageName }) {
                               to={createPageUrl("OrganisationSettings")} 
                               className="flex items-center gap-3 px-3 py-2"
                               style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                                backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                                color: '#E4C590'
+                                backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                                color: '#8D99AE'
                               } : {}}
                               onMouseEnter={(e) => {
                                 if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                                  e.currentTarget.style.color = '#E4C590';
+                                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                                  e.currentTarget.style.color = '#8D99AE';
                                 }
                               }}
                               onMouseLeave={(e) => {
@@ -1096,13 +1097,13 @@ export default function Layout({ children, currentPageName }) {
                               to={createPageUrl("BuchungsbedingungVorlagen")} 
                               className="flex items-center gap-3 px-3 py-2"
                               style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                                backgroundColor: 'rgba(228, 197, 144, 0.15)',
-                                color: '#E4C590'
+                                backgroundColor: 'rgba(141, 153, 174, 0.15)',
+                                color: '#8D99AE'
                               } : {}}
                               onMouseEnter={(e) => {
                                 if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)';
-                                  e.currentTarget.style.color = '#E4C590';
+                                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                                  e.currentTarget.style.color = '#8D99AE';
                                 }
                               }}
                               onMouseLeave={(e) => {

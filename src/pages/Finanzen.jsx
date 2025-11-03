@@ -99,10 +99,10 @@ export default function FinanzenPage() {
               <Button 
                 variant="outline"
                 style={{ 
-                  borderColor: '#E4C590', 
-                  color: '#E4C590' 
+                  borderColor: '#8D99AE', 
+                  color: '#8D99AE' 
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(228, 197, 144, 0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Receipt className="w-4 h-4 mr-2" />
