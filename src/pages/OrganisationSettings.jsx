@@ -83,18 +83,21 @@ export default function OrganisationSettingsPage() {
     queryFn: () => base44.auth.me(),
   });
 
-  // Lade alle User-Daten (nur als Manager möglich)
-  const { data: users = [] } = useQuery({
-    queryKey: ['users'],
+  // Lade alle User-Daten (nur als Manager möglich) - MIT asServiceRole
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers', currentOrgId],
     queryFn: async () => {
       try {
-        return await base44.asServiceRole.entities.User.list();
+        console.log("🔍 Lade alle User-Daten mit ServiceRole...");
+        const users = await base44.asServiceRole.entities.User.list();
+        console.log("   Gefundene Users:", users.length);
+        return users;
       } catch (error) {
-        console.log("Konnte User-Liste nicht laden:", error);
+        console.error("❌ Fehler beim Laden der User-Liste:", error);
         return [];
       }
     },
-    enabled: !!user && !!currentOrgId,
+    enabled: !!currentOrgId,
   });
 
   const updateOrgMutation = useMutation({
@@ -251,19 +254,66 @@ Das ${organisation.name} Team 🎵`;
 
   // Helper-Funktion um E-Mail eines Mitglieds zu ermitteln
   const getMitgliedEmail = (mitglied) => {
+    console.log("📧 Ermittle E-Mail für Mitglied:", mitglied.id);
+    
     // 1. Priorität: invite_email (bei eingeladenen oder neu akzeptierten Mitgliedern)
-    if (mitglied.invite_email) return mitglied.invite_email;
-    
-    // 2. Priorität: Aktueller User
-    if (mitglied.user_id === user?.id) return user?.email;
-    
-    // 3. Priorität: User-Daten aus der User-Entity (nur für Manager verfügbar)
-    if (mitglied.user_id && users.length > 0) {
-      const userData = users.find(u => u.id === mitglied.user_id);
-      if (userData?.email) return userData.email;
+    if (mitglied.invite_email) {
+      console.log("   ✅ Verwende invite_email:", mitglied.invite_email);
+      return mitglied.invite_email;
     }
     
+    // 2. Priorität: Aktueller User (wenn es der eigene Account ist)
+    if (mitglied.user_id === user?.id && user?.email) {
+      console.log("   ✅ Verwende current user email:", user.email);
+      return user.email;
+    }
+    
+    // 3. Priorität: User-Daten aus der User-Entity
+    if (mitglied.user_id && allUsers.length > 0) {
+      const userData = allUsers.find(u => u.id === mitglied.user_id);
+      if (userData?.email) {
+        console.log("   ✅ Verwende User-Entity email:", userData.email);
+        return userData.email;
+      } else {
+        console.log("   ⚠️ Kein User gefunden in allUsers für user_id:", mitglied.user_id);
+      }
+    } else {
+      console.log("   ⚠️ Keine user_id oder allUsers ist leer");
+      console.log("      user_id:", mitglied.user_id);
+      console.log("      allUsers.length:", allUsers.length);
+    }
+    
+    console.log("   ❌ Keine E-Mail gefunden");
     return null;
+  };
+
+  // Helper-Funktion um den Namen eines Mitglieds zu ermitteln
+  const getMitgliedName = (mitglied) => {
+    // Für eingeladene Mitglieder
+    if (mitglied.status === "eingeladen") {
+      return mitglied.invite_name || mitglied.invite_email;
+    }
+    
+    // Für aktive Mitglieder
+    if (mitglied.user_id) {
+      // Eigener Account
+      if (mitglied.user_id === user?.id && user?.full_name) {
+        return user.full_name;
+      }
+      
+      // Andere User
+      if (allUsers.length > 0) {
+        const userData = allUsers.find(u => u.id === mitglied.user_id);
+        if (userData?.full_name) {
+          return userData.full_name;
+        }
+        if (userData?.email) { // Fallback to email if full_name is not available
+          return userData.email;
+        }
+      }
+    }
+    
+    return mitglied.user_id || "Unbekannt";
   };
 
   if (!organisation || !orgFormData) {
@@ -493,7 +543,7 @@ Das ${organisation.name} Team 🎵`;
               <CardContent className="p-6">
                 <div className="space-y-3">
                   {mitglieder.map((mitglied) => {
-                    const displayUserName = mitglied.user_id ? user?.full_name || mitglied.user_id : (mitglied.invite_name || mitglied.invite_email);
+                    const displayUserName = getMitgliedName(mitglied);
                     const displayInitial = (displayUserName?.[0] || '?').toUpperCase();
                     const isInvited = mitglied.status === "eingeladen";
                     const displayEmail = getMitgliedEmail(mitglied);
@@ -516,6 +566,11 @@ Das ${organisation.name} Team 🎵`;
                               <p className="text-sm text-gray-600 flex items-center gap-1 mt-0.5">
                                 <Mail className="w-3 h-3" />
                                 {displayEmail}
+                              </p>
+                            )}
+                            {!displayEmail && (
+                              <p className="text-xs text-amber-600 mt-0.5">
+                                Keine E-Mail verfügbar
                               </p>
                             )}
                             <div className="flex items-center gap-2 mt-1">
