@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tantml:invoke name="@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Calendar, Clock, MapPin, Music, Euro, AlertCircle, Users, Shirt, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,7 +63,7 @@ export default function MeineEventsPage() {
         base44.entities.Event.filter({ id }).then(res => res[0])
       );
       const result = await Promise.all(eventsPromises);
-      return result.filter(e => e); // Filter out undefined
+      return result.filter(e => e);
     },
     enabled: eventMusiker.length > 0,
   });
@@ -72,7 +72,6 @@ export default function MeineEventsPage() {
     return events.find(e => e.id === em.event_id);
   };
 
-  // Sortiere Events nach Datum
   const sortedEventMusiker = [...eventMusiker].sort((a, b) => {
     const eventA = getEventForEventMusiker(a);
     const eventB = getEventForEventMusiker(b);
@@ -80,7 +79,6 @@ export default function MeineEventsPage() {
     return new Date(eventA.datum_von) - new Date(eventB.datum_von);
   });
 
-  // Teile Events in kommend und vergangen
   const now = new Date();
   const upcomingEvents = sortedEventMusiker.filter(em => {
     const event = getEventForEventMusiker(em);
@@ -154,7 +152,6 @@ export default function MeineEventsPage() {
             )}
           </div>
 
-          {/* Event Details */}
           {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
             <div className="pt-2 border-t">
               <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Details</p>
@@ -181,7 +178,6 @@ export default function MeineEventsPage() {
             </div>
           )}
 
-          {/* Ort Details */}
           {event.ort_adresse && (
             <div className="pt-2 border-t">
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Adresse</p>
@@ -189,7 +185,6 @@ export default function MeineEventsPage() {
             </div>
           )}
 
-          {/* Notizen */}
           {em.notizen && (
             <div className="p-3 bg-blue-50 rounded-lg border-t">
               <p className="text-xs font-semibold text-blue-900 mb-1">Notizen:</p>
@@ -197,7 +192,6 @@ export default function MeineEventsPage() {
             </div>
           )}
 
-          {/* Hotel */}
           {event.hotel_name && (
             <div className="pt-2 border-t">
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Hotel</p>
@@ -208,7 +202,6 @@ export default function MeineEventsPage() {
             </div>
           )}
 
-          {/* Technik */}
           {event.technik_hinweise && (
             <div className="pt-2 border-t">
               <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Technik</p>
@@ -246,7 +239,6 @@ export default function MeineEventsPage() {
           <p className="text-gray-600">Alle Events, bei denen du zugesagt hast</p>
         </div>
 
-        {/* Statistik */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
             <CardHeader className="pb-2">
@@ -276,7 +268,6 @@ export default function MeineEventsPage() {
           </Card>
         </div>
 
-        {/* Tabs */}
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="upcoming">
