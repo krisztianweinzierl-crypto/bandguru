@@ -52,6 +52,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -855,6 +856,8 @@ export default function Layout({ children, currentPageName }) {
                   <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
                   <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
                 </div>
+                {/* Notification Bell */}
+                <NotificationBell user={user} currentOrgId={currentOrg?.id} />
               </div>
 
               <div className="relative">
@@ -1066,7 +1069,9 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-8 h-8 object-contain"
               />
-              <h1 className="text-xl font-semibold">Bandguru</h1>
+              <h1 className="text-xl font-semibold flex-1">Bandguru</h1>
+              {/* Notification Bell für Mobile */}
+              <NotificationBell user={user} currentOrgId={currentOrg?.id} />
             </div>
           </header>
 
