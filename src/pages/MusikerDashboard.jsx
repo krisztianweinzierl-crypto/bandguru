@@ -32,6 +32,8 @@ export default function MusikerDashboard() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [loadingState, setLoadingState] = useState("loading"); // "loading", "success", "no_profile", "error"
+  const [errorMessage, setErrorMessage] = useState("");
   const [showResponseDialog, setShowResponseDialog] = useState(false);
   const [selectedEventMusiker, setSelectedEventMusiker] = useState(null);
   const [responseType, setResponseType] = useState(null);
@@ -42,18 +44,29 @@ export default function MusikerDashboard() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        console.log("🎵 === MUSIKER DASHBOARD - LADE USER ===");
+        console.log("🎵 === MUSIKER DASHBOARD - VOLLSTÄNDIGER DEBUG ===");
+        setLoadingState("loading");
         
         const orgId = localStorage.getItem('currentOrgId');
-        console.log("   Organisation ID:", orgId);
+        console.log("📋 Organisation ID:", orgId);
         setCurrentOrgId(orgId);
         
+        if (!orgId) {
+          console.error("❌ Keine Organisation ID gefunden!");
+          setErrorMessage("Keine Organisation gefunden. Bitte melde dich erneut an.");
+          setLoadingState("error");
+          return;
+        }
+
         const user = await base44.auth.me();
-        console.log("   User:", user.email);
+        console.log("👤 User geladen:");
+        console.log("   - ID:", user.id);
+        console.log("   - Email:", user.email);
+        console.log("   - Name:", user.full_name);
         setCurrentUser(user);
 
-        // METHODE 1: Über Mitgliedschaft (BEVORZUGT)
-        console.log("   Suche Mitgliedschaft...");
+        // SCHRITT 1: Lade Mitgliedschaft
+        console.log("\n📋 SCHRITT 1: Lade Mitgliedschaft...");
         const mitgliedschaften = await base44.entities.Mitglied.filter({ 
           org_id: orgId,
           user_id: user.id,
@@ -61,51 +74,136 @@ export default function MusikerDashboard() {
           rolle: "Musiker"
         });
         
-        console.log("   Mitgliedschaften gefunden:", mitgliedschaften.length);
-        
+        console.log("   Gefundene Mitgliedschaften:", mitgliedschaften.length);
+        if (mitgliedschaften.length > 0) {
+          console.log("   Mitgliedschaft Details:");
+          console.log("   - ID:", mitgliedschaften[0].id);
+          console.log("   - musiker_id:", mitgliedschaften[0].musiker_id || "NICHT GESETZT");
+          console.log("   - invite_email:", mitgliedschaften[0].invite_email);
+        }
+
+        // SCHRITT 2: Versuche Musiker zu finden
+        console.log("\n📋 SCHRITT 2: Suche Musiker-Profil...");
+        let gefundenerMusiker = null;
+
+        // Methode 2a: Über musiker_id in Mitgliedschaft
         if (mitgliedschaften.length > 0 && mitgliedschaften[0].musiker_id) {
-          // Musiker über Mitgliedschaft laden
-          console.log("   Lade Musiker über Mitgliedschaft ID:", mitgliedschaften[0].musiker_id);
-          const musikerList = await base44.entities.Musiker.filter({ 
+          console.log("   🔍 Methode 2a: Suche über musiker_id =", mitgliedschaften[0].musiker_id);
+          const musikerById = await base44.entities.Musiker.filter({ 
             id: mitgliedschaften[0].musiker_id
           });
           
-          if (musikerList.length > 0) {
-            console.log("✅ Musiker gefunden über Mitgliedschaft:", musikerList[0].name);
-            setCurrentMusiker(musikerList[0]);
-            return;
+          if (musikerById.length > 0) {
+            console.log("   ✅ Musiker gefunden über musiker_id!");
+            console.log("   - Name:", musikerById[0].name);
+            console.log("   - Email:", musikerById[0].email);
+            console.log("   - Aktiv:", musikerById[0].aktiv);
+            gefundenerMusiker = musikerById[0];
+          } else {
+            console.log("   ❌ Kein Musiker mit dieser ID gefunden");
           }
         }
 
-        // METHODE 2: Über E-Mail (FALLBACK)
-        console.log("   ⚠️ Kein Musiker über Mitgliedschaft - versuche E-Mail-Match...");
-        const musikerListByEmail = await base44.entities.Musiker.filter({ 
-          org_id: orgId,
-          email: user.email,
-          aktiv: true
-        });
-        
-        if (musikerListByEmail.length > 0) {
-          console.log("✅ Musiker gefunden über E-Mail:", musikerListByEmail[0].name);
-          setCurrentMusiker(musikerListByEmail[0]);
+        // Methode 2b: Über User E-Mail
+        if (!gefundenerMusiker) {
+          console.log("   🔍 Methode 2b: Suche über user.email =", user.email);
+          const musikerByEmail = await base44.entities.Musiker.filter({ 
+            org_id: orgId,
+            email: user.email,
+            aktiv: true
+          });
           
-          // BONUS: Mitgliedschaft aktualisieren mit musiker_id
-          if (mitgliedschaften.length > 0 && !mitgliedschaften[0].musiker_id) {
-            console.log("   Aktualisiere Mitgliedschaft mit musiker_id...");
+          console.log("   Ergebnis:", musikerByEmail.length, "Musiker gefunden");
+          if (musikerByEmail.length > 0) {
+            console.log("   ✅ Musiker gefunden über E-Mail!");
+            console.log("   - Name:", musikerByEmail[0].name);
+            console.log("   - ID:", musikerByEmail[0].id);
+            gefundenerMusiker = musikerByEmail[0];
+
+            // BONUS: Aktualisiere Mitgliedschaft
+            if (mitgliedschaften.length > 0 && !mitgliedschaften[0].musiker_id) {
+              console.log("   🔧 Aktualisiere Mitgliedschaft mit musiker_id...");
+              await base44.entities.Mitglied.update(mitgliedschaften[0].id, {
+                musiker_id: musikerByEmail[0].id
+              });
+              console.log("   ✅ Mitgliedschaft aktualisiert!");
+            }
+          } else {
+            console.log("   ❌ Kein Musiker mit dieser E-Mail gefunden");
+          }
+        }
+
+        // Methode 2c: Über invite_email in Mitgliedschaft
+        if (!gefundenerMusiker && mitgliedschaften.length > 0 && mitgliedschaften[0].invite_email) {
+          console.log("   🔍 Methode 2c: Suche über invite_email =", mitgliedschaften[0].invite_email);
+          const musikerByInviteEmail = await base44.entities.Musiker.filter({ 
+            org_id: orgId,
+            email: mitgliedschaften[0].invite_email,
+            aktiv: true
+          });
+          
+          console.log("   Ergebnis:", musikerByInviteEmail.length, "Musiker gefunden");
+          if (musikerByInviteEmail.length > 0) {
+            console.log("   ✅ Musiker gefunden über invite_email!");
+            console.log("   - Name:", musikerByInviteEmail[0].name);
+            console.log("   - ID:", musikerByInviteEmail[0].id);
+            gefundenerMusiker = musikerByInviteEmail[0];
+
+            // Aktualisiere Mitgliedschaft
+            console.log("   🔧 Aktualisiere Mitgliedschaft mit musiker_id...");
             await base44.entities.Mitglied.update(mitgliedschaften[0].id, {
-              musiker_id: musikerListByEmail[0].id
+              musiker_id: musikerByInviteEmail[0].id
             });
-            console.log("✅ Mitgliedschaft aktualisiert!");
+            console.log("   ✅ Mitgliedschaft aktualisiert!");
+          }
+        }
+
+        // SCHRITT 3: Ergebnis
+        console.log("\n📋 SCHRITT 3: Ergebnis");
+        if (gefundenerMusiker) {
+          console.log("✅ === MUSIKER ERFOLGREICH GELADEN ===");
+          console.log("   - ID:", gefundenerMusiker.id);
+          console.log("   - Name:", gefundenerMusiker.name);
+          console.log("   - Email:", gefundenerMusiker.email);
+          setCurrentMusiker(gefundenerMusiker);
+          setLoadingState("success");
+          
+          // Prüfe EventMusiker
+          console.log("\n📋 Prüfe EventMusiker für musiker_id:", gefundenerMusiker.id);
+          const testEventMusiker = await base44.entities.EventMusiker.filter({ 
+            musiker_id: gefundenerMusiker.id 
+          });
+          console.log("   EventMusiker gefunden:", testEventMusiker.length);
+          if (testEventMusiker.length > 0) {
+            console.log("   - Erster Eintrag:");
+            console.log("     Event ID:", testEventMusiker[0].event_id);
+            console.log("     Status:", testEventMusiker[0].status);
+            console.log("     Rolle:", testEventMusiker[0].rolle);
           }
         } else {
-          console.log("❌ Kein Musiker-Profil gefunden für:", user.email);
-          console.log("   Bitte stelle sicher, dass:");
-          console.log("   1. Ein Musiker mit dieser E-Mail existiert");
-          console.log("   2. Der Musiker aktiv ist");
-          console.log("   3. Die Mitgliedschaft eine musiker_id hat");
+          console.log("❌ === KEIN MUSIKER-PROFIL GEFUNDEN ===");
+          console.log("\n📋 DIAGNOSE:");
+          console.log("1. Überprüfe, ob ein Musiker-Profil existiert:");
+          console.log("   - Mit E-Mail:", user.email);
+          if (mitgliedschaften.length > 0 && mitgliedschaften[0].invite_email) {
+            console.log("   - ODER mit invite_email:", mitgliedschaften[0].invite_email);
+          }
+          console.log("2. Stelle sicher, dass der Musiker aktiv ist (aktiv: true)");
+          console.log("3. Stelle sicher, dass org_id korrekt ist:", orgId);
+          
+          setErrorMessage(
+            "Kein Musiker-Profil gefunden für deine E-Mail-Adresse: " + user.email + 
+            ". Bitte kontaktiere deinen Band Manager, um ein Musiker-Profil anzulegen."
+          );
+          setLoadingState("no_profile");
         }
+
       } catch (error) {
-        console.error("❌ Fehler beim Laden des Musikers:", error);
+        console.error("❌ KRITISCHER FEHLER:", error);
+        console.error("   Message:", error.message);
+        console.error("   Stack:", error.stack);
+        setErrorMessage("Fehler beim Laden: " + error.message);
+        setLoadingState("error");
       }
     };
     loadUser();
@@ -117,6 +215,9 @@ export default function MusikerDashboard() {
       console.log("📋 Lade EventMusiker für Musiker ID:", currentMusiker.id);
       const result = await base44.entities.EventMusiker.filter({ musiker_id: currentMusiker.id });
       console.log("   EventMusiker gefunden:", result.length);
+      result.forEach((em, i) => {
+        console.log(`   ${i+1}. Event ID: ${em.event_id}, Status: ${em.status}, Rolle: ${em.rolle}`);
+      });
       return result;
     },
     enabled: !!currentMusiker?.id,
@@ -350,6 +451,93 @@ export default function MusikerDashboard() {
       </Card>
     );
   };
+
+  // Loading State
+  if (loadingState === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
+            <h3 className="text-lg font-semibold mb-2">Lade Dashboard...</h3>
+            <p className="text-sm text-gray-500">Bitte warten</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // No Profile State
+  if (loadingState === "no_profile") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-2xl w-full border-l-4 border-l-orange-500">
+          <CardContent className="p-8">
+            <div className="text-center mb-6">
+              <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+              <h3 className="text-xl font-bold mb-2">Kein Musiker-Profil gefunden</h3>
+            </div>
+            
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-orange-800">{errorMessage}</p>
+            </div>
+
+            <div className="space-y-4 text-sm text-gray-700">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="font-semibold mb-2">🔍 Debug-Informationen:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>User E-Mail: {currentUser?.email}</li>
+                  <li>Organisation ID: {currentOrgId}</li>
+                  <li>User ID: {currentUser?.id}</li>
+                </ul>
+                <p className="mt-3 text-xs text-gray-600">
+                  Öffne die Browser-Console (F12) für detaillierte Debug-Logs
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="font-semibold mb-2">✅ Lösung:</p>
+                <ol className="list-decimal list-inside space-y-2">
+                  <li>Bitte deinen Band Manager, ein Musiker-Profil für dich anzulegen</li>
+                  <li>Die E-Mail-Adresse im Musiker-Profil muss sein: <span className="font-mono bg-white px-2 py-1 rounded">{currentUser?.email}</span></li>
+                  <li>Der Musiker muss als "aktiv" markiert sein</li>
+                  <li>Nach dem Anlegen: Seite neu laden (F5)</li>
+                </ol>
+              </div>
+            </div>
+
+            <div className="mt-6 text-center">
+              <Button
+                onClick={() => window.location.reload()}
+                variant="outline"
+              >
+                Seite neu laden
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error State
+  if (loadingState === "error") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md w-full border-l-4 border-l-red-500">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+            <h3 className="text-lg font-semibold mb-2">Fehler beim Laden</h3>
+            <p className="text-sm text-gray-600 mb-4">{errorMessage}</p>
+            <Button onClick={() => window.location.reload()}>
+              Erneut versuchen
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
