@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -258,7 +259,8 @@ export default function EventsPage() {
           {isManager && (
             <Button 
               onClick={() => setShowForm(true)}
-              className="bg-slate-800 hover:bg-slate-900 text-white"
+              className="text-white"
+              style={{ backgroundColor: '#223a5e' }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Event erstellen
@@ -333,11 +335,11 @@ export default function EventsPage() {
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#8D99AE'
+                '--active-bg': '#223a5e'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -345,7 +347,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #8D99AE"
+              data-active-style="background-color: #223a5e"
             >
               Anstehend ({upcomingEvents.length})
             </TabsTrigger>
@@ -353,11 +355,11 @@ export default function EventsPage() {
               value="past"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#8D99AE'
+                '--active-bg': '#223a5e'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -365,7 +367,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #8D99AE"
+              data-active-style="background-color: #223a5e"
             >
               Vergangen ({pastEvents.length})
             </TabsTrigger>
@@ -434,7 +436,7 @@ export default function EventsPage() {
 
       <style>{`
         [data-state="active"][data-active-style] {
-          background-color: #8D99AE !important;
+          background-color: #223a5e !important;
         }
       `}</style>
     </div>

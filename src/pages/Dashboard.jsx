@@ -66,12 +66,12 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#8D99AE' }} />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#223a5e' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Nächste Events</CardTitle>
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(141, 153, 174, 0.15)' }}>
-                  <Calendar className="w-5 h-5" style={{ color: '#8D99AE' }} />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(34, 58, 94, 0.15)' }}>
+                  <Calendar className="w-5 h-5" style={{ color: '#223a5e' }} />
                 </div>
               </div>
             </CardHeader>
@@ -197,7 +197,10 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button className="w-full justify-start bg-slate-800 hover:bg-slate-900 text-white">
+                <Button 
+                  className="w-full justify-start text-white"
+                  style={{ backgroundColor: '#223a5e' }}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
@@ -207,10 +210,10 @@ export default function Dashboard() {
                   variant="outline" 
                   className="w-full justify-start"
                   style={{ 
-                    borderColor: '#8D99AE', 
-                    color: '#8D99AE' 
+                    borderColor: '#223a5e', 
+                    color: '#223a5e' 
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Users className="w-4 h-4 mr-2" />
@@ -222,10 +225,10 @@ export default function Dashboard() {
                   variant="outline" 
                   className="w-full justify-start"
                   style={{ 
-                    borderColor: '#8D99AE', 
-                    color: '#8D99AE' 
+                    borderColor: '#223a5e', 
+                    color: '#223a5e' 
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <Target className="w-4 h-4 mr-2" />
@@ -237,10 +240,10 @@ export default function Dashboard() {
                   variant="outline" 
                   className="w-full justify-start"
                   style={{ 
-                    borderColor: '#8D99AE', 
-                    color: '#8D99AE' 
+                    borderColor: '#223a5e', 
+                    color: '#223a5e' 
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />

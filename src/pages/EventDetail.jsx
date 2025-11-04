@@ -522,7 +522,8 @@ Das Team`;
                   variant="default"
                   size="sm"
                   onClick={() => setIsEditing(true)}
-                  className="gap-2 bg-gray-900 hover:bg-gray-800"
+                  className="gap-2 text-white"
+                  style={{ backgroundColor: '#223a5e' }}
                 >
                   <Edit className="w-4 h-4" />
                   Bearbeiten
@@ -821,7 +822,8 @@ Das Team`;
                       <Button
                         onClick={() => setShowMusikerForm(true)}
                         size="sm"
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                        className="text-white"
+                        style={{ backgroundColor: '#223a5e' }}
                       >
                         <Plus className="w-4 h-4 mr-2" />
                         Musiker hinzufügen
@@ -973,7 +975,8 @@ Das Team`;
                             <Button
                               onClick={handleAddMusiker}
                               disabled={!selectedMusikerId || addMusikerMutation.isPending}
-                              className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                              className="text-white"
+                              style={{ backgroundColor: '#223a5e' }}
                             >
                               Musiker hinzufügen
                             </Button>
@@ -1136,7 +1139,8 @@ Das Team`;
                           <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
                           <Button
                             onClick={() => setShowMusikerForm(true)}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                            className="text-white"
+                            style={{ backgroundColor: '#223a5e' }}
                           >
                             <Plus className="w-4 h-4 mr-2" />
                             Ersten Musiker hinzufügen

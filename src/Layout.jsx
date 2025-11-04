@@ -82,7 +82,7 @@ export default function Layout({ children, currentPageName }) {
     steuernummer: "",
     waehrung: "EUR",
     zeitzone: "Europe/Berlin",
-    primary_color: "#3B82F6"
+    primary_color: "#223a5e"
   });
 
   // Prüfe ob wir im iframe (Preview-Modus) sind
@@ -442,7 +442,8 @@ export default function Layout({ children, currentPageName }) {
               <Button 
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-lg h-14 px-8"
+                style={{ backgroundColor: '#223a5e' }}
+                className="hover:opacity-90 text-lg h-14 px-8"
               >
                 Jetzt kostenlos starten
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -699,7 +700,11 @@ export default function Layout({ children, currentPageName }) {
                   setShowPendingInvites(false);
                   setShowOnboarding(true);
                 }}
-                className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                style={{ 
+                  borderColor: '#223a5e', 
+                  color: '#223a5e' 
+                }}
+                className="hover:opacity-80"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Eigene Organisation erstellen
@@ -803,7 +808,8 @@ export default function Layout({ children, currentPageName }) {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="w-full h-12 text-lg"
+                  style={{ backgroundColor: '#223a5e' }}
                 >
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -900,9 +906,15 @@ export default function Layout({ children, currentPageName }) {
                                 {mitglied?.rolle}
                               </p>
                             </div>
+                            <div className="w-full flex items-center gap-3 px-3 py-3 transition-colors border-l-4 border-l-transparent"
+                              style={{ 
+                                borderLeftColor: org.id === currentOrg.id ? '#223a5e' : 'transparent'
+                              }}
+                            >
                             {org.id === currentOrg.id && (
-                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#8D99AE' }} />
+                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
                             )}
+                            </div>
                           </button>
                         );
                       })}
@@ -928,13 +940,13 @@ export default function Layout({ children, currentPageName }) {
                             onClick={() => toggleMenu(index)}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
                             style={item.submenu.some(sub => location.pathname === sub.url) ? {
-                              backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                              color: '#8D99AE'
+                              backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                              color: '#223a5e'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (!item.submenu.some(sub => location.pathname === sub.url)) {
-                                e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                                e.currentTarget.style.color = '#8D99AE';
+                                e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                e.currentTarget.style.color = '#223a5e';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -963,13 +975,13 @@ export default function Layout({ children, currentPageName }) {
                                     to={subItem.url} 
                                     className="flex items-center gap-3 px-3 py-2"
                                     style={location.pathname === subItem.url ? {
-                                      backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                                      color: '#8D99AE'
+                                      backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                                      color: '#223a5e'
                                     } : {}}
                                     onMouseEnter={(e) => {
                                       if (location.pathname !== subItem.url) {
-                                        e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                                        e.currentTarget.style.color = '#8D99AE';
+                                        e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                        e.currentTarget.style.color = '#223a5e';
                                       }
                                     }}
                                     onMouseLeave={(e) => {
@@ -997,13 +1009,13 @@ export default function Layout({ children, currentPageName }) {
                             to={item.url} 
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === item.url ? {
-                              backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                              color: '#8D99AE'
+                              backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                              color: '#223a5e'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== item.url) {
-                                e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                                e.currentTarget.style.color = '#8D99AE';
+                                e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                e.currentTarget.style.color = '#223a5e';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1036,13 +1048,13 @@ export default function Layout({ children, currentPageName }) {
                         onClick={() => toggleMenu('settings')}
                         className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
                         style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
-                          backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                          color: '#8D99AE'
+                          backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                          color: '#223a5e'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
-                            e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                            e.currentTarget.style.color = '#8D99AE';
+                            e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                            e.currentTarget.style.color = '#223a5e';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1069,13 +1081,13 @@ export default function Layout({ children, currentPageName }) {
                               to={createPageUrl("OrganisationSettings")} 
                               className="flex items-center gap-3 px-3 py-2"
                               style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                                backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                                color: '#8D99AE'
+                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                                color: '#223a5e'
                               } : {}}
                               onMouseEnter={(e) => {
                                 if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                                  e.currentTarget.style.color = '#8D99AE';
+                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                  e.currentTarget.style.color = '#223a5e';
                                 }
                               }}
                               onMouseLeave={(e) => {
@@ -1097,13 +1109,13 @@ export default function Layout({ children, currentPageName }) {
                               to={createPageUrl("BuchungsbedingungVorlagen")} 
                               className="flex items-center gap-3 px-3 py-2"
                               style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                                backgroundColor: 'rgba(141, 153, 174, 0.15)',
-                                color: '#8D99AE'
+                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                                color: '#223a5e'
                               } : {}}
                               onMouseEnter={(e) => {
                                 if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)';
-                                  e.currentTarget.style.color = '#8D99AE';
+                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                  e.currentTarget.style.color = '#223a5e';
                                 }
                               }}
                               onMouseLeave={(e) => {
