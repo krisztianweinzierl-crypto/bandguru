@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -44,13 +45,22 @@ export default function KalenderPage() {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
-  const { data: events = [] } = useQuery({
-    queryKey: ['events', currentOrgId],
-    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }, '-datum_von'),
-    enabled: !!currentOrgId,
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
   });
 
-  const { data: musiker = [] } = useQuery({
+  const { data: mitgliedschaften = [] } = useQuery({
+    queryKey: ['mitgliedschaften', currentOrgId, user?.id],
+    queryFn: () => base44.entities.Mitglied.filter({
+      org_id: currentOrgId,
+      user_id: user?.id,
+      status: "aktiv"
+    }),
+    enabled: !!currentOrgId && !!user?.id,
+  });
+
+  const { data: allMusiker = [] } = useQuery({ // Renamed to allMusiker to avoid conflict and clarify its purpose
     queryKey: ['musiker', currentOrgId],
     queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
     enabled: !!currentOrgId,
@@ -68,14 +78,56 @@ export default function KalenderPage() {
     enabled: !!currentOrgId,
   });
 
-  const { data: eventMusiker = [] } = useQuery({
-    queryKey: ['eventMusiker', currentOrgId],
+  const { data: events = [] } = useQuery({
+    queryKey: ['events', currentOrgId, user?.id, mitgliedschaften.length, allMusiker.length],
     queryFn: async () => {
       if (!currentOrgId) return [];
-      const allEventMusiker = await base44.entities.EventMusiker.filter({});
-      // Filter nur Events dieser Organisation
-      const orgEventIds = events.map(e => e.id);
-      return allEventMusiker.filter(em => orgEventIds.includes(em.event_id));
+
+      const allOrgEvents = await base44.entities.Event.filter({ org_id: currentOrgId }, '-datum_von');
+
+      // Check if user is a Band Manager
+      const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrgId);
+      const isManager = currentMitglied?.rolle === "Band Manager";
+
+      // Managers see all events
+      if (isManager) {
+        return allOrgEvents;
+      }
+
+      // If not manager, filter events for Musiker
+      // 1. Find the Musiker profile for the current user
+      const userMusiker = allMusiker.find(m => m.email === user?.email);
+
+      if (!userMusiker) {
+        return []; // No Musiker profile for this user = no events for them
+      }
+
+      // 2. Load all EventMusiker relationships
+      const allEventMusikerRelationships = await base44.entities.EventMusiker.filter({});
+
+      // 3. Filter events where the Musiker is participating
+      const userEventIds = allEventMusikerRelationships
+        .filter(em => em.musiker_id === userMusiker.id)
+        .map(em => em.event_id);
+
+      return allOrgEvents.filter(e => userEventIds.includes(e.id));
+    },
+    // Enable this query only when dependencies are ready
+    enabled: !!currentOrgId && !!user?.id && mitgliedschaften.length > 0 && allMusiker.length > 0,
+  });
+
+  // Load EventMusiker for the events currently visible to the user.
+  // This is used for displaying musiker count and filtering by musiker.
+  const { data: eventMusiker = [] } = useQuery({
+    queryKey: ['eventMusikerForVisibleEvents', currentOrgId, events.map(e => e.id).join(',')],
+    queryFn: async ({ queryKey }) => {
+      const [, orgId, eventIdsString] = queryKey;
+      if (!orgId || !eventIdsString) return [];
+      const eventIds = eventIdsString.split(',').filter(Boolean);
+      if (eventIds.length === 0) return [];
+
+      const allEventMusikerRecords = await base44.entities.EventMusiker.filter({});
+      return allEventMusikerRecords.filter(em => eventIds.includes(em.event_id));
     },
     enabled: !!currentOrgId && events.length > 0,
   });
@@ -120,6 +172,7 @@ export default function KalenderPage() {
   const getEventsForDateRange = (start, end) => {
     return filteredEvents.filter(event => {
       const eventDate = parseISO(event.datum_von);
+      // Ensure events whose 'datum_von' is exactly 'end' are included
       return eventDate >= start && eventDate <= end;
     });
   };
@@ -347,7 +400,7 @@ export default function KalenderPage() {
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                     >
                       <div className={`w-2 h-16 ${statusStyle.bg} rounded-full flex-shrink-0`} />
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
@@ -355,7 +408,7 @@ export default function KalenderPage() {
                             {event.status}
                           </Badge>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
@@ -439,7 +492,7 @@ export default function KalenderPage() {
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                   <h2 className="text-xl font-bold ml-4">
-                    {viewMode === "week" 
+                    {viewMode === "week"
                       ? format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'd. MMM', { locale: de }) + ' - ' + format(endOfWeek(currentDate, { weekStartsOn: 1 }), 'd. MMM yyyy', { locale: de })
                       : format(currentDate, 'MMMM yyyy', { locale: de })
                     }
@@ -456,7 +509,7 @@ export default function KalenderPage() {
                     <Filter className="w-4 h-4 mr-2" />
                     Filter
                   </Button>
-                  
+
                   <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                     <Button
                       variant={viewMode === "month" ? "default" : "ghost"}
@@ -515,7 +568,7 @@ export default function KalenderPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="alle">Alle Musiker</SelectItem>
-                        {musiker.map(m => (
+                        {allMusiker.map(m => ( // Use allMusiker here
                           <SelectItem key={m.id} value={m.id}>
                             {m.name}
                           </SelectItem>

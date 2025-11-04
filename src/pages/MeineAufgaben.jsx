@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,10 +42,20 @@ export default function MeineAufgabenPage() {
 
   const { data: aufgaben = [], isLoading } = useQuery({
     queryKey: ['meine-aufgaben', currentOrgId, user?.id],
-    queryFn: () => base44.entities.Aufgabe.filter({ 
-      org_id: currentOrgId,
-      zugewiesen_an: user?.id
-    }, '-faellig_am'),
+    queryFn: async () => {
+      if (!currentOrgId || !user?.id) return [];
+      
+      // Lade alle Aufgaben der Organisation
+      const allAufgaben = await base44.entities.Aufgabe.filter({ 
+        org_id: currentOrgId
+      }, '-faellig_am');
+      
+      // Filtere: Nur eigene erstellte ODER zugewiesene Aufgaben
+      return allAufgaben.filter(a => 
+        a.created_by === user.email || // Eigene erstellte Aufgaben
+        a.zugewiesen_an === user.id    // Zugewiesene Aufgaben
+      );
+    },
     enabled: !!currentOrgId && !!user?.id,
   });
 
@@ -244,8 +255,7 @@ export default function MeineAufgabenPage() {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Circle className="w-5 h-5 text-gray-600" />
                 </div>
-              </div>
-            </CardHeader>
+              </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-gray-900">{offeneAufgaben.length}</p>
             </CardContent>
