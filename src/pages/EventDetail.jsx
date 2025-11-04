@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +24,8 @@ import {
   X,
   Euro,
   MessageSquare,
-  Send
+  Send,
+  AlertCircle // Added AlertCircle import
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,6 +57,10 @@ export default function EventDetailPage() {
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [isManager, setIsManager] = useState(false);
+  const [hasAccess, setHasAccess] = useState(false); // Initialisiert auf false
 
   const modules = {
     toolbar: [
@@ -71,6 +76,61 @@ export default function EventDetailPage() {
     'bold', 'italic', 'underline',
     'list', 'bullet'
   ];
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      
+      // Reset access on new eventId or user load
+      setIsManager(false);
+      setHasAccess(false);
+      setCurrentMusiker(null);
+
+      const events = await base44.entities.Event.filter({ id: eventId });
+      const currentEvent = events[0];
+      if (!currentEvent) {
+        // Event not found, no access
+        return;
+      }
+
+      const orgId = currentEvent.org_id;
+
+      // Prüfe Rolle
+      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        user_id: user.id,
+        org_id: orgId,
+        status: "aktiv" 
+      });
+      const mitglied = mitgliedschaften[0];
+      
+      if (mitglied?.rolle === "Band Manager") {
+        setIsManager(true);
+        setHasAccess(true); // Manager hat immer Zugriff
+      } else if (mitglied?.rolle === "Musiker") {
+        // Wenn Musiker, prüfe Zugriff
+        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
+        const musikerProfil = alleMusiker.find(m => 
+          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        );
+        setCurrentMusiker(musikerProfil);
+
+        if (musikerProfil) {
+          // Prüfe ob Musiker am Event teilnimmt und zugesagt hat
+          const eventMusikerList = await base44.entities.EventMusiker.filter({ 
+            event_id: eventId,
+            musiker_id: musikerProfil.id,
+            status: 'zugesagt'
+          });
+          setHasAccess(eventMusikerList.length > 0);
+        }
+      }
+    };
+    
+    if (eventId) {
+      loadUserData();
+    }
+  }, [eventId]);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -94,25 +154,38 @@ export default function EventDetailPage() {
   const { data: kunden = [] } = useQuery({
     queryKey: ['kunden', event?.org_id],
     queryFn: () => base44.entities.Kunde.filter({ org_id: event.org_id }),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id && isManager, // Nur Manager sehen alle Kunden
   });
 
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', eventId],
-    queryFn: () => base44.entities.EventMusiker.filter({ event_id: eventId }),
-    enabled: !!eventId,
+    queryFn: async () => {
+      if (isManager) {
+        return base44.entities.EventMusiker.filter({ event_id: eventId });
+      } else if (currentMusiker?.id) {
+        // Musiker sieht nur sich selbst, wenn zugesagt
+        const myEventMusiker = await base44.entities.EventMusiker.filter({
+          event_id: eventId,
+          musiker_id: currentMusiker.id,
+          status: 'zugesagt'
+        });
+        return myEventMusiker;
+      }
+      return [];
+    },
+    enabled: !!eventId && (isManager || (hasAccess && !!currentMusiker?.id)),
   });
 
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', event?.org_id],
     queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id && isManager, // Nur Manager sehen alle Musiker
   });
 
   const { data: vorlagen = [] } = useQuery({
     queryKey: ['buchungsbedingungVorlagen', event?.org_id],
     queryFn: () => base44.entities.BuchungsbedingungVorlage.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id && isManager, // Nur Manager sehen Vorlagen
   });
 
   const updateEventMutation = useMutation({
@@ -290,10 +363,31 @@ Das Team`;
     }
   };
 
-  if (isLoading || !event) {
+  if (isLoading || !event || currentUser === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
+      </div>
+    );
+  }
+
+  // Zugriffsprüfung
+  if (!hasAccess && !isManager) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+            <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf dieses Event</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Du hast für dieses Event nicht zugesagt oder wurdest nicht für die Details freigegeben.
+            </p>
+            <Button onClick={() => navigate(createPageUrl('Events'))}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Zurück zu Events
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -410,16 +504,18 @@ Das Team`;
                 <Calendar className="w-4 h-4" />
                 Zu Kalender
               </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setIsEditing(true)}
-                className="gap-2 bg-gray-900 hover:bg-gray-800"
-              >
-                <Edit className="w-4 h-4" />
-                Bearbeiten
-              </Button>
-              {kunde && (
+              {isManager && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="gap-2 bg-gray-900 hover:bg-gray-800"
+                >
+                  <Edit className="w-4 h-4" />
+                  Bearbeiten
+                </Button>
+              )}
+              {isManager && kunde && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -443,9 +539,17 @@ Das Team`;
             <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Übersicht
             </TabsTrigger>
-            <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Musiker ({eventMusiker.length})
-            </TabsTrigger>
+            {isManager && (
+              <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+                Musiker ({eventMusiker.length})
+              </TabsTrigger>
+            )}
+            {/* Musiker only see their own tab if zugesagt */}
+            {!isManager && eventMusiker.length > 0 && (
+              <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+                Mein Engagement
+              </TabsTrigger>
+            )}
             <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Aufgaben
             </TabsTrigger>
@@ -486,15 +590,17 @@ Das Team`;
                   </div>
 
                   {/* Kunde */}
-                  <div className="flex items-start gap-3">
-                    <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-500 mb-1">Kunde</p>
-                      <p className="font-medium text-gray-900">
-                        {kunde ? kunde.firmenname : 'Kein Kunde verknüpft'}
-                      </p>
+                  {isManager && (
+                    <div className="flex items-start gap-3">
+                      <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">Kunde</p>
+                        <p className="font-medium text-gray-900">
+                          {kunde ? kunde.firmenname : 'Kein Kunde verknüpft'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -691,337 +797,351 @@ Das Team`;
             </Card>
           </TabsContent>
 
-          {/* Musiker Tab */}
-          <TabsContent value="musiker" className="space-y-6">
-            <Card className="border-none shadow-lg">
-              <CardHeader className="border-b">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-xl font-bold">Gebuchte Musiker</CardTitle>
-                  <Button
-                    onClick={() => setShowMusikerForm(true)}
-                    size="sm"
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Musiker hinzufügen
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                {showMusikerForm && (
-                  <Card className="mb-6 bg-blue-50 border-blue-200">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-semibold text-lg">Musiker hinzufügen</h3>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setShowMusikerForm(false);
-                            resetMusikerForm();
-                          }}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <div>
-                          <Label>Musiker auswählen <span className="text-red-500">*</span></Label>
-                          <Select value={selectedMusikerId} onValueChange={(value) => {
-                            setSelectedMusikerId(value);
-                            const m = musiker.find(mus => mus.id === value);
-                            if (m) {
-                              setMusikerRolle(m.instrumente?.[0] || "");
-                              setMusikerGage(m.tagessatz_netto?.toString() || "");
-                            }
-                          }}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Musiker wählen..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {musiker.map((m) => (
-                                <SelectItem key={m.id} value={m.id}>
-                                  {m.name} {m.instrumente?.length > 0 && `(${m.instrumente.join(', ')})`}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
-                            <Input
-                              value={musikerRolle}
-                              onChange={(e) => setMusikerRolle(e.target.value)}
-                              placeholder="z.B. Gitarre, Gesang"
-                            />
-                          </div>
-                          <div>
-                            <Label>Gage (netto)</Label>
-                            <Input
-                              type="number"
-                              value={musikerGage}
-                              onChange={(e) => setMusikerGage(e.target.value)}
-                              placeholder="0.00"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label>Notizen</Label>
-                          <Textarea
-                            value={musikerNotizen}
-                            onChange={(e) => setMusikerNotizen(e.target.value)}
-                            placeholder="Zusätzliche Informationen..."
-                            rows={2}
-                          />
-                        </div>
-
-                        <div className="space-y-3">
-                          <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
-                            <Select
-                              value={selectedVorlageId}
-                              onValueChange={(value) => {
-                                setSelectedVorlageId(value);
-                                if (value === "keine") {
-                                  setBuchungsbedingungen("");
-                                } else {
-                                  const vorlage = vorlagen.find(v => v.id === value);
-                                  if (vorlage) {
-                                    setBuchungsbedingungen(vorlage.inhalt);
-                                  }
-                                }
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Vorlage wählen..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
-                                {vorlagen.map((v) => (
-                                  <SelectItem key={v.id} value={v.id}>
-                                    {v.name} ({v.kategorie})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {vorlagen.length === 0 && (
-                              <p className="text-xs text-amber-600">
-                                Noch keine Vorlagen vorhanden. Erstelle Vorlagen unter Einstellungen → Buchungsbedingungen
-                              </p>
-                            )}
-                            {vorlagen.length > 0 && (
-                              <p className="text-xs text-gray-500">
-                                Wähle eine gespeicherte Vorlage oder schreibe eigene Bedingungen
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="border border-gray-200 rounded-lg">
-                            <ReactQuill
-                              theme="snow"
-                              value={buchungsbedingungen}
-                              onChange={(value) => setBuchungsbedingungen(value)}
-                              modules={modules}
-                              formats={formats}
-                              placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr..."
-                              className="min-h-[150px]"
-                            />
-                          </div>
-                          <p className="text-xs text-gray-500">
-                            Diese Bedingungen muss der Musiker bei Zusage akzeptieren
-                          </p>
-                        </div>
-
-                        <div className="flex justify-end gap-2">
+          {/* Musiker Tab (Conditional for Manager and Zugesagter Musiker) */}
+          {(isManager || (eventMusiker.length > 0)) && (
+            <TabsContent value="musiker" className="space-y-6">
+              <Card className="border-none shadow-lg">
+                <CardHeader className="border-b">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-xl font-bold">{isManager ? "Gebuchte Musiker" : "Mein Engagement"}</CardTitle>
+                    {isManager && (
+                      <Button
+                        onClick={() => setShowMusikerForm(true)}
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Musiker hinzufügen
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {isManager && showMusikerForm && (
+                    <Card className="mb-6 bg-blue-50 border-blue-200">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="font-semibold text-lg">Musiker hinzufügen</h3>
                           <Button
-                            variant="outline"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => {
                               setShowMusikerForm(false);
                               resetMusikerForm();
                             }}
                           >
-                            Abbrechen
-                          </Button>
-                          <Button
-                            onClick={handleAddMusiker}
-                            disabled={!selectedMusikerId || addMusikerMutation.isPending}
-                            className="bg-gradient-to-r from-blue-500 to-indigo-600"
-                          >
-                            Musiker hinzufügen
+                            <X className="w-4 h-4" />
                           </Button>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <Label>Musiker auswählen <span className="text-red-500">*</span></Label>
+                            <Select value={selectedMusikerId} onValueChange={(value) => {
+                              setSelectedMusikerId(value);
+                              const m = musiker.find(mus => mus.id === value);
+                              if (m) {
+                                setMusikerRolle(m.instrumente?.[0] || "");
+                                setMusikerGage(m.tagessatz_netto?.toString() || "");
+                              }
+                            }}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Musiker wählen..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {musiker.map((m) => (
+                                  <SelectItem key={m.id} value={m.id}>
+                                    {m.name} {m.instrumente?.length > 0 && `(${m.instrumente.join(', ')})`}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
 
-                <div className="space-y-4">
-                  {eventMusiker.length > 0 ? (
-                    eventMusiker.map((em) => {
-                      const musikerData = musiker.find(m => m.id === em.musiker_id);
-                      const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
-                      const initials = musikerData?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
-                      
-                      return (
-                        <Card key={em.id} className={`border-l-4 ${statusStyle.border}`}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-4">
-                              <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
-                                  {initials}
-                                </AvatarFallback>
-                              </Avatar>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
+                              <Input
+                                value={musikerRolle}
+                                onChange={(e) => setMusikerRolle(e.target.value)}
+                                placeholder="z.B. Gitarre, Gesang"
+                              />
+                            </div>
+                            <div>
+                              <Label>Gage (netto)</Label>
+                              <Input
+                                type="number"
+                                value={musikerGage}
+                                onChange={(e) => setMusikerGage(e.target.value)}
+                                placeholder="0.00"
+                              />
+                            </div>
+                          </div>
 
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-4 mb-2">
-                                  <div>
-                                    <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
-                                    <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
-                                      {statusStyle.label}
-                                    </Badge>
-                                  </div>
-                                  <div className="relative">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => setShowDropdownId(showDropdownId === em.id ? null : em.id)}
-                                    >
-                                      <MoreVertical className="w-4 h-4" />
-                                    </Button>
+                          <div>
+                            <Label>Notizen</Label>
+                            <Textarea
+                              value={musikerNotizen}
+                              onChange={(e) => setMusikerNotizen(e.target.value)}
+                              placeholder="Zusätzliche Informationen..."
+                              rows={2}
+                            />
+                          </div>
 
-                                    {showDropdownId === em.id && (
-                                      <>
-                                        <div 
-                                          className="fixed inset-0 z-40" 
-                                          onClick={() => setShowDropdownId(null)}
-                                        />
-                                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
-                                          {em.status === 'angefragt' && (
-                                            <>
+                          <div className="space-y-3">
+                            <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
+                              <Select
+                                value={selectedVorlageId}
+                                onValueChange={(value) => {
+                                  setSelectedVorlageId(value);
+                                  if (value === "keine") {
+                                    setBuchungsbedingungen("");
+                                  } else {
+                                    const vorlage = vorlagen.find(v => v.id === value);
+                                    if (vorlage) {
+                                      setBuchungsbedingungen(vorlage.inhalt);
+                                    }
+                                  }
+                                }}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Vorlage wählen..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
+                                  {vorlagen.map((v) => (
+                                    <SelectItem key={v.id} value={v.id}>
+                                      {v.name} ({v.kategorie})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {vorlagen.length === 0 && (
+                                <p className="text-xs text-amber-600">
+                                  Noch keine Vorlagen vorhanden. Erstelle Vorlagen unter Einstellungen → Buchungsbedingungen
+                                </p>
+                              )}
+                              {vorlagen.length > 0 && (
+                                <p className="text-xs text-gray-500">
+                                  Wähle eine gespeicherte Vorlage oder schreibe eigene Bedingungen
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="border border-gray-200 rounded-lg">
+                              <ReactQuill
+                                theme="snow"
+                                value={buchungsbedingungen}
+                                onChange={(value) => setBuchungsbedingungen(value)}
+                                modules={modules}
+                                formats={formats}
+                                placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr..."
+                                className="min-h-[150px]"
+                              />
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              Diese Bedingungen muss der Musiker bei Zusage akzeptieren
+                            </p>
+                          </div>
+
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setShowMusikerForm(false);
+                                resetMusikerForm();
+                              }}
+                            >
+                              Abbrechen
+                            </Button>
+                            <Button
+                              onClick={handleAddMusiker}
+                              disabled={!selectedMusikerId || addMusikerMutation.isPending}
+                              className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                            >
+                              Musiker hinzufügen
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <div className="space-y-4">
+                    {eventMusiker.length > 0 ? (
+                      eventMusiker.map((em) => {
+                        const musikerData = musiker.find(m => m.id === em.musiker_id);
+                        const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
+                        const initials = musikerData?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+                        
+                        return (
+                          <Card key={em.id} className={`border-l-4 ${statusStyle.border}`}>
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-4">
+                                <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
+                                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
+                                    {initials}
+                                  </AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-4 mb-2">
+                                    <div>
+                                      <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
+                                      <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
+                                        {statusStyle.label}
+                                      </Badge>
+                                    </div>
+                                    {isManager && (
+                                      <div className="relative">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => setShowDropdownId(showDropdownId === em.id ? null : em.id)}
+                                        >
+                                          <MoreVertical className="w-4 h-4" />
+                                        </Button>
+
+                                        {showDropdownId === em.id && (
+                                          <>
+                                            <div 
+                                              className="fixed inset-0 z-40" 
+                                              onClick={() => setShowDropdownId(null)}
+                                            />
+                                            <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                                              {em.status === 'angefragt' && (
+                                                <>
+                                                  <button
+                                                    onClick={() => handleUpdateStatus(em.id, 'zugesagt')}
+                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                                                  >
+                                                    Als zugesagt markieren
+                                                  </button>
+                                                  <button
+                                                    onClick={() => handleUpdateStatus(em.id, 'optional')}
+                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                                  >
+                                                    Als optional markieren
+                                                  </button>
+                                                  <button
+                                                    onClick={() => handleUpdateStatus(em.id, 'abgelehnt')}
+                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                                  >
+                                                    Als abgelehnt markieren
+                                                  </button>
+                                                </>
+                                              )}
+                                              {musikerData?.email && (
+                                                <button
+                                                  onClick={() => handleSendEinladung(em.id, em.musiker_id)}
+                                                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                                >
+                                                  <Send className="w-4 h-4" />
+                                                  Einladung senden
+                                                </button>
+                                              )}
                                               <button
-                                                onClick={() => handleUpdateStatus(em.id, 'zugesagt')}
-                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                                                onClick={() => handleRemoveMusiker(em.id)}
+                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
                                               >
-                                                Als zugesagt markieren
+                                                <Trash2 className="w-4 h-4" />
+                                                Entfernen
                                               </button>
-                                              <button
-                                                onClick={() => handleUpdateStatus(em.id, 'optional')}
-                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                              >
-                                                Als optional markieren
-                                              </button>
-                                              <button
-                                                onClick={() => handleUpdateStatus(em.id, 'abgelehnt')}
-                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                              >
-                                                Als abgelehnt markieren
-                                              </button>
-                                            </>
-                                          )}
-                                          {musikerData?.email && (
-                                            <button
-                                              onClick={() => handleSendEinladung(em.id, em.musiker_id)}
-                                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                            >
-                                              <Send className="w-4 h-4" />
-                                              Einladung senden
-                                            </button>
-                                          )}
-                                          <button
-                                            onClick={() => handleRemoveMusiker(em.id)}
-                                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                                          >
-                                            <Trash2 className="w-4 h-4" />
-                                            Entfernen
-                                          </button>
-                                        </div>
-                                      </>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
-                                </div>
 
-                                <p className="text-sm text-gray-600 mb-3">{em.rolle}</p>
+                                  <p className="text-sm text-gray-600 mb-3">{em.rolle}</p>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                  <div className="flex items-center gap-2 text-gray-600">
-                                    <Calendar className="w-4 h-4" />
-                                    <div>
-                                      <p className="text-xs text-gray-500">Eingeladen am</p>
-                                      <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <Calendar className="w-4 h-4" />
+                                      <div>
+                                        <p className="text-xs text-gray-500">Eingeladen am</p>
+                                        <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                      </div>
+                                    </div>
+
+                                    {em.status === 'zugesagt' && (
+                                      <div className="flex items-center gap-2 text-gray-600">
+                                        <Calendar className="w-4 h-4 text-green-600" />
+                                        <div>
+                                          <p className="text-xs text-gray-500">Zugesagt am</p>
+                                          <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2 text-gray-600">
+                                      <Euro className="w-4 h-4" />
+                                      <div>
+                                        <p className="text-xs text-gray-500">Gage (netto)</p>
+                                        <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                      </div>
                                     </div>
                                   </div>
 
-                                  {em.status === 'zugesagt' && (
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Calendar className="w-4 h-4 text-green-600" />
-                                      <div>
-                                        <p className="text-xs text-gray-500">Zugesagt am</p>
-                                        <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                  {em.notizen && (
+                                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                      <div className="flex items-start gap-2 text-sm">
+                                        <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
+                                        <div>
+                                          <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
+                                          <p className="text-gray-700">{em.notizen}</p>
+                                        </div>
                                       </div>
                                     </div>
                                   )}
-
-                                  <div className="flex items-center gap-2 text-gray-600">
-                                    <Euro className="w-4 h-4" />
-                                    <div>
-                                      <p className="text-xs text-gray-500">Gage (netto)</p>
-                                      <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                  {em.buchungsbedingungen && (
+                                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                      <div className="flex items-start gap-2 text-sm">
+                                        <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1">
+                                          <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
+                                          <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
+                                        </div>
+                                      </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
-
-                                {em.notizen && (
-                                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                                    <div className="flex items-start gap-2 text-sm">
-                                      <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
-                                      <div>
-                                        <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
-                                        <p className="text-gray-700">{em.notizen}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                                {em.buchungsbedingungen && (
-                                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <div className="flex items-start gap-2 text-sm">
-                                      <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                                      <div className="flex-1">
-                                        <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
-                                        <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
                               </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })
-                  ) : (
-                    <div className="text-center py-12">
-                      <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
-                      <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
-                      <Button
-                        onClick={() => setShowMusikerForm(true)}
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Ersten Musiker hinzufügen
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                            </CardContent>
+                          </Card>
+                        );
+                      })
+                    ) : (
+                      isManager ? (
+                        <div className="text-center py-12">
+                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
+                          <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
+                          <Button
+                            onClick={() => setShowMusikerForm(true)}
+                            className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Ersten Musiker hinzufügen
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+                          <h3 className="text-lg font-semibold mb-2">Kein Engagement gefunden</h3>
+                          <p className="text-gray-500 mb-4">Du bist für dieses Event nicht als Musiker eingetragen oder dein Status ist noch nicht 'zugesagt'.</p>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           {/* Platzhalter für andere Tabs */}
           <TabsContent value="aufgaben">

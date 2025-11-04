@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -59,6 +59,43 @@ export default function LeadDetailPage() {
   const [fileDescription, setFileDescription] = useState(""); // Added
   const [fileKategorie, setFileKategorie] = useState("sonstiges"); // Added
   const [showFileDropdownId, setShowFileDropdownId] = useState(null); // Added
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isManager, setIsManager] = useState(false);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+
+        const result = await base44.entities.Lead.filter({ id: leadId });
+        const currentLead = result[0];
+
+        if (!currentLead) {
+          // If lead not found, stop here or handle as an error
+          return;
+        }
+
+        const orgId = currentLead.org_id;
+
+        // Prüfe Rolle
+        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+          user_id: user.id,
+          org_id: orgId,
+          status: "aktiv" 
+        });
+        const mitglied = mitgliedschaften[0];
+        setIsManager(mitglied?.rolle === "Band Manager");
+      } catch (error) {
+        console.error("Fehler beim Laden der Benutzer- oder Lead-Daten:", error);
+        setCurrentUser(null); // Ensure currentUser is null on error
+      }
+    };
+    
+    if (leadId) {
+      loadUserData();
+    }
+  }, [leadId]);
 
   const { data: lead, isLoading } = useQuery({
     queryKey: ['lead', leadId],
@@ -99,11 +136,6 @@ export default function LeadDetailPage() {
     queryKey: ['mitglieder', lead?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: lead.org_id, status: "aktiv" }),
     enabled: !!lead?.org_id,
-  });
-
-  const { data: currentUser } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
   });
 
   const updateLeadMutation = useMutation({
@@ -349,10 +381,31 @@ export default function LeadDetailPage() {
     alert("Lead wird in Event konvertiert (Feature kommt später)");
   };
 
-  if (isLoading || !lead) {
+  if (isLoading || !lead || currentUser === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Lead...</p>
+      </div>
+    );
+  }
+
+  // Zugriffsprüfung: Nur Manager haben Zugriff auf Leads
+  if (!isManager) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+            <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf Leads</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Nur Band Manager haben Zugriff auf Lead-Verwaltung.
+            </p>
+            <Button onClick={() => navigate(createPageUrl('MusikerDashboard'))}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Zurück zum Dashboard
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
