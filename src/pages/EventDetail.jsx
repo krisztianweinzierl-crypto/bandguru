@@ -25,7 +25,7 @@ import {
   Euro,
   MessageSquare,
   Send,
-  AlertCircle // Added AlertCircle import
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,7 +60,7 @@ export default function EventDetailPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
-  const [hasAccess, setHasAccess] = useState(false); // Initialisiert auf false
+  const [hasAccess, setHasAccess] = useState(false);
 
   const modules = {
     toolbar: [
@@ -77,62 +77,8 @@ export default function EventDetailPage() {
     'list', 'bullet'
   ];
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
-      
-      // Reset access on new eventId or user load
-      setIsManager(false);
-      setHasAccess(false);
-      setCurrentMusiker(null);
-
-      const events = await base44.entities.Event.filter({ id: eventId });
-      const currentEvent = events[0];
-      if (!currentEvent) {
-        // Event not found, no access
-        return;
-      }
-
-      const orgId = currentEvent.org_id;
-
-      // Prüfe Rolle
-      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
-        user_id: user.id,
-        org_id: orgId,
-        status: "aktiv" 
-      });
-      const mitglied = mitgliedschaften[0];
-      
-      if (mitglied?.rolle === "Band Manager") {
-        setIsManager(true);
-        setHasAccess(true); // Manager hat immer Zugriff
-      } else if (mitglied?.rolle === "Musiker") {
-        // Wenn Musiker, prüfe Zugriff
-        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
-        const musikerProfil = alleMusiker.find(m => 
-          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
-        );
-        setCurrentMusiker(musikerProfil);
-
-        if (musikerProfil) {
-          // Prüfe ob Musiker am Event teilnimmt und zugesagt hat
-          const eventMusikerList = await base44.entities.EventMusiker.filter({ 
-            event_id: eventId,
-            musiker_id: musikerProfil.id,
-            status: 'zugesagt'
-          });
-          setHasAccess(eventMusikerList.length > 0);
-        }
-      }
-    };
-    
-    if (eventId) {
-      loadUserData();
-    }
-  }, [eventId]);
-
-  const { data: event, isLoading } = useQuery({
+  // 1. Erst Event laden
+  const { data: event, isLoading: eventLoading } = useQuery({
     queryKey: ['event', eventId],
     queryFn: async () => {
       const events = await base44.entities.Event.filter({ id: eventId });
@@ -140,6 +86,64 @@ export default function EventDetailPage() {
     },
     enabled: !!eventId,
   });
+
+  // 2. Dann User-Daten und Berechtigungen laden (abhängig von event)
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!event) return;
+      
+      // Reset access state before evaluation for new event/user
+      setIsManager(false);
+      setHasAccess(false);
+      setCurrentMusiker(null);
+
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+
+        // Prüfe Rolle
+        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+          user_id: user.id,
+          org_id: event.org_id,
+          status: "aktiv" 
+        });
+        const mitglied = mitgliedschaften[0];
+        
+        if (mitglied?.rolle === "Band Manager") {
+          setIsManager(true);
+          setHasAccess(true);
+        } else if (mitglied?.rolle === "Musiker") {
+          // Wenn Musiker, lade Musiker-Profil
+          const alleMusiker = await base44.entities.Musiker.filter({ org_id: event.org_id });
+          const musikerProfil = alleMusiker.find(m => 
+            m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+          );
+          setCurrentMusiker(musikerProfil);
+
+          if (musikerProfil) {
+            // Prüfe ob Musiker am Event teilnimmt und zugesagt hat
+            const eventMusikerList = await base44.entities.EventMusiker.filter({ 
+              event_id: eventId,
+              musiker_id: musikerProfil.id,
+              status: 'zugesagt'
+            });
+            setHasAccess(eventMusikerList.length > 0);
+          } else {
+            setHasAccess(false);
+          }
+        } else {
+          setHasAccess(false);
+        }
+      } catch (error) {
+        console.error("Fehler beim Laden der User-Daten:", error);
+        setHasAccess(false);
+      }
+    };
+    
+    if (eventId) {
+      loadUserData();
+    }
+  }, [event, eventId]);
 
   const { data: kunde } = useQuery({
     queryKey: ['kunde', event?.kunde_id],
@@ -154,7 +158,7 @@ export default function EventDetailPage() {
   const { data: kunden = [] } = useQuery({
     queryKey: ['kunden', event?.org_id],
     queryFn: () => base44.entities.Kunde.filter({ org_id: event.org_id }),
-    enabled: !!event?.org_id && isManager, // Nur Manager sehen alle Kunden
+    enabled: !!event?.org_id && isManager,
   });
 
   const { data: eventMusiker = [] } = useQuery({
@@ -163,7 +167,6 @@ export default function EventDetailPage() {
       if (isManager) {
         return base44.entities.EventMusiker.filter({ event_id: eventId });
       } else if (currentMusiker?.id) {
-        // Musiker sieht nur sich selbst, wenn zugesagt
         const myEventMusiker = await base44.entities.EventMusiker.filter({
           event_id: eventId,
           musiker_id: currentMusiker.id,
@@ -173,19 +176,19 @@ export default function EventDetailPage() {
       }
       return [];
     },
-    enabled: !!eventId && (isManager || (hasAccess && !!currentMusiker?.id)),
+    enabled: !!eventId && (isManager || !!currentMusiker?.id),
   });
 
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', event?.org_id],
     queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id && isManager, // Nur Manager sehen alle Musiker
+    enabled: !!event?.org_id && isManager,
   });
 
   const { data: vorlagen = [] } = useQuery({
     queryKey: ['buchungsbedingungVorlagen', event?.org_id],
     queryFn: () => base44.entities.BuchungsbedingungVorlage.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id && isManager, // Nur Manager sehen Vorlagen
+    enabled: !!event?.org_id && isManager,
   });
 
   const updateEventMutation = useMutation({
@@ -212,11 +215,8 @@ export default function EventDetailPage() {
     onSuccess: async (createdEventMusiker, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
       
-      // Benachrichtigung für Musiker erstellen
       try {
         const selectedMusiker = musiker.find(m => m.id === variables.musiker_id);
-        
-        // Finde die Mitgliedschaft des Musikers
         const mitgliedschaften = await base44.entities.Mitglied.filter({
           org_id: event.org_id,
           musiker_id: selectedMusiker.id,
@@ -363,7 +363,8 @@ Das Team`;
     }
   };
 
-  if (isLoading || !event || currentUser === null) {
+  // Lade-Status - First, ensure event data is loaded
+  if (eventLoading || !event) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
@@ -371,8 +372,20 @@ Das Team`;
     );
   }
 
-  // Zugriffsprüfung
-  if (!hasAccess && !isManager) {
+  // Warte auf User-Daten und Berechtigungsprüfung - Then, ensure user and permissions are evaluated
+  // currentUser is set *after* the async base44.auth.me() call in useEffect.
+  // We need to wait for this to complete before making access decisions.
+  if (currentUser === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+        <p className="text-gray-600">Prüfe Berechtigungen...</p>
+      </div>
+    );
+  }
+
+  // Zugriffsprüfung - Finally, if hasAccess is false after all checks, deny access
+  // Note: isManager implies hasAccess is true due to the useEffect logic, so we only need to check !hasAccess
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">

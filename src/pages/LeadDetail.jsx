@@ -7,30 +7,36 @@ import { createPageUrl } from "@/utils";
 import {
   ArrowLeft,
   Edit,
+  Save,          // Added from outline
+  X,             // Already present
   Mail,
   Phone,
   Calendar,
   MapPin,
-  User,
+  User,          // Used in original code
+  Users as UsersIcon, // Added from outline (not used in JSX)
   Building2,
-  Euro,
+  Euro,          // Used in original code
   FileText,
-  CheckCircle,
+  CheckCircle,   // Used in original code
+  CheckSquare,   // Added from outline (not used in JSX)
   Plus,
-  Send,
-  Activity,
+  Send,          // Used in original code
+  Activity,      // Used in original code
   Clock,
-  Circle,
-  CheckCircle2,
+  Circle,        // Used in original code
+  CheckCircle2,  // Used in original code
   AlertCircle,
-  ChevronRight,
+  ChevronRight,  // Used in original code
   MoreVertical,
   Trash2,
-  Upload, // Added
-  File, // Added
-  Download, // Added
-  Eye, // Added
-  X // Added - not used but added as per outline
+  Upload,
+  File,          // Used in original code
+  Download,      // Used in original code
+  Eye,           // Used in original code
+  DollarSign,    // Added from outline (not used in JSX)
+  Target,        // Added from outline (not used in JSX)
+  TrendingUp     // Added from outline (not used in JSX)
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +46,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"; // Added from outline
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
@@ -62,42 +69,8 @@ export default function LeadDetailPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isManager, setIsManager] = useState(false);
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const user = await base44.auth.me();
-        setCurrentUser(user);
-
-        const result = await base44.entities.Lead.filter({ id: leadId });
-        const currentLead = result[0];
-
-        if (!currentLead) {
-          // If lead not found, stop here or handle as an error
-          return;
-        }
-
-        const orgId = currentLead.org_id;
-
-        // Prüfe Rolle
-        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
-          user_id: user.id,
-          org_id: orgId,
-          status: "aktiv" 
-        });
-        const mitglied = mitgliedschaften[0];
-        setIsManager(mitglied?.rolle === "Band Manager");
-      } catch (error) {
-        console.error("Fehler beim Laden der Benutzer- oder Lead-Daten:", error);
-        setCurrentUser(null); // Ensure currentUser is null on error
-      }
-    };
-    
-    if (leadId) {
-      loadUserData();
-    }
-  }, [leadId]);
-
-  const { data: lead, isLoading } = useQuery({
+  // 1. Erst Lead laden
+  const { data: lead, isLoading: leadLoading } = useQuery({
     queryKey: ['lead', leadId],
     queryFn: async () => {
       const result = await base44.entities.Lead.filter({ id: leadId });
@@ -106,36 +79,64 @@ export default function LeadDetailPage() {
     enabled: !!leadId,
   });
 
+  // 2. Dann User-Daten und Berechtigungen laden (abhängig von lead)
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!lead) return; // Ensure lead is available
+
+      try {
+        const user = await base44.auth.me();
+        setCurrentUser(user);
+
+        // Prüfe Rolle
+        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+          user_id: user.id,
+          org_id: lead.org_id, // Use lead from useQuery
+          status: "aktiv" 
+        });
+        const mitglied = mitgliedschaften[0];
+        setIsManager(mitglied?.rolle === "Band Manager");
+      } catch (error) {
+        console.error("Fehler beim Laden der User-Daten:", error);
+        setCurrentUser(null); // Ensure currentUser is null on error
+        setIsManager(false);
+      }
+    };
+    
+    // Only run if lead is defined
+    if (lead) { 
+      loadUserData();
+    }
+  }, [lead, leadId]); // Depend on lead and leadId
+
   const { data: notizen = [] } = useQuery({
     queryKey: ['leadNotizen', leadId],
     queryFn: () => base44.entities.LeadNotiz.filter({ lead_id: leadId }, '-created_date'),
-    enabled: !!leadId,
+    enabled: !!leadId && isManager, // Added isManager condition
   });
 
   const { data: aufgaben = [] } = useQuery({
-    queryKey: ['leadAufgaben', leadId, lead?.org_id],
+    queryKey: ['leadAufgaben', leadId], // Removed lead?.org_id from queryKey as it's not strictly necessary for this filter
     queryFn: () => base44.entities.Aufgabe.filter({ 
-      org_id: lead.org_id,
-      bezug_typ: 'frei',
-      bezug_id: leadId
-    }, '-created_date'),
-    enabled: !!lead?.org_id && !!leadId,
-  });
-
-  const { data: dateien = [] } = useQuery({ // Added
-    queryKey: ['leadDateien', leadId, lead?.org_id],
-    queryFn: () => base44.entities.Datei.filter({
-      org_id: lead.org_id,
       bezug_typ: 'lead',
       bezug_id: leadId
     }, '-created_date'),
-    enabled: !!lead?.org_id && !!leadId,
+    enabled: !!leadId && isManager, // Added isManager condition, simplified condition
+  });
+
+  const { data: dateien = [] } = useQuery({ // Added
+    queryKey: ['leadDateien', leadId], // Removed lead?.org_id from queryKey
+    queryFn: () => base44.entities.Datei.filter({
+      bezug_typ: 'lead',
+      bezug_id: leadId
+    }, '-created_date'),
+    enabled: !!leadId && isManager, // Added isManager condition, simplified condition
   });
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', lead?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: lead.org_id, status: "aktiv" }),
-    enabled: !!lead?.org_id,
+    enabled: !!lead?.org_id && isManager, // Added isManager condition
   });
 
   const updateLeadMutation = useMutation({
@@ -159,7 +160,7 @@ export default function LeadDetailPage() {
       const createdHauptaufgabe = await base44.entities.Aufgabe.create({
         ...hauptaufgabe,
         org_id: lead.org_id,
-        bezug_typ: 'frei',
+        bezug_typ: 'lead', // Changed from 'frei' to 'lead'
         bezug_id: leadId
       });
       
@@ -173,7 +174,7 @@ export default function LeadDetailPage() {
             faellig_am: u.faellig_am,
             status: 'offen',
             org_id: lead.org_id,
-            bezug_typ: 'frei',
+            bezug_typ: 'lead', // Changed from 'frei' to 'lead'
             bezug_id: leadId,
             parent_task_id: createdHauptaufgabe.id,
             zugewiesen_an: u.zugewiesen_an // Make sure to pass assigned user for subtasks too
@@ -208,7 +209,7 @@ export default function LeadDetailPage() {
             faellig_am: u.faellig_am,
             status: 'offen',
             org_id: lead.org_id,
-            bezug_typ: 'frei',
+            bezug_typ: 'lead', // Changed from 'frei' to 'lead'
             bezug_id: leadId,
             parent_task_id: id,
             zugewiesen_an: u.zugewiesen_an
@@ -381,10 +382,20 @@ export default function LeadDetailPage() {
     alert("Lead wird in Event konvertiert (Feature kommt später)");
   };
 
-  if (isLoading || !lead || currentUser === null) {
+  // Lade-Status für Lead
+  if (leadLoading || !lead) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Lead...</p>
+      </div>
+    );
+  }
+
+  // Warte auf User-Daten und Berechtigungsprüfung
+  if (currentUser === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
+        <p className="text-gray-600">Prüfe Berechtigungen...</p>
       </div>
     );
   }
@@ -400,7 +411,7 @@ export default function LeadDetailPage() {
             <p className="text-sm text-gray-600 mb-4">
               Nur Band Manager haben Zugriff auf Lead-Verwaltung.
             </p>
-            <Button onClick={() => navigate(createPageUrl('MusikerDashboard'))}>
+            <Button onClick={() => navigate(createPageUrl('Dashboard'))}> {/* Changed target page */}
               <ArrowLeft className="w-4 h-4 mr-2" />
               Zurück zum Dashboard
             </Button>
