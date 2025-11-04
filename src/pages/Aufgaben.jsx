@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,29 +12,29 @@ import {
   User,
   AlertCircle,
   ChevronRight,
-  MoreVertical,
   Edit,
-  Trash2
+  Trash2,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
 
 // Helper function to create page URLs for notifications
 const createPageUrl = (pageName) => {
-  // This is a placeholder. In a real application, you would use your router's
-  // method to generate paths or a more robust mapping.
   switch (pageName) {
     case 'Aufgaben':
-      return '/app/aufgaben'; // Example path
+      return '/app/aufgaben';
     case 'Dashboard':
       return '/app/dashboard';
-    // Add other cases as needed for your application's routes
     default:
       return '/app';
   }
@@ -47,10 +46,10 @@ export default function AufgabenPage() {
   const [isManager, setIsManager] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingAufgabe, setEditingAufgabe] = useState(null);
+  const [selectedAufgabe, setSelectedAufgabe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("alle");
   const [expandedTasks, setExpandedTasks] = useState({});
-  const [showDropdownId, setShowDropdownId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -62,7 +61,6 @@ export default function AufgabenPage() {
     const user = await base44.auth.me();
     setCurrentUserId(user.id);
 
-    // Prüfe Rolle
     const orgId = localStorage.getItem('currentOrgId');
     if (orgId) {
       const mitgliedschaften = await base44.entities.Mitglied.filter({
@@ -89,16 +87,14 @@ export default function AufgabenPage() {
 
   const createAufgabeMutation = useMutation({
     mutationFn: async ({ hauptaufgabe, unteraufgaben }) => {
-      // 1. Hauptaufgabe erstellen
       const createdHauptaufgabe = await base44.entities.Aufgabe.create({
         ...hauptaufgabe,
         org_id: currentOrgId
       });
 
-      // 2. Unteraufgaben erstellen (falls vorhanden)
       if (unteraufgaben && unteraufgaben.length > 0) {
         const unteraufgabenPromises = unteraufgaben
-          .filter(u => u.titel && u.titel.trim()) // Nur Unteraufgaben mit Titel
+          .filter(u => u.titel && u.titel.trim())
           .map(unteraufgabe =>
             base44.entities.Aufgabe.create({
               org_id: currentOrgId,
@@ -106,7 +102,6 @@ export default function AufgabenPage() {
               prioritaet: unteraufgabe.prioritaet || "normal",
               status: "offen",
               parent_task_id: createdHauptaufgabe.id,
-              // Inherit assignee from parent task if not explicitly set for subtask
               zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
             })
           );
@@ -116,12 +111,8 @@ export default function AufgabenPage() {
         }
       }
 
-      // Benachrichtigung erstellen, wenn Hauptaufgabe zugewiesen wurde
       if (hauptaufgabe.zugewiesen_an) {
         try {
-          // No need to fetch currentUser again, currentUserId is already available
-          // const currentUser = await base44.auth.me();
-
           await base44.entities.Benachrichtigung.create({
             org_id: currentOrgId,
             user_id: hauptaufgabe.zugewiesen_an,
@@ -152,10 +143,8 @@ export default function AufgabenPage() {
     mutationFn: async ({ aufgabeId, hauptaufgabe, unteraufgaben }) => {
       const oldAufgabe = aufgaben.find(a => a.id === aufgabeId);
 
-      // 1. Hauptaufgabe updaten
       await base44.entities.Aufgabe.update(aufgabeId, hauptaufgabe);
 
-      // 2. Neue Unteraufgaben erstellen (falls vorhanden)
       if (unteraufgaben && unteraufgaben.length > 0) {
         const unteraufgabenPromises = unteraufgaben
           .filter(u => u.titel && u.titel.trim())
@@ -166,7 +155,6 @@ export default function AufgabenPage() {
               prioritaet: unteraufgabe.prioritaet || "normal",
               status: "offen",
               parent_task_id: aufgabeId,
-              // Inherit assignee from parent task if not explicitly set for subtask
               zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
             })
           );
@@ -176,7 +164,6 @@ export default function AufgabenPage() {
         }
       }
 
-      // Benachrichtigung erstellen, wenn Zuweisung geändert wurde
       if (hauptaufgabe.zugewiesen_an &&
           oldAufgabe?.zugewiesen_an !== hauptaufgabe.zugewiesen_an) {
         try {
@@ -201,7 +188,7 @@ export default function AufgabenPage() {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
       setShowForm(false);
       setEditingAufgabe(null);
-      setShowDropdownId(null);
+      setSelectedAufgabe(null);
     },
   });
 
@@ -209,16 +196,14 @@ export default function AufgabenPage() {
     mutationFn: (id) => base44.entities.Aufgabe.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
-      setShowDropdownId(null);
+      setSelectedAufgabe(null);
     },
   });
 
   const handleSubmit = (hauptaufgabe, unteraufgaben = []) => {
     if (editingAufgabe) {
-      // Bei Bearbeitung: Hauptaufgabe updaten + neue Unteraufgaben erstellen
       updateAufgabeMutation.mutate({ aufgabeId: editingAufgabe.id, hauptaufgabe, unteraufgaben });
     } else {
-      // Bei neuer Aufgabe: Hauptaufgabe + Unteraufgaben erstellen
       createAufgabeMutation.mutate({ hauptaufgabe, unteraufgaben });
     }
   };
@@ -228,14 +213,8 @@ export default function AufgabenPage() {
     updateAufgabeMutation.mutate({
       aufgabeId: aufgabe.id,
       hauptaufgabe: { ...aufgabe, status: newStatus },
-      unteraufgaben: [] // Keine neuen Unteraufgaben beim Status-Toggle
+      unteraufgaben: []
     });
-  };
-
-  const handleEdit = (aufgabe) => {
-    setEditingAufgabe(aufgabe);
-    setShowForm(true);
-    setShowDropdownId(null);
   };
 
   const handleDelete = (aufgabe) => {
@@ -248,17 +227,12 @@ export default function AufgabenPage() {
     setExpandedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
-  // Filter Aufgaben basierend auf Rolle
   const visibleAufgaben = isManager
     ? aufgaben
     : aufgaben.filter(aufgabe => {
-        // Musiker sieht nur:
-        // 1. Eigene erstellte Aufgaben (created_by)
-        // 2. Ihm zugewiesene Aufgaben (zugewiesen_an)
         return aufgabe.created_by === currentUserId || aufgabe.zugewiesen_an === currentUserId;
       });
 
-  // Aufgaben filtern und gruppieren
   const hauptAufgaben = visibleAufgaben.filter(a => !a.parent_task_id);
   const unteraufgabenMap = visibleAufgaben.reduce((acc, aufgabe) => {
     if (aufgabe.parent_task_id) {
@@ -301,14 +275,18 @@ export default function AufgabenPage() {
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
         <div
-          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ${
             aufgabe.status === 'erledigt' ? 'opacity-60' : ''
           }`}
+          onClick={() => setSelectedAufgabe(aufgabe)}
         >
           {/* Expand/Collapse Button */}
           {hasUnteraufgaben ? (
             <button
-              onClick={() => toggleExpand(aufgabe.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(aufgabe.id);
+              }}
               className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
             >
               <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
@@ -319,7 +297,10 @@ export default function AufgabenPage() {
 
           {/* Checkbox */}
           <button
-            onClick={() => handleStatusToggle(aufgabe)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleStatusToggle(aufgabe);
+            }}
             className="mt-1"
           >
             {aufgabe.status === 'erledigt' ? (
@@ -378,43 +359,6 @@ export default function AufgabenPage() {
                   )}
                 </div>
               </div>
-
-              {/* Actions */}
-              <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setShowDropdownId(showDropdownId === aufgabe.id ? null : aufgabe.id)}
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-
-                {showDropdownId === aufgabe.id && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setShowDropdownId(null)}
-                    />
-                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
-                      <button
-                        onClick={() => handleEdit(aufgabe)}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
-                      >
-                        <Edit className="w-4 h-4" />
-                        Bearbeiten
-                      </button>
-                      <button
-                        onClick={() => handleDelete(aufgabe)}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Löschen
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -428,6 +372,127 @@ export default function AufgabenPage() {
           </div>
         )}
       </div>
+    );
+  };
+
+  // Slide-in Panel für Aufgabendetails
+  const AufgabeDetailPanel = () => {
+    if (!selectedAufgabe) return null;
+
+    const assignedMitglied = mitglieder.find(m => m.user_id === selectedAufgabe.zugewiesen_an);
+
+    return (
+      <>
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+          onClick={() => setSelectedAufgabe(null)}
+        />
+        
+        {/* Slide-in Panel */}
+        <div className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-white shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-right duration-300">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start gap-3 flex-1">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusToggle(selectedAufgabe);
+                  }}
+                >
+                  {selectedAufgabe.status === 'erledigt' ? (
+                    <CheckCircle2 className="w-6 h-6 text-green-500" />
+                  ) : (
+                    <Circle className={`w-6 h-6 ${priorityColors[selectedAufgabe.prioritaet]}`} />
+                  )}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <h2 className={`text-xl font-bold ${selectedAufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                    {selectedAufgabe.titel}
+                  </h2>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedAufgabe(null)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Badge className={priorityBadges[selectedAufgabe.prioritaet]}>
+                {selectedAufgabe.prioritaet}
+              </Badge>
+              <Badge className={
+                selectedAufgabe.status === 'erledigt' ? 'bg-green-100 text-green-800' :
+                selectedAufgabe.status === 'in_arbeit' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'
+              }>
+                {selectedAufgabe.status}
+              </Badge>
+            </div>
+
+            {/* Details */}
+            <div className="space-y-6">
+              {selectedAufgabe.beschreibung && (
+                <div>
+                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Beschreibung</Label>
+                  <p className="text-gray-600">{selectedAufgabe.beschreibung}</p>
+                </div>
+              )}
+
+              {assignedMitglied && (
+                <div>
+                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Zugewiesen an</Label>
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-900">{assignedMitglied.rolle}</span>
+                  </div>
+                </div>
+              )}
+
+              {selectedAufgabe.faellig_am && (
+                <div>
+                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Fällig am</Label>
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-900">
+                      {format(new Date(selectedAufgabe.faellig_am), 'dd. MMMM yyyy', { locale: de })}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="pt-6 border-t space-y-3">
+                <Button
+                  onClick={() => {
+                    setEditingAufgabe(selectedAufgabe);
+                    setShowForm(true);
+                    setSelectedAufgabe(null);
+                  }}
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Aufgabe bearbeiten
+                </Button>
+                <Button
+                  onClick={() => handleDelete(selectedAufgabe)}
+                  variant="outline"
+                  className="w-full text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Aufgabe löschen
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     );
   };
 
@@ -616,6 +681,9 @@ export default function AufgabenPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Slide-in Detail Panel */}
+      <AufgabeDetailPanel />
     </div>
   );
 }
