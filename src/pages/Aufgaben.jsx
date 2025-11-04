@@ -43,7 +43,6 @@ const createPageUrl = (pageName) => {
 
 export default function AufgabenPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingAufgabe, setEditingAufgabe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,19 +52,49 @@ export default function AufgabenPage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    loadUser();
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
-  const loadUser = async () => {
-    const user = await base44.auth.me();
-    setCurrentUserId(user.id);
-  };
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: mitgliedschaften = [] } = useQuery({
+    queryKey: ['mitgliedschaften', currentOrgId, user?.id],
+    queryFn: () => base44.entities.Mitglied.filter({ 
+      org_id: currentOrgId,
+      user_id: user?.id,
+      status: "aktiv"
+    }),
+    enabled: !!currentOrgId && !!user?.id,
+  });
+
+  // Prüfe ob der User ein Band Manager ist
+  const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrgId);
+  const isManager = currentMitglied?.rolle === "Band Manager";
 
   const { data: aufgaben = [] } = useQuery({
-    queryKey: ['aufgaben', currentOrgId],
-    queryFn: () => base44.entities.Aufgabe.filter({ org_id: currentOrgId }, '-created_date'),
-    enabled: !!currentOrgId,
+    queryKey: ['aufgaben', currentOrgId, user?.id, isManager],
+    queryFn: async () => {
+      if (!currentOrgId) return [];
+      
+      const allAufgaben = await base44.entities.Aufgabe.filter({ org_id: currentOrgId }, '-created_date');
+      
+      // Manager sehen alle Aufgaben
+      if (isManager) {
+        return allAufgaben;
+      }
+      
+      // Musiker sehen nur:
+      // 1. Ihre eigenen erstellten Aufgaben (created_by)
+      // 2. Ihnen zugewiesene Aufgaben (zugewiesen_an)
+      return allAufgaben.filter(a => 
+        a.created_by === user?.email || 
+        a.zugewiesen_an === user?.id
+      );
+    },
+    enabled: !!currentOrgId && !!user?.id,
   });
 
   const { data: mitglieder = [] } = useQuery({
@@ -106,9 +135,6 @@ export default function AufgabenPage() {
       // Benachrichtigung erstellen, wenn Hauptaufgabe zugewiesen wurde
       if (hauptaufgabe.zugewiesen_an) {
         try {
-          // No need to fetch currentUser again, currentUserId is already available
-          // const currentUser = await base44.auth.me();
-
           await base44.entities.Benachrichtigung.create({
             org_id: currentOrgId,
             user_id: hauptaufgabe.zugewiesen_an,
@@ -254,7 +280,7 @@ export default function AufgabenPage() {
   const offeneAufgaben = filteredAufgaben.filter(a => a.status === 'offen');
   const inArbeitAufgaben = filteredAufgaben.filter(a => a.status === 'in_arbeit');
   const erledigtAufgaben = filteredAufgaben.filter(a => a.status === 'erledigt');
-  const meineAufgaben = filteredAufgaben.filter(a => a.zugewiesen_an === currentUserId);
+  const meineAufgaben = filteredAufgaben.filter(a => a.zugewiesen_an === user?.id);
 
   const priorityColors = {
     niedrig: "text-gray-400",
