@@ -283,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
     setCurrentOrg(org);
     localStorage.setItem('currentOrgId', orgId);
     setShowOrgSwitcher(false);
-    window.location.reload();
+    // Entfernt: window.location.reload() - nicht nötig mit React Router
   };
 
   const handleLogout = async () => {
