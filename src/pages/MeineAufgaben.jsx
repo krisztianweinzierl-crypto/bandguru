@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -255,7 +254,8 @@ export default function MeineAufgabenPage() {
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <Circle className="w-5 h-5 text-gray-600" />
                 </div>
-              </CardHeader>
+              </div>
+            </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-gray-900">{offeneAufgaben.length}</p>
             </CardContent>
