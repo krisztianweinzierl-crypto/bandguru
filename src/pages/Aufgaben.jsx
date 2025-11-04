@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -380,6 +381,8 @@ export default function AufgabenPage() {
     if (!selectedAufgabe) return null;
 
     const assignedMitglied = mitglieder.find(m => m.user_id === selectedAufgabe.zugewiesen_an);
+    const unteraufgaben = unteraufgabenMap[selectedAufgabe.id] || [];
+    const hasUnteraufgaben = unteraufgaben.length > 0;
 
     return (
       <>
@@ -434,6 +437,11 @@ export default function AufgabenPage() {
               }>
                 {selectedAufgabe.status}
               </Badge>
+              {hasUnteraufgaben && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length} Unteraufgaben
+                </Badge>
+              )}
             </div>
 
             {/* Details */}
@@ -463,6 +471,82 @@ export default function AufgabenPage() {
                     <span className="text-gray-900">
                       {format(new Date(selectedAufgabe.faellig_am), 'dd. MMMM yyyy', { locale: de })}
                     </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Unteraufgaben Sektion */}
+              {hasUnteraufgaben && (
+                <div className="border-t pt-6">
+                  <Label className="text-sm font-semibold text-gray-700 mb-3 block">
+                    Unteraufgaben ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                  </Label>
+                  <div className="space-y-2">
+                    {unteraufgaben.map((unteraufgabe) => {
+                      const isOverdue = unteraufgabe.faellig_am && new Date(unteraufgabe.faellig_am) < new Date() && unteraufgabe.status !== 'erledigt';
+                      const assignedMitgliedSub = mitglieder.find(m => m.user_id === unteraufgabe.zugewiesen_an);
+                      
+                      return (
+                        <div 
+                          key={unteraufgabe.id}
+                          className={`flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+                            unteraufgabe.status === 'erledigt' ? 'opacity-60' : ''
+                          }`}
+                        >
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusToggle(unteraufgabe);
+                            }}
+                            className="mt-0.5"
+                          >
+                            {unteraufgabe.status === 'erledigt' ? (
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            ) : (
+                              <Circle className={`w-5 h-5 ${priorityColors[unteraufgabe.prioritaet]}`} />
+                            )}
+                          </button>
+
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-medium ${
+                              unteraufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'
+                            }`}>
+                              {unteraufgabe.titel}
+                            </p>
+                            
+                            {unteraufgabe.beschreibung && (
+                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                {unteraufgabe.beschreibung}
+                              </p>
+                            )}
+
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              {unteraufgabe.faellig_am && (
+                                <div className={`flex items-center gap-1 text-xs ${
+                                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
+                                }`}>
+                                  <CalendarIcon className="w-3 h-3" />
+                                  {format(new Date(unteraufgabe.faellig_am), 'dd. MMM', { locale: de })}
+                                </div>
+                              )}
+
+                              {assignedMitgliedSub && (
+                                <Badge variant="outline" className="text-xs">
+                                  <User className="w-3 h-3 mr-1" />
+                                  {assignedMitgliedSub.rolle}
+                                </Badge>
+                              )}
+
+                              {unteraufgabe.prioritaet !== 'normal' && (
+                                <Badge className={`${priorityBadges[unteraufgabe.prioritaet]} text-xs`}>
+                                  {unteraufgabe.prioritaet}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
