@@ -219,9 +219,11 @@ export default function NachrichtenPage() {
       .map(id => {
         const mitglied = mitglieder.find(m => m.user_id === id);
         const user = allUsers.find(u => u.id === id);
+        // Verwende invite_name, invite_email, dann rolle als Fallback, wenn kein Name über den User verfügbar ist
+        const displayName = user?.full_name || user?.email || mitglied?.invite_name || mitglied?.invite_email || mitglied?.rolle || 'Unbekannt';
         return {
           ...mitglied,
-          user_name: user?.full_name || user?.email || mitglied?.rolle || 'Unbekannt'
+          user_name: displayName
         };
       })
       .filter(Boolean) || [];
@@ -617,7 +619,8 @@ export default function NachrichtenPage() {
                     .filter(m => m.user_id !== currentUser?.id)
                     .map((mitglied) => {
                       const user = allUsers.find(u => u.id === mitglied.user_id);
-                      const displayName = user?.full_name || user?.email || mitglied.rolle || 'Unbekannt';
+                      // Priorisiere User-Informationen, dann invite-Informationen vom Mitglied, dann Rolle
+                      const displayName = user?.full_name || user?.email || mitglied.invite_name || mitglied.invite_email || mitglied.rolle || 'Unbekannt';
                       
                       return (
                         <div
@@ -642,8 +645,8 @@ export default function NachrichtenPage() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm">{displayName}</p>
-                            <p className="text-xs text-gray-500">{mitglied.rolle}</p>
+                            <p className="font-medium text-sm truncate">{displayName}</p>
+                            <p className="text-xs text-gray-500 truncate">{mitglied.rolle}</p>
                           </div>
                         </div>
                       );
