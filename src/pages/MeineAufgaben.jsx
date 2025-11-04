@@ -41,20 +41,10 @@ export default function MeineAufgabenPage() {
 
   const { data: aufgaben = [], isLoading } = useQuery({
     queryKey: ['meine-aufgaben', currentOrgId, user?.id],
-    queryFn: async () => {
-      if (!currentOrgId || !user?.id) return [];
-      
-      // Lade alle Aufgaben der Organisation
-      const allAufgaben = await base44.entities.Aufgabe.filter({ 
-        org_id: currentOrgId
-      }, '-faellig_am');
-      
-      // Filtere: Nur eigene erstellte ODER zugewiesene Aufgaben
-      return allAufgaben.filter(a => 
-        a.created_by === user.email || // Eigene erstellte Aufgaben
-        a.zugewiesen_an === user.id    // Zugewiesene Aufgaben
-      );
-    },
+    queryFn: () => base44.entities.Aufgabe.filter({ 
+      org_id: currentOrgId,
+      zugewiesen_an: user?.id
+    }, '-faellig_am'),
     enabled: !!currentOrgId && !!user?.id,
   });
 
