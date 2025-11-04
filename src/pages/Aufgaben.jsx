@@ -44,6 +44,7 @@ const createPageUrl = (pageName) => {
 export default function AufgabenPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isManager, setIsManager] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingAufgabe, setEditingAufgabe] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,6 +61,18 @@ export default function AufgabenPage() {
   const loadUser = async () => {
     const user = await base44.auth.me();
     setCurrentUserId(user.id);
+
+    // Prüfe Rolle
+    const orgId = localStorage.getItem('currentOrgId');
+    if (orgId) {
+      const mitgliedschaften = await base44.entities.Mitglied.filter({
+        user_id: user.id,
+        org_id: orgId,
+        status: "aktiv"
+      });
+      const mitglied = mitgliedschaften[0];
+      setIsManager(mitglied?.rolle === "Band Manager");
+    }
   };
 
   const { data: aufgaben = [] } = useQuery({
@@ -235,9 +248,19 @@ export default function AufgabenPage() {
     setExpandedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
+  // Filter Aufgaben basierend auf Rolle
+  const visibleAufgaben = isManager
+    ? aufgaben
+    : aufgaben.filter(aufgabe => {
+        // Musiker sieht nur:
+        // 1. Eigene erstellte Aufgaben (created_by)
+        // 2. Ihm zugewiesene Aufgaben (zugewiesen_an)
+        return aufgabe.created_by === currentUserId || aufgabe.zugewiesen_an === currentUserId;
+      });
+
   // Aufgaben filtern und gruppieren
-  const hauptAufgaben = aufgaben.filter(a => !a.parent_task_id);
-  const unteraufgabenMap = aufgaben.reduce((acc, aufgabe) => {
+  const hauptAufgaben = visibleAufgaben.filter(a => !a.parent_task_id);
+  const unteraufgabenMap = visibleAufgaben.reduce((acc, aufgabe) => {
     if (aufgabe.parent_task_id) {
       if (!acc[aufgabe.parent_task_id]) acc[aufgabe.parent_task_id] = [];
       acc[aufgabe.parent_task_id].push(aufgabe);
@@ -415,18 +438,22 @@ export default function AufgabenPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Aufgaben</h1>
-            <p className="text-gray-600">Organisiere und verfolge deine Aufgaben</p>
+            <p className="text-gray-600">
+              {isManager ? 'Organisiere und verfolge deine Aufgaben' : 'Deine Aufgaben'}
+            </p>
           </div>
-          <Button
-            onClick={() => {
-              setEditingAufgabe(null);
-              setShowForm(true);
-            }}
-            className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Neue Aufgabe
-          </Button>
+          {isManager && (
+            <Button
+              onClick={() => {
+                setEditingAufgabe(null);
+                setShowForm(true);
+              }}
+              className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Neue Aufgabe
+            </Button>
+          )}
         </div>
 
         {/* Search & Filter */}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -30,6 +31,9 @@ import EventForm from "@/components/events/EventForm";
 export default function KalenderPage() {
   const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [isManager, setIsManager] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState("month"); // month, week, list
   const [selectedDate, setSelectedDate] = useState(null);
@@ -41,7 +45,41 @@ export default function KalenderPage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+    const loadUserData = async () => {
+      const orgId = localStorage.getItem('currentOrgId');
+      setCurrentOrgId(orgId);
+
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+
+      if (!orgId || !user) return;
+
+      // Prüfe Rolle
+      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        user_id: user.id,
+        org_id: orgId,
+        status: "aktiv" 
+      });
+      const mitglied = mitgliedschaften[0];
+      setIsManager(mitglied?.rolle === "Band Manager");
+
+      // Wenn Musiker, lade Musiker-Profil
+      if (mitglied?.rolle === "Musiker") {
+        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
+        const musikerProfil = alleMusiker.find(m => 
+          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        );
+        setCurrentMusiker(musikerProfil);
+        // If current user is a musician, automatically filter by their events
+        if (musikerProfil) {
+          setFilterMusiker(musikerProfil.id);
+        }
+      } else {
+        // If not a musician, ensure filterMusiker is 'alle'
+        setFilterMusiker("alle");
+      }
+    };
+    loadUserData();
   }, []);
 
   const { data: events = [] } = useQuery({
@@ -69,42 +107,60 @@ export default function KalenderPage() {
   });
 
   const { data: eventMusiker = [] } = useQuery({
-    queryKey: ['eventMusiker', currentOrgId],
+    queryKey: ['eventMusiker', currentOrgId, currentMusiker?.id, events.length > 0], // Depend on events.length to ensure events are fetched
     queryFn: async () => {
-      if (!currentOrgId) return [];
+      if (!currentOrgId || !events || events.length === 0) return [];
       const allEventMusiker = await base44.entities.EventMusiker.filter({});
-      // Filter nur Events dieser Organisation
+      
+      // Filter EventMusiker records only for events belonging to this organization
       const orgEventIds = events.map(e => e.id);
-      return allEventMusiker.filter(em => orgEventIds.includes(em.event_id));
+      const filteredOrgEventMusiker = allEventMusiker.filter(em => orgEventIds.includes(em.event_id));
+      
+      // If current user is a musician, further filter to only include their 'zugesagt' events
+      if (currentMusiker) {
+        return filteredOrgEventMusiker.filter(em => 
+          em.musiker_id === currentMusiker.id && em.status === 'zugesagt'
+        );
+      }
+      return filteredOrgEventMusiker;
     },
-    enabled: !!currentOrgId && events.length > 0,
+    enabled: !!currentOrgId && events.length > 0, // Ensure events are loaded before fetching eventMusiker
   });
 
   const createEventMutation = useMutation({
     mutationFn: (data) => base44.entities.Event.create({ ...data, org_id: currentOrgId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['eventMusiker'] }); // Invalidate eventMusiker too
       setShowEventForm(false);
       setSelectedDate(null);
     },
   });
 
+  // Filter Events basierend auf Rolle
+  const visibleEvents = isManager 
+    ? events 
+    : events.filter(event => {
+        // Musiker sieht nur Events bei denen er teilnimmt und zugesagt hat
+        return eventMusiker.some(em => em.event_id === event.id);
+      });
+
   // Filter Events
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = visibleEvents.filter(event => {
     // Status Filter
     if (filterStatus !== "alle" && event.status !== filterStatus) return false;
 
-    // Musiker Filter
+    // Musiker Filter (nur für Manager relevant, oder wenn ein Musiker explizit ausgewählt wurde)
     if (filterMusiker !== "alle") {
       const eventMusikerForEvent = eventMusiker.filter(em => em.event_id === event.id);
       const hasMusikerInEvent = eventMusikerForEvent.some(em => em.musiker_id === filterMusiker);
       if (!hasMusikerInEvent) return false;
     }
-
+    
     // Lead Filter (über Kunde)
     if (filterLead !== "alle") {
       const lead = leads.find(l => l.id === filterLead);
-      if (!lead || event.kunde_id !== lead.firmenname) return false;
+      if (!lead || event.kunde_id !== lead.firmenname) return false; // Assuming kunde_id stores firmenname from lead
     }
 
     return true;
@@ -129,6 +185,8 @@ export default function KalenderPage() {
       setCurrentDate(subMonths(currentDate, 1));
     } else if (viewMode === "week") {
       setCurrentDate(addDays(currentDate, -7));
+    } else if (viewMode === "list") {
+      setCurrentDate(subMonths(currentDate, 1)); // For list view, navigate by month
     }
   };
 
@@ -137,6 +195,8 @@ export default function KalenderPage() {
       setCurrentDate(addMonths(currentDate, 1));
     } else if (viewMode === "week") {
       setCurrentDate(addDays(currentDate, 7));
+    } else if (viewMode === "list") {
+      setCurrentDate(addMonths(currentDate, 1)); // For list view, navigate by month
     }
   };
 
@@ -145,8 +205,14 @@ export default function KalenderPage() {
   };
 
   const handleDateClick = (date) => {
-    setSelectedDate(date);
-    setShowEventForm(true);
+    // Only allow event creation for managers
+    if (isManager) {
+      setSelectedDate(date);
+      setShowEventForm(true);
+    } else {
+      // Maybe show a message or just do nothing for non-managers
+      // console.log("Only managers can create events.");
+    }
   };
 
   const handleEventClick = (event, e) => {
@@ -236,9 +302,9 @@ export default function KalenderPage() {
     return (
       <div className="space-y-0">
         {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-gray-100 border border-gray-200">
+        <div className="grid grid-cols-7">
           {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
-            <div key={day} className="p-2 text-center text-sm font-semibold text-gray-700">
+            <div key={day} className="p-2 text-center text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-200">
               {day}
             </div>
           ))}
@@ -411,16 +477,18 @@ export default function KalenderPage() {
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Kalender</h1>
               <p className="text-gray-600">Visualisiere alle deine Events</p>
             </div>
-            <Button
-              onClick={() => {
-                setSelectedDate(new Date());
-                setShowEventForm(true);
-              }}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Event erstellen
-            </Button>
+            {isManager && ( // Only show create event button for managers
+              <Button
+                onClick={() => {
+                  setSelectedDate(new Date());
+                  setShowEventForm(true);
+                }}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Event erstellen
+              </Button>
+            )}
           </div>
 
           {/* Controls */}
@@ -448,14 +516,16 @@ export default function KalenderPage() {
 
                 {/* View Mode & Filters */}
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant={showFilters ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    <Filter className="w-4 h-4 mr-2" />
-                    Filter
-                  </Button>
+                  {isManager && ( // Only show filter button for managers
+                    <Button
+                      variant={showFilters ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowFilters(!showFilters)}
+                    >
+                      <Filter className="w-4 h-4 mr-2" />
+                      Filter
+                    </Button>
+                  )}
                   
                   <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                     <Button
@@ -487,7 +557,7 @@ export default function KalenderPage() {
               </div>
 
               {/* Filters */}
-              {showFilters && (
+              {isManager && showFilters && ( // Only show filters for managers
                 <div className="mt-4 pt-4 border-t grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label>Status</Label>
@@ -554,38 +624,40 @@ export default function KalenderPage() {
         </div>
 
         {/* Event Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="border-none shadow-md">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-gray-900">{filteredEvents.length}</div>
-              <div className="text-sm text-gray-500">Events gesamt</div>
-            </CardContent>
-          </Card>
-          <Card className="border-none shadow-md">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">
-                {filteredEvents.filter(e => e.status === 'bestätigt').length}
-              </div>
-              <div className="text-sm text-gray-500">Bestätigt</div>
-            </CardContent>
-          </Card>
-          <Card className="border-none shadow-md">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-orange-600">
-                {filteredEvents.filter(e => e.status === 'angefragt').length}
-              </div>
-              <div className="text-sm text-gray-500">Angefragt</div>
-            </CardContent>
-          </Card>
-          <Card className="border-none shadow-md">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-600">
-                {filteredEvents.filter(e => new Date(e.datum_von) > new Date()).length}
-              </div>
-              <div className="text-sm text-gray-500">Anstehend</div>
-            </CardContent>
-          </Card>
-        </div>
+        {isManager && ( // Only show stats for managers
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="border-none shadow-md">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-gray-900">{filteredEvents.length}</div>
+                <div className="text-sm text-gray-500">Events gesamt</div>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-green-600">
+                  {filteredEvents.filter(e => e.status === 'bestätigt').length}
+                </div>
+                <div className="text-sm text-gray-500">Bestätigt</div>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-orange-600">
+                  {filteredEvents.filter(e => e.status === 'angefragt').length}
+                </div>
+                <div className="text-sm text-gray-500">Angefragt</div>
+              </CardContent>
+            </Card>
+            <Card className="border-none shadow-md">
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold text-blue-600">
+                  {filteredEvents.filter(e => new Date(e.datum_von) > new Date()).length}
+                </div>
+                <div className="text-sm text-gray-500">Anstehend</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
       {/* Event Form Modal */}

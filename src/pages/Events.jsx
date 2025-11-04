@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,6 +22,9 @@ import EventForm from "@/components/events/EventForm";
 
 export default function EventsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [isManager, setIsManager] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
@@ -30,8 +32,32 @@ export default function EventsPage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const orgId = localStorage.getItem('currentOrgId');
-    setCurrentOrgId(orgId);
+    const loadUserData = async () => {
+      const orgId = localStorage.getItem('currentOrgId');
+      setCurrentOrgId(orgId);
+
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+
+      // Prüfe Rolle
+      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        user_id: user.id,
+        org_id: orgId,
+        status: "aktiv" 
+      });
+      const mitglied = mitgliedschaften[0];
+      setIsManager(mitglied?.rolle === "Band Manager");
+
+      // Wenn Musiker, lade Musiker-Profil
+      if (mitglied?.rolle === "Musiker") {
+        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
+        const musikerProfil = alleMusiker.find(m => 
+          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        );
+        setCurrentMusiker(musikerProfil);
+      }
+    };
+    loadUserData();
   }, []);
 
   const { data: events = [], isLoading } = useQuery({
@@ -44,6 +70,19 @@ export default function EventsPage() {
     queryKey: ['kunden', currentOrgId],
     queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }),
     enabled: !!currentOrgId,
+  });
+
+  // Lade EventMusiker wenn Musiker
+  const { data: eventMusiker = [] } = useQuery({
+    queryKey: ['eventMusiker', currentMusiker?.id],
+    queryFn: async () => {
+      const result = await base44.entities.EventMusiker.filter({ 
+        musiker_id: currentMusiker.id,
+        status: 'zugesagt'
+      });
+      return result;
+    },
+    enabled: !!currentMusiker?.id,
   });
 
   const createEventMutation = useMutation({
@@ -65,7 +104,15 @@ export default function EventsPage() {
     }
   });
 
-  const filteredEvents = events.filter(event => {
+  // Filter Events basierend auf Rolle
+  const visibleEvents = isManager 
+    ? events 
+    : events.filter(event => {
+        // Musiker sieht nur Events bei denen er teilnimmt
+        return eventMusiker.some(em => em.event_id === event.id);
+      });
+
+  const filteredEvents = visibleEvents.filter(event => {
     const matchesSearch = event.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.ort_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "alle" || event.status === statusFilter;
@@ -204,15 +251,19 @@ export default function EventsPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Events</h1>
-            <p className="text-gray-600">Verwalte alle deine Veranstaltungen</p>
+            <p className="text-gray-600">
+              {isManager ? 'Verwalte alle deine Veranstaltungen' : 'Deine zugesagten Events'}
+            </p>
           </div>
-          <Button 
-            onClick={() => setShowForm(true)}
-            className="bg-slate-800 hover:bg-slate-900 text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Event erstellen
-          </Button>
+          {isManager && (
+            <Button 
+              onClick={() => setShowForm(true)}
+              className="bg-slate-800 hover:bg-slate-900 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Event erstellen
+            </Button>
+          )}
         </div>
 
         <Card className="mb-6 border-none shadow-md">
@@ -266,7 +317,7 @@ export default function EventsPage() {
           </CardContent>
         </Card>
 
-        {showForm && (
+        {showForm && isManager && (
           <div className="mb-6">
             <EventForm 
               onSubmit={handleSubmit}
@@ -340,11 +391,15 @@ export default function EventsPage() {
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine anstehenden Events</h3>
-                  <p className="text-gray-500 mb-4">Erstelle dein erstes Event</p>
-                  <Button onClick={() => setShowForm(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Event erstellen
-                  </Button>
+                  <p className="text-gray-500 mb-4">
+                    {isManager ? 'Erstelle dein erstes Event' : 'Du hast aktuell keine zugesagten Events'}
+                  </p>
+                  {isManager && (
+                    <Button onClick={() => setShowForm(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Event erstellen
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             )}

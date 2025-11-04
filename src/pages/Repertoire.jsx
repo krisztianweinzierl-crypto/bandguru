@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload } from "lucide-react";
+import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,9 @@ import SongImport from "@/components/repertoire/SongImport"; // Added import for
 
 export default function RepertoirePage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [isManager, setIsManager] = useState(false);
   const [activeTab, setActiveTab] = useState("bibliothek");
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("alle");
@@ -26,7 +29,34 @@ export default function RepertoirePage() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+    const loadUserData = async () => {
+      const orgId = localStorage.getItem('currentOrgId');
+      setCurrentOrgId(orgId);
+
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+
+      if (!orgId || !user) return;
+
+      // Prüfe Rolle
+      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        user_id: user.id,
+        org_id: orgId,
+        status: "aktiv" 
+      });
+      const mitglied = mitgliedschaften[0];
+      setIsManager(mitglied?.rolle === "Band Manager");
+
+      // Wenn Musiker, lade Musiker-Profil
+      if (mitglied?.rolle === "Musiker") {
+        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
+        const musikerProfil = alleMusiker.find(m => 
+          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        );
+        setCurrentMusiker(musikerProfil);
+      }
+    };
+    loadUserData();
   }, []);
 
   const { data: songs = [] } = useQuery({
@@ -45,6 +75,19 @@ export default function RepertoirePage() {
     queryKey: ['events', currentOrgId],
     queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
     enabled: !!currentOrgId,
+  });
+
+  // Lade EventMusiker wenn Musiker
+  const { data: eventMusiker = [] } = useQuery({
+    queryKey: ['eventMusiker', currentMusiker?.id],
+    queryFn: async () => {
+      const result = await base44.entities.EventMusiker.filter({ 
+        musiker_id: currentMusiker.id,
+        status: 'zugesagt'
+      });
+      return result;
+    },
+    enabled: !!currentMusiker?.id,
   });
 
   const createSongMutation = useMutation({
@@ -97,6 +140,24 @@ export default function RepertoirePage() {
     },
   });
 
+  // Filter Events und Setlisten basierend auf Rolle
+  const visibleEvents = isManager 
+    ? events 
+    : events.filter(event => {
+        // Musiker sieht nur Events bei denen er teilnimmt
+        return eventMusiker.some(em => em.event_id === event.id);
+      });
+
+  const visibleSetlists = isManager
+    ? setlists
+    : setlists.filter(setlist => {
+        // Musiker sieht nur Setlisten von seinen Events
+        return visibleEvents.some(e => e.id === setlist.event_id);
+      });
+
+  // Songs und Setlists sind für Musiker nur zugänglich wenn sie Teil eines zugesagten Events sind
+  const hasAccess = isManager || (currentMusiker && eventMusiker.length > 0);
+
   const handleSongSubmit = (data) => {
     if (editingSong) {
       updateSongMutation.mutate({ id: editingSong.id, data });
@@ -126,7 +187,7 @@ export default function RepertoirePage() {
     return matchesSearch && matchesGenre;
   });
 
-  const filteredSetlists = setlists.filter(s => 
+  const filteredSetlists = visibleSetlists.filter(s => 
     s.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -144,12 +205,39 @@ export default function RepertoirePage() {
 
   const allGenres = [...new Set(songs.flatMap(s => s.tags || []))];
 
+  if (!currentOrgId || !currentUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+        <p className="text-gray-600">Lade...</p>
+      </div>
+    );
+  }
+
+  // Wenn Musiker ohne Zugriff
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+            <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf Repertoire</h3>
+            <p className="text-sm text-gray-600">
+              Du siehst das Repertoire, sobald du zu einem Event zugesagt hast.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Repertoire</h1>
-          <p className="text-gray-600">Verwalte deine Songs und Setlisten</p>
+          <p className="text-gray-600">
+            {isManager ? 'Verwalte deine Songs und Setlisten' : 'Songs und Setlisten deiner Events'}
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -161,8 +249,8 @@ export default function RepertoirePage() {
             </TabsTrigger>
             <TabsTrigger value="setlists" className="gap-2">
               <List className="w-4 h-4" />
-              Setlists
-              <Badge variant="secondary" className="ml-2">{setlists.length}</Badge>
+              Setlisten
+              <Badge variant="secondary" className="ml-2">{visibleSetlists.length}</Badge>
             </TabsTrigger>
           </TabsList>
 
@@ -173,29 +261,34 @@ export default function RepertoirePage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-blue-900">
-                    Sie sehen alle {songs.length} Songs in der Bibliothek
+                    {isManager 
+                      ? `Sie sehen alle ${songs.length} Songs in der Bibliothek` 
+                      : `Du siehst ${songs.length} Songs für deine Events`
+                    }
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  onClick={() => setShowImport(true)} // Updated onClick handler
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Importieren
-                </Button>
-                <Button 
-                  onClick={() => {
-                    setEditingSong(null);
-                    setShowSongForm(true);
-                  }}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Song hinzufügen
-                </Button>
-              </div>
+              {isManager && (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowImport(true)}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Importieren
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setEditingSong(null);
+                      setShowSongForm(true);
+                    }}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Song hinzufügen
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Import Component */}
@@ -261,7 +354,7 @@ export default function RepertoirePage() {
                       <th className="text-left p-4 font-semibold text-gray-700">Noten</th>
                       <th className="text-left p-4 font-semibold text-gray-700">YouTube</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Drive</th>
-                      <th className="text-right p-4 font-semibold text-gray-700">Aktionen</th>
+                      <th className="text-left p-4 font-semibold text-gray-700">Aktionen</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -310,24 +403,28 @@ export default function RepertoirePage() {
                                   Noten ansehen
                                 </Button>
                               )}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setEditingSong(song);
-                                  setShowSongForm(true);
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeleteSong(song)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                              {isManager && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setEditingSong(song);
+                                      setShowSongForm(true);
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleDeleteSong(song)}
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -337,11 +434,15 @@ export default function RepertoirePage() {
                         <td colSpan="9" className="p-12 text-center">
                           <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Songs gefunden</h3>
-                          <p className="text-gray-500 mb-4">Füge deinen ersten Song hinzu</p>
-                          <Button onClick={() => setShowSongForm(true)}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Song hinzufügen
-                          </Button>
+                          <p className="text-gray-500 mb-4">
+                            {isManager ? "Füge deinen ersten Song hinzu" : "Für dieses Repertoire sind noch keine Songs verfügbar."}
+                          </p>
+                          {isManager && (
+                            <Button onClick={() => setShowSongForm(true)}>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Song hinzufügen
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     )}
@@ -358,20 +459,25 @@ export default function RepertoirePage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-blue-900">
-                    Du siehst alle Setlists (Owner-Modus)
+                    {isManager
+                      ? 'Du siehst alle Setlists (Owner-Modus)'
+                      : `Du siehst ${visibleSetlists.length} Setlisten für deine Events`
+                    }
                   </p>
                 </div>
               </div>
-              <Button 
-                onClick={() => {
-                  setEditingSetlist(null);
-                  setShowSetlistForm(true);
-                }}
-                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Neue Setlist
-              </Button>
+              {isManager && (
+                <Button 
+                  onClick={() => {
+                    setEditingSetlist(null);
+                    setShowSetlistForm(true);
+                  }}
+                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Neue Setlist
+                </Button>
+              )}
             </div>
 
             {showSetlistForm && (
@@ -406,7 +512,7 @@ export default function RepertoirePage() {
             {filteredSetlists.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSetlists.map((setlist) => {
-                  const event = events.find(e => e.id === setlist.event_id);
+                  const event = visibleEvents.find(e => e.id === setlist.event_id);
                   const songCount = setlist.songs?.length || 0;
                   
                   return (
@@ -441,27 +547,29 @@ export default function RepertoirePage() {
                           {songCount} {songCount === 1 ? 'Song' : 'Songs'}
                         </div>
 
-                        <div className="flex gap-2 pt-4 border-t">
-                          <Button
-                            variant="default"
-                            className="flex-1 bg-gray-900 hover:bg-gray-800"
-                            onClick={() => {
-                              setEditingSetlist(setlist);
-                              setShowSetlistForm(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleDeleteSetlist(setlist)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        {isManager && (
+                          <div className="flex gap-2 pt-4 border-t">
+                            <Button
+                              variant="default"
+                              className="flex-1 bg-gray-900 hover:bg-gray-800"
+                              onClick={() => {
+                                setEditingSetlist(setlist);
+                                setShowSetlistForm(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Bearbeiten
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleDeleteSetlist(setlist)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   );
@@ -472,11 +580,15 @@ export default function RepertoirePage() {
                 <CardContent className="p-12 text-center">
                   <List className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine Setlists gefunden</h3>
-                  <p className="text-gray-500 mb-4">Erstelle deine erste Setlist</p>
-                  <Button onClick={() => setShowSetlistForm(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Neue Setlist
-                  </Button>
+                  <p className="text-gray-500 mb-4">
+                    {isManager ? 'Erstelle deine erste Setlist' : 'Keine Setlisten für deine Events'}
+                  </p>
+                  {isManager && (
+                    <Button onClick={() => setShowSetlistForm(true)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Neue Setlist
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             )}
