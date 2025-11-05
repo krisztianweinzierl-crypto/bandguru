@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -197,9 +198,10 @@ export default function RechnungenPage() {
             <p className="text-gray-600">Erstelle und verwalte deine Rechnungen</p>
           </div>
           <Button
-            onClick={() => setShowForm(true)} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-
-
+            onClick={() => setShowForm(true)}
+            style={{ backgroundColor: '#223a5e' }}
+            className="text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:opacity-90"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Neue Rechnung
           </Button>
