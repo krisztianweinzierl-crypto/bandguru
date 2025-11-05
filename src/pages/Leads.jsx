@@ -32,13 +32,13 @@ export default function LeadsPage() {
   const { data: leads = [] } = useQuery({
     queryKey: ['leads', currentOrgId],
     queryFn: () => base44.entities.Lead.filter({ org_id: currentOrgId }, '-created_date'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: currentOrgId, status: "aktiv" }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const createLeadMutation = useMutation({
@@ -47,7 +47,7 @@ export default function LeadsPage() {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setShowForm(false);
       setEditingLead(null);
-    },
+    }
   });
 
   const updateLeadMutation = useMutation({
@@ -57,7 +57,7 @@ export default function LeadsPage() {
       setShowForm(false);
       setEditingLead(null);
       setShowDropdownId(null);
-    },
+    }
   });
 
   const deleteLeadMutation = useMutation({
@@ -65,14 +65,14 @@ export default function LeadsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setShowDropdownId(null);
-    },
+    }
   });
 
-  const filteredLeads = leads.filter(l => {
-    const matchesSearch = 
-      l.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.firmenname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.kontaktperson?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredLeads = leads.filter((l) => {
+    const matchesSearch =
+    l.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.firmenname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.kontaktperson?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "alle" || l.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -80,14 +80,14 @@ export default function LeadsPage() {
   // Note: The following variables (offeneLeads, ueberfaelligeLeads, bezahlteLeads)
   // are defined in the outline but not used in the final return JSX structure.
   // They are kept as per the outline's instruction.
-  const offeneLeads = filteredLeads.filter(l => 
-    ['versendet', 'teilweise_bezahlt'].includes(l.status)
+  const offeneLeads = filteredLeads.filter((l) =>
+  ['versendet', 'teilweise_bezahlt'].includes(l.status)
   );
-  const ueberfaelligeLeads = filteredLeads.filter(l => 
-    l.status === 'überfällig' || 
-    (l.status === 'versendet' && new Date(l.faelligkeitsdatum) < new Date())
+  const ueberfaelligeLeads = filteredLeads.filter((l) =>
+  l.status === 'überfällig' ||
+  l.status === 'versendet' && new Date(l.faelligkeitsdatum) < new Date()
   );
-  const bezahlteLeads = filteredLeads.filter(l => l.status === 'bezahlt');
+  const bezahlteLeads = filteredLeads.filter((l) => l.status === 'bezahlt');
 
   const statusColors = {
     neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400" },
@@ -135,13 +135,13 @@ export default function LeadsPage() {
 
   const LeadCard = ({ lead }) => {
     const statusStyle = statusColors[lead.status] || statusColors.neu;
-    const assignedMitglied = mitglieder.find(m => m.user_id === lead.zugewiesen_an);
+    const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
 
     return (
-      <Card 
+      <Card
         className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
-        onClick={() => handleCardClick(lead.id)}
-      >
+        onClick={() => handleCardClick(lead.id)}>
+
         <CardHeader className="pb-4">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
@@ -149,55 +149,55 @@ export default function LeadsPage() {
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{lead.titel}</CardTitle>
-              {lead.firmenname && (
-                <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
-              )}
+              {lead.firmenname &&
+              <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+              }
             </div>
             <div className="relative">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowDropdownId(showDropdownId === lead.id ? null : lead.id);
-                }}
-              >
+                }}>
+
                 <MoreVertical className="w-4 h-4" />
               </Button>
 
-              {showDropdownId === lead.id && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDropdownId(null);
-                    }}
-                  />
+              {showDropdownId === lead.id &&
+              <>
+                  <div
+                  className="fixed inset-0 z-40"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDropdownId(null);
+                  }} />
+
                   <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(lead);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                    >
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(lead);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
+
                       <Edit className="w-4 h-4 text-gray-600" />
                       <span className="text-sm font-medium">Lead bearbeiten</span>
                     </button>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(lead);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                    >
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(lead);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t">
+
                       <Trash2 className="w-4 h-4" />
                       <span className="text-sm font-medium">Lead löschen</span>
                     </button>
                   </div>
                 </>
-              )}
+              }
             </div>
           </div>
           <div className="mt-3">
@@ -207,56 +207,56 @@ export default function LeadsPage() {
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
-          {lead.kontaktperson && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          {lead.kontaktperson &&
+          <div className="flex items-center gap-2 text-sm text-gray-600">
               <User className="w-4 h-4 text-gray-400" />
               <span className="truncate">{lead.kontaktperson}</span>
             </div>
-          )}
-          {lead.email && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          }
+          {lead.email &&
+          <div className="flex items-center gap-2 text-sm text-gray-600">
               <Mail className="w-4 h-4 text-gray-400" />
               <span className="truncate">{lead.email}</span>
             </div>
-          )}
-          {lead.telefon && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          }
+          {lead.telefon &&
+          <div className="flex items-center gap-2 text-sm text-gray-600">
               <Phone className="w-4 h-4 text-gray-400" />
               <span>{lead.telefon}</span>
             </div>
-          )}
-          {lead.event_datum && (
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          }
+          {lead.event_datum &&
+          <div className="flex items-center gap-2 text-sm text-gray-600">
               <Calendar className="w-4 h-4 text-gray-400" />
               <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
-          )}
-          {lead.erwarteter_umsatz && (
-            <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+          }
+          {lead.erwarteter_umsatz &&
+          <div className="flex items-center gap-2 text-sm font-medium text-green-600">
               <Euro className="w-4 h-4" />
               <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
             </div>
-          )}
-          {assignedMitglied && (
-            <div className="text-xs text-gray-500 mt-2">
+          }
+          {assignedMitglied &&
+          <div className="text-xs text-gray-500 mt-2">
               Zugewiesen an: {assignedMitglied.rolle}
             </div>
-          )}
+          }
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   };
 
   const LeadListItem = ({ lead }) => {
     const statusStyle = statusColors[lead.status] || statusColors.neu;
-    const assignedMitglied = mitglieder.find(m => m.user_id === lead.zugewiesen_an);
+    const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
 
     return (
-      <div 
+      <div
         className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
-        onClick={() => handleCardClick(lead.id)}
-      >
-        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+        onClick={() => handleCardClick(lead.id)}>
+
+        <div className="bg-[#223a5e] text-white font-bold rounded-lg w-12 h-12 from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
           <Target className="w-6 h-6" />
         </div>
         
@@ -264,97 +264,97 @@ export default function LeadsPage() {
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg text-gray-900 truncate">{lead.titel}</h3>
-              {lead.firmenname && (
-                <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
-              )}
+              {lead.firmenname &&
+              <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+              }
             </div>
             <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
               {statusLabels[lead.status]}
             </Badge>
             <div className="relative flex-shrink-0">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowDropdownId(showDropdownId === lead.id ? null : lead.id);
-                }}
-              >
+                }}>
+
                 <MoreVertical className="w-4 h-4" />
               </Button>
 
-              {showDropdownId === lead.id && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDropdownId(null);
-                    }}
-                  />
+              {showDropdownId === lead.id &&
+              <>
+                  <div
+                  className="fixed inset-0 z-40"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDropdownId(null);
+                  }} />
+
                   <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(lead);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                    >
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(lead);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
+
                       <Edit className="w-4 h-4 text-gray-600" />
                       <span className="text-sm font-medium">Lead bearbeiten</span>
                     </button>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(lead);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                    >
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(lead);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t">
+
                       <Trash2 className="w-4 h-4" />
                       <span className="text-sm font-medium">Lead löschen</span>
                     </button>
                   </div>
                 </>
-              )}
+              }
             </div>
           </div>
           
           <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-            {lead.kontaktperson && (
-              <div className="flex items-center gap-1">
+            {lead.kontaktperson &&
+            <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
                 <span>{lead.kontaktperson}</span>
               </div>
-            )}
-            {lead.email && (
-              <div className="flex items-center gap-1">
+            }
+            {lead.email &&
+            <div className="flex items-center gap-1">
                 <Mail className="w-4 h-4" />
                 <span className="truncate">{lead.email}</span>
               </div>
-            )}
-            {lead.event_datum && (
-              <div className="flex items-center gap-1">
+            }
+            {lead.event_datum &&
+            <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
               </div>
-            )}
-            {lead.erwarteter_umsatz && (
-              <div className="flex items-center gap-1 font-medium text-green-600">
+            }
+            {lead.erwarteter_umsatz &&
+            <div className="flex items-center gap-1 font-medium text-green-600">
                 <Euro className="w-4 h-4" />
                 <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
               </div>
-            )}
+            }
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   };
 
   // Statistiken
   const gesamtUmsatzPotenzial = leads.reduce((sum, l) => sum + (l.erwarteter_umsatz || 0), 0);
-  const neueLeads = leads.filter(l => l.status === 'neu').length;
-  const aktiveLeads = leads.filter(l => ['kontaktiert', 'qualifiziert', 'angebot', 'verhandlung'].includes(l.status)).length;
-  const gewonneneLeads = leads.filter(l => l.status === 'gewonnen').length;
+  const neueLeads = leads.filter((l) => l.status === 'neu').length;
+  const aktiveLeads = leads.filter((l) => ['kontaktiert', 'qualifiziert', 'angebot', 'verhandlung'].includes(l.status)).length;
+  const gewonneneLeads = leads.filter((l) => l.status === 'gewonnen').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8">
@@ -364,13 +364,13 @@ export default function LeadsPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Leads</h1>
             <p className="text-gray-600">Verwalte deine Verkaufschancen</p>
           </div>
-          <Button 
+          <Button
             onClick={() => {
               setEditingLead(null);
               setShowForm(true);
-            }}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-          >
+            }} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+
+
             <Plus className="w-4 h-4 mr-2" />
             Lead anlegen
           </Button>
@@ -443,8 +443,8 @@ export default function LeadsPage() {
                   placeholder="Leads durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-48">
@@ -466,16 +466,16 @@ export default function LeadsPage() {
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
-                >
+                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
+
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
-                >
+                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
+
                   <List className="w-4 h-4" />
                 </Button>
               </div>
@@ -483,36 +483,36 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
-        {showForm && (
-          <div className="mb-6">
+        {showForm &&
+        <div className="mb-6">
             <LeadForm
-              lead={editingLead}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingLead(null);
-              }}
-              mitglieder={mitglieder}
-            />
-          </div>
-        )}
+            lead={editingLead}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingLead(null);
+            }}
+            mitglieder={mitglieder} />
 
-        {filteredLeads.length > 0 ? (
-          viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredLeads.map((lead) => (
-                <LeadCard key={lead.id} lead={lead} />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredLeads.map((lead) => (
-                <LeadListItem key={lead.id} lead={lead} />
-              ))}
-            </div>
-          )
-        ) : (
-          <Card className="border-dashed">
+          </div>
+        }
+
+        {filteredLeads.length > 0 ?
+        viewMode === "grid" ?
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredLeads.map((lead) =>
+          <LeadCard key={lead.id} lead={lead} />
+          )}
+            </div> :
+
+        <div className="space-y-3">
+              {filteredLeads.map((lead) =>
+          <LeadListItem key={lead.id} lead={lead} />
+          )}
+            </div> :
+
+
+        <Card className="border-dashed">
             <CardContent className="p-12 text-center">
               <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
@@ -523,8 +523,8 @@ export default function LeadsPage() {
               </Button>
             </CardContent>
           </Card>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
