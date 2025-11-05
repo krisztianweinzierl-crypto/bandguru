@@ -15,8 +15,8 @@ import {
   ChevronRight,
   Edit,
   Trash2,
-  X
-} from "lucide-react";
+  X } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -77,13 +77,13 @@ export default function AufgabenPage() {
   const { data: aufgaben = [] } = useQuery({
     queryKey: ['aufgaben', currentOrgId],
     queryFn: () => base44.entities.Aufgabe.filter({ org_id: currentOrgId }, '-created_date'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: currentOrgId, status: "aktiv" }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const createAufgabeMutation = useMutation({
@@ -94,18 +94,18 @@ export default function AufgabenPage() {
       });
 
       if (unteraufgaben && unteraufgaben.length > 0) {
-        const unteraufgabenPromises = unteraufgaben
-          .filter(u => u.titel && u.titel.trim())
-          .map(unteraufgabe =>
-            base44.entities.Aufgabe.create({
-              org_id: currentOrgId,
-              titel: unteraufgabe.titel,
-              prioritaet: unteraufgabe.prioritaet || "normal",
-              status: "offen",
-              parent_task_id: createdHauptaufgabe.id,
-              zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
-            })
-          );
+        const unteraufgabenPromises = unteraufgaben.
+        filter((u) => u.titel && u.titel.trim()).
+        map((unteraufgabe) =>
+        base44.entities.Aufgabe.create({
+          org_id: currentOrgId,
+          titel: unteraufgabe.titel,
+          prioritaet: unteraufgabe.prioritaet || "normal",
+          status: "offen",
+          parent_task_id: createdHauptaufgabe.id,
+          zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
+        })
+        );
 
         if (unteraufgabenPromises.length > 0) {
           await Promise.all(unteraufgabenPromises);
@@ -137,28 +137,28 @@ export default function AufgabenPage() {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
       setShowForm(false);
       setEditingAufgabe(null);
-    },
+    }
   });
 
   const updateAufgabeMutation = useMutation({
     mutationFn: async ({ aufgabeId, hauptaufgabe, unteraufgaben }) => {
-      const oldAufgabe = aufgaben.find(a => a.id === aufgabeId);
+      const oldAufgabe = aufgaben.find((a) => a.id === aufgabeId);
 
       await base44.entities.Aufgabe.update(aufgabeId, hauptaufgabe);
 
       if (unteraufgaben && unteraufgaben.length > 0) {
-        const unteraufgabenPromises = unteraufgaben
-          .filter(u => u.titel && u.titel.trim())
-          .map(unteraufgabe =>
-            base44.entities.Aufgabe.create({
-              org_id: currentOrgId,
-              titel: unteraufgabe.titel,
-              prioritaet: unteraufgabe.prioritaet || "normal",
-              status: "offen",
-              parent_task_id: aufgabeId,
-              zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
-            })
-          );
+        const unteraufgabenPromises = unteraufgaben.
+        filter((u) => u.titel && u.titel.trim()).
+        map((unteraufgabe) =>
+        base44.entities.Aufgabe.create({
+          org_id: currentOrgId,
+          titel: unteraufgabe.titel,
+          prioritaet: unteraufgabe.prioritaet || "normal",
+          status: "offen",
+          parent_task_id: aufgabeId,
+          zugewiesen_an: unteraufgabe.zugewiesen_an || hauptaufgabe.zugewiesen_an
+        })
+        );
 
         if (unteraufgabenPromises.length > 0) {
           await Promise.all(unteraufgabenPromises);
@@ -166,7 +166,7 @@ export default function AufgabenPage() {
       }
 
       if (hauptaufgabe.zugewiesen_an &&
-          oldAufgabe?.zugewiesen_an !== hauptaufgabe.zugewiesen_an) {
+      oldAufgabe?.zugewiesen_an !== hauptaufgabe.zugewiesen_an) {
         try {
           await base44.entities.Benachrichtigung.create({
             org_id: currentOrgId,
@@ -190,7 +190,7 @@ export default function AufgabenPage() {
       setShowForm(false);
       setEditingAufgabe(null);
       setSelectedAufgabe(null);
-    },
+    }
   });
 
   const deleteAufgabeMutation = useMutation({
@@ -198,7 +198,7 @@ export default function AufgabenPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben'] });
       setSelectedAufgabe(null);
-    },
+    }
   });
 
   const handleSubmit = (hauptaufgabe, unteraufgaben = []) => {
@@ -225,16 +225,16 @@ export default function AufgabenPage() {
   };
 
   const toggleExpand = (taskId) => {
-    setExpandedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
+    setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
-  const visibleAufgaben = isManager
-    ? aufgaben
-    : aufgaben.filter(aufgabe => {
-        return aufgabe.created_by === currentUserId || aufgabe.zugewiesen_an === currentUserId;
-      });
+  const visibleAufgaben = isManager ?
+  aufgaben :
+  aufgaben.filter((aufgabe) => {
+    return aufgabe.created_by === currentUserId || aufgabe.zugewiesen_an === currentUserId;
+  });
 
-  const hauptAufgaben = visibleAufgaben.filter(a => !a.parent_task_id);
+  const hauptAufgaben = visibleAufgaben.filter((a) => !a.parent_task_id);
   const unteraufgabenMap = visibleAufgaben.reduce((acc, aufgabe) => {
     if (aufgabe.parent_task_id) {
       if (!acc[aufgabe.parent_task_id]) acc[aufgabe.parent_task_id] = [];
@@ -243,16 +243,16 @@ export default function AufgabenPage() {
     return acc;
   }, {});
 
-  const filteredAufgaben = hauptAufgaben.filter(a => {
+  const filteredAufgaben = hauptAufgaben.filter((a) => {
     const matchesSearch = a.titel?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = priorityFilter === "alle" || a.prioritaet === priorityFilter;
     return matchesSearch && matchesPriority;
   });
 
-  const offeneAufgaben = filteredAufgaben.filter(a => a.status === 'offen');
-  const inArbeitAufgaben = filteredAufgaben.filter(a => a.status === 'in_arbeit');
-  const erledigtAufgaben = filteredAufgaben.filter(a => a.status === 'erledigt');
-  const meineAufgaben = filteredAufgaben.filter(a => a.zugewiesen_an === currentUserId);
+  const offeneAufgaben = filteredAufgaben.filter((a) => a.status === 'offen');
+  const inArbeitAufgaben = filteredAufgaben.filter((a) => a.status === 'in_arbeit');
+  const erledigtAufgaben = filteredAufgaben.filter((a) => a.status === 'erledigt');
+  const meineAufgaben = filteredAufgaben.filter((a) => a.zugewiesen_an === currentUserId);
 
   const priorityColors = {
     niedrig: "text-gray-400",
@@ -271,30 +271,30 @@ export default function AufgabenPage() {
     const hasUnteraufgaben = unteraufgaben.length > 0;
     const isExpanded = expandedTasks[aufgabe.id];
     const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
-    const assignedMitglied = mitglieder.find(m => m.user_id === aufgabe.zugewiesen_an);
+    const assignedMitglied = mitglieder.find((m) => m.user_id === aufgabe.zugewiesen_an);
 
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
         <div
           className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ${
-            aufgabe.status === 'erledigt' ? 'opacity-60' : ''
-          }`}
-          onClick={() => setSelectedAufgabe(aufgabe)}
-        >
+          aufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
+          }
+          onClick={() => setSelectedAufgabe(aufgabe)}>
+
           {/* Expand/Collapse Button */}
-          {hasUnteraufgaben ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand(aufgabe.id);
-              }}
-              className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
-            >
+          {hasUnteraufgaben ?
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleExpand(aufgabe.id);
+            }}
+            className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all">
+
               <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-            </button>
-          ) : (
-            <div className="w-5" />
-          )}
+            </button> :
+
+          <div className="w-5" />
+          }
 
           {/* Checkbox */}
           <button
@@ -302,13 +302,13 @@ export default function AufgabenPage() {
               e.stopPropagation();
               handleStatusToggle(aufgabe);
             }}
-            className="mt-1"
-          >
-            {aufgabe.status === 'erledigt' ? (
-              <CheckCircle2 className="w-5 h-5 text-green-500" />
-            ) : (
-              <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
-            )}
+            className="mt-1">
+
+            {aufgabe.status === 'erledigt' ?
+            <CheckCircle2 className="w-5 h-5 text-green-500" /> :
+
+            <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
+            }
           </button>
 
           {/* Content */}
@@ -317,47 +317,47 @@ export default function AufgabenPage() {
               <div className="flex-1 min-w-0">
                 <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                   {aufgabe.titel}
-                  {hasUnteraufgaben && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                  {hasUnteraufgaben &&
+                  <span className="ml-2 text-xs text-gray-500">
+                      ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                     </span>
-                  )}
+                  }
                 </p>
-                {aufgabe.beschreibung && (
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
-                )}
+                {aufgabe.beschreibung &&
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
+                }
 
                 {/* Meta Info */}
                 <div className="flex flex-wrap items-center gap-3 mt-2">
-                  {aufgabe.faellig_am && (
-                    <div className={`flex items-center gap-1 text-xs ${
-                      isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
-                    }`}>
+                  {aufgabe.faellig_am &&
+                  <div className={`flex items-center gap-1 text-xs ${
+                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                  }>
                       <CalendarIcon className="w-3 h-3" />
                       {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
                     </div>
-                  )}
+                  }
 
-                  {assignedMitglied && (
-                    <Badge variant="outline" className="text-xs">
+                  {assignedMitglied &&
+                  <Badge variant="outline" className="text-xs">
                       <User className="w-3 h-3 mr-1" />
                       {assignedMitglied.rolle}
                     </Badge>
-                  )}
+                  }
 
-                  {aufgabe.prioritaet !== 'normal' && (
-                    <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
+                  {aufgabe.prioritaet !== 'normal' &&
+                  <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
                       {aufgabe.prioritaet === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
                       {aufgabe.prioritaet}
                     </Badge>
-                  )}
+                  }
 
-                  {aufgabe.status === 'in_arbeit' && (
-                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                  {aufgabe.status === 'in_arbeit' &&
+                  <Badge className="bg-yellow-100 text-yellow-800 text-xs">
                       <Clock className="w-3 h-3 mr-1" />
                       In Arbeit
                     </Badge>
-                  )}
+                  }
                 </div>
               </div>
             </div>
@@ -365,32 +365,32 @@ export default function AufgabenPage() {
         </div>
 
         {/* Unteraufgaben */}
-        {hasUnteraufgaben && isExpanded && (
-          <div className="mt-1">
-            {unteraufgaben.map(unteraufgabe => (
-              <AufgabeItem key={unteraufgabe.id} aufgabe={unteraufgabe} level={level + 1} />
-            ))}
+        {hasUnteraufgaben && isExpanded &&
+        <div className="mt-1">
+            {unteraufgaben.map((unteraufgabe) =>
+          <AufgabeItem key={unteraufgabe.id} aufgabe={unteraufgabe} level={level + 1} />
+          )}
           </div>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   };
 
   // Slide-in Panel für Aufgabendetails
   const AufgabeDetailPanel = () => {
     if (!selectedAufgabe) return null;
 
-    const assignedMitglied = mitglieder.find(m => m.user_id === selectedAufgabe.zugewiesen_an);
+    const assignedMitglied = mitglieder.find((m) => m.user_id === selectedAufgabe.zugewiesen_an);
     const unteraufgaben = unteraufgabenMap[selectedAufgabe.id] || [];
     const hasUnteraufgaben = unteraufgaben.length > 0;
 
     return (
       <>
         {/* Backdrop */}
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 transition-opacity"
-          onClick={() => setSelectedAufgabe(null)}
-        />
+          onClick={() => setSelectedAufgabe(null)} />
+
         
         {/* Slide-in Panel */}
         <div className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-white shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-right duration-300">
@@ -402,13 +402,13 @@ export default function AufgabenPage() {
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStatusToggle(selectedAufgabe);
-                  }}
-                >
-                  {selectedAufgabe.status === 'erledigt' ? (
-                    <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  ) : (
-                    <Circle className={`w-6 h-6 ${priorityColors[selectedAufgabe.prioritaet]}`} />
-                  )}
+                  }}>
+
+                  {selectedAufgabe.status === 'erledigt' ?
+                  <CheckCircle2 className="w-6 h-6 text-green-500" /> :
+
+                  <Circle className={`w-6 h-6 ${priorityColors[selectedAufgabe.prioritaet]}`} />
+                  }
                 </button>
                 <div className="flex-1 min-w-0">
                   <h2 className={`text-xl font-bold ${selectedAufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
@@ -419,8 +419,8 @@ export default function AufgabenPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setSelectedAufgabe(null)}
-              >
+                onClick={() => setSelectedAufgabe(null)}>
+
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -431,40 +431,40 @@ export default function AufgabenPage() {
                 {selectedAufgabe.prioritaet}
               </Badge>
               <Badge className={
-                selectedAufgabe.status === 'erledigt' ? 'bg-green-100 text-green-800' :
-                selectedAufgabe.status === 'in_arbeit' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
+              selectedAufgabe.status === 'erledigt' ? 'bg-green-100 text-green-800' :
+              selectedAufgabe.status === 'in_arbeit' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-gray-100 text-gray-800'
               }>
                 {selectedAufgabe.status}
               </Badge>
-              {hasUnteraufgaben && (
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  {unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length} Unteraufgaben
+              {hasUnteraufgaben &&
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length} Unteraufgaben
                 </Badge>
-              )}
+              }
             </div>
 
             {/* Details */}
             <div className="space-y-6">
-              {selectedAufgabe.beschreibung && (
-                <div>
+              {selectedAufgabe.beschreibung &&
+              <div>
                   <Label className="text-sm font-semibold text-gray-700 mb-2 block">Beschreibung</Label>
                   <p className="text-gray-600">{selectedAufgabe.beschreibung}</p>
                 </div>
-              )}
+              }
 
-              {assignedMitglied && (
-                <div>
+              {assignedMitglied &&
+              <div>
                   <Label className="text-sm font-semibold text-gray-700 mb-2 block">Zugewiesen an</Label>
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-900">{assignedMitglied.rolle}</span>
                   </div>
                 </div>
-              )}
+              }
 
-              {selectedAufgabe.faellig_am && (
-                <div>
+              {selectedAufgabe.faellig_am &&
+              <div>
                   <Label className="text-sm font-semibold text-gray-700 mb-2 block">Fällig am</Label>
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="w-4 h-4 text-gray-400" />
@@ -473,83 +473,83 @@ export default function AufgabenPage() {
                     </span>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Unteraufgaben Sektion */}
-              {hasUnteraufgaben && (
-                <div className="border-t pt-6">
+              {hasUnteraufgaben &&
+              <div className="border-t pt-6">
                   <Label className="text-sm font-semibold text-gray-700 mb-3 block">
-                    Unteraufgaben ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                    Unteraufgaben ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                   </Label>
                   <div className="space-y-2">
                     {unteraufgaben.map((unteraufgabe) => {
-                      const isOverdue = unteraufgabe.faellig_am && new Date(unteraufgabe.faellig_am) < new Date() && unteraufgabe.status !== 'erledigt';
-                      const assignedMitgliedSub = mitglieder.find(m => m.user_id === unteraufgabe.zugewiesen_an);
-                      
-                      return (
-                        <div 
-                          key={unteraufgabe.id}
-                          className={`flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                            unteraufgabe.status === 'erledigt' ? 'opacity-60' : ''
-                          }`}
-                        >
+                    const isOverdue = unteraufgabe.faellig_am && new Date(unteraufgabe.faellig_am) < new Date() && unteraufgabe.status !== 'erledigt';
+                    const assignedMitgliedSub = mitglieder.find((m) => m.user_id === unteraufgabe.zugewiesen_an);
+
+                    return (
+                      <div
+                        key={unteraufgabe.id}
+                        className={`flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+                        unteraufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
+                        }>
+
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStatusToggle(unteraufgabe);
-                            }}
-                            className="mt-0.5"
-                          >
-                            {unteraufgabe.status === 'erledigt' ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <Circle className={`w-5 h-5 ${priorityColors[unteraufgabe.prioritaet]}`} />
-                            )}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStatusToggle(unteraufgabe);
+                          }}
+                          className="mt-0.5">
+
+                            {unteraufgabe.status === 'erledigt' ?
+                          <CheckCircle2 className="w-5 h-5 text-green-500" /> :
+
+                          <Circle className={`w-5 h-5 ${priorityColors[unteraufgabe.prioritaet]}`} />
+                          }
                           </button>
 
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-medium ${
-                              unteraufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'
-                            }`}>
+                          unteraufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`
+                          }>
                               {unteraufgabe.titel}
                             </p>
                             
-                            {unteraufgabe.beschreibung && (
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                            {unteraufgabe.beschreibung &&
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                                 {unteraufgabe.beschreibung}
                               </p>
-                            )}
+                          }
 
                             <div className="flex flex-wrap items-center gap-2 mt-2">
-                              {unteraufgabe.faellig_am && (
-                                <div className={`flex items-center gap-1 text-xs ${
-                                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
-                                }`}>
+                              {unteraufgabe.faellig_am &&
+                            <div className={`flex items-center gap-1 text-xs ${
+                            isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                            }>
                                   <CalendarIcon className="w-3 h-3" />
                                   {format(new Date(unteraufgabe.faellig_am), 'dd. MMM', { locale: de })}
                                 </div>
-                              )}
+                            }
 
-                              {assignedMitgliedSub && (
-                                <Badge variant="outline" className="text-xs">
+                              {assignedMitgliedSub &&
+                            <Badge variant="outline" className="text-xs">
                                   <User className="w-3 h-3 mr-1" />
                                   {assignedMitgliedSub.rolle}
                                 </Badge>
-                              )}
+                            }
 
-                              {unteraufgabe.prioritaet !== 'normal' && (
-                                <Badge className={`${priorityBadges[unteraufgabe.prioritaet]} text-xs`}>
+                              {unteraufgabe.prioritaet !== 'normal' &&
+                            <Badge className={`${priorityBadges[unteraufgabe.prioritaet]} text-xs`}>
                                   {unteraufgabe.prioritaet}
                                 </Badge>
-                              )}
+                            }
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        </div>);
+
+                  })}
                   </div>
                 </div>
-              )}
+              }
 
               {/* Actions */}
               <div className="pt-6 border-t space-y-3">
@@ -559,16 +559,16 @@ export default function AufgabenPage() {
                     setShowForm(true);
                     setSelectedAufgabe(null);
                   }}
-                  className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
-                >
+                  className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+
                   <Edit className="w-4 h-4 mr-2" />
                   Aufgabe bearbeiten
                 </Button>
                 <Button
                   onClick={() => handleDelete(selectedAufgabe)}
                   variant="outline"
-                  className="w-full text-red-600 border-red-600 hover:bg-red-50"
-                >
+                  className="w-full text-red-600 border-red-600 hover:bg-red-50">
+
                   <Trash2 className="w-4 h-4 mr-2" />
                   Aufgabe löschen
                 </Button>
@@ -576,8 +576,8 @@ export default function AufgabenPage() {
             </div>
           </div>
         </div>
-      </>
-    );
+      </>);
+
   };
 
   return (
@@ -591,18 +591,18 @@ export default function AufgabenPage() {
               {isManager ? 'Organisiere und verfolge deine Aufgaben' : 'Deine Aufgaben'}
             </p>
           </div>
-          {isManager && (
-            <Button
-              onClick={() => {
-                setEditingAufgabe(null);
-                setShowForm(true);
-              }}
-              className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
-            >
+          {isManager &&
+          <Button
+            onClick={() => {
+              setEditingAufgabe(null);
+              setShowForm(true);
+            }} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+
+
               <Plus className="w-4 h-4 mr-2" />
               Neue Aufgabe
             </Button>
-          )}
+          }
         </div>
 
         {/* Search & Filter */}
@@ -615,14 +615,14 @@ export default function AufgabenPage() {
                   placeholder="Aufgaben durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white"
-              >
+                className="px-4 py-2 border rounded-lg bg-white">
+
                 <option value="alle">Alle Prioritäten</option>
                 <option value="niedrig">Niedrig</option>
                 <option value="normal">Normal</option>
@@ -633,21 +633,21 @@ export default function AufgabenPage() {
         </Card>
 
         {/* Form */}
-        {showForm && (
-          <div className="mb-6">
+        {showForm &&
+        <div className="mb-6">
             <AufgabeForm
-              aufgabe={editingAufgabe}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingAufgabe(null);
-              }}
-              mitglieder={mitglieder}
-              hauptAufgaben={hauptAufgaben}
-              allAufgaben={aufgaben}
-            />
+            aufgabe={editingAufgabe}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingAufgabe(null);
+            }}
+            mitglieder={mitglieder}
+            hauptAufgaben={hauptAufgaben}
+            allAufgaben={aufgaben} />
+
           </div>
-        )}
+        }
 
         {/* Tabs */}
         <Tabs defaultValue="alle" className="space-y-6">
@@ -672,18 +672,18 @@ export default function AufgabenPage() {
           <TabsContent value="alle">
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {filteredAufgaben.length > 0 ? (
-                  <div className="divide-y">
-                    {filteredAufgaben.map(aufgabe => (
-                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center text-gray-500">
+                {filteredAufgaben.length > 0 ?
+                <div className="divide-y">
+                    {filteredAufgaben.map((aufgabe) =>
+                  <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                  )}
+                  </div> :
+
+                <div className="p-12 text-center text-gray-500">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben gefunden</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -691,18 +691,18 @@ export default function AufgabenPage() {
           <TabsContent value="meine">
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {meineAufgaben.length > 0 ? (
-                  <div className="divide-y">
-                    {meineAufgaben.map(aufgabe => (
-                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center text-gray-500">
+                {meineAufgaben.length > 0 ?
+                <div className="divide-y">
+                    {meineAufgaben.map((aufgabe) =>
+                  <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                  )}
+                  </div> :
+
+                <div className="p-12 text-center text-gray-500">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben zugewiesen</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -710,18 +710,18 @@ export default function AufgabenPage() {
           <TabsContent value="offen">
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {offeneAufgaben.length > 0 ? (
-                  <div className="divide-y">
-                    {offeneAufgaben.map(aufgabe => (
-                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center text-gray-500">
+                {offeneAufgaben.length > 0 ?
+                <div className="divide-y">
+                    {offeneAufgaben.map((aufgabe) =>
+                  <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                  )}
+                  </div> :
+
+                <div className="p-12 text-center text-gray-500">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine offenen Aufgaben</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -729,18 +729,18 @@ export default function AufgabenPage() {
           <TabsContent value="in_arbeit">
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {inArbeitAufgaben.length > 0 ? (
-                  <div className="divide-y">
-                    {inArbeitAufgaben.map(aufgabe => (
-                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center text-gray-500">
+                {inArbeitAufgaben.length > 0 ?
+                <div className="divide-y">
+                    {inArbeitAufgaben.map((aufgabe) =>
+                  <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                  )}
+                  </div> :
+
+                <div className="p-12 text-center text-gray-500">
                     <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben in Arbeit</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -748,18 +748,18 @@ export default function AufgabenPage() {
           <TabsContent value="erledigt">
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {erledigtAufgaben.length > 0 ? (
-                  <div className="divide-y">
-                    {erledigtAufgaben.map(aufgabe => (
-                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-12 text-center text-gray-500">
+                {erledigtAufgaben.length > 0 ?
+                <div className="divide-y">
+                    {erledigtAufgaben.map((aufgabe) =>
+                  <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                  )}
+                  </div> :
+
+                <div className="p-12 text-center text-gray-500">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine erledigten Aufgaben</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -768,6 +768,6 @@ export default function AufgabenPage() {
 
       {/* Slide-in Detail Panel */}
       <AufgabeDetailPanel />
-    </div>
-  );
+    </div>);
+
 }
