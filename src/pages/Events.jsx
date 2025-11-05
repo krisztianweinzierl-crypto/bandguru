@@ -15,8 +15,8 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  SelectValue } from
+"@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
@@ -41,10 +41,10 @@ export default function EventsPage() {
       setCurrentUser(user);
 
       // Prüfe Rolle
-      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+      const mitgliedschaften = await base44.entities.Mitglied.filter({
         user_id: user.id,
         org_id: orgId,
-        status: "aktiv" 
+        status: "aktiv"
       });
       const mitglied = mitgliedschaften[0];
       setIsManager(mitglied?.rolle === "Band Manager");
@@ -52,8 +52,8 @@ export default function EventsPage() {
       // Wenn Musiker, lade Musiker-Profil
       if (mitglied?.rolle === "Musiker") {
         const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
-        const musikerProfil = alleMusiker.find(m => 
-          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        const musikerProfil = alleMusiker.find((m) =>
+        m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
         );
         setCurrentMusiker(musikerProfil);
       }
@@ -64,26 +64,26 @@ export default function EventsPage() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events', currentOrgId],
     queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }, '-datum_von'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: kunden = [] } = useQuery({
     queryKey: ['kunden', currentOrgId],
     queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   // Lade EventMusiker wenn Musiker
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', currentMusiker?.id],
     queryFn: async () => {
-      const result = await base44.entities.EventMusiker.filter({ 
+      const result = await base44.entities.EventMusiker.filter({
         musiker_id: currentMusiker.id,
         status: 'zugesagt'
       });
       return result;
     },
-    enabled: !!currentMusiker?.id,
+    enabled: !!currentMusiker?.id
   });
 
   const createEventMutation = useMutation({
@@ -91,7 +91,7 @@ export default function EventsPage() {
       if (!currentOrgId) {
         throw new Error("Keine Organisation ausgewählt. Bitte lade die Seite neu.");
       }
-      
+
       const dataToSend = { ...eventData, org_id: currentOrgId };
       return await base44.entities.Event.create(dataToSend);
     },
@@ -106,22 +106,22 @@ export default function EventsPage() {
   });
 
   // Filter Events basierend auf Rolle
-  const visibleEvents = isManager 
-    ? events 
-    : events.filter(event => {
-        // Musiker sieht nur Events bei denen er teilnimmt
-        return eventMusiker.some(em => em.event_id === event.id);
-      });
+  const visibleEvents = isManager ?
+  events :
+  events.filter((event) => {
+    // Musiker sieht nur Events bei denen er teilnimmt
+    return eventMusiker.some((em) => em.event_id === event.id);
+  });
 
-  const filteredEvents = visibleEvents.filter(event => {
+  const filteredEvents = visibleEvents.filter((event) => {
     const matchesSearch = event.titel.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.ort_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    event.ort_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "alle" || event.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const upcomingEvents = filteredEvents.filter(e => new Date(e.datum_von) > new Date());
-  const pastEvents = filteredEvents.filter(e => new Date(e.datum_von) <= new Date());
+  const upcomingEvents = filteredEvents.filter((e) => new Date(e.datum_von) > new Date());
+  const pastEvents = filteredEvents.filter((e) => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
     entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Entwurf" },
@@ -137,9 +137,9 @@ export default function EventsPage() {
   };
 
   const EventCard = ({ event }) => {
-    const kunde = kunden.find(k => k.id === event.kunde_id);
+    const kunde = kunden.find((k) => k.id === event.kunde_id);
     const statusStyle = statusColors[event.status] || statusColors.entwurf;
-    
+
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
         <Card className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass}`}>
@@ -165,34 +165,34 @@ export default function EventsPage() {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="space-y-2">
-              {event.ort_name && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+              {event.ort_name &&
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4 text-gray-400" />
                   <span className="truncate">{event.ort_name}</span>
                 </div>
-              )}
-              {kunde && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+              }
+              {kunde &&
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                   <User className="w-4 h-4 text-gray-400" />
                   <span className="truncate">{kunde.firmenname}</span>
                 </div>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
-      </Link>
-    );
+      </Link>);
+
   };
 
   const EventListItem = ({ event }) => {
-    const kunde = kunden.find(k => k.id === event.kunde_id);
+    const kunde = kunden.find((k) => k.id === event.kunde_id);
     const statusStyle = statusColors[event.status] || statusColors.entwurf;
-    
+
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
         <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
           <div className="flex-shrink-0">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex flex-col items-center justify-center text-white">
+            <div className="bg-[#223a5e] text-white rounded-lg ] w-16 h-16 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
                 {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
               </span>
@@ -215,23 +215,23 @@ export default function EventsPage() {
                 <Clock className="w-4 h-4" />
                 {format(new Date(event.datum_von), 'HH:mm')} Uhr
               </div>
-              {event.ort_name && (
-                <div className="flex items-center gap-1">
+              {event.ort_name &&
+              <div className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
                   <span className="truncate">{event.ort_name}</span>
                 </div>
-              )}
-              {kunde && (
-                <div className="flex items-center gap-1">
+              }
+              {kunde &&
+              <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
                   <span className="truncate">{kunde.firmenname}</span>
                 </div>
-              )}
+              }
             </div>
           </div>
         </div>
-      </Link>
-    );
+      </Link>);
+
   };
 
   if (!currentOrgId) {
@@ -242,8 +242,8 @@ export default function EventsPage() {
             <p className="text-gray-600">Lade Organisation...</p>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -256,16 +256,16 @@ export default function EventsPage() {
               {isManager ? 'Verwalte alle deine Veranstaltungen' : 'Deine zugesagten Events'}
             </p>
           </div>
-          {isManager && (
-            <Button 
-              onClick={() => setShowForm(true)}
-              className="text-white"
-              style={{ backgroundColor: '#223a5e' }}
-            >
+          {isManager &&
+          <Button
+            onClick={() => setShowForm(true)}
+            className="text-white"
+            style={{ backgroundColor: '#223a5e' }}>
+
               <Plus className="w-4 h-4 mr-2" />
               Event erstellen
             </Button>
-          )}
+          }
         </div>
 
         <Card className="mb-6 border-none shadow-md">
@@ -277,8 +277,8 @@ export default function EventsPage() {
                   placeholder="Events durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-48">
@@ -302,16 +302,16 @@ export default function EventsPage() {
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
-                >
+                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
+
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
-                >
+                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
+
                   <List className="w-4 h-4" />
                 </Button>
               </div>
@@ -319,19 +319,19 @@ export default function EventsPage() {
           </CardContent>
         </Card>
 
-        {showForm && isManager && (
-          <div className="mb-6">
-            <EventForm 
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-              kunden={kunden}
-            />
+        {showForm && isManager &&
+        <div className="mb-6">
+            <EventForm
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)}
+            kunden={kunden} />
+
           </div>
-        )}
+        }
 
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger 
+            <TabsTrigger
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
@@ -347,11 +347,11 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #223a5e"
-            >
+              data-active-style="background-color: #223a5e">
+
               Anstehend ({upcomingEvents.length})
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="past"
               className="data-[state=active]:text-white"
               style={{
@@ -367,69 +367,69 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #223a5e"
-            >
+              data-active-style="background-color: #223a5e">
+
               Vergangen ({pastEvents.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming" className="space-y-4">
-            {upcomingEvents.length > 0 ? (
-              viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {upcomingEvents.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {upcomingEvents.map((event) => (
-                    <EventListItem key={event.id} event={event} />
-                  ))}
-                </div>
-              )
-            ) : (
-              <Card className="border-dashed">
+            {upcomingEvents.length > 0 ?
+            viewMode === "grid" ?
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {upcomingEvents.map((event) =>
+              <EventCard key={event.id} event={event} />
+              )}
+                </div> :
+
+            <div className="space-y-3">
+                  {upcomingEvents.map((event) =>
+              <EventListItem key={event.id} event={event} />
+              )}
+                </div> :
+
+
+            <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine anstehenden Events</h3>
                   <p className="text-gray-500 mb-4">
                     {isManager ? 'Erstelle dein erstes Event' : 'Du hast aktuell keine zugesagten Events'}
                   </p>
-                  {isManager && (
-                    <Button onClick={() => setShowForm(true)}>
+                  {isManager &&
+                <Button onClick={() => setShowForm(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       Event erstellen
                     </Button>
-                  )}
+                }
                 </CardContent>
               </Card>
-            )}
+            }
           </TabsContent>
 
           <TabsContent value="past" className="space-y-4">
-            {pastEvents.length > 0 ? (
-              viewMode === "grid" ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {pastEvents.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {pastEvents.map((event) => (
-                    <EventListItem key={event.id} event={event} />
-                  ))}
-                </div>
-              )
-            ) : (
-              <Card className="border-dashed">
+            {pastEvents.length > 0 ?
+            viewMode === "grid" ?
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pastEvents.map((event) =>
+              <EventCard key={event.id} event={event} />
+              )}
+                </div> :
+
+            <div className="space-y-3">
+                  {pastEvents.map((event) =>
+              <EventListItem key={event.id} event={event} />
+              )}
+                </div> :
+
+
+            <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <p className="text-gray-500">Keine vergangenen Events</p>
                 </CardContent>
               </Card>
-            )}
+            }
           </TabsContent>
         </Tabs>
       </div>
@@ -439,6 +439,6 @@ export default function EventsPage() {
           background-color: #223a5e !important;
         }
       `}</style>
-    </div>
-  );
+    </div>);
+
 }
