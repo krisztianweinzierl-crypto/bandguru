@@ -382,6 +382,15 @@ export default function LeadDetailPage() {
     alert("Lead wird in Event konvertiert (Feature kommt später)");
   };
 
+  const handleCreateAngebot = () => {
+    // Navigiere zur Rechnungsseite mit vorausgefüllten Daten
+    if (lead.kunde_id) {
+      navigate(createPageUrl('Rechnungen') + '?create=true&kunde_id=' + lead.kunde_id + '&lead_id=' + leadId);
+    } else {
+      alert('Bitte erstelle zuerst einen Kunden für diesen Lead, um ein Angebot zu erstellen.');
+    }
+  };
+
   // Lade-Status für Lead
   if (leadLoading || !lead) {
     return (
@@ -838,7 +847,11 @@ export default function LeadDetailPage() {
                     <FileText className="w-5 h-5 text-blue-600" />
                     <CardTitle>Angebote</CardTitle>
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={handleCreateAngebot}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Angebot erstellen
                   </Button>
@@ -849,7 +862,11 @@ export default function LeadDetailPage() {
                 <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-semibold mb-2">Noch keine Angebote</h3>
                 <p className="text-gray-500 mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCreateAngebot}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Erstes Angebot erstellen
                 </Button>
