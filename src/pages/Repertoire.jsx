@@ -553,7 +553,8 @@ export default function RepertoirePage() {
                           <div className="flex gap-2 pt-4 border-t">
                             <Button
                               variant="default"
-                              className="flex-1 bg-gray-900 hover:bg-gray-800"
+                              className="flex-1 hover:opacity-90"
+                              style={{ backgroundColor: '#223a5e' }}
                               onClick={() => {
                                 setEditingSetlist(setlist);
                                 setShowSetlistForm(true);
