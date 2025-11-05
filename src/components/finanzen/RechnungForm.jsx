@@ -1,53 +1,20 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Save } from "lucide-react";
 
-export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = null }) {
+export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
   const [formData, setFormData] = useState(rechnung || {
     kunde_id: "",
-    event_id: "",
     rechnungsdatum: new Date().toISOString().split('T')[0],
     faelligkeitsdatum: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: "entwurf",
-    positionen: [
-      { beschreibung: "", menge: 1, einheit: "Stück", einzelpreis: 0, steuersatz: 19 }
-    ],
-    kunde_notizen: "",
-    zahlungsbedingungen: "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
-    notizen: ""
+    positionen: [{ beschreibung: "", menge: 1, einheit: "Stk", einzelpreis: 0, steuersatz: 19 }],
+    zahlungsbedingungen: "Bitte überweisen Sie den Betrag innerhalb von 14 Tagen.",
+    kunde_notizen: ""
   });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Beträge berechnen
-    let netto_betrag = 0;
-    let steuer_betrag = 0;
-    
-    formData.positionen.forEach(pos => {
-      const posNetto = (pos.menge || 0) * (pos.einzelpreis || 0);
-      const posSteuer = posNetto * ((pos.steuersatz || 0) / 100);
-      netto_betrag += posNetto;
-      steuer_betrag += posSteuer;
-    });
-
-    const brutto_betrag = netto_betrag + steuer_betrag;
-
-    const dataToSubmit = {
-      ...formData,
-      netto_betrag,
-      steuer_betrag,
-      brutto_betrag,
-      bezahlt_betrag: 0
-    };
-
-    onSubmit(dataToSubmit);
-  };
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -62,7 +29,7 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
   const addPosition = () => {
     setFormData(prev => ({
       ...prev,
-      positionen: [...prev.positionen, { beschreibung: "", menge: 1, einheit: "Stück", einzelpreis: 0, steuersatz: 19 }]
+      positionen: [...prev.positionen, { beschreibung: "", menge: 1, einheit: "Stk", einzelpreis: 0, steuersatz: 19 }]
     }));
   };
 
@@ -75,62 +42,57 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
     }
   };
 
-  // Beträge berechnen für Vorschau
-  let nettoBetrag = 0;
-  let steuerBetrag = 0;
-  formData.positionen.forEach(pos => {
-    const posNetto = (pos.menge || 0) * (pos.einzelpreis || 0);
-    const posSteuer = posNetto * ((pos.steuersatz || 0) / 100);
-    nettoBetrag += posNetto;
-    steuerBetrag += posSteuer;
-  });
-  const bruttoBetrag = nettoBetrag + steuerBetrag;
+  const calculateTotals = () => {
+    let netto = 0;
+    let steuer = 0;
+
+    formData.positionen.forEach(pos => {
+      const posNetto = (pos.menge || 0) * (pos.einzelpreis || 0);
+      const posSteuer = posNetto * ((pos.steuersatz || 0) / 100);
+      netto += posNetto;
+      steuer += posSteuer;
+    });
+
+    return {
+      netto_betrag: netto,
+      steuer_betrag: steuer,
+      brutto_betrag: netto + steuer
+    };
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const totals = calculateTotals();
+    onSubmit({ ...formData, ...totals });
+  };
+
+  const totals = calculateTotals();
 
   return (
     <Card className="border-none shadow-lg">
       <CardHeader className="border-b">
-        <div className="flex justify-between items-center">
-          <CardTitle>{rechnung ? "Rechnung bearbeiten" : "Neue Rechnung"}</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onCancel}>
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
+        <CardTitle>{rechnung ? "Rechnung bearbeiten" : "Neue Rechnung erstellen"}</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Kunde & Datum */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="kunde">Kunde *</Label>
-              <Select value={formData.kunde_id} onValueChange={(value) => handleChange('kunde_id', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Kunde wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {kunden.map((kunde) => (
-                    <SelectItem key={kunde.id} value={kunde.id}>
-                      {kunde.firmenname}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="entwurf">Entwurf</SelectItem>
-                  <SelectItem value="versendet">Versendet</SelectItem>
-                  <SelectItem value="teilweise_bezahlt">Teilweise bezahlt</SelectItem>
-                  <SelectItem value="bezahlt">Bezahlt</SelectItem>
-                  <SelectItem value="überfällig">Überfällig</SelectItem>
-                  <SelectItem value="storniert">Storniert</SelectItem>
-                </SelectContent>
-              </Select>
+              <select
+                id="kunde"
+                value={formData.kunde_id}
+                onChange={(e) => handleChange('kunde_id', e.target.value)}
+                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                required
+              >
+                <option value="">Kunde wählen</option>
+                {kunden.map((kunde) => (
+                  <option key={kunde.id} value={kunde.id}>
+                    {kunde.firmenname}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">
@@ -156,11 +118,11 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
             </div>
           </div>
 
-          {/* Rechnungspositionen */}
+          {/* Positionen */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <Label className="text-base font-semibold">Rechnungspositionen</Label>
-              <Button type="button" onClick={addPosition} variant="outline" size="sm">
+              <Button type="button" variant="outline" size="sm" onClick={addPosition}>
                 <Plus className="w-4 h-4 mr-2" />
                 Position hinzufügen
               </Button>
@@ -168,42 +130,46 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
 
             <div className="space-y-3">
               {formData.positionen.map((position, index) => (
-                <Card key={index} className="p-4 bg-gray-50">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                    <div className="md:col-span-4 space-y-2">
-                      <Label className="text-xs">Beschreibung</Label>
+                <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                    <div className="md:col-span-5">
+                      <Label htmlFor={`beschreibung-${index}`} className="text-xs">Beschreibung</Label>
                       <Input
+                        id={`beschreibung-${index}`}
                         value={position.beschreibung}
                         onChange={(e) => handlePositionChange(index, 'beschreibung', e.target.value)}
                         placeholder="z.B. Live-Performance"
                         required
                       />
                     </div>
-                    
-                    <div className="md:col-span-2 space-y-2">
-                      <Label className="text-xs">Menge</Label>
+
+                    <div className="md:col-span-2">
+                      <Label htmlFor={`menge-${index}`} className="text-xs">Menge</Label>
                       <Input
+                        id={`menge-${index}`}
                         type="number"
                         value={position.menge}
                         onChange={(e) => handlePositionChange(index, 'menge', parseFloat(e.target.value))}
-                        min="0"
+                        min="0.01"
                         step="0.01"
                         required
                       />
                     </div>
 
-                    <div className="md:col-span-2 space-y-2">
-                      <Label className="text-xs">Einheit</Label>
+                    <div className="md:col-span-1">
+                      <Label htmlFor={`einheit-${index}`} className="text-xs">Einheit</Label>
                       <Input
+                        id={`einheit-${index}`}
                         value={position.einheit}
                         onChange={(e) => handlePositionChange(index, 'einheit', e.target.value)}
-                        placeholder="Stück"
+                        placeholder="Stk"
                       />
                     </div>
 
-                    <div className="md:col-span-2 space-y-2">
-                      <Label className="text-xs">Einzelpreis (€)</Label>
+                    <div className="md:col-span-2">
+                      <Label htmlFor={`einzelpreis-${index}`} className="text-xs">Einzelpreis (€)</Label>
                       <Input
+                        id={`einzelpreis-${index}`}
                         type="number"
                         value={position.einzelpreis}
                         onChange={(e) => handlePositionChange(index, 'einzelpreis', parseFloat(e.target.value))}
@@ -213,14 +179,16 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
                       />
                     </div>
 
-                    <div className="md:col-span-1 space-y-2">
-                      <Label className="text-xs">MwSt %</Label>
+                    <div className="md:col-span-1">
+                      <Label htmlFor={`steuersatz-${index}`} className="text-xs">MwSt. (%)</Label>
                       <Input
+                        id={`steuersatz-${index}`}
                         type="number"
                         value={position.steuersatz}
                         onChange={(e) => handlePositionChange(index, 'steuersatz', parseFloat(e.target.value))}
                         min="0"
                         max="100"
+                        required
                       />
                     </div>
 
@@ -231,83 +199,73 @@ export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = nu
                         size="icon"
                         onClick={() => removePosition(index)}
                         disabled={formData.positionen.length === 1}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <Trash2 className="w-4 h-4 text-red-600" />
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
-                  <div className="mt-2 text-sm text-gray-600">
-                    Gesamt: {((position.menge || 0) * (position.einzelpreis || 0) * (1 + (position.steuersatz || 0) / 100)).toFixed(2)} €
+                  <div className="text-right text-sm text-gray-600">
+                    Summe: {((position.menge || 0) * (position.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Summen Vorschau */}
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Nettobetrag:</span>
-                  <span className="font-medium">{nettoBetrag.toFixed(2)} €</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>MwSt:</span>
-                  <span className="font-medium">{steuerBetrag.toFixed(2)} €</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold border-t border-blue-300 pt-2">
-                  <span>Gesamtbetrag:</span>
-                  <span>{bruttoBetrag.toFixed(2)} €</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Summen */}
+          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Netto:</span>
+              <span className="font-medium">{totals.netto_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">MwSt.:</span>
+              <span className="font-medium">{totals.steuer_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+            </div>
+            <div className="flex justify-between text-lg font-bold border-t pt-2">
+              <span>Gesamt (Brutto):</span>
+              <span>{totals.brutto_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+            </div>
+          </div>
 
-          {/* Notizen */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Notizen & Zahlungsbedingungen */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="kunde_notizen">Notizen für Kunde (auf Rechnung sichtbar)</Label>
+              <Label htmlFor="zahlungsbedingungen">Zahlungsbedingungen</Label>
+              <Textarea
+                id="zahlungsbedingungen"
+                value={formData.zahlungsbedingungen}
+                onChange={(e) => handleChange('zahlungsbedingungen', e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="kunde_notizen">Notizen für Kunden</Label>
               <Textarea
                 id="kunde_notizen"
                 value={formData.kunde_notizen}
                 onChange={(e) => handleChange('kunde_notizen', e.target.value)}
-                placeholder="z.B. Vielen Dank für Ihren Auftrag!"
                 rows={3}
+                placeholder="Diese Notizen erscheinen auf der Rechnung"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notizen">Interne Notizen</Label>
-              <Textarea
-                id="notizen"
-                value={formData.notizen}
-                onChange={(e) => handleChange('notizen', e.target.value)}
-                placeholder="Interne Notizen..."
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="zahlungsbedingungen">Zahlungsbedingungen</Label>
-            <Textarea
-              id="zahlungsbedingungen"
-              value={formData.zahlungsbedingungen}
-              onChange={(e) => handleChange('zahlungsbedingungen', e.target.value)}
-              rows={2}
-            />
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+            <Button 
+              type="submit"
+              style={{ backgroundColor: '#223a5e' }}
+              className="hover:opacity-90"
+            >
               <Save className="w-4 h-4 mr-2" />
-              Rechnung speichern
+              {rechnung ? "Rechnung aktualisieren" : "Rechnung speichern"}
             </Button>
           </div>
         </form>
