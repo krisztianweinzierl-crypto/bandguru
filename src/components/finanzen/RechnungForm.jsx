@@ -1,95 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { X, Plus } from 'lucide-react';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X, Save, Plus, Trash2 } from "lucide-react";
 
-export default function RechnungForm({ rechnung, kunden, events, onSubmit, onCancel }) {
-  const [formData, setFormData] = useState({
-    kunde_id: '',
-    event_id: '',
-    rechnungsnummer: '',
-    datum: new Date().toISOString().split('T')[0],
-    faelligkeitsdatum: '',
-    positionen: [],
-    steuersatz: 19,
-    notizen: '',
-    status: 'entwurf',
-    ...rechnung
+export default function RechnungForm({ onSubmit, onCancel, kunden, rechnung = null }) {
+  const [formData, setFormData] = useState(rechnung || {
+    kunde_id: "",
+    event_id: "",
+    rechnungsdatum: new Date().toISOString().split('T')[0],
+    faelligkeitsdatum: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    status: "entwurf",
+    positionen: [
+      { beschreibung: "", menge: 1, einheit: "Stück", einzelpreis: 0, steuersatz: 19 }
+    ],
+    kunde_notizen: "",
+    zahlungsbedingungen: "Zahlbar innerhalb von 14 Tagen ohne Abzug.",
+    notizen: ""
   });
-
-  const [neuePosition, setNeuePosition] = useState({
-    beschreibung: '',
-    menge: 1,
-    einzelpreis: 0
-  });
-
-  const addPosition = () => {
-    if (neuePosition.beschreibung && neuePosition.einzelpreis > 0) {
-      setFormData(prev => ({
-        ...prev,
-        positionen: [...prev.positionen, { ...neuePosition }]
-      }));
-      setNeuePosition({ beschreibung: '', menge: 1, einzelpreis: 0 });
-    }
-  };
-
-  const removePosition = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      positionen: prev.positionen.filter((_, i) => i !== index)
-    }));
-  };
-
-  const calculateNetto = () => {
-    return formData.positionen.reduce((sum, pos) => sum + (pos.menge * pos.einzelpreis), 0);
-  };
-
-  const calculateSteuer = () => {
-    return calculateNetto() * (formData.steuersatz / 100);
-  };
-
-  const calculateBrutto = () => {
-    return calculateNetto() + calculateSteuer();
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const completeData = {
+    
+    // Beträge berechnen
+    let netto_betrag = 0;
+    let steuer_betrag = 0;
+    
+    formData.positionen.forEach(pos => {
+      const posNetto = (pos.menge || 0) * (pos.einzelpreis || 0);
+      const posSteuer = posNetto * ((pos.steuersatz || 0) / 100);
+      netto_betrag += posNetto;
+      steuer_betrag += posSteuer;
+    });
+
+    const brutto_betrag = netto_betrag + steuer_betrag;
+
+    const dataToSubmit = {
       ...formData,
-      netto_betrag: calculateNetto(),
-      steuer_betrag: calculateSteuer(),
-      brutto_betrag: calculateBrutto()
+      netto_betrag,
+      steuer_betrag,
+      brutto_betrag,
+      bezahlt_betrag: 0
     };
-    onSubmit(completeData);
+
+    onSubmit(dataToSubmit);
   };
 
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePositionChange = (index, field, value) => {
+    const newPositionen = [...formData.positionen];
+    newPositionen[index] = { ...newPositionen[index], [field]: value };
+    setFormData(prev => ({ ...prev, positionen: newPositionen }));
+  };
+
+  const addPosition = () => {
+    setFormData(prev => ({
+      ...prev,
+      positionen: [...prev.positionen, { beschreibung: "", menge: 1, einheit: "Stück", einzelpreis: 0, steuersatz: 19 }]
+    }));
+  };
+
+  const removePosition = (index) => {
+    if (formData.positionen.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        positionen: prev.positionen.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
+  // Beträge berechnen für Vorschau
+  let nettoBetrag = 0;
+  let steuerBetrag = 0;
+  formData.positionen.forEach(pos => {
+    const posNetto = (pos.menge || 0) * (pos.einzelpreis || 0);
+    const posSteuer = posNetto * ((pos.steuersatz || 0) / 100);
+    nettoBetrag += posNetto;
+    steuerBetrag += posSteuer;
+  });
+  const bruttoBetrag = nettoBetrag + steuerBetrag;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{rechnung ? 'Rechnung bearbeiten' : 'Neue Rechnung'}</CardTitle>
+    <Card className="border-none shadow-lg">
+      <CardHeader className="border-b">
+        <div className="flex justify-between items-center">
+          <CardTitle>{rechnung ? "Rechnung bearbeiten" : "Neue Rechnung"}</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onCancel}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Grunddaten */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Kunde & Datum */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="kunde">Kunde *</Label>
-              <Select 
-                value={formData.kunde_id} 
-                onValueChange={(value) => setFormData({...formData, kunde_id: value})}
-                required
-              >
+              <Select value={formData.kunde_id} onValueChange={(value) => handleChange('kunde_id', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Kunde auswählen" />
+                  <SelectValue placeholder="Kunde wählen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {kunden.map(kunde => (
+                  {kunden.map((kunde) => (
                     <SelectItem key={kunde.id} value={kunde.id}>
-                      {kunde.name}
+                      {kunde.firmenname}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -97,43 +117,29 @@ export default function RechnungForm({ rechnung, kunden, events, onSubmit, onCan
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="event">Event (optional)</Label>
-              <Select 
-                value={formData.event_id} 
-                onValueChange={(value) => setFormData({...formData, event_id: value})}
-              >
+              <Label htmlFor="status">Status</Label>
+              <Select value={formData.status} onValueChange={(value) => handleChange('status', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Event auswählen" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={null}>Kein Event</SelectItem>
-                  {events.map(event => (
-                    <SelectItem key={event.id} value={event.id}>
-                      {event.titel}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="entwurf">Entwurf</SelectItem>
+                  <SelectItem value="versendet">Versendet</SelectItem>
+                  <SelectItem value="teilweise_bezahlt">Teilweise bezahlt</SelectItem>
+                  <SelectItem value="bezahlt">Bezahlt</SelectItem>
+                  <SelectItem value="überfällig">Überfällig</SelectItem>
+                  <SelectItem value="storniert">Storniert</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="rechnungsnummer">Rechnungsnummer *</Label>
+              <Label htmlFor="rechnungsdatum">Rechnungsdatum *</Label>
               <Input
-                id="rechnungsnummer"
-                value={formData.rechnungsnummer}
-                onChange={(e) => setFormData({...formData, rechnungsnummer: e.target.value})}
-                placeholder="RE-2024-001"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="datum">Rechnungsdatum *</Label>
-              <Input
-                id="datum"
+                id="rechnungsdatum"
                 type="date"
-                value={formData.datum}
-                onChange={(e) => setFormData({...formData, datum: e.target.value})}
+                value={formData.rechnungsdatum}
+                onChange={(e) => handleChange('rechnungsdatum', e.target.value)}
                 required
               />
             </div>
@@ -144,139 +150,163 @@ export default function RechnungForm({ rechnung, kunden, events, onSubmit, onCan
                 id="faelligkeitsdatum"
                 type="date"
                 value={formData.faelligkeitsdatum}
-                onChange={(e) => setFormData({...formData, faelligkeitsdatum: e.target.value})}
+                onChange={(e) => handleChange('faelligkeitsdatum', e.target.value)}
                 required
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="steuersatz">Steuersatz (%)</Label>
-              <Input
-                id="steuersatz"
-                type="number"
-                value={formData.steuersatz}
-                onChange={(e) => setFormData({...formData, steuersatz: parseFloat(e.target.value)})}
-                step="0.01"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value) => setFormData({...formData, status: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="entwurf">Entwurf</SelectItem>
-                  <SelectItem value="versendet">Versendet</SelectItem>
-                  <SelectItem value="bezahlt">Bezahlt</SelectItem>
-                  <SelectItem value="ueberfaellig">Überfällig</SelectItem>
-                  <SelectItem value="storniert">Storniert</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
-          {/* Positionen */}
+          {/* Rechnungspositionen */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Rechnungspositionen</h3>
-            
-            {/* Bestehende Positionen */}
-            {formData.positionen.length > 0 && (
-              <div className="space-y-2">
-                {formData.positionen.map((pos, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium">{pos.beschreibung}</div>
-                      <div className="text-sm text-gray-600">
-                        {pos.menge} × {pos.einzelpreis.toFixed(2)} € = {(pos.menge * pos.einzelpreis).toFixed(2)} €
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removePosition(index)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <Label className="text-base font-semibold">Rechnungspositionen</Label>
+              <Button type="button" onClick={addPosition} variant="outline" size="sm">
+                <Plus className="w-4 h-4 mr-2" />
+                Position hinzufügen
+              </Button>
+            </div>
 
-            {/* Neue Position hinzufügen */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 border rounded-lg">
-              <Input
-                placeholder="Beschreibung"
-                value={neuePosition.beschreibung}
-                onChange={(e) => setNeuePosition({...neuePosition, beschreibung: e.target.value})}
-                className="md:col-span-2"
-              />
-              <Input
-                type="number"
-                placeholder="Menge"
-                value={neuePosition.menge}
-                onChange={(e) => setNeuePosition({...neuePosition, menge: parseInt(e.target.value) || 0})}
-              />
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="Preis"
-                  value={neuePosition.einzelpreis}
-                  onChange={(e) => setNeuePosition({...neuePosition, einzelpreis: parseFloat(e.target.value) || 0})}
-                  step="0.01"
-                />
-                <Button type="button" onClick={addPosition} size="icon">
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
+            <div className="space-y-3">
+              {formData.positionen.map((position, index) => (
+                <Card key={index} className="p-4 bg-gray-50">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-4 space-y-2">
+                      <Label className="text-xs">Beschreibung</Label>
+                      <Input
+                        value={position.beschreibung}
+                        onChange={(e) => handlePositionChange(index, 'beschreibung', e.target.value)}
+                        placeholder="z.B. Live-Performance"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="text-xs">Menge</Label>
+                      <Input
+                        type="number"
+                        value={position.menge}
+                        onChange={(e) => handlePositionChange(index, 'menge', parseFloat(e.target.value))}
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="text-xs">Einheit</Label>
+                      <Input
+                        value={position.einheit}
+                        onChange={(e) => handlePositionChange(index, 'einheit', e.target.value)}
+                        placeholder="Stück"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2 space-y-2">
+                      <Label className="text-xs">Einzelpreis (€)</Label>
+                      <Input
+                        type="number"
+                        value={position.einzelpreis}
+                        onChange={(e) => handlePositionChange(index, 'einzelpreis', parseFloat(e.target.value))}
+                        min="0"
+                        step="0.01"
+                        required
+                      />
+                    </div>
+
+                    <div className="md:col-span-1 space-y-2">
+                      <Label className="text-xs">MwSt %</Label>
+                      <Input
+                        type="number"
+                        value={position.steuersatz}
+                        onChange={(e) => handlePositionChange(index, 'steuersatz', parseFloat(e.target.value))}
+                        min="0"
+                        max="100"
+                      />
+                    </div>
+
+                    <div className="md:col-span-1 flex items-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removePosition(index)}
+                        disabled={formData.positionen.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 text-sm text-gray-600">
+                    Gesamt: {((position.menge || 0) * (position.einzelpreis || 0) * (1 + (position.steuersatz || 0) / 100)).toFixed(2)} €
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
 
-          {/* Zusammenfassung */}
-          {formData.positionen.length > 0 && (
-            <div className="space-y-2 p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between">
-                <span>Netto:</span>
-                <span className="font-medium">{calculateNetto().toFixed(2)} €</span>
+          {/* Summen Vorschau */}
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="p-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Nettobetrag:</span>
+                  <span className="font-medium">{nettoBetrag.toFixed(2)} €</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>MwSt:</span>
+                  <span className="font-medium">{steuerBetrag.toFixed(2)} €</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold border-t border-blue-300 pt-2">
+                  <span>Gesamtbetrag:</span>
+                  <span>{bruttoBetrag.toFixed(2)} €</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>MwSt ({formData.steuersatz}%):</span>
-                <span className="font-medium">{calculateSteuer().toFixed(2)} €</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                <span>Brutto:</span>
-                <span>{calculateBrutto().toFixed(2)} €</span>
-              </div>
-            </div>
-          )}
+            </CardContent>
+          </Card>
 
           {/* Notizen */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="kunde_notizen">Notizen für Kunde (auf Rechnung sichtbar)</Label>
+              <Textarea
+                id="kunde_notizen"
+                value={formData.kunde_notizen}
+                onChange={(e) => handleChange('kunde_notizen', e.target.value)}
+                placeholder="z.B. Vielen Dank für Ihren Auftrag!"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notizen">Interne Notizen</Label>
+              <Textarea
+                id="notizen"
+                value={formData.notizen}
+                onChange={(e) => handleChange('notizen', e.target.value)}
+                placeholder="Interne Notizen..."
+                rows={3}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="notizen">Notizen</Label>
+            <Label htmlFor="zahlungsbedingungen">Zahlungsbedingungen</Label>
             <Textarea
-              id="notizen"
-              value={formData.notizen}
-              onChange={(e) => setFormData({...formData, notizen: e.target.value})}
-              placeholder="Zusätzliche Informationen..."
-              rows={3}
+              id="zahlungsbedingungen"
+              value={formData.zahlungsbedingungen}
+              onChange={(e) => handleChange('zahlungsbedingungen', e.target.value)}
+              rows={2}
             />
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button 
-              type="submit"
-              style={{ backgroundColor: '#223a5e' }}
-              className="hover:opacity-90"
-            >
+            <Button type="submit" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+              <Save className="w-4 h-4 mr-2" />
               Rechnung speichern
             </Button>
           </div>

@@ -7,25 +7,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, Save, Plus } from "lucide-react";
 
-export default function MusikerForm({ musiker, onSubmit, onCancel }) {
-  const [formData, setFormData] = useState({
+export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
+  const [formData, setFormData] = useState(musiker || {
     name: "",
-    email: "",
-    telefon: "",
-    tagessatz_netto: 0,
     instrumente: [],
     genre: [],
     sprachen: [],
     buchungsbedingungen: "",
+    tagessatz_netto: "",
     reisespesen_regeln: "",
+    email: "",
+    telefon: "",
     notfallkontakt: "",
     notizen: "",
-    aktiv: true,
-    ...musiker,
-    // Sicherstellen, dass Arrays immer existieren
-    instrumente: musiker?.instrumente || [],
-    genre: musiker?.genre || [],
-    sprachen: musiker?.sprachen || []
+    aktiv: true
   });
 
   const [instrumentInput, setInstrumentInput] = useState("");
@@ -49,7 +44,7 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
   };
 
   const removeItem = (field, index) => {
-    handleChange(field, (formData[field] || []).filter((_, i) => i !== index));
+    handleChange(field, formData[field].filter((_, i) => i !== index));
   };
 
   return (
@@ -64,17 +59,16 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Persönliche Daten */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Name / Künstlername *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 placeholder="z.B. Max Mustermann"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -84,8 +78,8 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                placeholder="max@example.com"
-              />
+                placeholder="max@example.com" />
+
             </div>
 
             <div className="space-y-2">
@@ -94,8 +88,8 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
                 id="telefon"
                 value={formData.telefon}
                 onChange={(e) => handleChange('telefon', e.target.value)}
-                placeholder="+49 123 456789"
-              />
+                placeholder="+49 123 456789" />
+
             </div>
 
             <div className="space-y-2">
@@ -105,12 +99,11 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
                 type="number"
                 value={formData.tagessatz_netto}
                 onChange={(e) => handleChange('tagessatz_netto', parseFloat(e.target.value))}
-                placeholder="500"
-              />
+                placeholder="500" />
+
             </div>
           </div>
 
-          {/* Instrumente */}
           <div className="space-y-2">
             <Label>Instrumente</Label>
             <div className="flex gap-2">
@@ -118,67 +111,65 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
                 value={instrumentInput}
                 onChange={(e) => setInstrumentInput(e.target.value)}
                 placeholder="z.B. Gitarre"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('instrumente', instrumentInput, setInstrumentInput))}
-              />
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('instrumente', instrumentInput, setInstrumentInput))} />
+
               <Button
                 type="button"
                 onClick={() => addItem('instrumente', instrumentInput, setInstrumentInput)}
-                variant="outline"
-              >
+                variant="outline">
+
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {(formData.instrumente || []).map((instrument, i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
+              {formData.instrumente.map((instrument, i) =>
+              <Badge key={i} variant="secondary" className="text-sm">
                   {instrument}
                   <button
-                    type="button"
-                    onClick={() => removeItem('instrumente', i)}
-                    className="ml-2 hover:text-red-500"
-                  >
+                  type="button"
+                  onClick={() => removeItem('instrumente', i)}
+                  className="ml-2 hover:text-red-500">
+
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
-          {/* Genre */}
           <div className="space-y-2">
-            <Label>Genre</Label>
+            <Label>Genres</Label>
             <div className="flex gap-2">
               <Input
                 value={genreInput}
                 onChange={(e) => setGenreInput(e.target.value)}
                 placeholder="z.B. Jazz"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('genre', genreInput, setGenreInput))}
-              />
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('genre', genreInput, setGenreInput))} />
+
               <Button
                 type="button"
                 onClick={() => addItem('genre', genreInput, setGenreInput)}
-                variant="outline"
-              >
+                variant="outline">
+
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {(formData.genre || []).map((g, i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
+              {formData.genre.map((g, i) =>
+              <Badge key={i} variant="secondary" className="text-sm">
                   {g}
                   <button
-                    type="button"
-                    onClick={() => removeItem('genre', i)}
-                    className="ml-2 hover:text-red-500"
-                  >
+                  type="button"
+                  onClick={() => removeItem('genre', i)}
+                  className="ml-2 hover:text-red-500">
+
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
-          {/* Sprachen */}
           <div className="space-y-2">
             <Label>Sprachen</Label>
             <div className="flex gap-2">
@@ -186,68 +177,64 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
                 value={spracheInput}
                 onChange={(e) => setSpracheInput(e.target.value)}
                 placeholder="z.B. Deutsch"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('sprachen', spracheInput, setSpracheInput))}
-              />
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addItem('sprachen', spracheInput, setSpracheInput))} />
+
               <Button
                 type="button"
                 onClick={() => addItem('sprachen', spracheInput, setSpracheInput)}
-                variant="outline"
-              >
+                variant="outline">
+
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {(formData.sprachen || []).map((sprache, i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
-                  {sprache}
+              {formData.sprachen.map((s, i) =>
+              <Badge key={i} variant="secondary" className="text-sm">
+                  {s}
                   <button
-                    type="button"
-                    onClick={() => removeItem('sprachen', i)}
-                    className="ml-2 hover:text-red-500"
-                  >
+                  type="button"
+                  onClick={() => removeItem('sprachen', i)}
+                  className="ml-2 hover:text-red-500">
+
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
-          {/* Buchungsbedingungen */}
           <div className="space-y-2">
             <Label htmlFor="buchungsbedingungen">Buchungsbedingungen</Label>
             <Textarea
               id="buchungsbedingungen"
               value={formData.buchungsbedingungen}
               onChange={(e) => handleChange('buchungsbedingungen', e.target.value)}
-              placeholder="Spezielle Bedingungen für Buchungen..."
-              rows={3}
-            />
+              placeholder="z.B. Mindestvorlauf 2 Wochen, Anreise ab 50km extra..."
+              rows={3} />
+
           </div>
 
-          {/* Reisespesen */}
           <div className="space-y-2">
             <Label htmlFor="reisespesen">Reisespesen-Regeln</Label>
             <Textarea
               id="reisespesen"
               value={formData.reisespesen_regeln}
               onChange={(e) => handleChange('reisespesen_regeln', e.target.value)}
-              placeholder="z.B. 0,30€/km oder pauschal"
-              rows={2}
-            />
+              placeholder="z.B. 0,30€/km ab 50km..."
+              rows={2} />
+
           </div>
 
-          {/* Notfallkontakt */}
           <div className="space-y-2">
             <Label htmlFor="notfallkontakt">Notfallkontakt</Label>
             <Input
               id="notfallkontakt"
               value={formData.notfallkontakt}
               onChange={(e) => handleChange('notfallkontakt', e.target.value)}
-              placeholder="Name und Telefonnummer"
-            />
+              placeholder="Name und Telefon" />
+
           </div>
 
-          {/* Notizen */}
           <div className="space-y-2">
             <Label htmlFor="notizen">Interne Notizen</Label>
             <Textarea
@@ -255,40 +242,21 @@ export default function MusikerForm({ musiker, onSubmit, onCancel }) {
               value={formData.notizen}
               onChange={(e) => handleChange('notizen', e.target.value)}
               placeholder="Interne Notizen..."
-              rows={3}
-            />
+              rows={3} />
+
           </div>
 
-          {/* Aktiv-Status */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="aktiv"
-              checked={formData.aktiv}
-              onChange={(e) => handleChange('aktiv', e.target.checked)}
-              className="w-4 h-4"
-            />
-            <Label htmlFor="aktiv" className="cursor-pointer">
-              Musiker ist aktiv verfügbar
-            </Label>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button 
-              type="submit" 
-              style={{ backgroundColor: '#223a5e' }}
-              className="hover:opacity-90"
-            >
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
               <Save className="w-4 h-4 mr-2" />
-              {musiker ? 'Speichern' : 'Musiker erstellen'}
+              Speichern
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
