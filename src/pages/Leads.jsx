@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp } from "lucide-react";
+import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import LeadForm from "@/components/leads/LeadForm";
+import KanbanView from "@/components/leads/KanbanView";
+import StageManager from "@/components/leads/StageManager";
 
 export default function LeadsPage() {
   const navigate = useNavigate();
@@ -22,7 +24,8 @@ export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "kanban");
+  const [showStageManager, setShowStageManager] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -32,6 +35,35 @@ export default function LeadsPage() {
   const { data: leads = [] } = useQuery({
     queryKey: ['leads', currentOrgId],
     queryFn: () => base44.entities.Lead.filter({ org_id: currentOrgId }, '-created_date'),
+    enabled: !!currentOrgId
+  });
+
+  // Lade Lead-Stages
+  const { data: stages = [] } = useQuery({
+    queryKey: ['leadStages', currentOrgId],
+    queryFn: async () => {
+      const existingStages = await base44.entities.LeadStage.filter({ org_id: currentOrgId }, 'reihenfolge');
+      
+      // Falls keine Stages existieren, erstelle Standard-Stages
+      if (existingStages.length === 0) {
+        const defaultStages = [
+          { org_id: currentOrgId, name: 'Neu', farbe: '#6B7280', reihenfolge: 0, ist_standard: true, status_mapping: 'neu' },
+          { org_id: currentOrgId, name: 'Kontaktiert', farbe: '#3B82F6', reihenfolge: 1, ist_standard: true, status_mapping: 'kontaktiert' },
+          { org_id: currentOrgId, name: 'Qualifiziert', farbe: '#8B5CF6', reihenfolge: 2, ist_standard: true, status_mapping: 'qualifiziert' },
+          { org_id: currentOrgId, name: 'Angebot', farbe: '#6366F1', reihenfolge: 3, ist_standard: true, status_mapping: 'angebot' },
+          { org_id: currentOrgId, name: 'Verhandlung', farbe: '#F59E0B', reihenfolge: 4, ist_standard: true, status_mapping: 'verhandlung' },
+          { org_id: currentOrgId, name: 'Gewonnen', farbe: '#10B981', reihenfolge: 5, ist_standard: true, status_mapping: 'gewonnen' },
+          { org_id: currentOrgId, name: 'Verloren', farbe: '#EF4444', reihenfolge: 6, ist_standard: true, status_mapping: 'verloren' }
+        ];
+        
+        const createdStages = await Promise.all(
+          defaultStages.map(stage => base44.entities.LeadStage.create(stage))
+        );
+        return createdStages;
+      }
+      
+      return existingStages;
+    },
     enabled: !!currentOrgId
   });
 
@@ -65,6 +97,39 @@ export default function LeadsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setShowDropdownId(null);
+    }
+  });
+
+  const updateLeadStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Lead.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    }
+  });
+
+  const saveStagesMutation = useMutation({
+    mutationFn: async (stagesToSave) => {
+      const updates = stagesToSave.map(async (stage) => {
+        if (stage.id && typeof stage.id === 'string' && stage.id.startsWith('temp_')) {
+          // Neue Stage erstellen
+          const { id, ...stageData } = stage; // eslint-disable-line no-unused-vars
+          return base44.entities.LeadStage.create({ ...stageData, org_id: currentOrgId });
+        } else if (stage.id) {
+          // Existierende Stage updaten
+          const { id, ...stageData } = stage;
+          return base44.entities.LeadStage.update(id, stageData);
+        }
+        // Handle stages without an ID, maybe they are deleted or malformed.
+        // For now, we'll just skip them.
+        return Promise.resolve(null);
+      });
+      
+      // Filter out nulls from skipped stages
+      return (await Promise.all(updates)).filter(Boolean);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leadStages'] });
+      setShowStageManager(false);
     }
   });
 
@@ -131,6 +196,14 @@ export default function LeadsPage() {
     } else {
       createLeadMutation.mutate(data);
     }
+  };
+
+  const handleLeadUpdate = (leadId, data) => {
+    updateLeadStatusMutation.mutate({ id: leadId, ...data });
+  };
+
+  const handleSaveStages = (stagesToSave) => {
+    saveStagesMutation.mutate(stagesToSave);
   };
 
   const LeadCard = ({ lead }) => {
@@ -443,8 +516,8 @@ export default function LeadsPage() {
                   placeholder="Leads durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10" />
-
+                  className="pl-10"
+                />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-48">
@@ -463,19 +536,27 @@ export default function LeadsPage() {
               </Select>
               <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                 <Button
+                  variant={viewMode === "kanban" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("kanban")}
+                  className={viewMode === "kanban" ? "bg-white shadow-sm" : ""}
+                >
+                  <Columns3 className="w-4 h-4" />
+                </Button>
+                <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
-
+                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
+                >
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
-
+                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
+                >
                   <List className="w-4 h-4" />
                 </Button>
               </div>
@@ -483,36 +564,58 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
 
-        {showForm &&
-        <div className="mb-6">
+        {showForm && (
+          <div className="mb-6">
             <LeadForm
-            lead={editingLead}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingLead(null);
-            }}
-            mitglieder={mitglieder} />
-
+              lead={editingLead}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingLead(null);
+              }}
+              mitglieder={mitglieder}
+            />
           </div>
-        }
+        )}
 
-        {filteredLeads.length > 0 ?
-        viewMode === "grid" ?
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredLeads.map((lead) =>
-          <LeadCard key={lead.id} lead={lead} />
-          )}
-            </div> :
+        {showStageManager && (
+          <div className="mb-6">
+            <StageManager
+              stages={stages}
+              onSave={handleSaveStages}
+              onCancel={() => setShowStageManager(false)}
+            />
+          </div>
+        )}
 
-        <div className="space-y-3">
-              {filteredLeads.map((lead) =>
-          <LeadListItem key={lead.id} lead={lead} />
-          )}
-            </div> :
-
-
-        <Card className="border-dashed">
+        {filteredLeads.length > 0 ? (
+          viewMode === "kanban" ? (
+            <KanbanView
+              leads={filteredLeads}
+              stages={stages}
+              onLeadClick={handleCardClick}
+              onLeadUpdate={handleLeadUpdate}
+              onLeadEdit={handleEdit}
+              onStageSettings={() => setShowStageManager(true)}
+              showDropdownId={showDropdownId}
+              setShowDropdownId={setShowDropdownId}
+              onLeadDelete={handleDelete} // Pass delete handler
+            />
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredLeads.map((lead) => (
+                <LeadCard key={lead.id} lead={lead} />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredLeads.map((lead) => (
+                <LeadListItem key={lead.id} lead={lead} />
+              ))}
+            </div>
+          )
+        ) : (
+          <Card className="border-dashed">
             <CardContent className="p-12 text-center">
               <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
@@ -523,8 +626,8 @@ export default function LeadsPage() {
               </Button>
             </CardContent>
           </Card>
-        }
+        )}
       </div>
-    </div>);
-
+    </div>
+  );
 }
