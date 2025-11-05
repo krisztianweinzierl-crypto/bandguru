@@ -36,17 +36,17 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Daten bereinigen
     const cleanData = { ...formData };
-    
+
     // Leere Felder entfernen
-    Object.keys(cleanData).forEach(key => {
+    Object.keys(cleanData).forEach((key) => {
       if (cleanData[key] === "" || cleanData[key] === null) {
         delete cleanData[key];
       }
     });
-    
+
     // Zahlen konvertieren
     if (cleanData.erwarteter_umsatz) {
       cleanData.erwarteter_umsatz = parseFloat(cleanData.erwarteter_umsatz);
@@ -54,12 +54,12 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
     if (cleanData.anzahl_gaeste) {
       cleanData.anzahl_gaeste = parseInt(cleanData.anzahl_gaeste);
     }
-    
+
     onSubmit(cleanData);
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addTag = () => {
@@ -98,8 +98,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   onChange={(e) => handleChange('titel', e.target.value)}
                   placeholder="z.B. Geburtstagsparty Maier"
                   required
-                  autoFocus
-                />
+                  autoFocus />
+
               </div>
 
               <div className="space-y-2">
@@ -108,8 +108,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="firmenname"
                   value={formData.firmenname}
                   onChange={(e) => handleChange('firmenname', e.target.value)}
-                  placeholder="z.B. Innenarchitektur Meier"
-                />
+                  placeholder="z.B. Innenarchitektur Meier" />
+
               </div>
 
               <div className="space-y-2">
@@ -118,8 +118,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="kontaktperson"
                   value={formData.kontaktperson}
                   onChange={(e) => handleChange('kontaktperson', e.target.value)}
-                  placeholder="z.B. Daniela Maier"
-                />
+                  placeholder="z.B. Daniela Maier" />
+
               </div>
 
               <div className="space-y-2">
@@ -129,8 +129,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
-                  placeholder="kontakt@beispiel.de"
-                />
+                  placeholder="kontakt@beispiel.de" />
+
               </div>
 
               <div className="space-y-2">
@@ -139,8 +139,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="telefon"
                   value={formData.telefon}
                   onChange={(e) => handleChange('telefon', e.target.value)}
-                  placeholder="+49 151 122 88 982"
-                />
+                  placeholder="+49 151 122 88 982" />
+
               </div>
 
               <div className="space-y-2">
@@ -174,8 +174,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="event_datum"
                   type="date"
                   value={formData.event_datum}
-                  onChange={(e) => handleChange('event_datum', e.target.value)}
-                />
+                  onChange={(e) => handleChange('event_datum', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -184,8 +184,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="event_uhrzeit"
                   type="time"
                   value={formData.event_uhrzeit}
-                  onChange={(e) => handleChange('event_uhrzeit', e.target.value)}
-                />
+                  onChange={(e) => handleChange('event_uhrzeit', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -194,8 +194,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="event_ort"
                   value={formData.event_ort}
                   onChange={(e) => handleChange('event_ort', e.target.value)}
-                  placeholder="z.B. Trafohaus Birkl, Ingolstadt"
-                />
+                  placeholder="z.B. Trafohaus Birkl, Ingolstadt" />
+
               </div>
 
               <div className="space-y-2">
@@ -223,8 +223,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   type="number"
                   value={formData.anzahl_gaeste}
                   onChange={(e) => handleChange('anzahl_gaeste', e.target.value)}
-                  placeholder="z.B. 150"
-                />
+                  placeholder="z.B. 150" />
+
               </div>
             </div>
           </div>
@@ -242,8 +242,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   step="0.01"
                   value={formData.erwarteter_umsatz}
                   onChange={(e) => handleChange('erwarteter_umsatz', e.target.value)}
-                  placeholder="z.B. 4500"
-                />
+                  placeholder="z.B. 4500" />
+
               </div>
 
               <div className="space-y-2">
@@ -252,8 +252,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   id="budget"
                   value={formData.budget}
                   onChange={(e) => handleChange('budget', e.target.value)}
-                  placeholder="z.B. 3000-5000€"
-                />
+                  placeholder="z.B. 3000-5000€" />
+
               </div>
 
               <div className="space-y-2">
@@ -298,11 +298,11 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={null}>Nicht zugewiesen</SelectItem>
-                    {mitglieder.map((mitglied) => (
-                      <SelectItem key={mitglied.user_id} value={mitglied.user_id}>
+                    {mitglieder.map((mitglied) =>
+                    <SelectItem key={mitglied.user_id} value={mitglied.user_id}>
                         {mitglied.rolle}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -320,8 +320,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                 value={formData.beschreibung}
                 onChange={(e) => handleChange('beschreibung', e.target.value)}
                 placeholder="Detaillierte Beschreibung der Anfrage..."
-                rows={4}
-              />
+                rows={4} />
+
             </div>
 
             <div className="space-y-2">
@@ -330,8 +330,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                 id="naechster_schritt"
                 value={formData.naechster_schritt}
                 onChange={(e) => handleChange('naechster_schritt', e.target.value)}
-                placeholder="z.B. Angebot erstellen"
-              />
+                placeholder="z.B. Angebot erstellen" />
+
             </div>
 
             <div className="space-y-2">
@@ -340,8 +340,8 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                 id="naechstes_followup"
                 type="date"
                 value={formData.naechstes_followup}
-                onChange={(e) => handleChange('naechstes_followup', e.target.value)}
-              />
+                onChange={(e) => handleChange('naechstes_followup', e.target.value)} />
+
             </div>
           </div>
 
@@ -356,33 +356,33 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   placeholder="z.B. VIP, Stammkunde"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                />
-                <Button 
-                  type="button" 
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} />
+
+                <Button
+                  type="button"
                   onClick={addTag}
-                  variant="outline"
-                >
+                  variant="outline">
+
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.tags.map((tag, i) => (
-                    <Badge key={i} variant="secondary" className="text-sm">
+              {formData.tags.length > 0 &&
+              <div className="flex flex-wrap gap-2 mt-2">
+                  {formData.tags.map((tag, i) =>
+                <Badge key={i} variant="secondary" className="text-sm">
                       <Tag className="w-3 h-3 mr-1" />
                       {tag}
                       <button
-                        type="button"
-                        onClick={() => removeTag(i)}
-                        className="ml-2 hover:text-red-500"
-                      >
+                    type="button"
+                    onClick={() => removeTag(i)}
+                    className="ml-2 hover:text-red-500">
+
                         <X className="w-3 h-3" />
                       </button>
                     </Badge>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </div>
           </div>
 
@@ -391,13 +391,13 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
               <Save className="w-4 h-4 mr-2" />
               {lead ? 'Änderungen speichern' : 'Lead erstellen'}
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
