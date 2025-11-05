@@ -48,7 +48,7 @@ export default function NachrichtenPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [selectedKonversation]);
+  }, [selectedKonversation, nachrichten]); // Added nachrichten as dependency to scroll on new messages
 
   const loadUser = async () => {
     const user = await base44.auth.me();
@@ -239,28 +239,6 @@ export default function NachrichtenPage() {
   };
 
   const hasUnreadMessages = (konversation) => {
-    // Prüfe ob es Nachrichten gibt, die der User noch nicht gelesen hat
-    // TODO: This logic currently checks against all fetched messages, not only latest for this konversation
-    // Needs adjustment to accurately reflect unread status for a given konversation based on `letzte_nachricht_zeit` and user's last read time.
-    // For now, it will mark unread if any message in the whole fetch is unread for the current user.
-    // A more robust solution would involve tracking `last_read_time` per user per conversation.
-    const lastMessageTime = konversation.letzte_nachricht_zeit;
-
-    if (!lastMessageTime) return false; // No messages yet
-
-    // This is a simplified check. A proper implementation would compare the `letzte_nachricht_zeit`
-    // with a stored `last_read_timestamp` for the currentUser in this specific conversation.
-    // Since `gelesen_von` is an array of user IDs who have read the message, we can check if currentUser.id is NOT in the latest message's gelesen_von array.
-    // However, `nachrichten` is a list of ALL messages for the selectedKonversation, not just the latest.
-    // To correctly implement this, we'd need to fetch the latest message *for that conversation* or add `last_read_timestamp` to the Konversation entity.
-
-    // Current simple approach (may not be entirely accurate for dynamic updates without specific server-side tracking):
-    // If the selectedKonversation is currently loaded, we might try to check its actual messages.
-    // If the conversation is not selected, we don't have its messages loaded by the `nachrichten` query.
-    // For now, will use a placeholder logic that would need refinement.
-    // For simplicity, let's just assume if the user is not among `gelesen_von` for the latest message in the specific convo.
-    // This requires `nachrichten` to be filtered by conversation ID, which it is.
-
     const latestMessage = nachrichten.
     filter((n) => n.konversation_id === konversation.id).
     sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
@@ -373,212 +351,220 @@ export default function NachrichtenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="h-screen flex flex-col">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4">
-          <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900">Nachrichten</h1>
-            <p className="text-gray-600">Kommuniziere mit deinem Team</p>
-          </div>
+    <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Nachrichten</h1>
+          <p className="text-sm md:text-base text-gray-600">Kommuniziere mit deinem Team</p>
         </div>
+      </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full max-w-7xl mx-auto px-4 md:px-8 py-6 flex gap-6">
-            {/* Sidebar */}
-            <Card className="w-full md:w-96 flex-shrink-0 border-none shadow-lg flex flex-col">
-              <CardHeader className="border-b pb-4">
-                <div className="flex justify-between items-center mb-4">
-                  <CardTitle className="text-lg">Chats</CardTitle>
-                  <Button
-                    size="sm"
-                    onClick={() => setShowNewChatModal(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+      {/* Content - Full height with mobile bottom nav consideration */}
+      <div className="flex-1 overflow-hidden pb-16 md:pb-0">
+        <div className="h-full max-w-7xl mx-auto px-2 md:px-8 py-2 md:py-6 flex gap-2 md:gap-6">
+          {/* Sidebar - Hidden on mobile when chat selected */}
+          <Card className={`${selectedKonversation ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-shrink-0 border-none shadow-lg flex-col overflow-hidden`}>
+            <CardHeader className="border-b pb-4 flex-shrink-0">
+              <div className="flex justify-between items-center mb-4">
+                <CardTitle className="text-lg">Chats</CardTitle>
+                <Button
+                  size="sm"
+                  onClick={() => setShowNewChatModal(true)}
+                  className="bg-[#223a5e] hover:opacity-90"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Neu
+                </Button>
+              </div>
 
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Chats durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </CardHeader>
 
-                    <Plus className="w-4 h-4 mr-2" />
-                    Neuer Chat
-                  </Button>
-                </div>
+            <Tabs defaultValue="aktiv" className="flex-1 flex flex-col overflow-hidden">
+              <TabsList className="mx-6 mt-4 flex-shrink-0">
+                <TabsTrigger value="aktiv" className="flex-1">
+                  Aktiv ({filteredActiveKonversationen.length})
+                </TabsTrigger>
+                <TabsTrigger value="archiviert" className="flex-1">
+                  Archiviert ({archivedKonversationen.length})
+                </TabsTrigger>
+              </TabsList>
 
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Chats durchsuchen..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10" />
-
-                </div>
-              </CardHeader>
-
-              <Tabs defaultValue="aktiv" className="flex-1 flex flex-col">
-                <TabsList className="mx-6 mt-4">
-                  <TabsTrigger value="aktiv" className="flex-1">
-                    Aktiv ({filteredActiveKonversationen.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="archiviert" className="flex-1">
-                    Archiviert ({archivedKonversationen.length})
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="aktiv" className="flex-1 overflow-y-auto mt-0">
-                  {filteredActiveKonversationen.length > 0 ?
+              <TabsContent value="aktiv" className="flex-1 overflow-y-auto mt-0">
+                {filteredActiveKonversationen.length > 0 ? (
                   <div className="divide-y">
-                      {filteredActiveKonversationen.map((konversation) =>
-                    <KonversationItem key={konversation.id} konversation={konversation} />
-                    )}
-                    </div> :
-
+                    {filteredActiveKonversationen.map((konversation) => (
+                      <KonversationItem key={konversation.id} konversation={konversation} />
+                    ))}
+                  </div>
+                ) : (
                   <div className="p-12 text-center text-gray-500">
-                      <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <p>Keine Chats gefunden</p>
-                    </div>
-                  }
-                </TabsContent>
+                    <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p>Keine Chats gefunden</p>
+                  </div>
+                )}
+              </TabsContent>
 
-                <TabsContent value="archiviert" className="flex-1 overflow-y-auto mt-0">
-                  {archivedKonversationen.length > 0 ?
+              <TabsContent value="archiviert" className="flex-1 overflow-y-auto mt-0">
+                {archivedKonversationen.length > 0 ? (
                   <div className="divide-y">
-                      {archivedKonversationen.map((konversation) =>
-                    <KonversationItem key={konversation.id} konversation={konversation} />
-                    )}
-                    </div> :
-
+                    {archivedKonversationen.map((konversation) => (
+                      <KonversationItem key={konversation.id} konversation={konversation} />
+                    ))}
+                  </div>
+                ) : (
                   <div className="p-12 text-center text-gray-500">
-                      <Archive className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <p>Keine archivierten Chats</p>
-                    </div>
-                  }
-                </TabsContent>
-              </Tabs>
-            </Card>
+                    <Archive className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <p>Keine archivierten Chats</p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </Card>
 
-            {/* Chat Area */}
-            <Card className="flex-1 border-none shadow-lg flex flex-col">
-              {selectedKonversation ?
+          {/* Chat Area */}
+          <Card className={`${selectedKonversation ? 'flex' : 'hidden md:flex'} flex-1 border-none shadow-lg flex-col overflow-hidden`}>
+            {selectedKonversation ? (
               <>
-                  {/* Chat Header */}
-                  <CardHeader className="border-b pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600">
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
-                            {getKonversationName(selectedKonversation)[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            {getKonversationName(selectedKonversation)}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {getKonversationTeilnehmer(selectedKonversation).length} Teilnehmer
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="relative">
-                        <Button
+                {/* Chat Header */}
+                <CardHeader className="border-b pb-4 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {/* Back button für mobile */}
+                      <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setShowKonversationMenu(
-                          showKonversationMenu === selectedKonversation.id ?
-                          null :
-                          selectedKonversation.id
-                        )}>
-
-                          <MoreVertical className="w-5 h-5" />
-                        </Button>
-
-                        {showKonversationMenu === selectedKonversation.id &&
-                      <>
-                            <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setShowKonversationMenu(null)} />
-
-                            <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
-                              <button
-                            onClick={() => archiveKonversationMutation.mutate({
-                              id: selectedKonversation.id,
-                              archiviert: !selectedKonversation.archiviert
-                            })}
-                            className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm">
-
-                                {selectedKonversation.archiviert ?
-                            <>
-                                    <ArchiveRestore className="w-4 h-4" />
-                                    Wiederherstellen
-                                  </> :
-
-                            <>
-                                    <Archive className="w-4 h-4" />
-                                    Archivieren
-                                  </>
-                            }
-                              </button>
-                            </div>
-                          </>
-                      }
+                        className="md:hidden"
+                        onClick={() => setSelectedKonversation(null)}
+                      >
+                        <X className="w-5 h-5" />
+                      </Button>
+                      
+                      <Avatar className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                          {getKonversationName(selectedKonversation)[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">
+                          {getKonversationName(selectedKonversation)}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {getKonversationTeilnehmer(selectedKonversation).length} Teilnehmer
+                        </p>
                       </div>
                     </div>
-                  </CardHeader>
 
-                  {/* Messages */}
-                  <CardContent className="flex-1 overflow-y-auto p-6">
-                    {nachrichten.map((nachricht) =>
-                  <NachrichtItem key={nachricht.id} nachricht={nachricht} />
-                  )}
-                    <div ref={messagesEndRef} />
-                  </CardContent>
+                    <div className="relative">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          setShowKonversationMenu(
+                            showKonversationMenu === selectedKonversation.id
+                              ? null
+                              : selectedKonversation.id
+                          )
+                        }
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </Button>
 
-                  {/* Input */}
-                  <div className="border-t p-4">
-                    <form onSubmit={handleSendMessage} className="flex gap-2">
-                      <Textarea
+                      {showKonversationMenu === selectedKonversation.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setShowKonversationMenu(null)}
+                          />
+                          <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                            <button
+                              onClick={() =>
+                                archiveKonversationMutation.mutate({
+                                  id: selectedKonversation.id,
+                                  archiviert: !selectedKonversation.archiviert,
+                                })
+                              }
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                            >
+                              {selectedKonversation.archiviert ? (
+                                <>
+                                  <ArchiveRestore className="w-4 h-4" />
+                                  Wiederherstellen
+                                </>
+                              ) : (
+                                <>
+                                  <Archive className="w-4 h-4" />
+                                  Archivieren
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+
+                {/* Messages - Scrollable with fixed height */}
+                <CardContent className="flex-1 overflow-y-auto p-4 md:p-6">
+                  {nachrichten.map((nachricht) => (
+                    <NachrichtItem key={nachricht.id} nachricht={nachricht} />
+                  ))}
+                  <div ref={messagesEndRef} />
+                </CardContent>
+
+                {/* Input - Fixed at bottom */}
+                <div className="border-t p-3 md:p-4 flex-shrink-0">
+                  <form onSubmit={handleSendMessage} className="flex gap-2">
+                    <Textarea
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Nachricht schreiben..."
                       rows={1}
-                      className="flex-1 resize-none"
+                      className="flex-1 resize-none max-h-32"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
                           handleSendMessage(e);
                         }
-                      }} />
-
-                      <Button
+                      }}
+                    />
+                    <Button
                       type="submit"
                       disabled={!newMessage.trim() || sendNachrichtMutation.isPending}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-
-                        <Send className="w-4 h-4" />
-                      </Button>
-                    </form>
-                  </div>
-                </> :
-
-              <div className="flex-1 flex items-center justify-center text-center p-12">
-                  <div>
-                    <MessageSquare className="w-24 h-24 mx-auto mb-6 text-gray-300" />
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                      Wähle einen Chat
-                    </h3>
-                    <p className="text-gray-500 mb-6">
-                      Oder starte eine neue Konversation
-                    </p>
-                    <Button
-                    onClick={() => setShowNewChatModal(true)} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
-
-
-                      <Plus className="w-4 h-4 mr-2" />
-                      Neuer Chat
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                    >
+                      <Send className="w-4 h-4" />
                     </Button>
-                  </div>
+                  </form>
                 </div>
-              }
-            </Card>
-          </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-center p-12">
+                <div>
+                  <MessageSquare className="w-24 h-24 mx-auto mb-6 text-gray-300" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Wähle einen Chat</h3>
+                  <p className="text-gray-500 mb-6">Oder starte eine neue Konversation</p>
+                  <Button
+                    onClick={() => setShowNewChatModal(true)}
+                    className="bg-[#223a5e] hover:opacity-90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Neuer Chat
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Card>
         </div>
       </div>
 
