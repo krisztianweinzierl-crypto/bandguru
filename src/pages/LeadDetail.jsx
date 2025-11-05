@@ -940,8 +940,8 @@ export default function LeadDetailPage() {
                         onClick={() => {
                           setEditingAufgabe(null);
                           setShowAufgabeForm(!showAufgabeForm);
-                        }}
-                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                        }} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+
 
                         <Plus className="w-4 h-4 mr-2" />
                         Neue Aufgabe
