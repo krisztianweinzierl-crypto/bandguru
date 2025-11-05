@@ -28,7 +28,7 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addTag = () => {
@@ -62,8 +62,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 value={formData.firmenname}
                 onChange={(e) => handleChange('firmenname', e.target.value)}
                 placeholder="z.B. Müller Events GmbH"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -72,8 +72,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 id="ansprechpartner"
                 value={formData.ansprechpartner}
                 onChange={(e) => handleChange('ansprechpartner', e.target.value)}
-                placeholder="z.B. Herr Müller"
-              />
+                placeholder="z.B. Herr Müller" />
+
             </div>
 
             <div className="space-y-2">
@@ -83,8 +83,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                placeholder="kontakt@beispiel.de"
-              />
+                placeholder="kontakt@beispiel.de" />
+
             </div>
 
             <div className="space-y-2">
@@ -93,8 +93,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 id="telefon"
                 value={formData.telefon}
                 onChange={(e) => handleChange('telefon', e.target.value)}
-                placeholder="+49 123 456789"
-              />
+                placeholder="+49 123 456789" />
+
             </div>
 
             <div className="space-y-2">
@@ -103,8 +103,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 id="ust_id"
                 value={formData.ust_id}
                 onChange={(e) => handleChange('ust_id', e.target.value)}
-                placeholder="DE123456789"
-              />
+                placeholder="DE123456789" />
+
             </div>
 
             <div className="space-y-2">
@@ -114,8 +114,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 type="number"
                 value={formData.zahlungsziel_tage}
                 onChange={(e) => handleChange('zahlungsziel_tage', parseInt(e.target.value))}
-                placeholder="14"
-              />
+                placeholder="14" />
+
             </div>
           </div>
 
@@ -126,8 +126,8 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
               value={formData.adresse}
               onChange={(e) => handleChange('adresse', e.target.value)}
               placeholder="Straße, PLZ Ort"
-              rows={2}
-            />
+              rows={2} />
+
           </div>
 
           <div className="space-y-2">
@@ -137,29 +137,29 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 placeholder="z.B. VIP-Kunde"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-              />
-              <Button 
-                type="button" 
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} />
+
+              <Button
+                type="button"
                 onClick={addTag}
-                variant="outline"
-              >
+                variant="outline">
+
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {formData.tags.map((tag, i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
+              {formData.tags.map((tag, i) =>
+              <Badge key={i} variant="secondary" className="text-sm">
                   {tag}
                   <button
-                    type="button"
-                    onClick={() => removeTag(i)}
-                    className="ml-2 hover:text-red-500"
-                  >
+                  type="button"
+                  onClick={() => removeTag(i)}
+                  className="ml-2 hover:text-red-500">
+
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
@@ -170,21 +170,21 @@ export default function KundenForm({ onSubmit, onCancel, kunde = null }) {
               value={formData.notizen}
               onChange={(e) => handleChange('notizen', e.target.value)}
               placeholder="Interne Notizen zum Kunden..."
-              rows={4}
-            />
+              rows={4} />
+
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700">
               <Save className="w-4 h-4 mr-2" />
               Speichern
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
