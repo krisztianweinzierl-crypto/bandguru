@@ -32,13 +32,13 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleVorlageSelect = async (vorlageId) => {
     if (!vorlageId) return;
-    
-    const vorlage = vorlagen.find(v => v.id === vorlageId);
+
+    const vorlage = vorlagen.find((v) => v.id === vorlageId);
     if (!vorlage) return;
 
     // Verwendungszähler erhöhen
@@ -48,10 +48,10 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
 
     // Platzhalter ersetzen
     let inhalt = vorlage.inhalt;
-    
+
     // Kunde-Daten
     if (formData.kunde_id) {
-      const kunde = kunden.find(k => k.id === formData.kunde_id);
+      const kunde = kunden.find((k) => k.id === formData.kunde_id);
       if (kunde) {
         inhalt = inhalt.replace(/\{\{kunde_name\}\}/g, kunde.firmenname || '');
         inhalt = inhalt.replace(/\{\{kunde_adresse\}\}/g, kunde.adresse || '');
@@ -60,20 +60,20 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
 
     // Event-Daten
     if (formData.event_id) {
-      const event = events.find(e => e.id === formData.event_id);
+      const event = events.find((e) => e.id === formData.event_id);
       if (event) {
         inhalt = inhalt.replace(/\{\{event_titel\}\}/g, event.titel || '');
-        
+
         if (event.datum_von) {
           const datum = new Date(event.datum_von);
-          const formatiertesDatum = datum.toLocaleDateString('de-DE', { 
-            day: '2-digit', 
-            month: 'long', 
-            year: 'numeric' 
+          const formatiertesDatum = datum.toLocaleDateString('de-DE', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
           });
           inhalt = inhalt.replace(/\{\{event_datum\}\}/g, formatiertesDatum);
         }
-        
+
         inhalt = inhalt.replace(/\{\{event_ort\}\}/g, event.ort_name || event.ort_adresse || '');
       }
     }
@@ -92,10 +92,10 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
     }
 
     // Heutiges Datum
-    const heute = new Date().toLocaleDateString('de-DE', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
+    const heute = new Date().toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
     });
     inhalt = inhalt.replace(/\{\{datum_heute\}\}/g, heute);
 
@@ -105,22 +105,22 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['link'],
-      ['clean']
-    ],
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    [{ 'align': [] }],
+    ['link'],
+    ['clean']]
+
   };
 
   const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'align',
-    'link'
-  ];
+  'header',
+  'bold', 'italic', 'underline', 'strike',
+  'list', 'bullet',
+  'align',
+  'link'];
+
 
   return (
     <Card className="border-none shadow-lg">
@@ -135,21 +135,21 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Als Vorlage speichern */}
-          {!vertrag && (
-            <div className="flex items-center space-x-2">
+          {!vertrag &&
+          <div className="flex items-center space-x-2">
               <Checkbox
-                id="als-vorlage"
-                checked={alsVorlageSpeichern}
-                onCheckedChange={setAlsVorlageSpeichern}
-              />
+              id="als-vorlage"
+              checked={alsVorlageSpeichern}
+              onCheckedChange={setAlsVorlageSpeichern} />
+
               <label
-                htmlFor="als-vorlage"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+              htmlFor="als-vorlage"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+
                 Als Vorlage speichern
               </label>
             </div>
-          )}
+          }
 
           {/* Vertragstitel */}
           <div className="space-y-2">
@@ -159,8 +159,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               value={formData.titel}
               onChange={(e) => handleChange('titel', e.target.value)}
               placeholder="z.B. Event-Vertrag Hochzeit Müller"
-              required
-            />
+              required />
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -170,17 +170,17 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               <Select
                 value={formData.kunde_id}
                 onValueChange={(value) => handleChange('kunde_id', value)}
-                required
-              >
+                required>
+
                 <SelectTrigger>
                   <SelectValue placeholder="Kunde auswählen" />
                 </SelectTrigger>
                 <SelectContent>
-                  {kunden.map(k => (
-                    <SelectItem key={k.id} value={k.id}>
+                  {kunden.map((k) =>
+                  <SelectItem key={k.id} value={k.id}>
                       {k.firmenname}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -190,44 +190,44 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               <Label htmlFor="event">Event (optional)</Label>
               <Select
                 value={formData.event_id || ""}
-                onValueChange={(value) => handleChange('event_id', value)}
-              >
+                onValueChange={(value) => handleChange('event_id', value)}>
+
                 <SelectTrigger>
                   <SelectValue placeholder="Event auswählen" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={null}>Kein Event</SelectItem>
-                  {events.map(e => (
-                    <SelectItem key={e.id} value={e.id}>
+                  {events.map((e) =>
+                  <SelectItem key={e.id} value={e.id}>
                       {e.titel}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           {/* Vorlage auswählen - NACH Kunde & Event */}
-          {vorlagen.length > 0 && !vertrag && (
-            <div className="space-y-2">
+          {vorlagen.length > 0 && !vertrag &&
+          <div className="space-y-2">
               <Label>Vorlage verwenden (optional)</Label>
               <Select onValueChange={handleVorlageSelect}>
                 <SelectTrigger>
                   <SelectValue placeholder="Vorlage auswählen..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {vorlagen.map(v => (
-                    <SelectItem key={v.id} value={v.id}>
+                  {vorlagen.map((v) =>
+                <SelectItem key={v.id} value={v.id}>
                       {v.name}
                     </SelectItem>
-                  ))}
+                )}
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
                 💡 Tipp: Wähle zuerst Kunde und Event aus, damit die Platzhalter automatisch ersetzt werden
               </p>
             </div>
-          )}
+          }
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Unterzeichnen bis */}
@@ -237,8 +237,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
                 id="unterzeichnen_bis"
                 type="date"
                 value={formData.unterzeichnen_bis}
-                onChange={(e) => handleChange('unterzeichnen_bis', e.target.value)}
-              />
+                onChange={(e) => handleChange('unterzeichnen_bis', e.target.value)} />
+
             </div>
 
             {/* Status */}
@@ -246,8 +246,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => handleChange('status', value)}
-              >
+                onValueChange={(value) => handleChange('status', value)}>
+
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -272,8 +272,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
                 modules={modules}
                 formats={formats}
                 placeholder="Vertragsbedingungen eingeben..."
-                className="min-h-[300px]"
-              />
+                className="min-h-[300px]" />
+
             </div>
           </div>
 
@@ -285,12 +285,12 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               <Checkbox
                 id="event-info"
                 checked={formData.eventinformationen_anzeigen}
-                onCheckedChange={(checked) => handleChange('eventinformationen_anzeigen', checked)}
-              />
+                onCheckedChange={(checked) => handleChange('eventinformationen_anzeigen', checked)} />
+
               <label
                 htmlFor="event-info"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+
                 Eventinformationen im Vertrag anzeigen
               </label>
             </div>
@@ -299,12 +299,12 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
               <Checkbox
                 id="kundenportal"
                 checked={formData.im_kundenportal_sichtbar}
-                onCheckedChange={(checked) => handleChange('im_kundenportal_sichtbar', checked)}
-              />
+                onCheckedChange={(checked) => handleChange('im_kundenportal_sichtbar', checked)} />
+
               <label
                 htmlFor="kundenportal"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+
                 Im Kundenportal sichtbar
               </label>
             </div>
@@ -315,13 +315,13 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
               <Save className="w-4 h-4 mr-2" />
               {vertrag ? "Aktualisieren" : "Vertrag erstellen"}
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
