@@ -28,7 +28,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addTag = () => {
@@ -64,8 +64,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 onChange={(e) => handleChange('titel', e.target.value)}
                 placeholder="z.B. Uptown Funk"
                 required
-                autoFocus
-              />
+                autoFocus />
+
             </div>
 
             <div className="space-y-2">
@@ -74,8 +74,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 id="kuenstler"
                 value={formData.kuenstler_original}
                 onChange={(e) => handleChange('kuenstler_original', e.target.value)}
-                placeholder="z.B. Mark Ronson ft. Bruno Mars"
-              />
+                placeholder="z.B. Mark Ronson ft. Bruno Mars" />
+
             </div>
           </div>
 
@@ -87,8 +87,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 id="tonart"
                 value={formData.tonart}
                 onChange={(e) => handleChange('tonart', e.target.value)}
-                placeholder="z.B. Dm"
-              />
+                placeholder="z.B. Dm" />
+
             </div>
 
             <div className="space-y-2">
@@ -98,8 +98,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 type="number"
                 value={formData.bpm}
                 onChange={(e) => handleChange('bpm', e.target.value ? parseInt(e.target.value) : "")}
-                placeholder="z.B. 115"
-              />
+                placeholder="z.B. 115" />
+
             </div>
 
             <div className="space-y-2">
@@ -108,8 +108,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 id="laenge"
                 value={formData.laenge}
                 onChange={(e) => handleChange('laenge', e.target.value)}
-                placeholder="z.B. 04:30"
-              />
+                placeholder="z.B. 04:30" />
+
             </div>
           </div>
 
@@ -121,8 +121,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 id="lead_sheet"
                 value={formData.lead_sheet_url}
                 onChange={(e) => handleChange('lead_sheet_url', e.target.value)}
-                placeholder="https://..."
-              />
+                placeholder="https://..." />
+
             </div>
 
             <div className="space-y-2">
@@ -131,8 +131,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 id="audio"
                 value={formData.audio_demo_url}
                 onChange={(e) => handleChange('audio_demo_url', e.target.value)}
-                placeholder="https://youtube.com/..."
-              />
+                placeholder="https://youtube.com/..." />
+
             </div>
           </div>
 
@@ -144,29 +144,29 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 placeholder="z.B. Pop, Funk"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-              />
-              <Button 
-                type="button" 
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())} />
+
+              <Button
+                type="button"
                 onClick={addTag}
-                variant="outline"
-              >
+                variant="outline">
+
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
-              {formData.tags.map((tag, i) => (
-                <Badge key={i} variant="secondary" className="text-sm">
+              {formData.tags.map((tag, i) =>
+              <Badge key={i} variant="secondary" className="text-sm">
                   {tag}
                   <button
-                    type="button"
-                    onClick={() => removeTag(i)}
-                    className="ml-2 hover:text-red-500"
-                  >
+                  type="button"
+                  onClick={() => removeTag(i)}
+                  className="ml-2 hover:text-red-500">
+
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
@@ -178,8 +178,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
               value={formData.notizen}
               onChange={(e) => handleChange('notizen', e.target.value)}
               placeholder="Zusätzliche Notizen zum Song..."
-              rows={3}
-            />
+              rows={3} />
+
           </div>
 
           {/* Actions */}
@@ -187,13 +187,13 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
               <Save className="w-4 h-4 mr-2" />
               {song ? 'Speichern' : 'Song erstellen'}
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
