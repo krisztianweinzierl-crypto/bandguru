@@ -51,6 +51,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
 import LeadForm from "@/components/leads/LeadForm"; // Added LeadForm import
+import EmailForm from "@/components/leads/EmailForm";
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -69,6 +70,9 @@ export default function LeadDetailPage() {
   const [showFileDropdownId, setShowFileDropdownId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [isManager, setIsManager] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+
 
   // 1. Erst Lead laden
   const { data: lead, isLoading: leadLoading } = useQuery({
@@ -138,6 +142,15 @@ export default function LeadDetailPage() {
     queryKey: ['mitglieder', lead?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: lead.org_id, status: "aktiv" }),
     enabled: !!lead?.org_id && isManager
+  });
+
+  const { data: emailLogs = [] } = useQuery({
+    queryKey: ['emailLogs', leadId],
+    queryFn: () => base44.entities.EmailLog.filter({
+      bezug_typ: 'lead',
+      bezug_id: leadId
+    }, '-created_date'),
+    enabled: !!leadId && isManager
   });
 
   // Modified updateLeadMutation to accept {id, data} payload
@@ -252,6 +265,74 @@ export default function LeadDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadDateien'] });
       setShowFileDropdownId(null);
+    }
+  });
+
+  const sendEmailMutation = useMutation({
+    mutationFn: async ({ betreff, inhalt }) => {
+      if (!lead.email) {
+        throw new Error("Lead hat keine E-Mail-Adresse");
+      }
+
+      setSendingEmail(true);
+
+      try {
+        // E-Mail versenden
+        const emailResult = await base44.functions.invoke('sendEmail', {
+          to: lead.email,
+          subject: betreff,
+          body: inhalt.replace(/<[^>]*>/g, ''), // HTML Tags entfernen für Plain Text
+          from_name: currentUser?.full_name || 'Bandguru'
+        });
+
+        if (!emailResult.data.success) {
+          throw new Error(emailResult.data.error || 'Fehler beim Versenden');
+        }
+
+        // E-Mail Log erstellen
+        await base44.entities.EmailLog.create({
+          org_id: lead.org_id,
+          bezug_typ: 'lead',
+          bezug_id: leadId,
+          empfaenger_email: lead.email,
+          empfaenger_name: lead.kontaktperson || lead.firmenname,
+          betreff: betreff,
+          inhalt: inhalt,
+          gesendet_von: currentUser.id,
+          gesendet_von_name: currentUser.full_name,
+          status: 'gesendet',
+          mailgun_id: emailResult.data.mailgun_id
+        });
+
+        return emailResult;
+      } catch (error) {
+        // Log auch bei Fehler erstellen
+        await base44.entities.EmailLog.create({
+          org_id: lead.org_id,
+          bezug_typ: 'lead',
+          bezug_id: leadId,
+          empfaenger_email: lead.email,
+          empfaenger_name: lead.kontaktperson || lead.firmenname,
+          betreff: betreff,
+          inhalt: inhalt,
+          gesendet_von: currentUser.id,
+          gesendet_von_name: currentUser.full_name,
+          status: 'fehler',
+          fehler_nachricht: error.message
+        });
+
+        throw error;
+      } finally {
+        setSendingEmail(false);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emailLogs'] });
+      setShowEmailForm(false);
+      alert('E-Mail wurde erfolgreich versendet!');
+    },
+    onError: (error) => {
+      alert('Fehler beim Versenden: ' + error.message);
     }
   });
 
@@ -397,6 +478,10 @@ export default function LeadDetailPage() {
   const handleLeadUpdate = (data) => {
     updateLeadMutation.mutate({ id: leadId, data });
     setIsEditing(false);
+  };
+
+  const handleSendEmail = (formData) => {
+    sendEmailMutation.mutate(formData);
   };
 
   // Lade-Status für Lead
@@ -1187,12 +1272,115 @@ export default function LeadDetailPage() {
                   }
                 </TabsContent>
 
+                {/* E-Mails Tab */}
                 <TabsContent value="emails">
-                  <Card className="border-none shadow-lg">
-                    <CardContent className="p-12 text-center">
-                      <p className="text-gray-500">E-Mail-Feature kommt bald...</p>
-                    </CardContent>
-                  </Card>
+                  {!showEmailForm ? (
+                    <>
+                      <Card className="border-none shadow-lg">
+                        <CardHeader className="border-b">
+                          <div className="flex justify-between items-center">
+                            <CardTitle>E-Mail an Kunden senden</CardTitle>
+                            <Button
+                              size="sm"
+                              onClick={() => setShowEmailForm(true)}
+                              disabled={!lead.email}
+                              style={{ backgroundColor: '#223a5e' }}
+                              className="hover:opacity-90"
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Neue E-Mail
+                            </Button>
+                          </div>
+                          {!lead.email && (
+                            <p className="text-sm text-red-600 mt-2">
+                              ⚠️ Keine E-Mail-Adresse für diesen Lead hinterlegt
+                            </p>
+                          )}
+                        </CardHeader>
+                      </Card>
+
+                      {/* E-Mail Historie */}
+                      {emailLogs.length > 0 && (
+                        <Card className="border-none shadow-lg mt-6">
+                          <CardHeader className="border-b">
+                            <CardTitle>E-Mail-Verlauf ({emailLogs.length})</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-0">
+                            <div className="divide-y">
+                              {emailLogs.map((email) => (
+                                <div key={email.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div className="flex items-center gap-3">
+                                      <div className={`p-2 rounded-lg ${
+                                        email.status === 'gesendet' ? 'bg-green-100' : 'bg-red-100'
+                                      }`}>
+                                        <Mail className={`w-4 h-4 ${
+                                          email.status === 'gesendet' ? 'text-green-600' : 'text-red-600'
+                                        }`} />
+                                      </div>
+                                      <div>
+                                        <h4 className="font-semibold text-gray-900">{email.betreff}</h4>
+                                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                          <span>An: {email.empfaenger_email}</span>
+                                          <span>•</span>
+                                          <span>Von: {email.gesendet_von_name}</span>
+                                          <span>•</span>
+                                          <span>{format(new Date(email.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <Badge className={
+                                      email.status === 'gesendet' 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-red-100 text-red-800'
+                                    }>
+                                      {email.status === 'gesendet' ? 'Gesendet' : 'Fehler'}
+                                    </Badge>
+                                  </div>
+
+                                  {email.fehler_nachricht && (
+                                    <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700 mt-2">
+                                      <strong>Fehler:</strong> {email.fehler_nachricht}
+                                    </div>
+                                  )}
+
+                                  <div 
+                                    className="text-sm text-gray-700 mt-3 line-clamp-3"
+                                    dangerouslySetInnerHTML={{ __html: email.inhalt }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {emailLogs.length === 0 && lead.email && (
+                        <Card className="border-dashed border-2 mt-6">
+                          <CardContent className="p-12 text-center">
+                            <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <h3 className="text-lg font-semibold mb-2">Noch keine E-Mails versendet</h3>
+                            <p className="text-gray-500 mb-4">Sende die erste E-Mail an diesen Lead</p>
+                            <Button 
+                              onClick={() => setShowEmailForm(true)}
+                              style={{ backgroundColor: '#223a5e' }}
+                              className="hover:opacity-90"
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              E-Mail verfassen
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </>
+                  ) : (
+                    <EmailForm
+                      lead={lead}
+                      onSubmit={handleSendEmail}
+                      onCancel={() => setShowEmailForm(false)}
+                      isSending={sendingEmail}
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="verlauf">
