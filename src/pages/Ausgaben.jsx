@@ -9,8 +9,8 @@ import {
   Upload,
   Download,
   TrendingDown,
-  PieChart
-} from "lucide-react";
+  PieChart } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +33,7 @@ export default function AusgabenPage() {
   const { data: ausgaben = [] } = useQuery({
     queryKey: ['ausgaben', currentOrgId],
     queryFn: () => base44.entities.Ausgabe.filter({ org_id: currentOrgId }, '-datum'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const createAusgabeMutation = useMutation({
@@ -41,10 +41,10 @@ export default function AusgabenPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ausgaben'] });
       setShowForm(false);
-    },
+    }
   });
 
-  const filteredAusgaben = ausgaben.filter(a => {
+  const filteredAusgaben = ausgaben.filter((a) => {
     const matchesSearch = a.titel?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesKategorie = kategorieFilter === "alle" || a.kategorie === kategorieFilter;
     return matchesSearch && matchesKategorie;
@@ -98,26 +98,26 @@ export default function AusgabenPage() {
             </div>
           </div>
 
-          {ausgabe.notizen && (
-            <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ausgabe.notizen}</p>
-          )}
+          {ausgabe.notizen &&
+          <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ausgabe.notizen}</p>
+          }
 
-          {ausgabe.zahlungsmethode && (
-            <div className="flex items-center justify-between mt-3 pt-3 border-t">
+          {ausgabe.zahlungsmethode &&
+          <div className="flex items-center justify-between mt-3 pt-3 border-t">
               <span className="text-sm text-gray-500">Zahlungsmethode:</span>
               <span className="text-sm font-medium">{ausgabe.zahlungsmethode}</span>
             </div>
-          )}
+          }
 
-          {ausgabe.beleg_url && (
-            <Button variant="outline" size="sm" className="w-full mt-3">
+          {ausgabe.beleg_url &&
+          <Button variant="outline" size="sm" className="w-full mt-3">
               <Receipt className="w-4 h-4 mr-2" />
               Beleg anzeigen
             </Button>
-          )}
+          }
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   };
 
   return (
@@ -129,10 +129,10 @@ export default function AusgabenPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Ausgaben</h1>
             <p className="text-gray-600">Verfolge alle deine Kosten und Ausgaben</p>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700"
-          >
+            className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700">
+
             <Plus className="w-4 h-4 mr-2" />
             Neue Ausgabe
           </Button>
@@ -189,14 +189,14 @@ export default function AusgabenPage() {
                   placeholder="Ausgaben durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
               <select
                 value={kategorieFilter}
                 onChange={(e) => setKategorieFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white"
-              >
+                className="px-4 py-2 border rounded-lg bg-white">
+
                 <option value="alle">Alle Kategorien</option>
                 <option value="gage">Gage</option>
                 <option value="reisekosten">Reisekosten</option>
@@ -215,36 +215,36 @@ export default function AusgabenPage() {
         </Card>
 
         {/* Form */}
-        {showForm && (
-          <div className="mb-6">
+        {showForm &&
+        <div className="mb-6">
             <AusgabeForm
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-            />
+            onSubmit={handleSubmit}
+            onCancel={() => setShowForm(false)} />
+
           </div>
-        )}
+        }
 
         {/* Ausgaben Grid */}
-        {filteredAusgaben.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAusgaben.map((ausgabe) => (
-              <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
-            ))}
-          </div>
-        ) : (
-          <Card className="border-dashed">
+        {filteredAusgaben.length > 0 ?
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAusgaben.map((ausgabe) =>
+          <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
+          )}
+          </div> :
+
+        <Card className="border-dashed">
             <CardContent className="p-12 text-center">
               <Receipt className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Ausgaben gefunden</h3>
               <p className="text-gray-500 mb-4">Erfasse deine erste Ausgabe</p>
-              <Button onClick={() => setShowForm(true)}>
+              <Button onClick={() => setShowForm(true)} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
                 <Plus className="w-4 h-4 mr-2" />
                 Neue Ausgabe
               </Button>
             </CardContent>
           </Card>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
