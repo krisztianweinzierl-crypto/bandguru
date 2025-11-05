@@ -27,24 +27,24 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   // Lade existierende Unteraufgaben beim Bearbeiten
   useEffect(() => {
     if (aufgabe && allAufgaben) {
-      const existing = allAufgaben.filter(a => a.parent_task_id === aufgabe.id);
+      const existing = allAufgaben.filter((a) => a.parent_task_id === aufgabe.id);
       setExistingUnteraufgaben(existing);
     }
   }, [aufgabe, allAufgaben]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Sende sowohl Hauptaufgabe als auch neue Unteraufgaben
     await onSubmit(formData, unteraufgaben);
   };
 
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addUnteraufgabe = () => {
-    setUnteraufgaben(prev => [...prev, { titel: "", prioritaet: "normal" }]);
+    setUnteraufgaben((prev) => [...prev, { titel: "", prioritaet: "normal" }]);
   };
 
   const updateUnteraufgabe = (index, field, value) => {
@@ -54,14 +54,14 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
   };
 
   const removeUnteraufgabe = (index) => {
-    setUnteraufgaben(prev => prev.filter((_, i) => i !== index));
+    setUnteraufgaben((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeExistingUnteraufgabe = async (unteraufgabe) => {
     if (confirm(`Möchtest du "${unteraufgabe.titel}" wirklich löschen?`)) {
       try {
         await base44.entities.Aufgabe.delete(unteraufgabe.id);
-        setExistingUnteraufgaben(prev => prev.filter(u => u.id !== unteraufgabe.id));
+        setExistingUnteraufgaben((prev) => prev.filter((u) => u.id !== unteraufgabe.id));
       } catch (error) {
         console.error("Fehler beim Löschen:", error);
         alert("Fehler beim Löschen der Unteraufgabe");
@@ -93,8 +93,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
               onChange={(e) => handleChange('titel', e.target.value)}
               placeholder="z.B. Rechnung für Event erstellen"
               required
-              autoFocus
-            />
+              autoFocus />
+
           </div>
 
           {/* Beschreibung */}
@@ -105,8 +105,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
               value={formData.beschreibung}
               onChange={(e) => handleChange('beschreibung', e.target.value)}
               placeholder="Weitere Details zur Aufgabe..."
-              rows={3}
-            />
+              rows={3} />
+
           </div>
 
           {/* Grid: Status, Priorität, Fällig am */}
@@ -145,8 +145,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                 id="faellig_am"
                 type="date"
                 value={formData.faellig_am}
-                onChange={(e) => handleChange('faellig_am', e.target.value)}
-              />
+                onChange={(e) => handleChange('faellig_am', e.target.value)} />
+
             </div>
           </div>
 
@@ -160,18 +160,18 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={null}>Nicht zugewiesen</SelectItem>
-                  {mitglieder.map((mitglied) => (
-                    <SelectItem key={mitglied.user_id} value={mitglied.user_id}>
+                  {mitglieder.map((mitglied) =>
+                  <SelectItem key={mitglied.user_id} value={mitglied.user_id}>
                       {mitglied.rolle}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Parent Task (falls Unteraufgabe) */}
-            {hauptAufgaben && hauptAufgaben.length > 0 && (
-              <div className="space-y-2">
+            {hauptAufgaben && hauptAufgaben.length > 0 &&
+            <div className="space-y-2">
                 <Label htmlFor="parent_task_id">Übergeordnete Aufgabe</Label>
                 <Select value={formData.parent_task_id} onValueChange={(value) => handleChange('parent_task_id', value)}>
                   <SelectTrigger>
@@ -179,43 +179,43 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={null}>Keine (Hauptaufgabe)</SelectItem>
-                    {hauptAufgaben
-                      .filter(a => a.id !== aufgabe?.id)
-                      .map((a) => (
-                        <SelectItem key={a.id} value={a.id}>
+                    {hauptAufgaben.
+                  filter((a) => a.id !== aufgabe?.id).
+                  map((a) =>
+                  <SelectItem key={a.id} value={a.id}>
                           {a.titel}
                         </SelectItem>
-                      ))}
+                  )}
                   </SelectContent>
                 </Select>
               </div>
-            )}
+            }
           </div>
 
           {/* Unteraufgaben (nur für Hauptaufgaben) */}
-          {showUnteraufgabenSection && (
-            <div className="space-y-3">
+          {showUnteraufgabenSection &&
+          <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label>Unteraufgaben</Label>
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addUnteraufgabe}
-                  className="gap-2"
-                >
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addUnteraufgabe}
+                className="gap-2">
+
                   <Plus className="w-4 h-4" />
                   Unteraufgabe hinzufügen
                 </Button>
               </div>
 
               {/* Existierende Unteraufgaben (beim Bearbeiten) */}
-              {existingUnteraufgaben.length > 0 && (
-                <div className="space-y-2">
+              {existingUnteraufgaben.length > 0 &&
+            <div className="space-y-2">
                   <p className="text-sm text-gray-600 font-medium">Vorhandene Unteraufgaben:</p>
                   <div className="space-y-2 border rounded-lg p-4 bg-blue-50">
-                    {existingUnteraufgaben.map((unteraufgabe) => (
-                      <div key={unteraufgabe.id} className="flex gap-2 items-center bg-white p-3 rounded-lg">
+                    {existingUnteraufgaben.map((unteraufgabe) =>
+                <div key={unteraufgabe.id} className="flex gap-2 items-center bg-white p-3 rounded-lg">
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">{unteraufgabe.titel}</p>
                           <p className="text-sm text-gray-500">
@@ -223,39 +223,39 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                           </p>
                         </div>
                         <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeExistingUnteraufgabe(unteraufgabe)}
-                          className="text-red-600 hover:text-red-700"
-                        >
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeExistingUnteraufgabe(unteraufgabe)}
+                    className="text-red-600 hover:text-red-700">
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                    ))}
+                )}
                   </div>
                 </div>
-              )}
+            }
 
               {/* Neue Unteraufgaben hinzufügen */}
-              {unteraufgaben.length > 0 && (
-                <div className="space-y-2">
+              {unteraufgaben.length > 0 &&
+            <div className="space-y-2">
                   <p className="text-sm text-gray-600 font-medium">Neue Unteraufgaben:</p>
                   <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
-                    {unteraufgaben.map((unteraufgabe, index) => (
-                      <div key={index} className="flex gap-2 items-start">
+                    {unteraufgaben.map((unteraufgabe, index) =>
+                <div key={index} className="flex gap-2 items-start">
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
                           <div className="md:col-span-2">
                             <Input
-                              value={unteraufgabe.titel}
-                              onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
-                              placeholder={`Unteraufgabe ${index + 1}...`}
-                            />
+                        value={unteraufgabe.titel}
+                        onChange={(e) => updateUnteraufgabe(index, 'titel', e.target.value)}
+                        placeholder={`Unteraufgabe ${index + 1}...`} />
+
                           </div>
-                          <Select 
-                            value={unteraufgabe.prioritaet} 
-                            onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}
-                          >
+                          <Select
+                      value={unteraufgabe.prioritaet}
+                      onValueChange={(value) => updateUnteraufgabe(index, 'prioritaet', value)}>
+
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -267,51 +267,51 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
                           </Select>
                         </div>
                         <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeUnteraufgabe(index)}
-                          className="text-red-600 hover:text-red-700"
-                        >
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeUnteraufgabe(index)}
+                    className="text-red-600 hover:text-red-700">
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                    ))}
+                )}
                   </div>
                 </div>
-              )}
+            }
 
               {/* Empty State (nur wenn keine Unteraufgaben existieren) */}
-              {existingUnteraufgaben.length === 0 && unteraufgaben.length === 0 && (
-                <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+              {existingUnteraufgaben.length === 0 && unteraufgaben.length === 0 &&
+            <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
                   <p className="text-sm text-gray-500 mb-2">Noch keine Unteraufgaben</p>
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addUnteraufgabe}
-                    className="gap-2"
-                  >
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addUnteraufgabe}
+                className="gap-2">
+
                     <Plus className="w-4 h-4" />
                     Erste Unteraufgabe hinzufügen
                   </Button>
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
               <Save className="w-4 h-4 mr-2" />
               {aufgabe ? 'Speichern' : 'Aufgabe erstellen'}
             </Button>
           </div>
         </form>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 }
