@@ -7,36 +7,36 @@ import { createPageUrl } from "@/utils";
 import {
   ArrowLeft,
   Edit,
-  Save,          // Added from outline
-  X,             // Already present
+  Save, // Added from outline
+  X, // Already present
   Mail,
   Phone,
   Calendar,
   MapPin,
-  User,          // Used in original code
+  User, // Used in original code
   Users as UsersIcon, // Added from outline (not used in JSX)
   Building2,
-  Euro,          // Used in original code
+  Euro, // Used in original code
   FileText,
-  CheckCircle,   // Used in original code
-  CheckSquare,   // Added from outline (not used in JSX)
+  CheckCircle, // Used in original code
+  CheckSquare, // Added from outline (not used in JSX)
   Plus,
-  Send,          // Used in original code
-  Activity,      // Used in original code
+  Send, // Used in original code
+  Activity, // Used in original code
   Clock,
-  Circle,        // Used in original code
-  CheckCircle2,  // Used in original code
+  Circle, // Used in original code
+  CheckCircle2, // Used in original code
   AlertCircle,
-  ChevronRight,  // Used in original code
+  ChevronRight, // Used in original code
   MoreVertical,
   Trash2,
   Upload,
-  File,          // Used in original code
-  Download,      // Used in original code
-  Eye,           // Used in original code
-  DollarSign,    // Added from outline (not used in JSX)
-  Target,        // Added from outline (not used in JSX)
-  TrendingUp     // Added from outline (not used in JSX)
+  File, // Used in original code
+  Download, // Used in original code
+  Eye, // Used in original code
+  DollarSign, // Added from outline (not used in JSX)
+  Target, // Added from outline (not used in JSX)
+  TrendingUp // Added from outline (not used in JSX)
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,7 +76,7 @@ export default function LeadDetailPage() {
       const result = await base44.entities.Lead.filter({ id: leadId });
       return result[0];
     },
-    enabled: !!leadId,
+    enabled: !!leadId
   });
 
   // 2. Dann User-Daten und Berechtigungen laden (abhängig von lead)
@@ -89,10 +89,10 @@ export default function LeadDetailPage() {
         setCurrentUser(user);
 
         // Prüfe Rolle
-        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        const mitgliedschaften = await base44.entities.Mitglied.filter({
           user_id: user.id,
           org_id: lead.org_id, // Use lead from useQuery
-          status: "aktiv" 
+          status: "aktiv"
         });
         const mitglied = mitgliedschaften[0];
         setIsManager(mitglied?.rolle === "Band Manager");
@@ -102,9 +102,9 @@ export default function LeadDetailPage() {
         setIsManager(false);
       }
     };
-    
+
     // Only run if lead is defined
-    if (lead) { 
+    if (lead) {
       loadUserData();
     }
   }, [lead, leadId]); // Depend on lead and leadId
@@ -112,16 +112,16 @@ export default function LeadDetailPage() {
   const { data: notizen = [] } = useQuery({
     queryKey: ['leadNotizen', leadId],
     queryFn: () => base44.entities.LeadNotiz.filter({ lead_id: leadId }, '-created_date'),
-    enabled: !!leadId && isManager, // Added isManager condition
+    enabled: !!leadId && isManager // Added isManager condition
   });
 
   const { data: aufgaben = [] } = useQuery({
     queryKey: ['leadAufgaben', leadId], // Removed lead?.org_id from queryKey as it's not strictly necessary for this filter
-    queryFn: () => base44.entities.Aufgabe.filter({ 
+    queryFn: () => base44.entities.Aufgabe.filter({
       bezug_typ: 'lead',
       bezug_id: leadId
     }, '-created_date'),
-    enabled: !!leadId && isManager, // Added isManager condition, simplified condition
+    enabled: !!leadId && isManager // Added isManager condition, simplified condition
   });
 
   const { data: dateien = [] } = useQuery({ // Added
@@ -130,13 +130,13 @@ export default function LeadDetailPage() {
       bezug_typ: 'lead',
       bezug_id: leadId
     }, '-created_date'),
-    enabled: !!leadId && isManager, // Added isManager condition, simplified condition
+    enabled: !!leadId && isManager // Added isManager condition, simplified condition
   });
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', lead?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: lead.org_id, status: "aktiv" }),
-    enabled: !!lead?.org_id && isManager, // Added isManager condition
+    enabled: !!lead?.org_id && isManager // Added isManager condition
   });
 
   const updateLeadMutation = useMutation({
@@ -144,7 +144,7 @@ export default function LeadDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead', leadId] });
       queryClient.invalidateQueries({ queryKey: ['leads'] });
-    },
+    }
   });
 
   const createNotizMutation = useMutation({
@@ -152,7 +152,7 @@ export default function LeadDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadNotizen', leadId] });
       setNewNote("");
-    },
+    }
   });
 
   const createAufgabeMutation = useMutation({
@@ -163,67 +163,67 @@ export default function LeadDetailPage() {
         bezug_typ: 'lead', // Changed from 'frei' to 'lead'
         bezug_id: leadId
       });
-      
+
       if (unteraufgaben && unteraufgaben.length > 0) {
-        const unteraufgabenData = unteraufgaben
-          .filter(u => u.titel && u.titel.trim())
-          .map(u => ({
-            titel: u.titel,
-            beschreibung: u.beschreibung,
-            prioritaet: u.prioritaet || 'normal',
-            faellig_am: u.faellig_am,
-            status: 'offen',
-            org_id: lead.org_id,
-            bezug_typ: 'lead', // Changed from 'frei' to 'lead'
-            bezug_id: leadId,
-            parent_task_id: createdHauptaufgabe.id,
-            zugewiesen_an: u.zugewiesen_an // Make sure to pass assigned user for subtasks too
-          }));
-        
+        const unteraufgabenData = unteraufgaben.
+        filter((u) => u.titel && u.titel.trim()).
+        map((u) => ({
+          titel: u.titel,
+          beschreibung: u.beschreibung,
+          prioritaet: u.prioritaet || 'normal',
+          faellig_am: u.faellig_am,
+          status: 'offen',
+          org_id: lead.org_id,
+          bezug_typ: 'lead', // Changed from 'frei' to 'lead'
+          bezug_id: leadId,
+          parent_task_id: createdHauptaufgabe.id,
+          zugewiesen_an: u.zugewiesen_an // Make sure to pass assigned user for subtasks too
+        }));
+
         if (unteraufgabenData.length > 0) {
           await base44.entities.Aufgabe.bulkCreate(unteraufgabenData);
         }
       }
-      
+
       return createdHauptaufgabe;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadAufgaben'] });
       setShowAufgabeForm(false);
       setEditingAufgabe(null);
-    },
+    }
   });
 
   const updateAufgabeMutation = useMutation({
     mutationFn: async ({ id, data, unteraufgaben }) => {
       await base44.entities.Aufgabe.update(id, data);
-      
+
       if (unteraufgaben && unteraufgaben.length > 0) {
         // Handle new subtasks if any are passed during an update
-        const newUnteraufgabenData = unteraufgaben
-          .filter(u => u.titel && u.titel.trim() && !u.id) // Only create new ones without an ID
-          .map(u => ({
-            titel: u.titel,
-            beschreibung: u.beschreibung,
-            prioritaet: u.prioritaet || 'normal',
-            faellig_am: u.faellig_am,
-            status: 'offen',
-            org_id: lead.org_id,
-            bezug_typ: 'lead', // Changed from 'frei' to 'lead'
-            bezug_id: leadId,
-            parent_task_id: id,
-            zugewiesen_an: u.zugewiesen_an
-          }));
-        
+        const newUnteraufgabenData = unteraufgaben.
+        filter((u) => u.titel && u.titel.trim() && !u.id) // Only create new ones without an ID
+        .map((u) => ({
+          titel: u.titel,
+          beschreibung: u.beschreibung,
+          prioritaet: u.prioritaet || 'normal',
+          faellig_am: u.faellig_am,
+          status: 'offen',
+          org_id: lead.org_id,
+          bezug_typ: 'lead', // Changed from 'frei' to 'lead'
+          bezug_id: leadId,
+          parent_task_id: id,
+          zugewiesen_an: u.zugewiesen_an
+        }));
+
         if (newUnteraufgabenData.length > 0) {
           await base44.entities.Aufgabe.bulkCreate(newUnteraufgabenData);
         }
 
         // Handle updates to existing subtasks (if any are sent with IDs)
-        const updatedUnteraufgabenData = unteraufgaben
-          .filter(u => u.titel && u.titel.trim() && u.id)
-          .map(u => base44.entities.Aufgabe.update(u.id, u));
-        
+        const updatedUnteraufgabenData = unteraufgaben.
+        filter((u) => u.titel && u.titel.trim() && u.id).
+        map((u) => base44.entities.Aufgabe.update(u.id, u));
+
         if (updatedUnteraufgabenData.length > 0) {
           await Promise.all(updatedUnteraufgabenData);
         }
@@ -234,7 +234,7 @@ export default function LeadDetailPage() {
       setShowAufgabeForm(false);
       setEditingAufgabe(null);
       setShowDropdownId(null);
-    },
+    }
   });
 
   const deleteAufgabeMutation = useMutation({
@@ -242,7 +242,7 @@ export default function LeadDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadAufgaben'] });
       setShowDropdownId(null);
-    },
+    }
   });
 
   const deleteDateiMutation = useMutation({ // Added
@@ -250,10 +250,10 @@ export default function LeadDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leadDateien'] });
       setShowFileDropdownId(null);
-    },
+    }
   });
 
-  const handleFileUpload = async (event) => { // Added
+  const handleFileUpload = async (event) => {// Added
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -261,7 +261,7 @@ export default function LeadDetailPage() {
     try {
       // 1. Datei hochladen
       const uploadResult = await base44.integrations.Core.UploadFile({ file });
-      
+
       // 2. Datei-Eintrag in DB erstellen
       await base44.entities.Datei.create({
         org_id: lead.org_id,
@@ -288,13 +288,13 @@ export default function LeadDetailPage() {
     }
   };
 
-  const handleDeleteFile = (datei) => { // Added
+  const handleDeleteFile = (datei) => {// Added
     if (confirm(`Möchtest du die Datei "${datei.file_name}" wirklich löschen?`)) {
       deleteDateiMutation.mutate(datei.id);
     }
   };
 
-  const getFileIcon = (fileType) => { // Added
+  const getFileIcon = (fileType) => {// Added
     if (fileType?.startsWith('image/')) return '🖼️';
     if (fileType?.includes('pdf')) return '📄';
     if (fileType?.includes('word') || fileType?.includes('document')) return '📝';
@@ -303,7 +303,7 @@ export default function LeadDetailPage() {
     return '📎';
   };
 
-  const formatFileSize = (bytes) => { // Added
+  const formatFileSize = (bytes) => {// Added
     if (!bytes) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -313,7 +313,7 @@ export default function LeadDetailPage() {
 
   const kategorieLabels = { // Added
     vertrag: "Vertrag",
-    angebot: "Angebot", 
+    angebot: "Angebot",
     rechnung: "Rechnung",
     technische_unterlagen: "Technische Unterlagen",
     bilder: "Bilder",
@@ -374,7 +374,7 @@ export default function LeadDetailPage() {
   };
 
   const toggleExpand = (taskId) => {
-    setExpandedTasks(prev => ({ ...prev, [taskId]: !prev[taskId] }));
+    setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
   const handleConvertToEvent = () => {
@@ -387,8 +387,8 @@ export default function LeadDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Lead...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   // Warte auf User-Daten und Berechtigungsprüfung
@@ -396,8 +396,8 @@ export default function LeadDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Prüfe Berechtigungen...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   // Zugriffsprüfung: Nur Manager haben Zugriff auf Leads
@@ -417,12 +417,12 @@ export default function LeadDetailPage() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   // Aufgaben gruppieren
-  const hauptAufgaben = aufgaben.filter(a => !a.parent_task_id);
+  const hauptAufgaben = aufgaben.filter((a) => !a.parent_task_id);
   const unteraufgabenMap = aufgaben.reduce((acc, aufgabe) => {
     if (aufgabe.parent_task_id) {
       if (!acc[aufgabe.parent_task_id]) acc[aufgabe.parent_task_id] = [];
@@ -464,47 +464,47 @@ export default function LeadDetailPage() {
   };
 
   const statusStyle = statusColors[lead.status] || statusColors.neu;
-  const assignedMitglied = mitglieder.find(m => m.user_id === lead.zugewiesen_an);
+  const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
 
-  const offeneAufgaben = hauptAufgaben.filter(a => a.status === 'offen').length;
-  const erledigtAufgaben = hauptAufgaben.filter(a => a.status === 'erledigt').length;
+  const offeneAufgaben = hauptAufgaben.filter((a) => a.status === 'offen').length;
+  const erledigtAufgaben = hauptAufgaben.filter((a) => a.status === 'erledigt').length;
 
   const AufgabeItem = ({ aufgabe, level = 0 }) => {
     const unteraufgaben = unteraufgabenMap[aufgabe.id] || [];
     const hasUnteraufgaben = unteraufgaben.length > 0;
     const isExpanded = expandedTasks[aufgabe.id];
     const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
-    const assignedMitgliedForTask = mitglieder.find(m => m.user_id === aufgabe.zugewiesen_an); // Corrected to use member id
+    const assignedMitgliedForTask = mitglieder.find((m) => m.user_id === aufgabe.zugewiesen_an); // Corrected to use member id
 
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
-        <div 
+        <div
           className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-            aufgabe.status === 'erledigt' ? 'opacity-60' : ''
-          }`}
-        >
+          aufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
+          }>
+
           {/* Expand/Collapse Button */}
-          {hasUnteraufgaben ? (
-            <button
-              onClick={() => toggleExpand(aufgabe.id)}
-              className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
-            >
+          {hasUnteraufgaben ?
+          <button
+            onClick={() => toggleExpand(aufgabe.id)}
+            className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all">
+
               <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-            </button>
-          ) : (
-            <div className="w-5" />
-          )}
+            </button> :
+
+          <div className="w-5" />
+          }
 
           {/* Checkbox */}
           <button
             onClick={() => handleToggleAufgabeStatus(aufgabe)}
-            className="mt-1"
-          >
-            {aufgabe.status === 'erledigt' ? (
-              <CheckCircle2 className="w-5 h-5 text-green-500" />
-            ) : (
-              <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
-            )}
+            className="mt-1">
+
+            {aufgabe.status === 'erledigt' ?
+            <CheckCircle2 className="w-5 h-5 text-green-500" /> :
+
+            <Circle className={`w-5 h-5 ${priorityColors[aufgabe.prioritaet]}`} />
+            }
           </button>
 
           {/* Content */}
@@ -513,47 +513,47 @@ export default function LeadDetailPage() {
               <div className="flex-1 min-w-0">
                 <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                   {aufgabe.titel}
-                  {hasUnteraufgaben && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                  {hasUnteraufgaben &&
+                  <span className="ml-2 text-xs text-gray-500">
+                      ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                     </span>
-                  )}
+                  }
                 </p>
-                {aufgabe.beschreibung && (
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
-                )}
+                {aufgabe.beschreibung &&
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
+                }
                 
                 {/* Meta Info */}
                 <div className="flex flex-wrap items-center gap-3 mt-2">
-                  {aufgabe.faellig_am && (
-                    <div className={`flex items-center gap-1 text-xs ${
-                      isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'
-                    }`}>
+                  {aufgabe.faellig_am &&
+                  <div className={`flex items-center gap-1 text-xs ${
+                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                  }>
                       <Calendar className="w-3 h-3" />
                       {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
                     </div>
-                  )}
+                  }
                   
-                  {assignedMitgliedForTask && (
-                    <Badge variant="outline" className="text-xs">
+                  {assignedMitgliedForTask &&
+                  <Badge variant="outline" className="text-xs">
                       <User className="w-3 h-3 mr-1" />
                       {assignedMitgliedForTask.name}
                     </Badge>
-                  )}
+                  }
 
-                  {aufgabe.prioritaet !== 'normal' && (
-                    <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
+                  {aufgabe.prioritaet !== 'normal' &&
+                  <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
                       {aufgabe.prioritaet === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
                       {aufgabe.prioritaet}
                     </Badge>
-                  )}
+                  }
 
-                  {aufgabe.status === 'in_arbeit' && (
-                    <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                  {aufgabe.status === 'in_arbeit' &&
+                  <Badge className="bg-yellow-100 text-yellow-800 text-xs">
                       <Clock className="w-3 h-3 mr-1" />
                       In Arbeit
                     </Badge>
-                  )}
+                  }
                 </div>
               </div>
 
@@ -563,50 +563,50 @@ export default function LeadDetailPage() {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => setShowDropdownId(showDropdownId === aufgabe.id ? null : aufgabe.id)}
-                >
+                  onClick={() => setShowDropdownId(showDropdownId === aufgabe.id ? null : aufgabe.id)}>
+
                   <MoreVertical className="w-4 h-4" />
                 </Button>
 
-                {showDropdownId === aufgabe.id && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setShowDropdownId(null)}
-                    />
+                {showDropdownId === aufgabe.id &&
+                <>
+                    <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowDropdownId(null)} />
+
                     <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                       <button
-                        onClick={() => handleEditAufgabe(aufgabe)}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
-                      >
+                      onClick={() => handleEditAufgabe(aufgabe)}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm">
+
                         <Edit className="w-4 h-4" />
                         Bearbeiten
                       </button>
                       <button
-                        onClick={() => handleDeleteAufgabe(aufgabe)}
-                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                      >
+                      onClick={() => handleDeleteAufgabe(aufgabe)}
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t">
+
                         <Trash2 className="w-4 h-4" />
                         Löschen
                       </button>
                     </div>
                   </>
-                )}
+                }
               </div>
             </div>
           </div>
         </div>
 
         {/* Unteraufgaben */}
-        {hasUnteraufgaben && isExpanded && (
-          <div className="mt-1">
-            {unteraufgaben.map(unteraufgabe => (
-              <AufgabeItem key={unteraufgabe.id} aufgabe={unteraufgabe} level={level + 1} />
-            ))}
+        {hasUnteraufgaben && isExpanded &&
+        <div className="mt-1">
+            {unteraufgaben.map((unteraufgabe) =>
+          <AufgabeItem key={unteraufgabe.id} aufgabe={unteraufgabe} level={level + 1} />
+          )}
           </div>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   };
 
   return (
@@ -619,8 +619,8 @@ export default function LeadDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => navigate(createPageUrl('Leads'))}
-              className="gap-2"
-            >
+              className="gap-2">
+
               <ArrowLeft className="w-4 h-4" />
               Zurück zu Leads
             </Button>
@@ -629,9 +629,9 @@ export default function LeadDetailPage() {
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{lead.titel}</h1>
-              {lead.firmenname && (
-                <p className="text-lg text-gray-600">{lead.firmenname}</p>
-              )}
+              {lead.firmenname &&
+              <p className="text-lg text-gray-600">{lead.firmenname}</p>
+              }
             </div>
             
             <div className="flex flex-wrap gap-2">
@@ -639,8 +639,8 @@ export default function LeadDetailPage() {
                 variant="default"
                 size="sm"
                 onClick={handleConvertToEvent}
-                className="gap-2 bg-green-600 hover:bg-green-700"
-              >
+                className="gap-2 bg-green-600 hover:bg-green-700">
+
                 <CheckCircle className="w-4 h-4" />
                 Lead konvertieren
               </Button>
@@ -648,8 +648,8 @@ export default function LeadDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="gap-2"
-              >
+                className="gap-2">
+
                 <Edit className="w-4 h-4" />
                 Edit Lead
               </Button>
@@ -701,8 +701,8 @@ export default function LeadDetailPage() {
                 <CardTitle className="text-lg font-bold">Lead-Details</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {lead.event_datum && (
-                  <div>
+                {lead.event_datum &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1 uppercase">Event-Datum</p>
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-gray-400" />
@@ -711,35 +711,35 @@ export default function LeadDetailPage() {
                       </p>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.event_ort && (
-                  <div>
+                {lead.event_ort &&
+                <div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <span>{lead.event_ort}</span>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.event_typ && (
-                  <div>
+                {lead.event_typ &&
+                <div>
                     <Badge variant="outline">{lead.event_typ}</Badge>
                   </div>
-                )}
+                }
 
-                {lead.kontaktperson && (
-                  <div>
+                {lead.kontaktperson &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">Kontaktperson</p>
                     <div className="flex items-center gap-2 text-sm">
                       <User className="w-4 h-4 text-gray-400" />
                       <span className="font-medium">{lead.kontaktperson}</span>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.email && (
-                  <div>
+                {lead.email &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">E-Mail</p>
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="w-4 h-4 text-gray-400" />
@@ -748,10 +748,10 @@ export default function LeadDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.telefon && (
-                  <div>
+                {lead.telefon &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">Telefon</p>
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 text-gray-400" />
@@ -760,17 +760,17 @@ export default function LeadDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.firmenname && (
-                  <div>
+                {lead.firmenname &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">Unternehmen</p>
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="w-4 h-4 text-gray-400" />
                       <span className="font-medium">{lead.firmenname}</span>
                     </div>
                   </div>
-                )}
+                }
 
                 <div className="pt-4 border-t">
                   <p className="text-xs text-gray-500 mb-1">Status</p>
@@ -779,8 +779,8 @@ export default function LeadDetailPage() {
                   </Badge>
                 </div>
 
-                {lead.erwarteter_umsatz && (
-                  <div className="bg-green-50 rounded-lg p-4">
+                {lead.erwarteter_umsatz &&
+                <div className="bg-green-50 rounded-lg p-4">
                     <p className="text-xs text-gray-500 mb-1">Erwarteter Umsatz</p>
                     <div className="flex items-center gap-2">
                       <Euro className="w-5 h-5 text-green-600" />
@@ -789,17 +789,17 @@ export default function LeadDetailPage() {
                       </span>
                     </div>
                   </div>
-                )}
+                }
 
-                {lead.quelle && (
-                  <div>
+                {lead.quelle &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">Quelle</p>
                     <p className="text-sm font-medium">{lead.quelle}</p>
                   </div>
-                )}
+                }
 
-                {assignedMitglied && (
-                  <div>
+                {assignedMitglied &&
+                <div>
                     <p className="text-xs text-gray-500 mb-1">Zugewiesen an</p>
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
@@ -808,13 +808,13 @@ export default function LeadDetailPage() {
                       <span className="text-sm font-medium">{assignedMitglied.name}</span>
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
             {/* Letzte Notiz */}
-            {notizen.length > 0 && (
-              <Card className="border-none shadow-lg">
+            {notizen.length > 0 &&
+            <Card className="border-none shadow-lg">
                 <CardHeader className="border-b">
                   <CardTitle className="text-sm font-bold">Letzte Notiz</CardTitle>
                 </CardHeader>
@@ -825,7 +825,7 @@ export default function LeadDetailPage() {
                   <p className="text-sm text-gray-700 line-clamp-3">{notizen[0].inhalt}</p>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
 
           {/* Main Content */}
@@ -862,19 +862,19 @@ export default function LeadDetailPage() {
                 <TabsTrigger value="notizen">Notizen</TabsTrigger>
                 <TabsTrigger value="aufgaben">
                   Aufgaben
-                  {hauptAufgaben.length > 0 && (
-                    <Badge variant="secondary" className="ml-2">
+                  {hauptAufgaben.length > 0 &&
+                  <Badge variant="secondary" className="ml-2">
                       {offeneAufgaben}
                     </Badge>
-                  )}
+                  }
                 </TabsTrigger>
                 <TabsTrigger value="dateien"> {/* Modified */}
                   Dateien
-                  {dateien.length > 0 && (
-                    <Badge variant="secondary" className="ml-2">
+                  {dateien.length > 0 &&
+                  <Badge variant="secondary" className="ml-2">
                       {dateien.length}
                     </Badge>
-                  )}
+                  }
                 </TabsTrigger>
                 <TabsTrigger value="emails">E-Mails</TabsTrigger>
                 <TabsTrigger value="verlauf">Verlauf</TabsTrigger>
@@ -892,13 +892,13 @@ export default function LeadDetailPage() {
                       value={newNote}
                       onChange={(e) => setNewNote(e.target.value)}
                       rows={4}
-                      className="mb-4"
-                    />
-                    <Button 
+                      className="mb-4" />
+
+                    <Button
                       onClick={handleAddNote}
-                      disabled={!newNote.trim() || createNotizMutation.isPending}
-                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-                    >
+                      disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+
+
                       <Send className="w-4 h-4 mr-2" />
                       {createNotizMutation.isPending ? "Speichert..." : "Notiz hinzufügen"}
                     </Button>
@@ -910,21 +910,21 @@ export default function LeadDetailPage() {
                     <CardTitle>Notizen-Verlauf</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
-                    {notizen.length > 0 ? (
-                      <div className="space-y-4">
-                        {notizen.map((notiz) => (
-                          <div key={notiz.id} className="bg-yellow-50 rounded-lg p-4 border-l-4 border-l-yellow-400">
+                    {notizen.length > 0 ?
+                    <div className="space-y-4">
+                        {notizen.map((notiz) =>
+                      <div key={notiz.id} className="bg-yellow-50 rounded-lg p-4 border-l-4 border-l-yellow-400">
                             <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
                               <Clock className="w-3 h-3" />
                               {format(new Date(notiz.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}
                             </div>
                             <p className="text-sm text-gray-700 whitespace-pre-wrap">{notiz.inhalt}</p>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-center text-gray-500 py-8">Noch keine Notizen vorhanden</p>
-                    )}
+                      )}
+                      </div> :
+
+                    <p className="text-center text-gray-500 py-8">Noch keine Notizen vorhanden</p>
+                    }
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -935,14 +935,14 @@ export default function LeadDetailPage() {
                   <CardHeader className="border-b">
                     <div className="flex justify-between items-center">
                       <CardTitle>Aufgaben für diesen Lead</CardTitle>
-                      <Button 
+                      <Button
                         size="sm"
                         onClick={() => {
                           setEditingAufgabe(null);
                           setShowAufgabeForm(!showAufgabeForm);
                         }}
-                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-                      >
+                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+
                         <Plus className="w-4 h-4 mr-2" />
                         Neue Aufgabe
                       </Button>
@@ -952,45 +952,45 @@ export default function LeadDetailPage() {
                     </p>
                   </CardHeader>
 
-                  {showAufgabeForm && (
-                    <CardContent className="p-6 border-b bg-gray-50">
+                  {showAufgabeForm &&
+                  <CardContent className="p-6 border-b bg-gray-50">
                       <AufgabeForm
-                        aufgabe={editingAufgabe}
-                        onSubmit={handleAufgabeSubmit}
-                        onCancel={() => {
-                          setShowAufgabeForm(false);
-                          setEditingAufgabe(null);
-                        }}
-                        mitglieder={mitglieder}
-                        hauptAufgaben={hauptAufgaben}
-                        allAufgaben={aufgaben} // Pass allAufgaben for parent task selection
-                      />
+                      aufgabe={editingAufgabe}
+                      onSubmit={handleAufgabeSubmit}
+                      onCancel={() => {
+                        setShowAufgabeForm(false);
+                        setEditingAufgabe(null);
+                      }}
+                      mitglieder={mitglieder}
+                      hauptAufgaben={hauptAufgaben}
+                      allAufgaben={aufgaben} // Pass allAufgaben for parent task selection
+                    />
                     </CardContent>
-                  )}
+                  }
 
                   <CardContent className="p-0">
-                    {hauptAufgaben.length > 0 ? (
-                      <div className="divide-y">
-                        {hauptAufgaben.map((aufgabe) => (
-                          <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-12 text-center">
+                    {hauptAufgaben.length > 0 ?
+                    <div className="divide-y">
+                        {hauptAufgaben.map((aufgabe) =>
+                      <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                      )}
+                      </div> :
+
+                    <div className="p-12 text-center">
                         <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                         <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
                         <p className="text-gray-500 mb-4">
                           Erstelle die erste Aufgabe für diesen Lead
                         </p>
-                        <Button 
-                          onClick={() => setShowAufgabeForm(true)}
-                          variant="outline"
-                        >
+                        <Button
+                        onClick={() => setShowAufgabeForm(true)}
+                        variant="outline">
+
                           <Plus className="w-4 h-4 mr-2" />
                           Aufgabe erstellen
                         </Button>
                       </div>
-                    )}
+                    }
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -1027,8 +1027,8 @@ export default function LeadDetailPage() {
                             id="fileDescription"
                             value={fileDescription}
                             onChange={(e) => setFileDescription(e.target.value)}
-                            placeholder="z.B. Vertragsentwurf vom 15.10."
-                          />
+                            placeholder="z.B. Vertragsentwurf vom 15.10." />
+
                         </div>
                       </div>
 
@@ -1038,12 +1038,12 @@ export default function LeadDetailPage() {
                           id="file-upload"
                           className="hidden"
                           onChange={handleFileUpload}
-                          disabled={uploadingFile}
-                        />
+                          disabled={uploadingFile} />
+
                         <label
                           htmlFor="file-upload"
-                          className="cursor-pointer flex flex-col items-center"
-                        >
+                          className="cursor-pointer flex flex-col items-center">
+
                           <Upload className="w-12 h-12 text-gray-400 mb-4" />
                           <p className="text-sm font-medium text-gray-700 mb-2">
                             {uploadingFile ? "Lädt hoch..." : "Klicke zum Hochladen oder ziehe Dateien hierher"}
@@ -1057,15 +1057,15 @@ export default function LeadDetailPage() {
                   </CardContent>
                 </Card>
 
-                {dateien.length > 0 && (
-                  <Card className="border-none shadow-lg mt-6">
+                {dateien.length > 0 &&
+                <Card className="border-none shadow-lg mt-6">
                     <CardHeader className="border-b">
                       <CardTitle>Hochgeladene Dateien ({dateien.length})</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <div className="divide-y">
-                        {dateien.map((datei) => (
-                          <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                        {dateien.map((datei) =>
+                      <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
                             <div className="text-3xl">{getFileIcon(datei.file_type)}</div>
                             
                             <div className="flex-1 min-w-0">
@@ -1076,9 +1076,9 @@ export default function LeadDetailPage() {
                                 </Badge>
                               </div>
                               
-                              {datei.beschreibung && (
-                                <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
-                              )}
+                              {datei.beschreibung &&
+                          <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
+                          }
                               
                               <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                                 <span>{formatFileSize(datei.file_size)}</span>
@@ -1089,69 +1089,69 @@ export default function LeadDetailPage() {
 
                             <div className="flex items-center gap-2">
                               <a
-                                href={datei.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                title="Öffnen"
-                              >
+                            href={datei.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Öffnen">
+
                                 <Eye className="w-4 h-4 text-gray-600" />
                               </a>
                               
                               <a
-                                href={datei.file_url}
-                                download={datei.file_name}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                title="Herunterladen"
-                              >
+                            href={datei.file_url}
+                            download={datei.file_name}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Herunterladen">
+
                                 <Download className="w-4 h-4 text-gray-600" />
                               </a>
 
                               <div className="relative">
                                 <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => setShowFileDropdownId(showFileDropdownId === datei.id ? null : datei.id)}
-                                >
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setShowFileDropdownId(showFileDropdownId === datei.id ? null : datei.id)}>
+
                                   <MoreVertical className="w-4 h-4" />
                                 </Button>
 
-                                {showFileDropdownId === datei.id && (
-                                  <>
-                                    <div 
-                                      className="fixed inset-0 z-40" 
-                                      onClick={() => setShowFileDropdownId(null)}
-                                    />
+                                {showFileDropdownId === datei.id &&
+                            <>
+                                    <div
+                                className="fixed inset-0 z-40"
+                                onClick={() => setShowFileDropdownId(null)} />
+
                                     <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                                       <button
-                                        onClick={() => handleDeleteFile(datei)}
-                                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600"
-                                      >
+                                  onClick={() => handleDeleteFile(datei)}
+                                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600">
+
                                         <Trash2 className="w-4 h-4" />
                                         Löschen
                                       </button>
                                     </div>
                                   </>
-                                )}
+                            }
                               </div>
                             </div>
                           </div>
-                        ))}
+                      )}
                       </div>
                     </CardContent>
                   </Card>
-                )}
+                }
 
-                {dateien.length === 0 && !uploadingFile && (
-                  <Card className="border-dashed border-2 mt-6">
+                {dateien.length === 0 && !uploadingFile &&
+                <Card className="border-dashed border-2 mt-6">
                     <CardContent className="p-12 text-center">
                       <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                       <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
                       <p className="text-gray-500">Lade die erste Datei für diesen Lead hoch</p>
                     </CardContent>
                   </Card>
-                )}
+                }
               </TabsContent>
 
               <TabsContent value="emails">
@@ -1173,6 +1173,6 @@ export default function LeadDetailPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
