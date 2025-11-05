@@ -15,8 +15,8 @@ import {
   Receipt,
   PieChart,
   ArrowUpRight,
-  ArrowDownRight
-} from "lucide-react";
+  ArrowDownRight } from
+"lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,39 +35,39 @@ export default function FinanzenPage() {
   const { data: rechnungen = [] } = useQuery({
     queryKey: ['rechnungen', currentOrgId],
     queryFn: () => base44.entities.Rechnung.filter({ org_id: currentOrgId }, '-rechnungsdatum'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: ausgaben = [] } = useQuery({
     queryKey: ['ausgaben', currentOrgId],
     queryFn: () => base44.entities.Ausgabe.filter({ org_id: currentOrgId }, '-datum'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: zahlungen = [] } = useQuery({
     queryKey: ['zahlungen', currentOrgId],
     queryFn: () => base44.entities.Zahlung.filter({ org_id: currentOrgId }, '-zahlungsdatum'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   // Berechnungen
-  const gesamtEinnahmen = rechnungen
-    .filter(r => r.status === 'bezahlt')
-    .reduce((sum, r) => sum + (r.brutto_betrag || 0), 0);
+  const gesamtEinnahmen = rechnungen.
+  filter((r) => r.status === 'bezahlt').
+  reduce((sum, r) => sum + (r.brutto_betrag || 0), 0);
 
-  const offeneRechnungen = rechnungen
-    .filter(r => ['versendet', 'teilweise_bezahlt', 'überfällig'].includes(r.status))
-    .reduce((sum, r) => sum + ((r.brutto_betrag || 0) - (r.bezahlt_betrag || 0)), 0);
+  const offeneRechnungen = rechnungen.
+  filter((r) => ['versendet', 'teilweise_bezahlt', 'überfällig'].includes(r.status)).
+  reduce((sum, r) => sum + ((r.brutto_betrag || 0) - (r.bezahlt_betrag || 0)), 0);
 
-  const gesamtAusgaben = ausgaben
-    .filter(a => a.status === 'bezahlt')
-    .reduce((sum, a) => sum + (a.betrag || 0), 0);
+  const gesamtAusgaben = ausgaben.
+  filter((a) => a.status === 'bezahlt').
+  reduce((sum, a) => sum + (a.betrag || 0), 0);
 
   const gewinn = gesamtEinnahmen - gesamtAusgaben;
 
-  const ueberfaelligeRechnungen = rechnungen.filter(r => 
-    r.status === 'überfällig' || 
-    (r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date())
+  const ueberfaelligeRechnungen = rechnungen.filter((r) =>
+  r.status === 'überfällig' ||
+  r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date()
   ).length;
 
   const statusColors = {
@@ -90,21 +90,21 @@ export default function FinanzenPage() {
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl("Rechnungen")}>
-              <Button className="bg-slate-800 hover:bg-slate-900 text-white">
+              <Button className="bg-[#223a5e] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:bg-slate-900">
                 <FileText className="w-4 h-4 mr-2" />
                 Rechnungen
               </Button>
             </Link>
             <Link to={createPageUrl("Ausgaben")}>
-              <Button 
+              <Button
                 variant="outline"
-                style={{ 
-                  borderColor: '#8D99AE', 
-                  color: '#8D99AE' 
+                style={{
+                  borderColor: '#8D99AE',
+                  color: '#8D99AE'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+
                 <Receipt className="w-4 h-4 mr-2" />
                 Ausgaben
               </Button>
@@ -174,7 +174,7 @@ export default function FinanzenPage() {
                 {gewinn.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <p className="text-sm text-gray-500 mt-2">
-                {((gewinn / gesamtEinnahmen) * 100 || 0).toFixed(1)}% Gewinnmarge
+                {(gewinn / gesamtEinnahmen * 100 || 0).toFixed(1)}% Gewinnmarge
               </p>
             </CardContent>
           </Card>
@@ -194,12 +194,12 @@ export default function FinanzenPage() {
               <p className="text-3xl font-bold text-gray-900">
                 {offeneRechnungen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              {ueberfaelligeRechnungen > 0 && (
-                <div className="flex items-center gap-1 mt-2 text-sm text-red-600">
+              {ueberfaelligeRechnungen > 0 &&
+              <div className="flex items-center gap-1 mt-2 text-sm text-red-600">
                   <AlertCircle className="w-4 h-4" />
                   <span>{ueberfaelligeRechnungen} überfällig</span>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </div>
@@ -227,8 +227,8 @@ export default function FinanzenPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  {rechnungen.slice(0, 5).map((rechnung) => (
-                    <div key={rechnung.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                  {rechnungen.slice(0, 5).map((rechnung) =>
+                  <div key={rechnung.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{rechnung.rechnungsnummer}</p>
                         <p className="text-sm text-gray-500">
@@ -244,7 +244,7 @@ export default function FinanzenPage() {
                         </Badge>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </CardContent>
               </Card>
 
@@ -259,8 +259,8 @@ export default function FinanzenPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  {ausgaben.slice(0, 5).map((ausgabe) => (
-                    <div key={ausgabe.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                  {ausgaben.slice(0, 5).map((ausgabe) =>
+                  <div key={ausgabe.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{ausgabe.titel}</p>
                         <div className="flex items-center gap-2 mt-1">
@@ -276,7 +276,7 @@ export default function FinanzenPage() {
                         -{(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                       </p>
                     </div>
-                  ))}
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -329,6 +329,6 @@ export default function FinanzenPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 }
