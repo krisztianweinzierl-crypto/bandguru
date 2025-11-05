@@ -39,10 +39,10 @@ export default function RepertoirePage() {
       if (!orgId || !user) return;
 
       // Prüfe Rolle
-      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+      const mitgliedschaften = await base44.entities.Mitglied.filter({
         user_id: user.id,
         org_id: orgId,
-        status: "aktiv" 
+        status: "aktiv"
       });
       const mitglied = mitgliedschaften[0];
       setIsManager(mitglied?.rolle === "Band Manager");
@@ -50,8 +50,8 @@ export default function RepertoirePage() {
       // Wenn Musiker, lade Musiker-Profil
       if (mitglied?.rolle === "Musiker") {
         const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
-        const musikerProfil = alleMusiker.find(m => 
-          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+        const musikerProfil = alleMusiker.find((m) =>
+        m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
         );
         setCurrentMusiker(musikerProfil);
       }
@@ -62,32 +62,32 @@ export default function RepertoirePage() {
   const { data: songs = [] } = useQuery({
     queryKey: ['songs', currentOrgId],
     queryFn: () => base44.entities.Song.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: setlists = [] } = useQuery({
     queryKey: ['setlists', currentOrgId],
     queryFn: () => base44.entities.Setliste.filter({ org_id: currentOrgId }, '-created_date'),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['events', currentOrgId],
     queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   // Lade EventMusiker wenn Musiker
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', currentMusiker?.id],
     queryFn: async () => {
-      const result = await base44.entities.EventMusiker.filter({ 
+      const result = await base44.entities.EventMusiker.filter({
         musiker_id: currentMusiker.id,
         status: 'zugesagt'
       });
       return result;
     },
-    enabled: !!currentMusiker?.id,
+    enabled: !!currentMusiker?.id
   });
 
   const createSongMutation = useMutation({
@@ -96,7 +96,7 @@ export default function RepertoirePage() {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
       setShowSongForm(false);
       setEditingSong(null);
-    },
+    }
   });
 
   const updateSongMutation = useMutation({
@@ -105,14 +105,14 @@ export default function RepertoirePage() {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
       setShowSongForm(false);
       setEditingSong(null);
-    },
+    }
   });
 
   const deleteSongMutation = useMutation({
     mutationFn: (id) => base44.entities.Song.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
-    },
+    }
   });
 
   const createSetlistMutation = useMutation({
@@ -121,7 +121,7 @@ export default function RepertoirePage() {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
       setShowSetlistForm(false);
       setEditingSetlist(null);
-    },
+    }
   });
 
   const updateSetlistMutation = useMutation({
@@ -130,33 +130,33 @@ export default function RepertoirePage() {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
       setShowSetlistForm(false);
       setEditingSetlist(null);
-    },
+    }
   });
 
   const deleteSetlistMutation = useMutation({
     mutationFn: (id) => base44.entities.Setliste.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
-    },
+    }
   });
 
   // Filter Events und Setlisten basierend auf Rolle
-  const visibleEvents = isManager 
-    ? events 
-    : events.filter(event => {
-        // Musiker sieht nur Events bei denen er teilnimmt
-        return eventMusiker.some(em => em.event_id === event.id);
-      });
+  const visibleEvents = isManager ?
+  events :
+  events.filter((event) => {
+    // Musiker sieht nur Events bei denen er teilnimmt
+    return eventMusiker.some((em) => em.event_id === event.id);
+  });
 
-  const visibleSetlists = isManager
-    ? setlists
-    : setlists.filter(setlist => {
-        // Musiker sieht nur Setlisten von seinen Events
-        return visibleEvents.some(e => e.id === setlist.event_id);
-      });
+  const visibleSetlists = isManager ?
+  setlists :
+  setlists.filter((setlist) => {
+    // Musiker sieht nur Setlisten von seinen Events
+    return visibleEvents.some((e) => e.id === setlist.event_id);
+  });
 
   // Songs und Setlists sind für Musiker nur zugänglich wenn sie Teil eines zugesagten Events sind
-  const hasAccess = isManager || (currentMusiker && eventMusiker.length > 0);
+  const hasAccess = isManager || currentMusiker && eventMusiker.length > 0;
 
   const handleSongSubmit = (data) => {
     if (editingSong) {
@@ -180,15 +180,15 @@ export default function RepertoirePage() {
     setShowImport(false);
   };
 
-  const filteredSongs = songs.filter(s => {
+  const filteredSongs = songs.filter((s) => {
     const matchesSearch = s.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
+    s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = genreFilter === "alle" || s.tags?.includes(genreFilter);
     return matchesSearch && matchesGenre;
   });
 
-  const filteredSetlists = visibleSetlists.filter(s => 
-    s.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSetlists = visibleSetlists.filter((s) =>
+  s.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDeleteSong = (song) => {
@@ -203,14 +203,14 @@ export default function RepertoirePage() {
     }
   };
 
-  const allGenres = [...new Set(songs.flatMap(s => s.tags || []))];
+  const allGenres = [...new Set(songs.flatMap((s) => s.tags || []))];
 
   if (!currentOrgId || !currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   // Wenn Musiker ohne Zugriff
@@ -226,8 +226,8 @@ export default function RepertoirePage() {
             </p>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -261,56 +261,56 @@ export default function RepertoirePage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-blue-900">
-                    {isManager 
-                      ? `Sie sehen alle ${songs.length} Songs in der Bibliothek` 
-                      : `Du siehst ${songs.length} Songs für deine Events`
+                    {isManager ?
+                    `Sie sehen alle ${songs.length} Songs in der Bibliothek` :
+                    `Du siehst ${songs.length} Songs für deine Events`
                     }
                   </p>
                 </div>
               </div>
-              {isManager && (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setShowImport(true)}
-                  >
+              {isManager &&
+              <div className="flex gap-2">
+                  <Button
+                  variant="outline"
+                  onClick={() => setShowImport(true)}>
+
                     <Upload className="w-4 h-4 mr-2" />
                     Importieren
                   </Button>
-                  <Button 
-                    onClick={() => {
-                      setEditingSong(null);
-                      setShowSongForm(true);
-                    }}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
-                  >
+                  <Button
+                  onClick={() => {
+                    setEditingSong(null);
+                    setShowSongForm(true);
+                  }} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+
+
                     <Plus className="w-4 h-4 mr-2" />
                     Song hinzufügen
                   </Button>
                 </div>
-              )}
+              }
             </div>
 
             {/* Import Component */}
-            {showImport && (
-              <SongImport
-                onClose={() => setShowImport(false)}
-                onSuccess={handleImportSuccess}
-                orgId={currentOrgId}
-              />
-            )}
+            {showImport &&
+            <SongImport
+              onClose={() => setShowImport(false)}
+              onSuccess={handleImportSuccess}
+              orgId={currentOrgId} />
+
+            }
 
             {/* Song Form */}
-            {showSongForm && (
-              <SongForm
-                song={editingSong}
-                onSubmit={handleSongSubmit}
-                onCancel={() => {
-                  setShowSongForm(false);
-                  setEditingSong(null);
-                }}
-              />
-            )}
+            {showSongForm &&
+            <SongForm
+              song={editingSong}
+              onSubmit={handleSongSubmit}
+              onCancel={() => {
+                setShowSongForm(false);
+                setEditingSong(null);
+              }} />
+
+            }
 
             {/* Suche & Filter */}
             <Card className="border-none shadow-md">
@@ -322,8 +322,8 @@ export default function RepertoirePage() {
                       placeholder="Songs durchsuchen..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
+                      className="pl-10" />
+
                   </div>
                   <Select value={genreFilter} onValueChange={setGenreFilter}>
                     <SelectTrigger className="w-full md:w-48">
@@ -331,9 +331,9 @@ export default function RepertoirePage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="alle">Alle Genres</SelectItem>
-                      {allGenres.map(genre => (
-                        <SelectItem key={genre} value={genre}>{genre}</SelectItem>
-                      ))}
+                      {allGenres.map((genre) =>
+                      <SelectItem key={genre} value={genre}>{genre}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -358,21 +358,21 @@ export default function RepertoirePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {filteredSongs.length > 0 ? (
-                      filteredSongs.map((song) => (
-                        <tr key={song.id} className="hover:bg-gray-50 transition-colors">
+                    {filteredSongs.length > 0 ?
+                    filteredSongs.map((song) =>
+                    <tr key={song.id} className="hover:bg-gray-50 transition-colors">
                           <td className="p-4 font-medium text-gray-900">{song.titel}</td>
                           <td className="p-4 text-gray-600">{song.kuenstler_original || '-'}</td>
                           <td className="p-4">
-                            {song.tags && song.tags.length > 0 ? (
-                              <div className="flex flex-wrap gap-1">
-                                {song.tags.slice(0, 2).map((tag, i) => (
-                                  <Badge key={i} variant="outline" className="text-xs">
+                            {song.tags && song.tags.length > 0 ?
+                        <div className="flex flex-wrap gap-1">
+                                {song.tags.slice(0, 2).map((tag, i) =>
+                          <Badge key={i} variant="outline" className="text-xs">
                                     {tag}
                                   </Badge>
-                                ))}
-                              </div>
-                            ) : '-'}
+                          )}
+                              </div> :
+                        '-'}
                           </td>
                           <td className="p-4 text-gray-600">{song.tonart || '-'}</td>
                           <td className="p-4 text-gray-600">{song.bpm ? `${song.bpm} BPM` : '-'}</td>
@@ -380,72 +380,72 @@ export default function RepertoirePage() {
                             {song.lead_sheet_url ? '1' : '0'}
                           </td>
                           <td className="p-4">
-                            {song.audio_demo_url ? (
-                              <a 
-                                href={song.audio_demo_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
-                              >
+                            {song.audio_demo_url ?
+                        <a
+                          href={song.audio_demo_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline">
+
                                 Link
-                              </a>
-                            ) : '-'}
+                              </a> :
+                        '-'}
                           </td>
                           <td className="p-4 text-gray-600">-</td>
                           <td className="p-4">
                             <div className="flex justify-end gap-2">
-                              {song.lead_sheet_url && (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => window.open(song.lead_sheet_url, '_blank')}
-                                >
+                              {song.lead_sheet_url &&
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(song.lead_sheet_url, '_blank')}>
+
                                   Noten ansehen
                                 </Button>
-                              )}
-                              {isManager && (
-                                <>
+                          }
+                              {isManager &&
+                          <>
                                   <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => {
-                                      setEditingSong(song);
-                                      setShowSongForm(true);
-                                    }}
-                                  >
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingSong(song);
+                                setShowSongForm(true);
+                              }}>
+
                                     <Edit className="w-4 h-4" />
                                   </Button>
                                   <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => handleDeleteSong(song)}
-                                    className="text-red-600 hover:text-red-700"
-                                  >
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteSong(song)}
+                              className="text-red-600 hover:text-red-700">
+
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </>
-                              )}
+                          }
                             </div>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
+                    ) :
+
+                    <tr>
                         <td colSpan="9" className="p-12 text-center">
                           <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Songs gefunden</h3>
                           <p className="text-gray-500 mb-4">
                             {isManager ? "Füge deinen ersten Song hinzu" : "Für dieses Repertoire sind noch keine Songs verfügbar."}
                           </p>
-                          {isManager && (
-                            <Button onClick={() => setShowSongForm(true)}>
+                          {isManager &&
+                        <Button onClick={() => setShowSongForm(true)}>
                               <Plus className="w-4 h-4 mr-2" />
                               Song hinzufügen
                             </Button>
-                          )}
+                        }
                         </td>
                       </tr>
-                    )}
+                    }
                   </tbody>
                 </table>
               </div>
@@ -459,39 +459,39 @@ export default function RepertoirePage() {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
                   <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-blue-900">
-                    {isManager
-                      ? 'Du siehst alle Setlists (Owner-Modus)'
-                      : `Du siehst ${visibleSetlists.length} Setlisten für deine Events`
+                    {isManager ?
+                    'Du siehst alle Setlists (Owner-Modus)' :
+                    `Du siehst ${visibleSetlists.length} Setlisten für deine Events`
                     }
                   </p>
                 </div>
               </div>
-              {isManager && (
-                <Button 
-                  onClick={() => {
-                    setEditingSetlist(null);
-                    setShowSetlistForm(true);
-                  }}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
-                >
+              {isManager &&
+              <Button
+                onClick={() => {
+                  setEditingSetlist(null);
+                  setShowSetlistForm(true);
+                }}
+                className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+
                   <Plus className="w-4 h-4 mr-2" />
                   Neue Setlist
                 </Button>
-              )}
+              }
             </div>
 
-            {showSetlistForm && (
-              <SetlistForm
-                setlist={editingSetlist}
-                onSubmit={handleSetlistSubmit}
-                onCancel={() => {
-                  setShowSetlistForm(false);
-                  setEditingSetlist(null);
-                }}
-                events={events}
-                allSongs={songs}
-              />
-            )}
+            {showSetlistForm &&
+            <SetlistForm
+              setlist={editingSetlist}
+              onSubmit={handleSetlistSubmit}
+              onCancel={() => {
+                setShowSetlistForm(false);
+                setEditingSetlist(null);
+              }}
+              events={events}
+              allSongs={songs} />
+
+            }
 
             {/* Suche */}
             <Card className="border-none shadow-md">
@@ -502,21 +502,21 @@ export default function RepertoirePage() {
                     placeholder="Setlists durchsuchen..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
+                    className="pl-10" />
+
                 </div>
               </CardContent>
             </Card>
 
             {/* Setlist Cards */}
-            {filteredSetlists.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSetlists.length > 0 ?
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSetlists.map((setlist) => {
-                  const event = visibleEvents.find(e => e.id === setlist.event_id);
-                  const songCount = setlist.songs?.length || 0;
-                  
-                  return (
-                    <Card key={setlist.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                const event = visibleEvents.find((e) => e.id === setlist.event_id);
+                const songCount = setlist.songs?.length || 0;
+
+                return (
+                  <Card key={setlist.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
                       <CardHeader className="pb-4">
                         <div className="flex items-start justify-between gap-3">
                           <CardTitle className="text-xl">{setlist.name}</CardTitle>
@@ -526,16 +526,16 @@ export default function RepertoirePage() {
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {event && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                        {event &&
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
                             <Calendar className="w-4 h-4" />
                             <span>{event.titel} - {new Date(event.datum_von).toLocaleDateString('de-DE')}</span>
                           </div>
-                        )}
+                      }
 
-                        {setlist.beschreibung && (
-                          <p className="text-sm text-gray-600 line-clamp-2">{setlist.beschreibung}</p>
-                        )}
+                        {setlist.beschreibung &&
+                      <p className="text-sm text-gray-600 line-clamp-2">{setlist.beschreibung}</p>
+                      }
 
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Clock className="w-4 h-4" />
@@ -547,54 +547,54 @@ export default function RepertoirePage() {
                           {songCount} {songCount === 1 ? 'Song' : 'Songs'}
                         </div>
 
-                        {isManager && (
-                          <div className="flex gap-2 pt-4 border-t">
+                        {isManager &&
+                      <div className="flex gap-2 pt-4 border-t">
                             <Button
-                              variant="default"
-                              className="flex-1 bg-gray-900 hover:bg-gray-800"
-                              onClick={() => {
-                                setEditingSetlist(setlist);
-                                setShowSetlistForm(true);
-                              }}
-                            >
+                          variant="default" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 flex-1 hover:bg-gray-800"
+
+                          onClick={() => {
+                            setEditingSetlist(setlist);
+                            setShowSetlistForm(true);
+                          }}>
+
                               <Edit className="w-4 h-4 mr-2" />
                               Bearbeiten
                             </Button>
                             <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleDeleteSetlist(setlist)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteSetlist(setlist)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
-                        )}
+                      }
                       </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            ) : (
-              <Card className="border-dashed">
+                    </Card>);
+
+              })}
+              </div> :
+
+            <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
                   <List className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine Setlists gefunden</h3>
                   <p className="text-gray-500 mb-4">
                     {isManager ? 'Erstelle deine erste Setlist' : 'Keine Setlisten für deine Events'}
                   </p>
-                  {isManager && (
-                    <Button onClick={() => setShowSetlistForm(true)}>
+                  {isManager &&
+                <Button onClick={() => setShowSetlistForm(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       Neue Setlist
                     </Button>
-                  )}
+                }
                 </CardContent>
               </Card>
-            )}
+            }
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 }
