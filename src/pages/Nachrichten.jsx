@@ -16,8 +16,8 @@ import {
   CheckCheck,
   Paperclip,
   X,
-  MoreVertical } from
-"lucide-react";
+  MoreVertical
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,10 +46,6 @@ export default function NachrichtenPage() {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [selectedKonversation, nachrichten]); // Added nachrichten as dependency to scroll on new messages
-
   const loadUser = async () => {
     const user = await base44.auth.me();
     setCurrentUser(user);
@@ -65,7 +61,6 @@ export default function NachrichtenPage() {
     enabled: !!currentOrgId
   });
 
-  // Lade alle User-Daten
   const { data: allUsers = [] } = useQuery({
     queryKey: ['allUsers', currentOrgId],
     queryFn: async () => {
@@ -93,9 +88,8 @@ export default function NachrichtenPage() {
         org_id: currentOrgId
       }, '-letzte_nachricht_zeit');
 
-      // Nur Konversationen wo der User Teilnehmer ist
       return allKonversationen.filter((k) =>
-      k.teilnehmer_ids && k.teilnehmer_ids.includes(currentUser.id)
+        k.teilnehmer_ids && k.teilnehmer_ids.includes(currentUser.id)
       );
     },
     enabled: !!currentOrgId && !!currentUser
@@ -109,6 +103,11 @@ export default function NachrichtenPage() {
     enabled: !!selectedKonversation,
     refetchInterval: 3000 // Poll alle 3 Sekunden
   });
+
+  // useEffect AFTER all queries are defined
+  useEffect(() => {
+    scrollToBottom();
+  }, [selectedKonversation, nachrichten]); // Added nachrichten as dependency to scroll on new messages
 
   const createKonversationMutation = useMutation({
     mutationFn: async ({ teilnehmer_ids, titel }) => {
@@ -162,7 +161,7 @@ export default function NachrichtenPage() {
 
   const archiveKonversationMutation = useMutation({
     mutationFn: ({ id, archiviert }) =>
-    base44.entities.Konversation.update(id, { archiviert }),
+      base44.entities.Konversation.update(id, { archiviert }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['konversationen'] });
       if (selectedKonversation && selectedKonversation.id === showKonversationMenu) {
@@ -193,9 +192,9 @@ export default function NachrichtenPage() {
 
   const toggleUserSelection = (userId) => {
     setSelectedUsers((prev) =>
-    prev.includes(userId) ?
-    prev.filter((id) => id !== userId) :
-    [...prev, userId]
+      prev.includes(userId) ?
+        prev.filter((id) => id !== userId) :
+        [...prev, userId]
     );
   };
 
@@ -215,18 +214,18 @@ export default function NachrichtenPage() {
 
   const getKonversationTeilnehmer = (konversation) => {
     return konversation.teilnehmer_ids?.
-    filter((id) => id !== currentUser?.id).
-    map((id) => {
-      const mitglied = mitglieder.find((m) => m.user_id === id);
-      const user = allUsers.find((u) => u.id === id);
-      // Verwende invite_name, invite_email, dann rolle als Fallback, wenn kein Name über den User verfügbar ist
-      const displayName = user?.full_name || user?.email || mitglied?.invite_name || mitglied?.invite_email || mitglied?.rolle || 'Unbekannt';
-      return {
-        ...mitglied,
-        user_name: displayName
-      };
-    }).
-    filter(Boolean) || [];
+      filter((id) => id !== currentUser?.id).
+      map((id) => {
+        const mitglied = mitglieder.find((m) => m.user_id === id);
+        const user = allUsers.find((u) => u.id === id);
+        // Verwende invite_name, invite_email, dann rolle als Fallback, wenn kein Name über den User verfügbar ist
+        const displayName = user?.full_name || user?.email || mitglied?.invite_name || mitglied?.invite_email || mitglied?.rolle || 'Unbekannt';
+        return {
+          ...mitglied,
+          user_name: displayName
+        };
+      }).
+      filter(Boolean) || [];
   };
 
   const getKonversationName = (konversation) => {
@@ -239,12 +238,21 @@ export default function NachrichtenPage() {
   };
 
   const hasUnreadMessages = (konversation) => {
-    const latestMessage = nachrichten.
-    filter((n) => n.konversation_id === konversation.id).
-    sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+    // We only want to check unread status for the currently selected conversation,
+    // as `nachrichten` query only fetches for `selectedKonversation.id`.
+    // If we wanted to check for all conversations, `nachrichten` query structure would need to change.
+    if (!selectedKonversation || konversation.id !== selectedKonversation.id) {
+      // For now, if not the selected conversation, assume no unread status based on this component's data fetching
+      // or implement a separate query/logic for overall unread counts.
+      return false;
+    }
+
+    const latestMessage = nachrichten
+      .filter((n) => n.konversation_id === konversation.id)
+      .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
 
     if (latestMessage && latestMessage.absender_id !== currentUser?.id && (
-    !latestMessage.gelesen_von || !latestMessage.gelesen_von.includes(currentUser?.id))) {
+      !latestMessage.gelesen_von || !latestMessage.gelesen_von.includes(currentUser?.id))) {
       return true;
     }
 
@@ -255,31 +263,33 @@ export default function NachrichtenPage() {
     const teilnehmer = getKonversationTeilnehmer(konversation);
     const name = getKonversationName(konversation);
     const isSelected = selectedKonversation?.id === konversation.id;
-    const unread = hasUnreadMessages(konversation);
+    // Check unread status only for the *selected* conversation, or if there was an actual system to track unread per konversation.
+    // Given the `nachrichten` query scope, this `unread` check here will primarily reflect the currently open chat.
+    const unread = isSelected ? hasUnreadMessages(konversation) : false; // Simplified for current data scope
 
     return (
       <div
         onClick={() => setSelectedKonversation(konversation)}
         className={`flex items-start gap-3 p-4 cursor-pointer transition-colors border-l-4 ${
-        isSelected ?
-        'bg-blue-50 border-l-blue-500' :
-        'hover:bg-gray-50 border-l-transparent'}`
+          isSelected ?
+            'bg-blue-50 border-l-blue-500' :
+            'hover:bg-gray-50 border-l-transparent'}`
         }>
 
         <div className="relative">
           {teilnehmer.length === 1 ?
-          <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
+            <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
               <AvatarFallback className="bg-[#223a5e] text-white rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                 {teilnehmer[0].user_name?.[0]?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar> :
 
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
               <Users className="w-6 h-6" />
             </div>
           }
           {unread &&
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
           }
         </div>
 
@@ -289,18 +299,18 @@ export default function NachrichtenPage() {
               {name}
             </p>
             {konversation.letzte_nachricht_zeit &&
-            <span className="text-xs text-gray-500 flex-shrink-0">
+              <span className="text-xs text-gray-500 flex-shrink-0">
                 {format(new Date(konversation.letzte_nachricht_zeit), 'HH:mm', { locale: de })}
               </span>
             }
           </div>
           {konversation.letzte_nachricht_vorschau &&
-          <p className={`text-sm truncate ${unread ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+            <p className={`text-sm truncate ${unread ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
               {konversation.letzte_nachricht_vorschau}
             </p>
           }
           {teilnehmer.length > 1 &&
-          <div className="flex items-center gap-1 mt-1">
+            <div className="flex items-center gap-1 mt-1">
               <Users className="w-3 h-3 text-gray-400" />
               <span className="text-xs text-gray-500">
                 {teilnehmer.map((t) => t.user_name).join(', ')}
@@ -320,13 +330,13 @@ export default function NachrichtenPage() {
       <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'}`}>
           {!isOwn &&
-          <p className="text-xs text-gray-500 mb-1 ml-3">{nachricht.absender_name}</p>
+            <p className="text-xs text-gray-500 mb-1 ml-3">{nachricht.absender_name}</p>
           }
           <div
             className={`rounded-2xl px-4 py-2 ${
-            isOwn ?
-            'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' :
-            'bg-gray-100 text-gray-900'}`
+              isOwn ?
+                'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' :
+                'bg-gray-100 text-gray-900'}`
             }>
 
             <p className="text-sm whitespace-pre-wrap break-words">{nachricht.inhalt}</p>
@@ -336,12 +346,12 @@ export default function NachrichtenPage() {
               {format(new Date(nachricht.created_date), 'HH:mm', { locale: de })}
             </span>
             {isOwn &&
-            <span className="text-xs">
+              <span className="text-xs">
                 {isRead ?
-              <CheckCheck className="w-3 h-3 text-blue-500" /> :
+                  <CheckCheck className="w-3 h-3 text-blue-500" /> :
 
-              <Check className="w-3 h-3 text-gray-400" />
-              }
+                  <Check className="w-3 h-3 text-gray-400" />
+                }
               </span>
             }
           </div>
@@ -383,7 +393,7 @@ export default function NachrichtenPage() {
                 <Input
                   placeholder="Chats durchsuchen..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => setSearchKoquery(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -448,7 +458,7 @@ export default function NachrichtenPage() {
                       >
                         <X className="w-5 h-5" />
                       </Button>
-                      
+
                       <Avatar className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600">
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                           {getKonversationName(selectedKonversation)[0]}
@@ -570,19 +580,19 @@ export default function NachrichtenPage() {
 
       {/* New Chat Modal */}
       {showNewChatModal &&
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="w-full max-w-md">
             <CardHeader className="border-b">
               <div className="flex justify-between items-center">
                 <CardTitle>Neuer Chat</CardTitle>
                 <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setShowNewChatModal(false);
-                  setSelectedUsers([]);
-                  setNewChatTitel("");
-                }}>
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setShowNewChatModal(false);
+                    setSelectedUsers([]);
+                    setNewChatTitel("");
+                  }}>
 
                   <X className="w-4 h-4" />
                 </Button>
@@ -592,9 +602,9 @@ export default function NachrichtenPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Chat-Titel (optional)</label>
                 <Input
-                value={newChatTitel}
-                onChange={(e) => setNewChatTitel(e.target.value)}
-                placeholder="z.B. Event XY Planung" />
+                  value={newChatTitel}
+                  onChange={(e) => setNewChatTitel(e.target.value)}
+                  placeholder="z.B. Event XY Planung" />
 
               </div>
 
@@ -602,28 +612,28 @@ export default function NachrichtenPage() {
                 <label className="text-sm font-medium">Teilnehmer auswählen</label>
                 <div className="border rounded-lg max-h-64 overflow-y-auto">
                   {mitglieder.
-                filter((m) => m.user_id !== currentUser?.id).
-                map((mitglied) => {
-                  const user = allUsers.find((u) => u.id === mitglied.user_id);
-                  // Priorisiere User-Informationen, dann invite-Informationen vom Mitglied, dann Rolle
-                  const displayName = user?.full_name || user?.email || mitglied.invite_name || mitglied.invite_email || mitglied.rolle || 'Unbekannt';
+                    filter((m) => m.user_id !== currentUser?.id).
+                    map((mitglied) => {
+                      const user = allUsers.find((u) => u.id === mitglied.user_id);
+                      // Priorisiere User-Informationen, dann invite-Informationen vom Mitglied, dann Rolle
+                      const displayName = user?.full_name || user?.email || mitglied.invite_name || mitglied.invite_email || mitglied.rolle || 'Unbekannt';
 
-                  return (
-                    <div
-                      key={mitglied.user_id}
-                      onClick={() => toggleUserSelection(mitglied.user_id)}
-                      className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      selectedUsers.includes(mitglied.user_id) ? 'bg-blue-50' : ''}`
-                      }>
+                      return (
+                        <div
+                          key={mitglied.user_id}
+                          onClick={() => toggleUserSelection(mitglied.user_id)}
+                          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                            selectedUsers.includes(mitglied.user_id) ? 'bg-blue-50' : ''}`
+                          }>
 
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      selectedUsers.includes(mitglied.user_id) ?
-                      'bg-blue-500 border-blue-500' :
-                      'border-gray-300'}`
-                      }>
+                            selectedUsers.includes(mitglied.user_id) ?
+                              'bg-blue-500 border-blue-500' :
+                              'border-gray-300'}`
+                          }>
                             {selectedUsers.includes(mitglied.user_id) &&
-                        <Check className="w-3 h-3 text-white" />
-                        }
+                              <Check className="w-3 h-3 text-white" />
+                            }
                           </div>
                           <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
                             <AvatarFallback className="bg-[#223a5e] text-white text-xs rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
@@ -636,24 +646,24 @@ export default function NachrichtenPage() {
                           </div>
                         </div>);
 
-                })}
+                    })}
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
                 <Button
-                variant="outline"
-                onClick={() => {
-                  setShowNewChatModal(false);
-                  setSelectedUsers([]);
-                  setNewChatTitel("");
-                }}>
+                  variant="outline"
+                  onClick={() => {
+                    setShowNewChatModal(false);
+                    setSelectedUsers([]);
+                    setNewChatTitel("");
+                  }}>
 
                   Abbrechen
                 </Button>
                 <Button
-                onClick={handleCreateChat}
-                disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                  onClick={handleCreateChat}
+                  disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
 
 
                   Chat erstellen
