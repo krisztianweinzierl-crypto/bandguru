@@ -640,7 +640,7 @@ export default function NachrichtenPage() {
                         }
                           </div>
                           <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs">
+                            <AvatarFallback className="bg-[#223a5e] text-white text-xs rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                               {displayName[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
                           </Avatar>
@@ -667,8 +667,8 @@ export default function NachrichtenPage() {
                 </Button>
                 <Button
                 onClick={handleCreateChat}
-                disabled={selectedUsers.length === 0 || createKonversationMutation.isPending}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+
 
                   Chat erstellen
                 </Button>
