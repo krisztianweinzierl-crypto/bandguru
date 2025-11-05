@@ -499,7 +499,11 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
               <Button type="button" variant="outline" onClick={onCancel}>
                 Abbrechen
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700">
+              <Button 
+                type="submit" 
+                style={{ backgroundColor: '#223a5e' }}
+                className="hover:opacity-90"
+              >
                 <Save className="w-4 h-4 mr-2" />
                 {setlist ? 'Speichern' : 'Setlist erstellen'}
               </Button>

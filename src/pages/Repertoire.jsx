@@ -282,7 +282,8 @@ export default function RepertoirePage() {
                       setEditingSong(null);
                       setShowSongForm(true);
                     }}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                    style={{ backgroundColor: '#223a5e' }}
+                    className="hover:opacity-90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Song hinzufügen
@@ -472,7 +473,8 @@ export default function RepertoirePage() {
                     setEditingSetlist(null);
                     setShowSetlistForm(true);
                   }}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                  style={{ backgroundColor: '#223a5e' }}
+                  className="hover:opacity-90"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Neue Setlist
