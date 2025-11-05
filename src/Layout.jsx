@@ -1210,9 +1210,63 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto pb-20 md:pb-0">
             {children}
           </div>
+
+          {/* Mobile Bottom Navigation */}
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+            <div className="flex justify-around items-center h-16 px-2">
+              <Link
+                to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                  location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")
+                    ? 'text-[#223a5e]'
+                    : 'text-gray-500'
+                }`}
+              >
+                <LayoutDashboard className="w-6 h-6" />
+                <span className="text-xs font-medium">Dashboard</span>
+              </Link>
+
+              <Link
+                to={createPageUrl(isManager ? "Events" : "MeineEvents")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                  location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
+                  location.pathname === createPageUrl("Kalender")
+                    ? 'text-[#223a5e]'
+                    : 'text-gray-500'
+                }`}
+              >
+                <Calendar className="w-6 h-6" />
+                <span className="text-xs font-medium">Events</span>
+              </Link>
+
+              <Link
+                to={createPageUrl("Nachrichten")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                  location.pathname === createPageUrl("Nachrichten")
+                    ? 'text-[#223a5e]'
+                    : 'text-gray-500'
+                }`}
+              >
+                <MessageSquare className="w-6 h-6" />
+                <span className="text-xs font-medium">Chats</span>
+              </Link>
+
+              <Link
+                to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                  location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")
+                    ? 'text-[#223a5e]'
+                    : 'text-gray-500'
+                }`}
+              >
+                <CheckSquare className="w-6 h-6" />
+                <span className="text-xs font-medium">Aufgaben</span>
+              </Link>
+            </div>
+          </nav>
         </main>
       </div>
     </SidebarProvider>
