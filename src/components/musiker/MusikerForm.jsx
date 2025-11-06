@@ -93,7 +93,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tagessatz">Tagessatz (netto)</Label>
+              <Label htmlFor="tagessatz" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Gage</Label>
               <Input
                 id="tagessatz"
                 type="number"
