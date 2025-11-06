@@ -55,7 +55,7 @@ export const PAGES = {
     "MusikerDashboard": MusikerDashboard,
     "BuchungsbedingungVorlagen": BuchungsbedingungVorlagen,
     "MeineEvents": MeineEvents,
-    "acceptInvite": acceptInvite,
+    "accept-invite": acceptInvite,
     "MusikerProfil": MusikerProfil,
     "MeineAufgaben": MeineAufgaben,
 }

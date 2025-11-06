@@ -21,30 +21,30 @@ export default function Dashboard() {
   const { data: events = [] } = useQuery({
     queryKey: ['events', currentOrgId],
     queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }, '-datum_von', 10),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: aufgaben = [] } = useQuery({
     queryKey: ['aufgaben', currentOrgId],
-    queryFn: () => base44.entities.Aufgabe.filter({ 
+    queryFn: () => base44.entities.Aufgabe.filter({
       org_id: currentOrgId,
       status: { $in: ['offen', 'in_arbeit'] }
     }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', currentOrgId],
     queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
-  const naechsteEvents = events.filter(e => 
-    new Date(e.datum_von) > new Date() && e.status !== 'storniert'
+  const naechsteEvents = events.filter((e) =>
+  new Date(e.datum_von) > new Date() && e.status !== 'storniert'
   ).slice(0, 5);
 
-  const offeneAufgaben = aufgaben.filter(a => a.status === 'offen').length;
-  const inArbeitAufgaben = aufgaben.filter(a => a.status === 'in_arbeit').length;
+  const offeneAufgaben = aufgaben.filter((a) => a.status === 'offen').length;
+  const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
     entwurf: "bg-gray-100 text-gray-800",
@@ -144,16 +144,16 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {naechsteEvents.length > 0 ? (
-                <div className="divide-y">
-                  {naechsteEvents.map((event) => (
-                    <Link 
-                      key={event.id} 
-                      to={createPageUrl(`EventDetail?id=${event.id}`)}
-                      className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
-                    >
+              {naechsteEvents.length > 0 ?
+              <div className="divide-y">
+                  {naechsteEvents.map((event) =>
+                <Link
+                  key={event.id}
+                  to={createPageUrl(`EventDetail?id=${event.id}`)}
+                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+
                       <div className="flex-shrink-0">
-                        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex flex-col items-center justify-center text-white">
+                        <div className="bg-[#223a5e] text-white rounded-xl w-14 h-14 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
                           <span className="text-xs font-medium">
                             {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
                           </span>
@@ -174,10 +174,10 @@ export default function Dashboard() {
                         {event.status}
                       </Badge>
                     </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 text-center text-gray-500">
+                )}
+                </div> :
+
+              <div className="p-8 text-center text-gray-500">
                   <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>Keine anstehenden Events</p>
                   <Link to={createPageUrl("Events")}>
@@ -186,7 +186,7 @@ export default function Dashboard() {
                     </Button>
                   </Link>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
 
@@ -197,55 +197,55 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button 
+                <Button
                   className="w-full justify-start text-white"
-                  style={{ backgroundColor: '#223a5e' }}
-                >
+                  style={{ backgroundColor: '#223a5e' }}>
+
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
-                  style={{ 
-                    borderColor: '#223a5e', 
-                    color: '#223a5e' 
+                  style={{
+                    borderColor: '#223a5e',
+                    color: '#223a5e'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
-                  style={{ 
-                    borderColor: '#223a5e', 
-                    color: '#223a5e' 
+                  style={{
+                    borderColor: '#223a5e',
+                    color: '#223a5e'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
-                  style={{ 
-                    borderColor: '#223a5e', 
-                    color: '#223a5e' 
+                  style={{
+                    borderColor: '#223a5e',
+                    color: '#223a5e'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>
@@ -253,21 +253,21 @@ export default function Dashboard() {
             </CardContent>
 
             {/* Offene Aufgaben Preview */}
-            {aufgaben.length > 0 && (
-              <>
+            {aufgaben.length > 0 &&
+            <>
                 <div className="border-t p-4">
                   <h3 className="font-semibold text-gray-900 mb-3">Offene Aufgaben</h3>
                   <div className="space-y-2">
-                    {aufgaben.slice(0, 5).map((aufgabe) => (
-                      <div key={aufgabe.id} className="flex items-start gap-2 text-sm">
+                    {aufgaben.slice(0, 5).map((aufgabe) =>
+                  <div key={aufgabe.id} className="flex items-start gap-2 text-sm">
                         <div className={`w-2 h-2 rounded-full mt-1.5 ${
-                          aufgabe.prioritaet === 'hoch' ? 'bg-red-500' :
-                          aufgabe.prioritaet === 'normal' ? 'bg-yellow-500' :
-                          'bg-green-500'
-                        }`} />
+                    aufgabe.prioritaet === 'hoch' ? 'bg-red-500' :
+                    aufgabe.prioritaet === 'normal' ? 'bg-yellow-500' :
+                    'bg-green-500'}`
+                    } />
                         <p className="flex-1 text-gray-700">{aufgabe.titel}</p>
                       </div>
-                    ))}
+                  )}
                   </div>
                   <Link to={createPageUrl("Aufgaben")}>
                     <Button variant="link" className="w-full mt-2 text-sm">
@@ -276,10 +276,10 @@ export default function Dashboard() {
                   </Link>
                 </div>
               </>
-            )}
+            }
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
