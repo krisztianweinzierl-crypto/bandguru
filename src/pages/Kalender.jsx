@@ -271,13 +271,77 @@ export default function KalenderPage() {
             <div className="space-y-1">
               {dayEvents.slice(0, 3).map((event) => {
                 const statusStyle = statusColors[event.status] || statusColors.entwurf;
+                const kunde = kunden.find(k => k.id === event.kunde_id);
+                const eventMusikerList = eventMusiker.filter(em => em.event_id === event.id);
+                
                 return (
                   <div
                     key={event.id}
                     onClick={(e) => handleEventClick(event, e)}
-                    className={`${statusStyle.bg} ${statusStyle.text} text-xs px-2 py-1 rounded truncate hover:opacity-80`}
+                    className={`${statusStyle.bg} ${statusStyle.text} text-xs px-2 py-1 rounded truncate hover:opacity-90 transition-opacity relative group`}
                   >
-                    {format(parseISO(event.datum_von), 'HH:mm')} {event.titel}
+                    <span className="truncate block">{format(parseISO(event.datum_von), 'HH:mm')} {event.titel}</span>
+                    
+                    {/* Hover Tooltip */}
+                    <div className="absolute left-0 top-full mt-1 w-64 bg-white border-2 border-gray-300 rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none text-left">
+                      <div className="space-y-2 text-gray-900">
+                        <div className="font-bold text-sm border-b pb-2">{event.titel}</div>
+                        
+                        <div className="flex items-start gap-2 text-xs">
+                          <Clock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div>{format(parseISO(event.datum_von), 'HH:mm')} - {format(parseISO(event.datum_bis), 'HH:mm')} Uhr</div>
+                            <div className="text-gray-600">{format(parseISO(event.datum_von), 'dd. MMM yyyy', { locale: de })}</div>
+                          </div>
+                        </div>
+                        
+                        {event.ort_name && (
+                          <div className="flex items-start gap-2 text-xs">
+                            <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div>{event.ort_name}</div>
+                              {event.ort_adresse && (
+                                <div className="text-gray-600">{event.ort_adresse}</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {kunde && (
+                          <div className="flex items-start gap-2 text-xs">
+                            <User className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div>{kunde.firmenname}</div>
+                              {kunde.ansprechpartner && (
+                                <div className="text-gray-600">{kunde.ansprechpartner}</div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {eventMusikerList.length > 0 && (
+                          <div className="flex items-start gap-2 text-xs">
+                            <Users className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div className="font-medium">{eventMusikerList.length} Musiker</div>
+                              <div className="text-gray-600">
+                                {eventMusikerList.filter(em => em.status === 'zugesagt').length} zugesagt
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="pt-2 border-t">
+                          <div className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${statusStyle.bg} ${statusStyle.text}`}>
+                            Status: {event.status}
+                          </div>
+                        </div>
+                        
+                        <div className="text-xs text-gray-500 italic pt-1">
+                          Klicken für Details →
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 );
               })}
