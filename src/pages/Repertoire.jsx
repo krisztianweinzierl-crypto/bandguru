@@ -18,6 +18,7 @@ export default function RepertoirePage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
+  const [isLoadingAccess, setIsLoadingAccess] = useState(true); // Neuer Loading-State
   const [activeTab, setActiveTab] = useState("bibliothek");
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("alle");
@@ -30,30 +31,39 @@ export default function RepertoirePage() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      const orgId = localStorage.getItem('currentOrgId');
-      setCurrentOrgId(orgId);
+      setIsLoadingAccess(true); // Start Loading
+      
+      try {
+        const orgId = localStorage.getItem('currentOrgId');
+        setCurrentOrgId(orgId);
 
-      const user = await base44.auth.me();
-      setCurrentUser(user);
+        const user = await base44.auth.me();
+        setCurrentUser(user);
 
-      if (!orgId || !user) return;
+        if (!orgId || !user) {
+          setIsLoadingAccess(false);
+          return;
+        }
 
-      // Prüfe Rolle
-      const mitgliedschaften = await base44.entities.Mitglied.filter({ 
-        user_id: user.id,
-        org_id: orgId,
-        status: "aktiv" 
-      });
-      const mitglied = mitgliedschaften[0];
-      setIsManager(mitglied?.rolle === "Band Manager");
+        // Prüfe Rolle
+        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+          user_id: user.id,
+          org_id: orgId,
+          status: "aktiv" 
+        });
+        const mitglied = mitgliedschaften[0];
+        setIsManager(mitglied?.rolle === "Band Manager");
 
-      // Wenn Musiker, lade Musiker-Profil
-      if (mitglied?.rolle === "Musiker") {
-        const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
-        const musikerProfil = alleMusiker.find(m => 
-          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
-        );
-        setCurrentMusiker(musikerProfil);
+        // Wenn Musiker, lade Musiker-Profil
+        if (mitglied?.rolle === "Musiker") {
+          const alleMusiker = await base44.entities.Musiker.filter({ org_id: orgId });
+          const musikerProfil = alleMusiker.find(m => 
+            m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+          );
+          setCurrentMusiker(musikerProfil);
+        }
+      } finally {
+        setIsLoadingAccess(false); // Loading beendet
       }
     };
     loadUserData();
@@ -78,7 +88,7 @@ export default function RepertoirePage() {
   });
 
   // Lade EventMusiker wenn Musiker
-  const { data: eventMusiker = [] } = useQuery({
+  const { data: eventMusiker = [], isLoading: isLoadingEventMusiker } = useQuery({
     queryKey: ['eventMusiker', currentMusiker?.id],
     queryFn: async () => {
       const result = await base44.entities.EventMusiker.filter({ 
@@ -205,6 +215,16 @@ export default function RepertoirePage() {
 
   const allGenres = [...new Set(songs.flatMap(s => s.tags || []))];
 
+  // Loading während User-Daten und Berechtigungen geladen werden
+  if (isLoadingAccess || (currentMusiker && isLoadingEventMusiker)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+        <p className="text-gray-600">Lade...</p>
+      </div>
+    );
+  }
+
+  // Basic Check: Org und User müssen geladen sein
   if (!currentOrgId || !currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
