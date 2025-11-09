@@ -774,7 +774,7 @@ export default function Layout({ children, currentPageName }) {
                     id="adresse"
                     value={orgData.adresse}
                     onChange={(e) => setOrgData({...orgData, adresse: e.target.value})}
-                    placeholder="z.B. Musterstraße 123, 12345 Berlin"
+                    placeholder="z.zB. Musterstraße 123, 12345 Berlin"
                   />
                 </div>
 
@@ -890,11 +890,16 @@ export default function Layout({ children, currentPageName }) {
                       </div>
                       {organisations.map((org) => {
                         const mitglied = mitgliedschaften.find(m => m.org_id === org.id);
+                        const isCurrentOrg = org.id === currentOrg.id;
+                        
                         return (
                           <button
                             key={org.id}
                             onClick={() => handleOrgChange(org.id)}
-                            className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors"
+                            className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
+                              isCurrentOrg ? 'border-l-4' : ''
+                            }`}
+                            style={isCurrentOrg ? { borderLeftColor: '#223a5e' } : {}}
                           >
                             <div 
                               className="w-6 h-6 rounded flex-shrink-0"
@@ -906,15 +911,9 @@ export default function Layout({ children, currentPageName }) {
                                 {mitglied?.rolle}
                               </p>
                             </div>
-                            <div className="w-full flex items-center gap-3 px-3 py-3 transition-colors border-l-4 border-l-transparent"
-                              style={{ 
-                                borderLeftColor: org.id === currentOrg.id ? '#223a5e' : 'transparent'
-                              }}
-                            >
-                            {org.id === currentOrg.id && (
+                            {isCurrentOrg && (
                               <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
                             )}
-                            </div>
                           </button>
                         );
                       })}
