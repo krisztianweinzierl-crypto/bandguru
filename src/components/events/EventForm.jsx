@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,9 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
   const venueAddressRef = useRef(null);
   const hotelAddressRef = useRef(null);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+  // Refs to store Autocomplete instances
+  const venueAutocompleteRef = useRef(null);
+  const hotelAutocompleteRef = useRef(null);
 
   // Google Maps Script laden
   useEffect(() => {
@@ -86,8 +90,8 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     }
 
     // Autocomplete für Venue-Adresse
-    if (venueAddressRef.current) {
-      const venueAutocomplete = new window.google.maps.places.Autocomplete(
+    if (venueAddressRef.current && !venueAutocompleteRef.current) {
+      venueAutocompleteRef.current = new window.google.maps.places.Autocomplete(
         venueAddressRef.current,
         {
           types: ['address'],
@@ -95,21 +99,22 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
         }
       );
 
-      venueAutocomplete.addListener('place_changed', () => {
-        const place = venueAutocomplete.getPlace();
+      venueAutocompleteRef.current.addListener('place_changed', () => {
+        const place = venueAutocompleteRef.current.getPlace();
         if (place.formatted_address) {
-          handleChange('ort_adresse', place.formatted_address);
-          // Optional: Venue-Name aus dem Place-Objekt extrahieren
-          if (place.name && place.name !== place.formatted_address) {
-            handleChange('ort_name', place.name);
-          }
+          setFormData(prev => ({
+            ...prev,
+            ort_adresse: place.formatted_address,
+            // Optional: Venue-Name aus dem Place-Objekt extrahieren, nur wenn es vom Adressfeld abweicht
+            ort_name: place.name && place.name !== place.formatted_address ? place.name : prev.ort_name
+          }));
         }
       });
     }
 
     // Autocomplete für Hotel-Adresse
-    if (hotelAddressRef.current) {
-      const hotelAutocomplete = new window.google.maps.places.Autocomplete(
+    if (hotelAddressRef.current && !hotelAutocompleteRef.current) {
+      hotelAutocompleteRef.current = new window.google.maps.places.Autocomplete(
         hotelAddressRef.current,
         {
           types: ['establishment', 'lodging'],
@@ -117,18 +122,33 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
         }
       );
 
-      hotelAutocomplete.addListener('place_changed', () => {
-        const place = hotelAutocomplete.getPlace();
+      hotelAutocompleteRef.current.addListener('place_changed', () => {
+        const place = hotelAutocompleteRef.current.getPlace();
         if (place.formatted_address) {
-          handleChange('hotel_adresse', place.formatted_address);
-          // Hotel-Name automatisch setzen
-          if (place.name) {
-            handleChange('hotel_name', place.name);
-          }
+          setFormData(prev => ({
+            ...prev,
+            hotel_adresse: place.formatted_address,
+            // Hotel-Name automatisch setzen
+            hotel_name: place.name || prev.hotel_name
+          }));
         }
       });
     }
   }, [isGoogleLoaded]);
+
+  // Synchronisiere Input-Werte mit formData für Venue Adresse
+  useEffect(() => {
+    if (venueAddressRef.current) {
+      venueAddressRef.current.value = formData.ort_adresse || '';
+    }
+  }, [formData.ort_adresse]);
+
+  // Synchronisiere Input-Werte mit formData für Hotel Adresse
+  useEffect(() => {
+    if (hotelAddressRef.current) {
+      hotelAddressRef.current.value = formData.hotel_adresse || '';
+    }
+  }, [formData.hotel_adresse]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -161,6 +181,16 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleVenueAddressChange = (e) => {
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, ort_adresse: value }));
+  };
+
+  const handleHotelAddressChange = (e) => {
+    const value = e.target.value;
+    setFormData(prev => ({ ...prev, hotel_adresse: value }));
   };
 
   const handleCreateKunde = async () => {
@@ -397,11 +427,13 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
             </Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Input
+                <input
                   ref={venueAddressRef}
-                  value={formData.ort_adresse}
-                  onChange={(e) => handleChange('ort_adresse', e.target.value)}
+                  type="text"
+                  defaultValue={formData.ort_adresse} // Use defaultValue for Google Autocomplete to work correctly with ref
+                  onChange={handleVenueAddressChange} // Handle direct user input
                   placeholder="z.B. Schwanthalerstraße 13, 80336 München"
+                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
@@ -620,12 +652,14 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
               </Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Input
+                  <input
                     ref={hotelAddressRef}
                     id="hoteladresse"
-                    value={formData.hotel_adresse}
-                    onChange={(e) => handleChange('hotel_adresse', e.target.value)}
+                    type="text"
+                    defaultValue={formData.hotel_adresse} // Use defaultValue for Google Autocomplete
+                    onChange={handleHotelAddressChange} // Handle direct user input
                     placeholder="z.B. Arnulf-Klett-Platz 7, 70173 Stuttgart"
+                    className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
