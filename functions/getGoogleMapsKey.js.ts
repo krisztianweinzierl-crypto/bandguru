@@ -10,16 +10,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Gib den Google Maps API-Schlüssel zurück
-    const apiKey = Deno.env.get("Places_API");
+    // Hole API-Schlüssel aus Secrets
+    const apiKey = Deno.env.get('Places_API');
     
     if (!apiKey) {
-      return Response.json({ error: 'Google Maps API-Schlüssel nicht konfiguriert' }, { status: 500 });
+      return Response.json({ error: 'API Key nicht konfiguriert' }, { status: 500 });
     }
 
     return Response.json({ apiKey });
   } catch (error) {
-    console.error('Fehler beim Abrufen des API-Schlüssels:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
