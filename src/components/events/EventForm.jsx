@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +42,93 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     telefon: "",
     adresse: ""
   });
+
+  // Refs für Google Places Autocomplete
+  const venueAddressRef = useRef(null);
+  const hotelAddressRef = useRef(null);
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
+
+  // Google Maps Script laden
+  useEffect(() => {
+    const loadGoogleMapsScript = async () => {
+      // Prüfen ob Google Maps schon geladen ist
+      if (window.google && window.google.maps && window.google.maps.places) {
+        setIsGoogleLoaded(true);
+        return;
+      }
+
+      try {
+        // API-Schlüssel aus Secrets holen
+        const { base44 } = await import('@/api/base44Client');
+        const response = await base44.functions.invoke('getGoogleMapsKey', {});
+        const apiKey = response.data.apiKey;
+
+        // Google Maps Script dynamisch laden
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=de`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => setIsGoogleLoaded(true);
+        script.onerror = () => console.error('Google Maps konnte nicht geladen werden');
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('Fehler beim Laden des Google Maps API-Schlüssels:', error);
+      }
+    };
+
+    loadGoogleMapsScript();
+  }, []);
+
+  // Google Places Autocomplete initialisieren
+  useEffect(() => {
+    if (!isGoogleLoaded || !window.google || !window.google.maps || !window.google.maps.places) {
+      return;
+    }
+
+    // Autocomplete für Venue-Adresse
+    if (venueAddressRef.current) {
+      const venueAutocomplete = new window.google.maps.places.Autocomplete(
+        venueAddressRef.current,
+        {
+          types: ['address'],
+          componentRestrictions: { country: ['de', 'at', 'ch'] }, // Deutschland, Österreich, Schweiz
+        }
+      );
+
+      venueAutocomplete.addListener('place_changed', () => {
+        const place = venueAutocomplete.getPlace();
+        if (place.formatted_address) {
+          handleChange('ort_adresse', place.formatted_address);
+          // Optional: Venue-Name aus dem Place-Objekt extrahieren
+          if (place.name && place.name !== place.formatted_address) {
+            handleChange('ort_name', place.name);
+          }
+        }
+      });
+    }
+
+    // Autocomplete für Hotel-Adresse
+    if (hotelAddressRef.current) {
+      const hotelAutocomplete = new window.google.maps.places.Autocomplete(
+        hotelAddressRef.current,
+        {
+          types: ['establishment', 'lodging'],
+          componentRestrictions: { country: ['de', 'at', 'ch'] },
+        }
+      );
+
+      hotelAutocomplete.addListener('place_changed', () => {
+        const place = hotelAutocomplete.getPlace();
+        if (place.formatted_address) {
+          handleChange('hotel_adresse', place.formatted_address);
+          // Hotel-Name automatisch setzen
+          if (place.name) {
+            handleChange('hotel_name', place.name);
+          }
+        }
+      });
+    }
+  }, [isGoogleLoaded]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -110,11 +196,17 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
       });
 
       // Seite neu laden, damit der neue Kunde in der Liste erscheint
-      // In einer echten Anwendung würden Sie die 'kunden' Liste vom Parent aktualisieren
-      window.location.reload(); 
+      window.location.reload();
     } catch (error) {
       console.error('Fehler beim Erstellen des Kunden:', error);
       alert('Fehler beim Erstellen des Kunden: ' + error.message);
+    }
+  };
+
+  const openInGoogleMaps = (address) => {
+    if (address) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+      window.open(url, '_blank');
     }
   };
 
@@ -182,7 +274,6 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
                       onChange={(e) => setNewKunde({...newKunde, firmenname: e.target.value})}
                       placeholder="z.B. Mustermann GmbH"
                       className="bg-white"
-                      required
                     />
                   </div>
 
@@ -298,7 +389,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
             </div>
           </div>
 
-          {/* Location */}
+          {/* Location mit Google Places Autocomplete */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
@@ -307,17 +398,27 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
+                  ref={venueAddressRef}
                   value={formData.ort_adresse}
                   onChange={(e) => handleChange('ort_adresse', e.target.value)}
                   placeholder="z.B. Schwanthalerstraße 13, 80336 München"
                 />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </div>
-              <Button type="button" variant="outline" className="gap-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => openInGoogleMaps(formData.ort_adresse)}
+                disabled={!formData.ort_adresse}
+              >
                 <MapPin className="w-4 h-4" />
                 Maps
               </Button>
             </div>
+            {isGoogleLoaded && (
+              <p className="text-xs text-green-600">✓ Adressvorschläge aktiviert</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -491,7 +592,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
         </CardContent>
       </Card>
 
-      {/* Hotel-Informationen */}
+      {/* Hotel-Informationen mit Google Places Autocomplete */}
       <Card className="border border-gray-200 shadow-sm">
         <CardHeader className="border-b bg-white">
           <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
@@ -520,6 +621,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
+                    ref={hotelAddressRef}
                     id="hoteladresse"
                     value={formData.hotel_adresse}
                     onChange={(e) => handleChange('hotel_adresse', e.target.value)}
@@ -527,7 +629,13 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
                   />
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-                <Button type="button" variant="outline" className="gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => openInGoogleMaps(formData.hotel_adresse)}
+                  disabled={!formData.hotel_adresse}
+                >
                   <MapPin className="w-4 h-4" />
                   Maps
                 </Button>
