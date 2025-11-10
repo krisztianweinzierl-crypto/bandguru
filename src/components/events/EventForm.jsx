@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save, MapPin, Search, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings } from "lucide-react";
+import { X, Save, MapPin, Search, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus } from "lucide-react";
 
 export default function EventForm({ onSubmit, onCancel, kunden, event = null }) {
   const [formData, setFormData] = useState(event || {
@@ -32,6 +33,15 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     technik_hinweise: "",
     interne_notizen: "",
     oeffentliche_notizen: ""
+  });
+
+  const [showKundeForm, setShowKundeForm] = useState(false);
+  const [newKunde, setNewKunde] = useState({
+    firmenname: "",
+    ansprechpartner: "",
+    email: "",
+    telefon: "",
+    adresse: ""
   });
 
   const handleSubmit = (e) => {
@@ -67,6 +77,47 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleCreateKunde = async () => {
+    if (!newKunde.firmenname.trim()) {
+      alert('Bitte gib mindestens einen Firmennamen ein');
+      return;
+    }
+
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      const orgId = localStorage.getItem('currentOrgId');
+      
+      const createdKunde = await base44.entities.Kunde.create({
+        org_id: orgId,
+        firmenname: newKunde.firmenname,
+        ansprechpartner: newKunde.ansprechpartner || null,
+        email: newKunde.email || null,
+        telefon: newKunde.telefon || null,
+        adresse: newKunde.adresse || null
+      });
+
+      // Setze den neu erstellten Kunden als ausgewählt
+      handleChange('kunde_id', createdKunde.id);
+      
+      // Formular schließen und zurücksetzen
+      setShowKundeForm(false);
+      setNewKunde({
+        firmenname: "",
+        ansprechpartner: "",
+        email: "",
+        telefon: "",
+        adresse: ""
+      });
+
+      // Seite neu laden, damit der neue Kunde in der Liste erscheint
+      // In einer echten Anwendung würden Sie die 'kunden' Liste vom Parent aktualisieren
+      window.location.reload(); 
+    } catch (error) {
+      console.error('Fehler beim Erstellen des Kunden:', error);
+      alert('Fehler beim Erstellen des Kunden: ' + error.message);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Details */}
@@ -95,10 +146,103 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
                   ))}
                 </SelectContent>
               </Select>
-              <Button type="button" variant="outline" size="icon">
-                +
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="icon"
+                onClick={() => setShowKundeForm(!showKundeForm)}
+                title="Neuen Kunden anlegen"
+              >
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
+
+            {/* Schnelles Kunden-Formular */}
+            {showKundeForm && (
+              <Card className="mt-4 border-2 border-blue-200 bg-blue-50">
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-base">Neuen Kunden anlegen</CardTitle>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowKundeForm(false)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-firmenname" className="text-sm">Firmenname *</Label>
+                    <Input
+                      id="new-firmenname"
+                      value={newKunde.firmenname}
+                      onChange={(e) => setNewKunde({...newKunde, firmenname: e.target.value})}
+                      placeholder="z.B. Mustermann GmbH"
+                      className="bg-white"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-ansprechpartner" className="text-sm">Ansprechpartner</Label>
+                      <Input
+                        id="new-ansprechpartner"
+                        value={newKunde.ansprechpartner}
+                        onChange={(e) => setNewKunde({...newKunde, ansprechpartner: e.target.value})}
+                        placeholder="z.B. Max Mustermann"
+                        className="bg-white"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email" className="text-sm">E-Mail</Label>
+                      <Input
+                        id="new-email"
+                        type="email"
+                        value={newKunde.email}
+                        onChange={(e) => setNewKunde({...newKunde, email: e.target.value})}
+                        placeholder="z.B. max@mustermann.de"
+                        className="bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="new-telefon" className="text-sm">Telefon</Label>
+                    <Input
+                      id="new-telefon"
+                      value={newKunde.telefon}
+                      onChange={(e) => setNewKunde({...newKunde, telefon: e.target.value})}
+                      placeholder="z.B. +49 123 456789"
+                      className="bg-white"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="new-adresse" className="text-sm">Adresse</Label>
+                    <Input
+                      id="new-adresse"
+                      value={newKunde.adresse}
+                      onChange={(e) => setNewKunde({...newKunde, adresse: e.target.value})}
+                      placeholder="z.B. Musterstraße 123, 12345 Berlin"
+                      className="bg-white"
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={handleCreateKunde}
+                    className="w-full bg-[#223a5e] hover:opacity-90"
+                  >
+                    Kunden erstellen und auswählen
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Event-Titel */}
