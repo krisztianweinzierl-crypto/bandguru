@@ -21,7 +21,6 @@ import { de } from "date-fns/locale";
 export default function VertragKundenansichtPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const vertragId = urlParams.get('id');
-  const token = urlParams.get('token');
   const queryClient = useQueryClient();
   const [showUnterschriftModal, setShowUnterschriftModal] = useState(false);
   const [unterschriftName, setUnterschriftName] = useState("");
@@ -29,76 +28,74 @@ export default function VertragKundenansichtPage() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [organisation, setOrganisation] = useState(null);
 
-  // DIREKTER API-CALL OHNE BASE44 SDK!
+  // API Base URL
+  const API_BASE = 'https://app.base44.com/api/public-entities';
+
+  // Öffentliche API-Calls (keine Auth nötig)
   const fetchVertrag = async () => {
-    const response = await fetch(`https://app.base44.com/api/entities/Vertrag/filter`, {
-      method: 'POST',
+    const response = await fetch(`${API_BASE}/Vertrag/${vertragId}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: { id: vertragId },
-        limit: 1
-      })
+      }
     });
     
     if (!response.ok) {
       throw new Error('Vertrag nicht gefunden');
     }
     
-    const data = await response.json();
-    return data[0];
+    return await response.json();
   };
 
   const fetchKunde = async (kundeId) => {
-    const response = await fetch(`https://app.base44.com/api/entities/Kunde/filter`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: { id: kundeId },
-        limit: 1
-      })
-    });
-    
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data[0];
+    try {
+      const response = await fetch(`${API_BASE}/Kunde/${kundeId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Fehler beim Laden des Kunden:', error);
+      return null;
+    }
   };
 
   const fetchEvent = async (eventId) => {
-    const response = await fetch(`https://app.base44.com/api/entities/Event/filter`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: { id: eventId },
-        limit: 1
-      })
-    });
-    
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data[0];
+    try {
+      const response = await fetch(`${API_BASE}/Event/${eventId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Fehler beim Laden des Events:', error);
+      return null;
+    }
   };
 
   const fetchOrganisation = async (orgId) => {
-    const response = await fetch(`https://app.base44.com/api/entities/Organisation/filter`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query: { id: orgId },
-        limit: 1
-      })
-    });
-    
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data[0];
+    try {
+      const response = await fetch(`${API_BASE}/Organisation/${orgId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error('Fehler beim Laden der Organisation:', error);
+      return null;
+    }
   };
 
   const { data: vertrag, isLoading, error } = useQuery({
@@ -137,11 +134,12 @@ export default function VertragKundenansichtPage() {
         unterschrift_kunde_datum: new Date().toISOString(),
       };
       
+      // Status automatisch auf unterzeichnet setzen, wenn beide Unterschriften vorhanden
       if (vertrag.unterschrift_organisation) {
         updateData.status = 'unterzeichnet';
       }
 
-      const response = await fetch(`https://app.base44.com/api/entities/Vertrag/${vertragId}`, {
+      const response = await fetch(`${API_BASE}/Vertrag/${vertragId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +148,8 @@ export default function VertragKundenansichtPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Fehler beim Speichern der Unterschrift');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Fehler beim Speichern der Unterschrift');
       }
 
       return await response.json();
@@ -161,6 +160,9 @@ export default function VertragKundenansichtPage() {
       setUnterschriftName("");
       alert("✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.");
     },
+    onError: (error) => {
+      alert("❌ Fehler beim Speichern: " + error.message);
+    }
   });
 
   useEffect(() => {
@@ -242,7 +244,8 @@ export default function VertragKundenansichtPage() {
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-red-400" />
             <h2 className="text-xl font-bold mb-2">Vertrag nicht gefunden</h2>
-            <p className="text-gray-600">Der angeforderte Vertrag konnte nicht gefunden werden.</p>
+            <p className="text-gray-600 mb-4">Der angeforderte Vertrag konnte nicht gefunden werden.</p>
+            <p className="text-sm text-gray-500">Fehler: {error?.message}</p>
           </CardContent>
         </Card>
       </div>
@@ -281,7 +284,7 @@ export default function VertragKundenansichtPage() {
             {organisation && (
               <div 
                 className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl"
-                style={{ backgroundColor: organisation.primary_color }}
+                style={{ backgroundColor: organisation.primary_color || '#223a5e' }}
               >
                 {organisation.name?.[0]?.toUpperCase() || "B"}
               </div>
