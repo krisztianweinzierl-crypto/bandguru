@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save, MapPin, Search, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus, CheckCircle } from "lucide-react";
+import { X, Save, MapPin, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 export default function EventForm({ onSubmit, onCancel, kunden, event = null }) {
@@ -44,127 +44,8 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     adresse: ""
   });
 
-  // Refs für Google Places Autocomplete
-  const venueAddressRef = useRef(null);
-  const hotelAddressRef = useRef(null);
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
-  const venueAutocompleteRef = useRef(null);
-  const hotelAutocompleteRef = useRef(null);
-  const isInitializedRef = useRef(false);
-
-  // Google Maps Script laden
-  useEffect(() => {
-    const loadGoogleMapsScript = async () => {
-      // Prüfen ob Google Maps schon geladen ist
-      if (window.google && window.google.maps && window.google.maps.places) {
-        setIsGoogleLoaded(true);
-        return;
-      }
-
-      try {
-        // API-Schlüssel aus Backend holen
-        const response = await base44.functions.invoke('getGoogleMapsKey', {});
-        const apiKey = response.data.apiKey;
-
-        // Google Maps Script dynamisch laden
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=de`;
-        script.async = true;
-        script.defer = true;
-        script.onload = () => {
-          console.log('✅ Google Maps API geladen');
-          setIsGoogleLoaded(true);
-        };
-        script.onerror = () => {
-          console.error('❌ Google Maps konnte nicht geladen werden');
-        };
-        document.head.appendChild(script);
-      } catch (error) {
-        console.error('❌ Fehler beim Laden des Google Maps API-Schlüssels:', error);
-      }
-    };
-
-    loadGoogleMapsScript();
-  }, []);
-
-  // Initial-Werte EINMALIG setzen (nur beim Mount)
-  useEffect(() => {
-    if (!isInitializedRef.current) {
-      if (venueAddressRef.current && formData.ort_adresse) {
-        venueAddressRef.current.value = formData.ort_adresse;
-      }
-      if (hotelAddressRef.current && formData.hotel_adresse) {
-        hotelAddressRef.current.value = formData.hotel_adresse;
-      }
-      isInitializedRef.current = true;
-    }
-  }, []);
-
-  // Google Places Autocomplete initialisieren
-  useEffect(() => {
-    if (!isGoogleLoaded || !window.google || !window.google.maps || !window.google.maps.places) {
-      return;
-    }
-
-    // Autocomplete für Venue-Adresse
-    if (venueAddressRef.current && !venueAutocompleteRef.current) {
-      venueAutocompleteRef.current = new window.google.maps.places.Autocomplete(
-        venueAddressRef.current,
-        {
-          types: ['address'],
-          componentRestrictions: { country: ['de', 'at', 'ch'] },
-        }
-      );
-
-      venueAutocompleteRef.current.addListener('place_changed', () => {
-        const place = venueAutocompleteRef.current.getPlace();
-        if (place.formatted_address) {
-          console.log('📍 Venue ausgewählt:', place.formatted_address);
-          // Aktualisiere den State, aber nicht das Input-Feld
-          setFormData(prev => ({
-            ...prev,
-            ort_adresse: place.formatted_address,
-            ort_name: place.name && place.name !== place.formatted_address ? place.name : prev.ort_name
-          }));
-        }
-      });
-
-      console.log('✅ Venue Autocomplete initialisiert');
-    }
-
-    // Autocomplete für Hotel-Adresse
-    if (hotelAddressRef.current && !hotelAutocompleteRef.current) {
-      hotelAutocompleteRef.current = new window.google.maps.places.Autocomplete(
-        hotelAddressRef.current,
-        {
-          types: ['establishment', 'lodging'],
-          componentRestrictions: { country: ['de', 'at', 'ch'] },
-        }
-      );
-
-      hotelAutocompleteRef.current.addListener('place_changed', () => {
-        const place = hotelAutocompleteRef.current.getPlace();
-        if (place.formatted_address) {
-          console.log('🏨 Hotel ausgewählt:', place.formatted_address);
-          // Aktualisiere den State, aber nicht das Input-Feld
-          setFormData(prev => ({
-            ...prev,
-            hotel_adresse: place.formatted_address,
-            hotel_name: place.name || prev.hotel_name
-          }));
-        }
-      });
-
-      console.log('✅ Hotel Autocomplete initialisiert');
-    }
-  }, [isGoogleLoaded]);
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Lese die finalen Werte direkt aus den Input-Feldern
-    const finalVenueAddress = venueAddressRef.current?.value || formData.ort_adresse;
-    const finalHotelAddress = hotelAddressRef.current?.value || formData.hotel_adresse;
     
     // Pflichtfelder
     const cleanData = {
@@ -177,14 +58,14 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
     // Optionale Felder
     if (formData.kunde_id) cleanData.kunde_id = formData.kunde_id;
     if (formData.ort_name) cleanData.ort_name = formData.ort_name;
-    if (finalVenueAddress) cleanData.ort_adresse = finalVenueAddress;
+    if (formData.ort_adresse) cleanData.ort_adresse = formData.ort_adresse;
     if (formData.get_in_zeit) cleanData.get_in_zeit = formData.get_in_zeit;
     if (formData.soundcheck_zeit) cleanData.soundcheck_zeit = formData.soundcheck_zeit;
     if (formData.event_typ) cleanData.event_typ = formData.event_typ;
     if (formData.anzahl_gaeste) cleanData.anzahl_gaeste = formData.anzahl_gaeste;
     if (formData.dresscode) cleanData.dresscode = formData.dresscode;
     if (formData.hotel_name) cleanData.hotel_name = formData.hotel_name;
-    if (finalHotelAddress) cleanData.hotel_adresse = finalHotelAddress;
+    if (formData.hotel_adresse) cleanData.hotel_adresse = formData.hotel_adresse;
     if (formData.technik_hinweise) cleanData.technik_hinweise = formData.technik_hinweise;
     if (formData.interne_notizen) cleanData.interne_notizen = formData.interne_notizen;
     if (formData.oeffentliche_notizen) cleanData.oeffentliche_notizen = formData.oeffentliche_notizen;
@@ -418,41 +299,31 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
             </div>
           </div>
 
-          {/* Location mit Google Places Autocomplete - KOMPLETT UNCONTROLLED */}
+          {/* Location - Normales Input-Feld */}
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
+            <Label className="flex items-center gap-2" htmlFor="ort_adresse">
               <MapPin className="w-4 h-4" />
               Location / Venue *
             </Label>
             <div className="flex gap-2">
-              <div className="relative flex-1">
-                <input
-                  ref={venueAddressRef}
-                  type="text"
-                  placeholder="z.B. Schwanthalerstraße 13, 80336 München"
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
+              <Input
+                id="ort_adresse"
+                value={formData.ort_adresse}
+                onChange={(e) => handleChange('ort_adresse', e.target.value)}
+                placeholder="z.B. Schwanthalerstraße 13, 80336 München"
+                className="flex-1"
+              />
               <Button 
                 type="button" 
                 variant="outline" 
                 className="gap-2"
-                onClick={() => {
-                  const address = venueAddressRef.current?.value;
-                  if (address) openInGoogleMaps(address);
-                }}
+                onClick={() => openInGoogleMaps(formData.ort_adresse)}
+                disabled={!formData.ort_adresse}
               >
                 <MapPin className="w-4 h-4" />
                 Maps
               </Button>
             </div>
-            {isGoogleLoaded && (
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" />
-                Adressvorschläge aktiviert
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -623,7 +494,7 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
         </CardContent>
       </Card>
 
-      {/* Hotel-Informationen - KOMPLETT UNCONTROLLED */}
+      {/* Hotel-Informationen - Normale Input-Felder */}
       <Card className="border border-gray-200 shadow-sm">
         <CardHeader className="border-b bg-white">
           <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
@@ -650,23 +521,19 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
                 Hotel-Adresse
               </Label>
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <input
-                    ref={hotelAddressRef}
-                    type="text"
-                    placeholder="z.B. Arnulf-Klett-Platz 7, 70173 Stuttgart"
-                    className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
+                <Input
+                  id="hoteladresse"
+                  value={formData.hotel_adresse}
+                  onChange={(e) => handleChange('hotel_adresse', e.target.value)}
+                  placeholder="z.B. Arnulf-Klett-Platz 7, 70173 Stuttgart"
+                  className="flex-1"
+                />
                 <Button 
                   type="button" 
                   variant="outline" 
                   className="gap-2"
-                  onClick={() => {
-                    const address = hotelAddressRef.current?.value;
-                    if (address) openInGoogleMaps(address);
-                  }}
+                  onClick={() => openInGoogleMaps(formData.hotel_adresse)}
+                  disabled={!formData.hotel_adresse}
                 >
                   <MapPin className="w-4 h-4" />
                   Maps
