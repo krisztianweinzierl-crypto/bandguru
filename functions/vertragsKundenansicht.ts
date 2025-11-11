@@ -2,9 +2,9 @@ import { createClient } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
   try {
-    // Parse URL und Query-Parameter
-    const url = new URL(req.url);
-    const vertragId = url.searchParams.get('vertragId');
+    // Parse Request Body (für POST/PATCH von base44.functions.invoke)
+    const body = await req.json();
+    const vertragId = body.vertragId;
     
     if (!vertragId) {
       return Response.json({ error: 'Keine Vertrags-ID angegeben' }, { status: 400 });
@@ -16,57 +16,11 @@ Deno.serve(async (req) => {
       Deno.env.get("BASE44_SERVICE_ROLE_KEY")
     );
 
-    // Methode aus der URL ermitteln
-    const method = req.method;
+    // Methode aus dem Body ermitteln (wenn vorhanden, sonst GET)
+    const isUpdateRequest = body.unterschrift_kunde !== undefined;
 
-    // GET: Vertrag und zugehörige Daten abrufen
-    if (method === 'GET') {
-      // Vertrag abrufen
-      const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
-      const vertrag = vertraege[0];
-
-      if (!vertrag) {
-        return Response.json({ error: 'Vertrag nicht gefunden' }, { status: 404 });
-      }
-
-      // Prüfen ob Vertrag im Kundenportal sichtbar ist
-      if (!vertrag.im_kundenportal_sichtbar) {
-        return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
-      }
-
-      // Kunde laden (falls vorhanden)
-      let kunde = null;
-      if (vertrag.kunde_id) {
-        const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
-        kunde = kunden[0] || null;
-      }
-
-      // Event laden (falls vorhanden)
-      let event = null;
-      if (vertrag.event_id) {
-        const events = await base44.entities.Event.filter({ id: vertrag.event_id });
-        event = events[0] || null;
-      }
-
-      // Organisation laden
-      let organisation = null;
-      if (vertrag.org_id) {
-        const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
-        organisation = orgs[0] || null;
-      }
-
-      return Response.json({
-        vertrag,
-        kunde,
-        event,
-        organisation
-      });
-    }
-
-    // PATCH: Unterschrift speichern
-    if (method === 'PATCH') {
-      const body = await req.json();
-      
+    // Update: Unterschrift speichern
+    if (isUpdateRequest) {
       // Vertrag abrufen und prüfen
       const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
       const vertrag = vertraege[0];
@@ -100,13 +54,66 @@ Deno.serve(async (req) => {
       });
     }
 
-    return Response.json({ error: 'Methode nicht erlaubt' }, { status: 405 });
+    // GET: Vertrag und zugehörige Daten abrufen
+    // Vertrag abrufen
+    const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
+    const vertrag = vertraege[0];
+
+    if (!vertrag) {
+      return Response.json({ error: 'Vertrag nicht gefunden' }, { status: 404 });
+    }
+
+    // Prüfen ob Vertrag im Kundenportal sichtbar ist
+    if (!vertrag.im_kundenportal_sichtbar) {
+      return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
+    }
+
+    // Kunde laden (falls vorhanden)
+    let kunde = null;
+    if (vertrag.kunde_id) {
+      try {
+        const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
+        kunde = kunden[0] || null;
+      } catch (error) {
+        console.error('Fehler beim Laden des Kunden:', error);
+      }
+    }
+
+    // Event laden (falls vorhanden)
+    let event = null;
+    if (vertrag.event_id) {
+      try {
+        const events = await base44.entities.Event.filter({ id: vertrag.event_id });
+        event = events[0] || null;
+      } catch (error) {
+        console.error('Fehler beim Laden des Events:', error);
+      }
+    }
+
+    // Organisation laden
+    let organisation = null;
+    if (vertrag.org_id) {
+      try {
+        const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
+        organisation = orgs[0] || null;
+      } catch (error) {
+        console.error('Fehler beim Laden der Organisation:', error);
+      }
+    }
+
+    return Response.json({
+      vertrag,
+      kunde,
+      event,
+      organisation
+    });
 
   } catch (error) {
     console.error('Fehler in vertragsKundenansicht:', error);
     return Response.json({ 
       error: 'Interner Serverfehler',
-      message: error.message 
+      message: error.message,
+      stack: error.stack
     }, { status: 500 });
   }
 });
