@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -28,14 +27,24 @@ export default function VertragKundenansichtPage() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // Vertrag über Backend-Funktion laden
+  // Vertrag über direkten API-Aufruf laden (ohne Authentifizierung)
   const { data: vertragData, isLoading, error } = useQuery({
     queryKey: ['vertrag-kunde', vertragId],
     queryFn: async () => {
-      const response = await base44.functions.invoke('vertragsKundenansicht', {
-        vertragId
+      const response = await fetch('https://app.bandguru.de/api/functions/vertragsKundenansicht', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vertragId })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler beim Laden des Vertrags');
+      }
+      
+      return response.json();
     },
     enabled: !!vertragId,
   });
@@ -47,13 +56,25 @@ export default function VertragKundenansichtPage() {
 
   const saveUnterschriftMutation = useMutation({
     mutationFn: async ({ unterschriftData, name }) => {
-      const response = await base44.functions.invoke('vertragsKundenansicht', {
-        vertragId,
-        unterschrift_kunde: unterschriftData,
-        unterschrift_kunde_name: name,
-        unterschrift_kunde_datum: new Date().toISOString()
+      const response = await fetch('https://app.bandguru.de/api/functions/vertragsKundenansicht', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vertragId,
+          unterschrift_kunde: unterschriftData,
+          unterschrift_kunde_name: name,
+          unterschrift_kunde_datum: new Date().toISOString()
+        })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler beim Speichern der Unterschrift');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId] });
@@ -285,7 +306,7 @@ export default function VertragKundenansichtPage() {
                   <h3 className="text-lg font-semibold mb-2">Bitte unterschreiben Sie den Vertrag</h3>
                   <p className="text-gray-600 mb-6">
                     {vertrag.unterzeichnen_bis && (
-                      <>Bitte unterschreiben Sie bis zum {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</>
+                      <>Bitte unterzeichnen Sie bis zum {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</>
                     )}
                   </p>
                   <Button
