@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -26,133 +27,33 @@ export default function VertragKundenansichtPage() {
   const [unterschriftName, setUnterschriftName] = useState("");
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [organisation, setOrganisation] = useState(null);
 
-  // API Base URL
-  const API_BASE = 'https://app.base44.com/api/public-entities';
-
-  // Öffentliche API-Calls (keine Auth nötig)
-  const fetchVertrag = async () => {
-    const response = await fetch(`${API_BASE}/Vertrag/${vertragId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Vertrag nicht gefunden');
-    }
-    
-    return await response.json();
-  };
-
-  const fetchKunde = async (kundeId) => {
-    try {
-      const response = await fetch(`${API_BASE}/Kunde/${kundeId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (error) {
-      console.error('Fehler beim Laden des Kunden:', error);
-      return null;
-    }
-  };
-
-  const fetchEvent = async (eventId) => {
-    try {
-      const response = await fetch(`${API_BASE}/Event/${eventId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (error) {
-      console.error('Fehler beim Laden des Events:', error);
-      return null;
-    }
-  };
-
-  const fetchOrganisation = async (orgId) => {
-    try {
-      const response = await fetch(`${API_BASE}/Organisation/${orgId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      if (!response.ok) return null;
-      return await response.json();
-    } catch (error) {
-      console.error('Fehler beim Laden der Organisation:', error);
-      return null;
-    }
-  };
-
-  const { data: vertrag, isLoading, error } = useQuery({
+  // Vertrag über Backend-Funktion laden
+  const { data: vertragData, isLoading, error } = useQuery({
     queryKey: ['vertrag-kunde', vertragId],
-    queryFn: fetchVertrag,
+    queryFn: async () => {
+      const response = await base44.functions.invoke('vertragsKundenansicht', {
+        vertragId
+      });
+      return response.data;
+    },
     enabled: !!vertragId,
   });
 
-  const { data: kunde } = useQuery({
-    queryKey: ['kunde', vertrag?.kunde_id],
-    queryFn: () => fetchKunde(vertrag.kunde_id),
-    enabled: !!vertrag?.kunde_id,
-  });
-
-  const { data: event } = useQuery({
-    queryKey: ['event', vertrag?.event_id],
-    queryFn: () => fetchEvent(vertrag.event_id),
-    enabled: !!vertrag?.event_id,
-  });
-
-  useEffect(() => {
-    if (vertrag?.org_id) {
-      fetchOrganisation(vertrag.org_id)
-        .then(org => {
-          if (org) setOrganisation(org);
-        })
-        .catch(err => console.error("Fehler beim Laden der Organisation:", err));
-    }
-  }, [vertrag?.org_id]);
+  const vertrag = vertragData?.vertrag;
+  const kunde = vertragData?.kunde;
+  const event = vertragData?.event;
+  const organisation = vertragData?.organisation;
 
   const saveUnterschriftMutation = useMutation({
     mutationFn: async ({ unterschriftData, name }) => {
-      const updateData = {
+      const response = await base44.functions.invoke('vertragsKundenansicht', {
+        vertragId,
         unterschrift_kunde: unterschriftData,
         unterschrift_kunde_name: name,
-        unterschrift_kunde_datum: new Date().toISOString(),
-      };
-      
-      // Status automatisch auf unterzeichnet setzen, wenn beide Unterschriften vorhanden
-      if (vertrag.unterschrift_organisation) {
-        updateData.status = 'unterzeichnet';
-      }
-
-      const response = await fetch(`${API_BASE}/Vertrag/${vertragId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData)
+        unterschrift_kunde_datum: new Date().toISOString()
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Fehler beim Speichern der Unterschrift');
-      }
-
-      return await response.json();
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId] });
@@ -245,7 +146,9 @@ export default function VertragKundenansichtPage() {
             <FileText className="w-16 h-16 mx-auto mb-4 text-red-400" />
             <h2 className="text-xl font-bold mb-2">Vertrag nicht gefunden</h2>
             <p className="text-gray-600 mb-4">Der angeforderte Vertrag konnte nicht gefunden werden.</p>
-            <p className="text-sm text-gray-500">Fehler: {error?.message}</p>
+            {error?.message && (
+              <p className="text-sm text-gray-500">Fehler: {error.message}</p>
+            )}
           </CardContent>
         </Card>
       </div>
