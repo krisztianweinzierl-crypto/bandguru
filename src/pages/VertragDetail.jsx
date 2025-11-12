@@ -19,8 +19,8 @@ import {
   Check,
   Trash2,
   ExternalLink,
-  Copy } from
-"lucide-react";
+  Copy,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -102,7 +102,8 @@ export default function VertragDetailPage() {
         throw new Error("Kunde hat keine E-Mail-Adresse");
       }
 
-      const kundenLink = `${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`;
+      // Neuer Link zur Backend-Funktion (öffentlich zugänglich)
+      const kundenLink = `${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`;
 
       const emailBody = `Sehr geehrte Damen und Herren,
 
@@ -137,22 +138,22 @@ Ihr Team`;
 
         const currentUser = await base44.auth.me();
 
-        const notificationPromises = mitglieder.
-        filter((m) => m.user_id !== currentUser.id) // Nicht an sich selbst
-        .map((mitglied) =>
-        base44.entities.Benachrichtigung.create({
-          org_id: vertrag.org_id,
-          user_id: mitglied.user_id,
-          typ: 'vertrag_unterschrieben',
-          titel: `Vertrag versendet: ${vertrag.titel}`,
-          nachricht: `Der Vertrag "${vertrag.titel}" wurde an ${kunde.firmenname} versendet`,
-          link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
-          bezug_typ: 'vertrag',
-          bezug_id: vertragId,
-          icon: 'FileSignature',
-          prioritaet: 'normal'
-        })
-        );
+        const notificationPromises = mitglieder
+          .filter((m) => m.user_id !== currentUser.id) // Nicht an sich selbst
+          .map((mitglied) =>
+            base44.entities.Benachrichtigung.create({
+              org_id: vertrag.org_id,
+              user_id: mitglied.user_id,
+              typ: 'vertrag_unterschrieben',
+              titel: `Vertrag versendet: ${vertrag.titel}`,
+              nachricht: `Der Vertrag "${vertrag.titel}" wurde an ${kunde.firmenname} versendet`,
+              link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
+              bezug_typ: 'vertrag',
+              bezug_id: vertragId,
+              icon: 'FileSignature',
+              prioritaet: 'normal'
+            })
+          );
 
         await Promise.all(notificationPromises);
       } catch (error) {
@@ -205,18 +206,18 @@ Ihr Team`;
           });
 
           const notificationPromises = mitglieder.map((mitglied) =>
-          base44.entities.Benachrichtigung.create({
-            org_id: vertrag.org_id,
-            user_id: mitglied.user_id,
-            typ: 'vertrag_unterschrieben',
-            titel: `Vertrag vollständig unterzeichnet!`,
-            nachricht: `Der Vertrag "${vertrag.titel}" wurde von beiden Parteien unterzeichnet`,
-            link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
-            bezug_typ: 'vertrag',
-            bezug_id: vertragId,
-            icon: 'CheckCircle',
-            prioritaet: 'hoch'
-          })
+            base44.entities.Benachrichtigung.create({
+              org_id: vertrag.org_id,
+              user_id: mitglied.user_id,
+              typ: 'vertrag_unterschrieben',
+              titel: `Vertrag vollständig unterzeichnet!`,
+              nachricht: `Der Vertrag "${vertrag.titel}" wurde von beiden Parteien unterzeichnet`,
+              link_url: createPageUrl('VertragDetail') + '?id=' + vertragId,
+              bezug_typ: 'vertrag',
+              bezug_id: vertragId,
+              icon: 'CheckCircle',
+              prioritaet: 'hoch'
+            })
           );
 
           await Promise.all(notificationPromises);
@@ -423,7 +424,8 @@ Ihr Team`;
   };
 
   const copyKundenLink = () => {
-    const kundenLink = `${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`;
+    // Neuer Link zur Backend-Funktion
+    const kundenLink = `${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`;
     navigator.clipboard.writeText(kundenLink);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -519,8 +521,8 @@ Ihr Team`;
                   variant="default"
                   size="sm"
                   onClick={handleSendVertrag}
-                  disabled={sendVertragMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-blue-700">
-
+                  disabled={sendVertragMutation.isPending}
+                  className="bg-[#223a5e] hover:bg-blue-700 gap-2">
 
                     <Send className="w-4 h-4" />
                     {sendVertragMutation.isPending ? "Wird versendet..." : "Vertrag versenden"}
@@ -683,7 +685,7 @@ Ihr Team`;
                 </p>
                 <div className="flex gap-2">
                   <Input
-                    value={`${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`}
+                    value={`${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`}
                     readOnly
                     className="text-sm" />
 
@@ -699,7 +701,7 @@ Ihr Team`;
                   variant="outline"
                   size="sm"
                   className="w-full gap-2"
-                  onClick={() => window.open(`${window.location.origin}${createPageUrl('VertragKundenansicht')}?id=${vertragId}`, '_blank')}>
+                  onClick={() => window.open(`${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`, '_blank')}>
 
                   <ExternalLink className="w-4 h-4" />
                   Kundenansicht öffnen
@@ -874,5 +876,4 @@ Ihr Team`;
         </div>
       }
     </div>);
-
 }
