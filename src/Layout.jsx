@@ -57,9 +57,12 @@ import NotificationBell from "@/components/NotificationBell";
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
-  // Public Pages die kein Layout benötigen
-  const isPublicPage = currentPageName === 'VertragKundenansicht' || currentPageName === 'AcceptInvite';
+  // Public Pages die kein Layout benötigen und KEINE Auth-Prüfung machen
+  const isPublicPage = currentPageName === 'VertragKundenansicht' || 
+                       currentPageName === 'AcceptInvite' ||
+                       location.pathname.includes('/vertragkundenansicht');
   
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
   if (isPublicPage) {
     return <>{children}</>;
   }
