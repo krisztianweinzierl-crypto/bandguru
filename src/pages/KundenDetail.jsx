@@ -15,8 +15,8 @@ import {
   Calendar,
   Tag,
   Send,
-  Euro
-} from "lucide-react";
+  Euro } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +35,7 @@ export default function KundenDetailPage() {
       const result = await base44.entities.Kunde.filter({ id: kundeId });
       return result[0];
     },
-    enabled: !!kundeId,
+    enabled: !!kundeId
   });
 
   const { data: organisation } = useQuery({
@@ -44,19 +44,19 @@ export default function KundenDetailPage() {
       const orgs = await base44.entities.Organisation.filter({ id: kunde.org_id });
       return orgs[0];
     },
-    enabled: !!kunde?.org_id,
+    enabled: !!kunde?.org_id
   });
 
   const { data: rechnungen = [] } = useQuery({
     queryKey: ['rechnungen', kundeId],
     queryFn: () => base44.entities.Rechnung.filter({ kunde_id: kundeId }, '-rechnungsdatum'),
-    enabled: !!kundeId,
+    enabled: !!kundeId
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['events', kundeId],
     queryFn: () => base44.entities.Event.filter({ kunde_id: kundeId }, '-datum_von'),
-    enabled: !!kundeId,
+    enabled: !!kundeId
   });
 
   const updateKundeMutation = useMutation({
@@ -65,7 +65,7 @@ export default function KundenDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['kunde', kundeId] });
       queryClient.invalidateQueries({ queryKey: ['kunden'] });
       setIsEditing(false);
-    },
+    }
   });
 
   const sendMessageMutation = useMutation({
@@ -73,7 +73,7 @@ export default function KundenDetailPage() {
       if (!kunde.email) {
         throw new Error("Kunde hat keine E-Mail-Adresse");
       }
-      
+
       await base44.integrations.Core.SendEmail({
         to: kunde.email,
         subject: `Nachricht von ${organisation.name}`,
@@ -92,8 +92,8 @@ export default function KundenDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Kunde...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   const handleUpdateSubmit = (data) => {
@@ -101,12 +101,12 @@ export default function KundenDetailPage() {
   };
 
   // Statistiken berechnen
-  const gesamtRechnungsbetrag = rechnungen
-    .filter(r => r.status === 'bezahlt')
-    .reduce((sum, r) => sum + (r.brutto_betrag || 0), 0);
+  const gesamtRechnungsbetrag = rechnungen.
+  filter((r) => r.status === 'bezahlt').
+  reduce((sum, r) => sum + (r.brutto_betrag || 0), 0);
 
-  const offeneRechnungen = rechnungen.filter(r => 
-    ['versendet', 'teilweise_bezahlt', 'überfällig'].includes(r.status)
+  const offeneRechnungen = rechnungen.filter((r) =>
+  ['versendet', 'teilweise_bezahlt', 'überfällig'].includes(r.status)
   );
 
   // Wenn im Bearbeitungsmodus, zeige das Formular
@@ -119,8 +119,8 @@ export default function KundenDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4"
-            >
+              className="gap-2 mb-4">
+
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
@@ -130,11 +130,11 @@ export default function KundenDetailPage() {
           <KundenForm
             kunde={kunde}
             onSubmit={handleUpdateSubmit}
-            onCancel={() => setIsEditing(false)}
-          />
+            onCancel={() => setIsEditing(false)} />
+
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -148,8 +148,8 @@ export default function KundenDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => navigate(createPageUrl('Kunden'))}
-              className="gap-2"
-            >
+              className="gap-2">
+
               <ArrowLeft className="w-4 h-4" />
               Zurück
             </Button>
@@ -158,24 +158,24 @@ export default function KundenDetailPage() {
           {/* Profile Header */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-start gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-3xl">
+              <div className="bg-[#223a5e] text-white text-3xl font-bold rounded-lg w-24 h-24 from-green-500 to-emerald-600 flex items-center justify-center">
                 {kunde.firmenname?.[0]?.toUpperCase() || 'K'}
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{kunde.firmenname}</h1>
-                {kunde.ansprechpartner && (
-                  <p className="text-lg text-gray-600 mb-3">{kunde.ansprechpartner}</p>
-                )}
-                {kunde.tags && kunde.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {kunde.tags.map((tag, i) => (
-                      <Badge key={i} variant="secondary" className="text-sm">
+                {kunde.ansprechpartner &&
+                <p className="text-lg text-gray-600 mb-3">{kunde.ansprechpartner}</p>
+                }
+                {kunde.tags && kunde.tags.length > 0 &&
+                <div className="flex flex-wrap gap-2">
+                    {kunde.tags.map((tag, i) =>
+                  <Badge key={i} variant="secondary" className="text-sm">
                         <Tag className="w-3 h-3 mr-1" />
                         {tag}
                       </Badge>
-                    ))}
+                  )}
                   </div>
-                )}
+                }
               </div>
             </div>
             
@@ -183,24 +183,24 @@ export default function KundenDetailPage() {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => setIsEditing(true)}
-                className="gap-2 bg-green-600 hover:bg-green-700"
-              >
+                onClick={() => setIsEditing(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-green-700">
+
+
                 <Edit className="w-4 h-4" />
                 Bearbeiten
               </Button>
-              {kunde.email && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => sendMessageMutation.mutate()}
-                  disabled={sendMessageMutation.isPending}
-                  className="gap-2"
-                >
+              {kunde.email &&
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => sendMessageMutation.mutate()}
+                disabled={sendMessageMutation.isPending}
+                className="gap-2">
+
                   <Send className="w-4 h-4" />
                   {sendMessageMutation.isPending ? "Wird versendet..." : "Nachricht senden"}
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -216,8 +216,8 @@ export default function KundenDetailPage() {
                 <CardTitle className="text-xl font-bold">Kontaktinformationen</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {kunde.email && (
-                  <div className="flex items-start gap-3">
+                {kunde.email &&
+                <div className="flex items-start gap-3">
                     <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">E-Mail</p>
@@ -226,10 +226,10 @@ export default function KundenDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {kunde.telefon && (
-                  <div className="flex items-start gap-3">
+                {kunde.telefon &&
+                <div className="flex items-start gap-3">
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Telefon</p>
@@ -238,43 +238,43 @@ export default function KundenDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {kunde.adresse && (
-                  <div className="flex items-start gap-3">
+                {kunde.adresse &&
+                <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Adresse</p>
                       <p className="font-medium text-gray-900 whitespace-pre-line">{kunde.adresse}</p>
                     </div>
                   </div>
-                )}
+                }
 
-                {kunde.ust_id && (
-                  <div className="flex items-start gap-3">
+                {kunde.ust_id &&
+                <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">USt-ID</p>
                       <p className="font-medium text-gray-900">{kunde.ust_id}</p>
                     </div>
                   </div>
-                )}
+                }
 
-                {kunde.zahlungsziel_tage && (
-                  <div className="flex items-start gap-3">
+                {kunde.zahlungsziel_tage &&
+                <div className="flex items-start gap-3">
                     <CreditCard className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Zahlungsziel</p>
                       <p className="font-medium text-gray-900">{kunde.zahlungsziel_tage} Tage</p>
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
             {/* Notizen */}
-            {kunde.notizen && (
-              <Card className="border-none shadow-lg">
+            {kunde.notizen &&
+            <Card className="border-none shadow-lg">
                 <CardHeader className="border-b">
                   <CardTitle className="text-xl font-bold">Interne Notizen</CardTitle>
                 </CardHeader>
@@ -282,7 +282,7 @@ export default function KundenDetailPage() {
                   <p className="text-gray-700 whitespace-pre-wrap">{kunde.notizen}</p>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Events */}
             <Card className="border-none shadow-lg">
@@ -293,14 +293,14 @@ export default function KundenDetailPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                {events.length > 0 ? (
-                  <div className="divide-y">
-                    {events.slice(0, 5).map((event) => (
-                      <div 
-                        key={event.id} 
-                        className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => navigate(createPageUrl(`EventDetail?id=${event.id}`))}
-                      >
+                {events.length > 0 ?
+                <div className="divide-y">
+                    {events.slice(0, 5).map((event) =>
+                  <div
+                    key={event.id}
+                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => navigate(createPageUrl(`EventDetail?id=${event.id}`))}>
+
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="font-semibold text-gray-900">{event.titel}</h4>
@@ -310,22 +310,22 @@ export default function KundenDetailPage() {
                             </p>
                           </div>
                           <Badge className={
-                            event.status === 'bestätigt' ? 'bg-green-100 text-green-800' :
-                            event.status === 'angefragt' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }>
+                      event.status === 'bestätigt' ? 'bg-green-100 text-green-800' :
+                      event.status === 'angefragt' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                      }>
                             {event.status}
                           </Badge>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center text-gray-500">
+                  )}
+                  </div> :
+
+                <div className="p-8 text-center text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p>Keine Events für diesen Kunden</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </div>
@@ -350,12 +350,12 @@ export default function KundenDetailPage() {
                   <p className="text-xl font-bold text-gray-900">{rechnungen.length}</p>
                 </div>
 
-                {offeneRechnungen.length > 0 && (
-                  <div className="pt-4 border-t">
+                {offeneRechnungen.length > 0 &&
+                <div className="pt-4 border-t">
                     <p className="text-sm text-gray-500 mb-1">Offene Rechnungen</p>
                     <p className="text-xl font-bold text-orange-600">{offeneRechnungen.length}</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -368,18 +368,18 @@ export default function KundenDetailPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                {rechnungen.length > 0 ? (
-                  <div className="divide-y max-h-96 overflow-y-auto">
-                    {rechnungen.map((rechnung) => (
-                      <div key={rechnung.id} className="p-4 hover:bg-gray-50 transition-colors">
+                {rechnungen.length > 0 ?
+                <div className="divide-y max-h-96 overflow-y-auto">
+                    {rechnungen.map((rechnung) =>
+                  <div key={rechnung.id} className="p-4 hover:bg-gray-50 transition-colors">
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-medium text-sm">{rechnung.rechnungsnummer}</span>
                           <Badge className={
-                            rechnung.status === 'bezahlt' ? 'bg-green-100 text-green-800' :
-                            rechnung.status === 'versendet' ? 'bg-blue-100 text-blue-800' :
-                            rechnung.status === 'überfällig' ? 'bg-red-100 text-red-800' :
-                            'bg-gray-100 text-gray-800'
-                          }>
+                      rechnung.status === 'bezahlt' ? 'bg-green-100 text-green-800' :
+                      rechnung.status === 'versendet' ? 'bg-blue-100 text-blue-800' :
+                      rechnung.status === 'überfällig' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                      }>
                             {rechnung.status}
                           </Badge>
                         </div>
@@ -390,14 +390,14 @@ export default function KundenDetailPage() {
                           {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                         </p>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-8 text-center text-gray-500">
+                  )}
+                  </div> :
+
+                <div className="p-8 text-center text-gray-500">
                     <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                     <p>Keine Rechnungen</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -423,6 +423,6 @@ export default function KundenDetailPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
