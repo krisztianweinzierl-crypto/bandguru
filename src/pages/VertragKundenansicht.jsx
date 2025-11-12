@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -36,15 +35,27 @@ export default function VertragKundenansichtPage() {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // Vertrag laden (nur wenn E-Mail verifiziert)
+  // Direkter Fetch-Aufruf an die Backend-Funktion (OHNE base44 SDK)
   const { data: vertragData, isLoading, error } = useQuery({
     queryKey: ['vertrag-kunde', vertragId, kundenEmail],
     queryFn: async () => {
-      const response = await base44.functions.invoke('vertragsKundenansicht', {
-        vertragId,
-        kundenEmail
+      const response = await fetch(`${window.location.origin}/api/functions/vertragsKundenansicht`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vertragId,
+          kundenEmail
+        })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler beim Laden des Vertrags');
+      }
+      
+      return response.json();
     },
     enabled: !!vertragId && emailVerified && !!kundenEmail,
     retry: false
@@ -55,21 +66,33 @@ export default function VertragKundenansichtPage() {
   const event = vertragData?.event;
   const organisation = vertragData?.organisation;
 
-  // E-Mail Verifizierung
+  // E-Mail Verifizierung (direkter Fetch)
   const verifyEmailMutation = useMutation({
     mutationFn: async (email) => {
-      const response = await base44.functions.invoke('vertragsKundenansicht', {
-        vertragId,
-        kundenEmail: email
+      const response = await fetch(`${window.location.origin}/api/functions/vertragsKundenansicht`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vertragId,
+          kundenEmail: email
+        })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'E-Mail-Adresse stimmt nicht überein');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       setEmailVerified(true);
       setEmailError("");
     },
     onError: (error) => {
-      setEmailError(error.response?.data?.error || "E-Mail-Adresse stimmt nicht überein. Bitte versuchen Sie es erneut.");
+      setEmailError(error.message);
     }
   });
 
@@ -82,16 +105,29 @@ export default function VertragKundenansichtPage() {
     verifyEmailMutation.mutate(kundenEmail);
   };
 
+  // Unterschrift speichern (direkter Fetch)
   const saveUnterschriftMutation = useMutation({
     mutationFn: async ({ unterschriftData, name }) => {
-      const response = await base44.functions.invoke('vertragsKundenansicht', {
-        vertragId,
-        kundenEmail,
-        unterschrift_kunde: unterschriftData,
-        unterschrift_kunde_name: name,
-        unterschrift_kunde_datum: new Date().toISOString()
+      const response = await fetch(`${window.location.origin}/api/functions/vertragsKundenansicht`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vertragId,
+          kundenEmail,
+          unterschrift_kunde: unterschriftData,
+          unterschrift_kunde_name: name,
+          unterschrift_kunde_datum: new Date().toISOString()
+        })
       });
-      return response.data;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler beim Speichern der Unterschrift');
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId, kundenEmail] });
@@ -100,7 +136,7 @@ export default function VertragKundenansichtPage() {
       alert("✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.");
     },
     onError: (error) => {
-      alert("❌ Fehler beim Speichern: " + (error.response?.data?.error || error.message));
+      alert("❌ Fehler beim Speichern: " + error.message);
     }
   });
 
