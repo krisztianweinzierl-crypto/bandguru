@@ -103,7 +103,8 @@ Deno.serve(async (req) => {
 
     // GET-Request: HTML-Seite zurückgeben
     if (!vertragId) {
-      return new Response(renderErrorPage('Keine Vertrags-ID angegeben'), {
+      const html = renderErrorPage('Keine Vertrags-ID angegeben');
+      return new Response(html, {
         status: 400,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
@@ -114,14 +115,16 @@ Deno.serve(async (req) => {
     const vertrag = vertraege[0];
 
     if (!vertrag) {
-      return new Response(renderErrorPage('Vertrag nicht gefunden'), {
+      const html = renderErrorPage('Vertrag nicht gefunden');
+      return new Response(html, {
         status: 404,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     }
 
     if (!vertrag.im_kundenportal_sichtbar) {
-      return new Response(renderErrorPage('Dieser Vertrag ist nicht verfügbar'), {
+      const html = renderErrorPage('Dieser Vertrag ist nicht verfügbar');
+      return new Response(html, {
         status: 403,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
@@ -135,14 +138,16 @@ Deno.serve(async (req) => {
     }
 
     // HTML-Seite mit E-Mail-Verifizierung rendern
-    return new Response(renderVertragPage(vertrag, organisation), {
+    const html = renderVertragPage(vertrag, organisation);
+    return new Response(html, {
       status: 200,
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
 
   } catch (error) {
     console.error('Fehler in vertragsKundenansicht:', error);
-    return new Response(renderErrorPage('Interner Serverfehler: ' + error.message), {
+    const html = renderErrorPage('Interner Serverfehler: ' + error.message);
+    return new Response(html, {
       status: 500,
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
@@ -159,7 +164,7 @@ function renderErrorPage(message) {
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #fce7f3 100%);
       min-height: 100vh;
       display: flex;
@@ -200,20 +205,32 @@ function renderErrorPage(message) {
 </html>`;
 }
 
+function escapeHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function renderVertragPage(vertrag, organisation) {
   const primaryColor = organisation?.primary_color || '#8b5cf6';
   const orgName = organisation?.name || 'Bandguru';
+  const vertragTitel = escapeHtml(vertrag.titel || 'Vertrag');
+  const vertragNummer = escapeHtml(vertrag.vertragsnummer || '');
   
-  return `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${vertrag.titel} - ${orgName}</title>
+  <title>${vertragTitel} - ${escapeHtml(orgName)}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #fce7f3 100%);
       min-height: 100vh;
       padding: 2rem 1rem;
@@ -254,7 +271,7 @@ function renderVertragPage(vertrag, organisation) {
     .form-input:focus {
       outline: none;
       border-color: ${primaryColor};
-      box-shadow: 0 0 0 3px ${primaryColor}33;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
     }
     .btn {
       padding: 0.75rem 1.5rem;
@@ -296,17 +313,6 @@ function renderVertragPage(vertrag, organisation) {
       align-items: start;
       gap: 0.5rem;
     }
-    .success-message {
-      background: #d1fae5;
-      border: 1px solid #a7f3d0;
-      color: #065f46;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: start;
-      gap: 0.5rem;
-    }
     .info-box {
       background: #eff6ff;
       border: 1px solid #dbeafe;
@@ -337,14 +343,14 @@ function renderVertragPage(vertrag, organisation) {
       font-size: 0.875rem;
       font-weight: 600;
     }
-    .status-versendet { background: #dbeafe; color: #1e40af; }
-    .status-unterzeichnet { background: #d1fae5; color: #065f46; }
     .canvas-container {
       border: 2px solid #e5e7eb;
       border-radius: 0.5rem;
       background: white;
       cursor: crosshair;
       touch-action: none;
+      width: 100%;
+      max-width: 600px;
     }
     .signature-preview {
       border: 2px solid #d1fae5;
@@ -352,16 +358,7 @@ function renderVertragPage(vertrag, organisation) {
       padding: 1rem;
       background: #f0fdf4;
     }
-    .signature-preview img {
-      max-width: 100%;
-      height: auto;
-      background: white;
-      padding: 0.5rem;
-      border-radius: 0.25rem;
-    }
     .content-box { line-height: 1.8; }
-    .content-box h1, .content-box h2, .content-box h3 { margin: 1.5rem 0 1rem; }
-    .content-box p { margin-bottom: 1rem; }
     .event-info {
       background: #eff6ff;
       border-left: 4px solid #3b82f6;
@@ -369,34 +366,24 @@ function renderVertragPage(vertrag, organisation) {
       border-radius: 0.5rem;
       margin-bottom: 1.5rem;
     }
-    .event-info h3 { color: #1e40af; margin-bottom: 0.75rem; }
-    .event-info-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Header Card -->
     <div class="card">
       <div class="card-header">
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
           <div style="width: 3rem; height: 3rem; background: rgba(255,255,255,0.2); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">
-            ${orgName[0]?.toUpperCase() || 'B'}
+            ${escapeHtml(orgName[0]?.toUpperCase() || 'B')}
           </div>
           <div>
-            <h1>${orgName}</h1>
+            <h1>${escapeHtml(orgName)}</h1>
             <p>Kundenportal</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Email Verification Section -->
     <div id="emailVerification" class="card">
       <div class="card-header">
         <h1>🔒 Vertrag anzeigen</h1>
@@ -433,22 +420,14 @@ function renderVertragPage(vertrag, organisation) {
       </div>
     </div>
 
-    <!-- Contract Content (hidden initially) -->
     <div id="contractContent" class="hidden">
-      <!-- Contract Details Card -->
       <div class="card">
         <div class="card-header">
-          <h1>${vertrag.titel}</h1>
-          ${vertrag.vertragsnummer ? `<p>${vertrag.vertragsnummer}</p>` : ''}
-          <span class="status-badge status-${vertrag.status}" style="margin-top: 0.5rem; display: inline-block;">
-            ${vertrag.status === 'unterzeichnet' ? '✓ Unterzeichnet' : 
-              vertrag.status === 'versendet' ? '📧 Versendet' : 
-              vertrag.status}
-          </span>
+          <h1 id="contractTitle"></h1>
+          <p id="contractNumber"></p>
         </div>
       </div>
 
-      <!-- Contract Body Card -->
       <div class="card">
         <div class="card-header" style="background: #f9fafb; color: #1f2937; border-bottom: 1px solid #e5e7eb;">
           <h2 style="font-size: 1.25rem;">Vertragsinhalt</h2>
@@ -459,7 +438,6 @@ function renderVertragPage(vertrag, organisation) {
         </div>
       </div>
 
-      <!-- Signature Card -->
       <div class="card">
         <div class="card-header" style="background: #f9fafb; color: #1f2937; border-bottom: 1px solid #e5e7eb;">
           <h2 style="font-size: 1.25rem;">Ihre Unterschrift</h2>
@@ -469,23 +447,21 @@ function renderVertragPage(vertrag, organisation) {
         </div>
       </div>
 
-      <!-- Contact Card -->
       <div class="card">
         <div class="card-body" style="text-align: center; color: #6b7280;">
           <p>Bei Fragen wenden Sie sich bitte an:</p>
-          <p style="font-weight: 600; color: #1f2937; margin-top: 0.5rem;">${orgName}</p>
-          ${organisation?.adresse ? `<p style="font-size: 0.875rem;">${organisation.adresse}</p>` : ''}
+          <p style="font-weight: 600; color: #1f2937; margin-top: 0.5rem;" id="orgContact"></p>
+          <p style="font-size: 0.875rem;" id="orgAddress"></p>
         </div>
       </div>
     </div>
 
-    <!-- Signature Modal -->
     <div id="signatureModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 50;">
       <div class="card" style="max-width: 700px; width: 100%; margin: 0;">
         <div class="card-header">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2 style="font-size: 1.25rem;">Vertrag unterschreiben</h2>
-            <button onclick="closeSignatureModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;">×</button>
+            <button onclick="closeSignatureModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; width: 2rem; height: 2rem;">×</button>
           </div>
         </div>
         <div class="card-body">
@@ -506,7 +482,6 @@ function renderVertragPage(vertrag, organisation) {
               width="600" 
               height="200" 
               class="canvas-container"
-              style="width: 100%; height: auto;"
             ></canvas>
             <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
               Zeichnen Sie Ihre Unterschrift mit der Maus oder dem Touchpad
@@ -518,13 +493,9 @@ function renderVertragPage(vertrag, organisation) {
           </div>
 
           <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem;">
-            <button onclick="clearSignature()" class="btn btn-secondary">
-              🗑️ Löschen
-            </button>
+            <button onclick="clearSignature()" class="btn btn-secondary">🗑️ Löschen</button>
             <div style="display: flex; gap: 0.5rem;">
-              <button onclick="closeSignatureModal()" class="btn btn-secondary">
-                Abbrechen
-              </button>
+              <button onclick="closeSignatureModal()" class="btn btn-secondary">Abbrechen</button>
               <button onclick="saveSignature()" id="saveSignatureBtn" class="btn btn-primary" style="width: auto;">
                 <span id="saveSignatureBtnText">✓ Unterschrift speichern</span>
                 <span id="saveSignatureBtnLoader" class="loader hidden"></span>
@@ -537,13 +508,12 @@ function renderVertragPage(vertrag, organisation) {
   </div>
 
   <script>
-    const vertragId = '${vertrag.id}';
+    const vertragId = '${vertragId}';
     let verifiedEmail = '';
     let contractData = null;
     let canvas, ctx;
     let isDrawing = false;
 
-    // Initialize canvas
     function initCanvas() {
       canvas = document.getElementById('signatureCanvas');
       if (!canvas) return;
@@ -554,13 +524,11 @@ function renderVertragPage(vertrag, organisation) {
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      // Mouse events
       canvas.addEventListener('mousedown', startDrawing);
       canvas.addEventListener('mousemove', draw);
       canvas.addEventListener('mouseup', stopDrawing);
       canvas.addEventListener('mouseleave', stopDrawing);
 
-      // Touch events for mobile
       canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
       canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
       canvas.addEventListener('touchend', stopDrawing);
@@ -628,7 +596,7 @@ function renderVertragPage(vertrag, organisation) {
         const response = await fetch(window.location.href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vertragId, kundenEmail: email })
+          body: JSON.stringify({ vertragId: vertragId, kundenEmail: email })
         });
 
         const data = await response.json();
@@ -640,11 +608,9 @@ function renderVertragPage(vertrag, organisation) {
         verifiedEmail = email;
         contractData = data;
         
-        // Hide verification, show contract
         document.getElementById('emailVerification').classList.add('hidden');
         document.getElementById('contractContent').classList.remove('hidden');
         
-        // Render contract details
         renderContract(data);
         
       } catch (error) {
@@ -657,31 +623,39 @@ function renderVertragPage(vertrag, organisation) {
     function renderContract(data) {
       const { vertrag, event, organisation } = data;
 
-      // Render event info if available
+      document.getElementById('contractTitle').textContent = vertrag.titel || '';
+      document.getElementById('contractNumber').textContent = vertrag.vertragsnummer || '';
+      
       if (vertrag.eventinformationen_anzeigen && event) {
         const eventDate = new Date(event.datum_von);
-        document.getElementById('eventInfo').innerHTML = \`
-          <div class="event-info">
-            <h3>Event-Details</h3>
-            <div class="event-info-item">
-              📅 \${eventDate.toLocaleDateString('de-DE', { 
-                day: '2-digit', 
-                month: 'long', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })} Uhr
-            </div>
-            \${event.ort_name ? \`<div class="event-info-item">📍 \${event.ort_name}</div>\` : ''}
-            \${event.ort_adresse ? \`<div class="event-info-item">📍 \${event.ort_adresse}</div>\` : ''}
-          </div>
-        \`;
+        const dateStr = eventDate.toLocaleDateString('de-DE', { 
+          day: '2-digit', 
+          month: 'long', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        let eventHtml = '<div class="event-info"><h3>Event-Details</h3>';
+        eventHtml += '<div style="margin-bottom: 0.5rem;">📅 ' + dateStr + ' Uhr</div>';
+        if (event.ort_name) {
+          eventHtml += '<div style="margin-bottom: 0.5rem;">📍 ' + event.ort_name + '</div>';
+        }
+        if (event.ort_adresse) {
+          eventHtml += '<div style="margin-bottom: 0.5rem;">📍 ' + event.ort_adresse + '</div>';
+        }
+        eventHtml += '</div>';
+        
+        document.getElementById('eventInfo').innerHTML = eventHtml;
       }
 
-      // Render contract body
       document.getElementById('contractBody').innerHTML = vertrag.inhalt || '';
+      
+      if (organisation) {
+        document.getElementById('orgContact').textContent = organisation.name || '';
+        document.getElementById('orgAddress').textContent = organisation.adresse || '';
+      }
 
-      // Render signature section
       renderSignatureSection(vertrag);
     }
 
@@ -690,34 +664,31 @@ function renderVertragPage(vertrag, organisation) {
       
       if (vertrag.unterschrift_kunde) {
         const signDate = new Date(vertrag.unterschrift_kunde_datum);
-        section.innerHTML = \`
-          <div class="signature-preview">
-            <div style="display: flex; align-items: start; gap: 1rem;">
-              <div style="font-size: 2rem;">✓</div>
-              <div style="flex: 1;">
-                <h3 style="color: #065f46; margin-bottom: 1rem;">Vertrag wurde unterzeichnet</h3>
-                <img src="\${vertrag.unterschrift_kunde}" alt="Ihre Unterschrift" style="max-width: 400px; width: 100%; height: 120px; object-fit: contain; margin-bottom: 1rem; background: white; padding: 0.5rem; border-radius: 0.25rem;" />
-                <p style="font-weight: 600; color: #1f2937;">\${vertrag.unterschrift_kunde_name}</p>
-                <p style="color: #6b7280; font-size: 0.875rem;">\${signDate.toLocaleDateString('de-DE')} \${signDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</p>
-              </div>
-            </div>
-          </div>
-        \`;
+        const dateStr = signDate.toLocaleDateString('de-DE');
+        const timeStr = signDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+        
+        section.innerHTML = '<div class="signature-preview">' +
+          '<div style="display: flex; align-items: start; gap: 1rem;">' +
+          '<div style="font-size: 2rem;">✓</div>' +
+          '<div style="flex: 1;">' +
+          '<h3 style="color: #065f46; margin-bottom: 1rem;">Vertrag wurde unterzeichnet</h3>' +
+          '<img src="' + vertrag.unterschrift_kunde + '" alt="Ihre Unterschrift" style="max-width: 400px; width: 100%; height: 120px; object-fit: contain; margin-bottom: 1rem; background: white; padding: 0.5rem; border-radius: 0.25rem;" />' +
+          '<p style="font-weight: 600; color: #1f2937;">' + vertrag.unterschrift_kunde_name + '</p>' +
+          '<p style="color: #6b7280; font-size: 0.875rem;">' + dateStr + ' ' + timeStr + ' Uhr</p>' +
+          '</div></div></div>';
       } else {
-        section.innerHTML = \`
-          <div style="text-align: center; padding: 2rem 0;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">✍️</div>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Bitte unterschreiben Sie den Vertrag</h3>
-            \${vertrag.unterzeichnen_bis ? \`
-              <p style="color: #6b7280; margin-bottom: 1.5rem;">
-                Bitte unterzeichnen Sie bis zum \${new Date(vertrag.unterzeichnen_bis).toLocaleDateString('de-DE')}
-              </p>
-            \` : ''}
-            <button onclick="openSignatureModal()" class="btn btn-primary" style="margin: 0 auto;">
-              ✍️ Jetzt unterschreiben
-            </button>
-          </div>
-        \`;
+        let html = '<div style="text-align: center; padding: 2rem 0;">' +
+          '<div style="font-size: 4rem; margin-bottom: 1rem;">✍️</div>' +
+          '<h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Bitte unterschreiben Sie den Vertrag</h3>';
+        
+        if (vertrag.unterzeichnen_bis) {
+          const deadline = new Date(vertrag.unterzeichnen_bis).toLocaleDateString('de-DE');
+          html += '<p style="color: #6b7280; margin-bottom: 1.5rem;">Bitte unterzeichnen Sie bis zum ' + deadline + '</p>';
+        }
+        
+        html += '<button onclick="openSignatureModal()" class="btn btn-primary" style="margin: 0 auto;">✍️ Jetzt unterschreiben</button></div>';
+        
+        section.innerHTML = html;
       }
     }
 
@@ -750,7 +721,7 @@ function renderVertragPage(vertrag, organisation) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            vertragId,
+            vertragId: vertragId,
             kundenEmail: verifiedEmail,
             unterschrift_kunde: signatureData,
             unterschrift_kunde_name: name,
@@ -764,15 +735,13 @@ function renderVertragPage(vertrag, organisation) {
           throw new Error(data.error || 'Fehler beim Speichern der Unterschrift');
         }
 
-        // Success!
         alert('✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.');
         closeSignatureModal();
         
-        // Reload contract data
         const refreshResponse = await fetch(window.location.href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vertragId, kundenEmail: verifiedEmail })
+          body: JSON.stringify({ vertragId: vertragId, kundenEmail: verifiedEmail })
         });
         const refreshData = await refreshResponse.json();
         renderContract(refreshData);
@@ -817,7 +786,6 @@ function renderVertragPage(vertrag, organisation) {
       }
     }
 
-    // Handle Enter key in email input
     document.getElementById('emailInput')?.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -827,4 +795,6 @@ function renderVertragPage(vertrag, organisation) {
   </script>
 </body>
 </html>`;
+
+  return html;
 }
