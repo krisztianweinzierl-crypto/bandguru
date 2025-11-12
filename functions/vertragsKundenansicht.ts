@@ -2,9 +2,10 @@ import { createClient } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
   try {
-    // Parse Request Body (für POST/PATCH von base44.functions.invoke)
+    // Parse Request Body
     const body = await req.json();
     const vertragId = body.vertragId;
+    const kundenEmail = body.kundenEmail; // E-Mail zur Verifizierung
     
     if (!vertragId) {
       return Response.json({ error: 'Keine Vertrags-ID angegeben' }, { status: 400 });
@@ -16,11 +17,16 @@ Deno.serve(async (req) => {
       Deno.env.get("BASE44_SERVICE_ROLE_KEY")
     );
 
-    // Methode aus dem Body ermitteln (wenn vorhanden, sonst GET)
+    // Methode aus dem Body ermitteln
     const isUpdateRequest = body.unterschrift_kunde !== undefined;
 
     // Update: Unterschrift speichern
     if (isUpdateRequest) {
+      // E-Mail-Verifizierung ist erforderlich
+      if (!kundenEmail) {
+        return Response.json({ error: 'E-Mail-Adresse erforderlich' }, { status: 400 });
+      }
+
       // Vertrag abrufen und prüfen
       const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
       const vertrag = vertraege[0];
@@ -31,6 +37,18 @@ Deno.serve(async (req) => {
 
       if (!vertrag.im_kundenportal_sichtbar) {
         return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
+      }
+
+      // Kunde laden und E-Mail prüfen
+      let kunde = null;
+      if (vertrag.kunde_id) {
+        const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
+        kunde = kunden[0];
+      }
+
+      // E-Mail-Verifizierung: Prüfe ob eingegebene E-Mail mit Kunden-E-Mail übereinstimmt
+      if (!kunde || kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
+        return Response.json({ error: 'E-Mail-Adresse stimmt nicht überein' }, { status: 403 });
       }
 
       // Nur Kunden-Unterschrift darf über diese Funktion gesetzt werden
@@ -55,6 +73,11 @@ Deno.serve(async (req) => {
     }
 
     // GET: Vertrag und zugehörige Daten abrufen
+    // E-Mail-Verifizierung ist erforderlich
+    if (!kundenEmail) {
+      return Response.json({ error: 'E-Mail-Adresse erforderlich', needsEmail: true }, { status: 400 });
+    }
+
     // Vertrag abrufen
     const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
     const vertrag = vertraege[0];
@@ -68,7 +91,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
     }
 
-    // Kunde laden (falls vorhanden)
+    // Kunde laden
     let kunde = null;
     if (vertrag.kunde_id) {
       try {
@@ -77,6 +100,11 @@ Deno.serve(async (req) => {
       } catch (error) {
         console.error('Fehler beim Laden des Kunden:', error);
       }
+    }
+
+    // E-Mail-Verifizierung: Prüfe ob eingegebene E-Mail mit Kunden-E-Mail übereinstimmt
+    if (!kunde || kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
+      return Response.json({ error: 'E-Mail-Adresse stimmt nicht überein' }, { status: 403 });
     }
 
     // Event laden (falls vorhanden)
@@ -102,6 +130,7 @@ Deno.serve(async (req) => {
     }
 
     return Response.json({
+      success: true,
       vertrag,
       kunde,
       event,

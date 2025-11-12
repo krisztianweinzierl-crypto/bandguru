@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -8,7 +9,9 @@ import {
   Check,
   X,
   Trash2,
-  Building2
+  Building2,
+  Mail,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,31 +25,29 @@ export default function VertragKundenansichtPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const vertragId = urlParams.get('id');
   const queryClient = useQueryClient();
+  
+  // E-Mail-Verifizierung
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [kundenEmail, setKundenEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  
   const [showUnterschriftModal, setShowUnterschriftModal] = useState(false);
   const [unterschriftName, setUnterschriftName] = useState("");
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  // Vertrag über direkten API-Aufruf laden (ohne Authentifizierung)
+  // Vertrag laden (nur wenn E-Mail verifiziert)
   const { data: vertragData, isLoading, error } = useQuery({
-    queryKey: ['vertrag-kunde', vertragId],
+    queryKey: ['vertrag-kunde', vertragId, kundenEmail],
     queryFn: async () => {
-      const response = await fetch('https://app.bandguru.de/api/functions/vertragsKundenansicht', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ vertragId })
+      const response = await base44.functions.invoke('vertragsKundenansicht', {
+        vertragId,
+        kundenEmail
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Laden des Vertrags');
-      }
-      
-      return response.json();
+      return response.data;
     },
-    enabled: !!vertragId,
+    enabled: !!vertragId && emailVerified && !!kundenEmail,
+    retry: false
   });
 
   const vertrag = vertragData?.vertrag;
@@ -54,36 +55,52 @@ export default function VertragKundenansichtPage() {
   const event = vertragData?.event;
   const organisation = vertragData?.organisation;
 
-  const saveUnterschriftMutation = useMutation({
-    mutationFn: async ({ unterschriftData, name }) => {
-      const response = await fetch('https://app.bandguru.de/api/functions/vertragsKundenansicht', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          vertragId,
-          unterschrift_kunde: unterschriftData,
-          unterschrift_kunde_name: name,
-          unterschrift_kunde_datum: new Date().toISOString()
-        })
+  // E-Mail Verifizierung
+  const verifyEmailMutation = useMutation({
+    mutationFn: async (email) => {
+      const response = await base44.functions.invoke('vertragsKundenansicht', {
+        vertragId,
+        kundenEmail: email
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Speichern der Unterschrift');
-      }
-      
-      return response.json();
+      return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId] });
+      setEmailVerified(true);
+      setEmailError("");
+    },
+    onError: (error) => {
+      setEmailError(error.response?.data?.error || "E-Mail-Adresse stimmt nicht überein. Bitte versuchen Sie es erneut.");
+    }
+  });
+
+  const handleEmailSubmit = (e) => {
+    e.preventDefault();
+    if (!kundenEmail.trim()) {
+      setEmailError("Bitte geben Sie Ihre E-Mail-Adresse ein");
+      return;
+    }
+    verifyEmailMutation.mutate(kundenEmail);
+  };
+
+  const saveUnterschriftMutation = useMutation({
+    mutationFn: async ({ unterschriftData, name }) => {
+      const response = await base44.functions.invoke('vertragsKundenansicht', {
+        vertragId,
+        kundenEmail,
+        unterschrift_kunde: unterschriftData,
+        unterschrift_kunde_name: name,
+        unterschrift_kunde_datum: new Date().toISOString()
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vertrag-kunde', vertragId, kundenEmail] });
       setShowUnterschriftModal(false);
       setUnterschriftName("");
       alert("✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.");
     },
     onError: (error) => {
-      alert("❌ Fehler beim Speichern: " + error.message);
+      alert("❌ Fehler beim Speichern: " + (error.response?.data?.error || error.message));
     }
   });
 
@@ -147,6 +164,81 @@ export default function VertragKundenansichtPage() {
       name: unterschriftName
     });
   };
+
+  // E-Mail-Verifizierungs-Screen
+  if (!emailVerified) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md w-full border-none shadow-xl">
+          <CardHeader className="border-b bg-gradient-to-r from-purple-500 to-pink-600 text-white">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Vertrag anzeigen</CardTitle>
+                <p className="text-purple-100 text-sm mt-1">Verifizierung erforderlich</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleEmailSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-base font-medium">
+                  Bitte geben Sie Ihre E-Mail-Adresse ein
+                </Label>
+                <p className="text-sm text-gray-600 mb-3">
+                  Um den Vertrag anzuzeigen, bestätigen Sie bitte Ihre E-Mail-Adresse, die bei uns hinterlegt ist.
+                </p>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={kundenEmail}
+                    onChange={(e) => {
+                      setKundenEmail(e.target.value);
+                      setEmailError("");
+                    }}
+                    placeholder="ihre.email@beispiel.de"
+                    className="pl-11 h-12"
+                    required
+                  />
+                </div>
+                {emailError && (
+                  <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <X className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-800">{emailError}</p>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                disabled={verifyEmailMutation.isPending}
+              >
+                {verifyEmailMutation.isPending ? (
+                  <>Überprüfe E-Mail...</>
+                ) : (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    Vertrag anzeigen
+                  </>
+                )}
+              </Button>
+
+              <div className="pt-4 border-t">
+                <p className="text-xs text-gray-500 text-center">
+                  🔒 Ihre Daten sind sicher. Diese Verifizierung dient ausschließlich dazu, sicherzustellen, dass Sie berechtigt sind, diesen Vertrag einzusehen.
+                </p>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
