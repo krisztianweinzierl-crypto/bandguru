@@ -1,17 +1,16 @@
 import { createClient } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
+  const base44 = createClient(
+    Deno.env.get("BASE44_APP_ID"),
+    Deno.env.get("BASE44_SERVICE_ROLE_KEY")
+  );
+
   try {
     const url = new URL(req.url);
     const vertragId = url.searchParams.get('id');
     
-    // Base44 Client als Service Role (Admin-Rechte)
-    const base44 = createClient(
-      Deno.env.get("BASE44_APP_ID"),
-      Deno.env.get("BASE44_SERVICE_ROLE_KEY")
-    );
-
-    // Wenn es ein POST-Request ist (API-Call für Daten oder Update)
+    // POST-Request: API-Call für Verifizierung oder Update
     if (req.method === 'POST') {
       const body = await req.json();
       const kundenEmail = body.kundenEmail;
@@ -33,7 +32,6 @@ Deno.serve(async (req) => {
           return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
         }
 
-        // Kunde laden und E-Mail prüfen
         let kunde = null;
         if (vertrag.kunde_id) {
           const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
@@ -103,58 +101,50 @@ Deno.serve(async (req) => {
 
     // GET-Request: HTML-Seite zurückgeben
     if (!vertragId) {
-      const html = renderErrorPage('Keine Vertrags-ID angegeben');
-      return new Response(html, {
+      return new Response(getErrorHTML('Keine Vertrags-ID angegeben'), {
         status: 400,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     }
 
-    // Vertrag laden für initiale Anzeige (ohne E-Mail-Check)
     const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
     const vertrag = vertraege[0];
 
     if (!vertrag) {
-      const html = renderErrorPage('Vertrag nicht gefunden');
-      return new Response(html, {
+      return new Response(getErrorHTML('Vertrag nicht gefunden'), {
         status: 404,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     }
 
     if (!vertrag.im_kundenportal_sichtbar) {
-      const html = renderErrorPage('Dieser Vertrag ist nicht verfügbar');
-      return new Response(html, {
+      return new Response(getErrorHTML('Dieser Vertrag ist nicht verfügbar'), {
         status: 403,
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
     }
 
-    // Organisation für Logo/Branding laden
     let organisation = null;
     if (vertrag.org_id) {
       const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
       organisation = orgs[0] || null;
     }
 
-    // HTML-Seite mit E-Mail-Verifizierung rendern
-    const html = renderVertragPage(vertrag, organisation);
-    return new Response(html, {
+    return new Response(getContractHTML(vertrag, organisation, vertragId), {
       status: 200,
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
 
   } catch (error) {
-    console.error('Fehler in vertragsKundenansicht:', error);
-    const html = renderErrorPage('Interner Serverfehler: ' + error.message);
-    return new Response(html, {
+    console.error('Fehler:', error);
+    return new Response(getErrorHTML('Interner Serverfehler: ' + error.message), {
       status: 500,
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
   }
 });
 
-function renderErrorPage(message) {
+function getErrorHTML(message) {
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -162,20 +152,20 @@ function renderErrorPage(message) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fehler - Bandguru</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #fce7f3 100%);
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #fff 50%, #fce7f3 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1rem;
+      margin: 0;
     }
     .error-card {
       background: white;
       border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
       padding: 3rem;
       max-width: 500px;
       text-align: center;
@@ -191,87 +181,61 @@ function renderErrorPage(message) {
       justify-content: center;
       font-size: 40px;
     }
-    h1 { color: #1f2937; font-size: 1.5rem; margin-bottom: 1rem; }
-    p { color: #6b7280; line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="error-card">
     <div class="error-icon">⚠️</div>
-    <h1>Fehler</h1>
-    <p>${message}</p>
+    <h1>${message}</h1>
   </div>
 </body>
 </html>`;
 }
 
-function escapeHtml(text) {
-  if (!text) return '';
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function renderVertragPage(vertrag, organisation) {
+function getContractHTML(vertrag, organisation, vertragId) {
   const primaryColor = organisation?.primary_color || '#8b5cf6';
   const orgName = organisation?.name || 'Bandguru';
-  const vertragTitel = escapeHtml(vertrag.titel || 'Vertrag');
-  const vertragNummer = escapeHtml(vertrag.vertragsnummer || '');
   
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${vertragTitel} - ${escapeHtml(orgName)}</title>
+  <title>${vertrag.titel} - ${orgName}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f5f3ff 0%, #ffffff 50%, #fce7f3 100%);
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #fff 50%, #fce7f3 100%);
       min-height: 100vh;
       padding: 2rem 1rem;
-      line-height: 1.6;
       color: #1f2937;
     }
     .container { max-width: 900px; margin: 0 auto; }
     .card {
       background: white;
       border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
       margin-bottom: 1.5rem;
+      overflow: hidden;
     }
     .card-header {
-      background: linear-gradient(135deg, ${primaryColor} 0%, #ec4899 100%);
+      background: linear-gradient(135deg, ${primaryColor}, #ec4899);
       color: white;
       padding: 2rem;
     }
-    .card-header h1 { font-size: 1.875rem; margin-bottom: 0.5rem; }
-    .card-header p { opacity: 0.9; font-size: 0.875rem; }
     .card-body { padding: 2rem; }
-    .form-group { margin-bottom: 1.5rem; }
-    .form-label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #374151;
-    }
     .form-input {
       width: 100%;
       padding: 0.75rem 1rem;
       border: 2px solid #e5e7eb;
       border-radius: 0.5rem;
       font-size: 1rem;
-      transition: all 0.2s;
     }
     .form-input:focus {
       outline: none;
       border-color: ${primaryColor};
-      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+      box-shadow: 0 0 0 3px rgba(139,92,246,0.2);
     }
     .btn {
       padding: 0.75rem 1.5rem;
@@ -281,37 +245,23 @@ function renderVertragPage(vertrag, organisation) {
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
     }
     .btn-primary {
-      background: linear-gradient(135deg, ${primaryColor} 0%, #ec4899 100%);
+      background: linear-gradient(135deg, ${primaryColor}, #ec4899);
       color: white;
       width: 100%;
-      justify-content: center;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #374151;
-    }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: #f3f4f6; color: #374151; }
     .btn-secondary:hover { background: #e5e7eb; }
-    .error-message {
+    .error-box {
       background: #fee2e2;
       border: 1px solid #fecaca;
       color: #991b1b;
       padding: 1rem;
       border-radius: 0.5rem;
       margin-bottom: 1rem;
-      display: flex;
-      align-items: start;
-      gap: 0.5rem;
     }
     .info-box {
       background: #eff6ff;
@@ -320,7 +270,6 @@ function renderVertragPage(vertrag, organisation) {
       border-radius: 0.5rem;
       font-size: 0.875rem;
       color: #1e40af;
-      margin-bottom: 1.5rem;
     }
     .loader {
       border: 3px solid #f3f4f6;
@@ -329,42 +278,29 @@ function renderVertragPage(vertrag, organisation) {
       width: 24px;
       height: 24px;
       animation: spin 1s linear infinite;
-      display: inline-block;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
     .hidden { display: none !important; }
-    .status-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-    .canvas-container {
+    canvas {
       border: 2px solid #e5e7eb;
       border-radius: 0.5rem;
       background: white;
       cursor: crosshair;
-      touch-action: none;
       width: 100%;
       max-width: 600px;
     }
-    .signature-preview {
-      border: 2px solid #d1fae5;
-      border-radius: 0.5rem;
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 1rem;
-      background: #f0fdf4;
-    }
-    .content-box { line-height: 1.8; }
-    .event-info {
-      background: #eff6ff;
-      border-left: 4px solid #3b82f6;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1.5rem;
+      z-index: 50;
     }
   </style>
 </head>
@@ -372,15 +308,8 @@ function renderVertragPage(vertrag, organisation) {
   <div class="container">
     <div class="card">
       <div class="card-header">
-        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-          <div style="width: 3rem; height: 3rem; background: rgba(255,255,255,0.2); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">
-            ${escapeHtml(orgName[0]?.toUpperCase() || 'B')}
-          </div>
-          <div>
-            <h1>${escapeHtml(orgName)}</h1>
-            <p>Kundenportal</p>
-          </div>
-        </div>
+        <h1>${orgName}</h1>
+        <p>Kundenportal</p>
       </div>
     </div>
 
@@ -390,32 +319,28 @@ function renderVertragPage(vertrag, organisation) {
         <p>Verifizierung erforderlich</p>
       </div>
       <div class="card-body">
-        <div id="emailError" class="error-message hidden">
-          <span>❌</span>
-          <span id="emailErrorText"></span>
-        </div>
+        <div id="emailError" class="error-box hidden"></div>
         
-        <div class="form-group">
-          <label class="form-label">Bitte geben Sie Ihre E-Mail-Adresse ein</label>
-          <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
-            Um den Vertrag anzuzeigen, bestätigen Sie bitte Ihre E-Mail-Adresse, die bei uns hinterlegt ist.
-          </p>
-          <input 
-            type="email" 
-            id="emailInput" 
-            class="form-input" 
-            placeholder="ihre.email@beispiel.de"
-            required
-          />
-        </div>
+        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+          Bitte geben Sie Ihre E-Mail-Adresse ein
+        </label>
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem;">
+          Um den Vertrag anzuzeigen, bestätigen Sie bitte Ihre E-Mail-Adresse.
+        </p>
+        <input 
+          type="email" 
+          id="emailInput" 
+          class="form-input" 
+          placeholder="ihre.email@beispiel.de"
+          style="margin-bottom: 1rem;"
+        />
 
         <button onclick="verifyEmail()" id="verifyBtn" class="btn btn-primary">
           <span id="verifyBtnText">✓ Vertrag anzeigen</span>
-          <span id="verifyBtnLoader" class="loader hidden"></span>
         </button>
 
         <div class="info-box" style="margin-top: 1.5rem;">
-          🔒 Ihre Daten sind sicher. Diese Verifizierung dient ausschließlich dazu, sicherzustellen, dass Sie berechtigt sind, diesen Vertrag einzusehen.
+          🔒 Ihre Daten sind sicher.
         </div>
       </div>
     </div>
@@ -423,84 +348,57 @@ function renderVertragPage(vertrag, organisation) {
     <div id="contractContent" class="hidden">
       <div class="card">
         <div class="card-header">
-          <h1 id="contractTitle"></h1>
-          <p id="contractNumber"></p>
+          <h1 id="contractTitle">${vertrag.titel}</h1>
+          <p id="contractNumber">${vertrag.vertragsnummer || ''}</p>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header" style="background: #f9fafb; color: #1f2937; border-bottom: 1px solid #e5e7eb;">
-          <h2 style="font-size: 1.25rem;">Vertragsinhalt</h2>
-        </div>
         <div class="card-body">
+          <h2 style="margin-bottom: 1rem;">Vertragsinhalt</h2>
           <div id="eventInfo"></div>
-          <div class="content-box" id="contractBody"></div>
+          <div id="contractBody"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-header" style="background: #f9fafb; color: #1f2937; border-bottom: 1px solid #e5e7eb;">
-          <h2 style="font-size: 1.25rem;">Ihre Unterschrift</h2>
-        </div>
         <div class="card-body">
+          <h2 style="margin-bottom: 1rem;">Ihre Unterschrift</h2>
           <div id="signatureSection"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-body" style="text-align: center; color: #6b7280;">
-          <p>Bei Fragen wenden Sie sich bitte an:</p>
-          <p style="font-weight: 600; color: #1f2937; margin-top: 0.5rem;" id="orgContact"></p>
-          <p style="font-size: 0.875rem;" id="orgAddress"></p>
+          <p>Bei Fragen: ${orgName}</p>
         </div>
       </div>
     </div>
 
-    <div id="signatureModal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 50;">
+    <div id="signatureModal" class="modal hidden">
       <div class="card" style="max-width: 700px; width: 100%; margin: 0;">
         <div class="card-header">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="font-size: 1.25rem;">Vertrag unterschreiben</h2>
-            <button onclick="closeSignatureModal()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0; width: 2rem; height: 2rem;">×</button>
-          </div>
+          <h2>Vertrag unterschreiben</h2>
         </div>
         <div class="card-body">
-          <div id="signatureError" class="error-message hidden">
-            <span>❌</span>
-            <span id="signatureErrorText"></span>
-          </div>
+          <div id="signatureError" class="error-box hidden"></div>
 
-          <div class="form-group">
-            <label class="form-label">Ihr vollständiger Name *</label>
-            <input type="text" id="signatureName" class="form-input" placeholder="z.B. Max Mustermann" />
-          </div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+            Ihr vollständiger Name
+          </label>
+          <input type="text" id="signatureName" class="form-input" placeholder="Max Mustermann" style="margin-bottom: 1rem;" />
 
-          <div class="form-group">
-            <label class="form-label">Ihre Unterschrift</label>
-            <canvas 
-              id="signatureCanvas" 
-              width="600" 
-              height="200" 
-              class="canvas-container"
-            ></canvas>
-            <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
-              Zeichnen Sie Ihre Unterschrift mit der Maus oder dem Touchpad
-            </p>
-          </div>
+          <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">
+            Ihre Unterschrift
+          </label>
+          <canvas id="signatureCanvas" width="600" height="200"></canvas>
 
-          <div class="info-box">
-            Mit Ihrer Unterschrift bestätigen Sie, dass Sie den Vertrag gelesen haben und mit den Bedingungen einverstanden sind.
-          </div>
-
-          <div style="display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem;">
-            <button onclick="clearSignature()" class="btn btn-secondary">🗑️ Löschen</button>
-            <div style="display: flex; gap: 0.5rem;">
-              <button onclick="closeSignatureModal()" class="btn btn-secondary">Abbrechen</button>
-              <button onclick="saveSignature()" id="saveSignatureBtn" class="btn btn-primary" style="width: auto;">
-                <span id="saveSignatureBtnText">✓ Unterschrift speichern</span>
-                <span id="saveSignatureBtnLoader" class="loader hidden"></span>
-              </button>
-            </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+            <button onclick="clearSignature()" class="btn btn-secondary">Löschen</button>
+            <button onclick="closeSignatureModal()" class="btn btn-secondary">Abbrechen</button>
+            <button onclick="saveSignature()" id="saveSignatureBtn" class="btn btn-primary">
+              <span id="saveSignatureBtnText">Speichern</span>
+            </button>
           </div>
         </div>
       </div>
@@ -510,67 +408,33 @@ function renderVertragPage(vertrag, organisation) {
   <script>
     const vertragId = '${vertragId}';
     let verifiedEmail = '';
-    let contractData = null;
     let canvas, ctx;
     let isDrawing = false;
 
     function initCanvas() {
       canvas = document.getElementById('signatureCanvas');
-      if (!canvas) return;
-      
       ctx = canvas.getContext('2d');
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
 
-      canvas.addEventListener('mousedown', startDrawing);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseup', stopDrawing);
-      canvas.addEventListener('mouseleave', stopDrawing);
-
-      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-      canvas.addEventListener('touchend', stopDrawing);
-    }
-
-    function handleTouchStart(e) {
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      isDrawing = true;
-    }
-
-    function handleTouchMove(e) {
-      if (!isDrawing) return;
-      e.preventDefault();
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      ctx.lineTo(x, y);
-      ctx.stroke();
+      canvas.onmousedown = startDrawing;
+      canvas.onmousemove = draw;
+      canvas.onmouseup = stopDrawing;
+      canvas.onmouseleave = stopDrawing;
     }
 
     function startDrawing(e) {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
       ctx.beginPath();
-      ctx.moveTo(x, y);
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
       isDrawing = true;
     }
 
     function draw(e) {
       if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ctx.lineTo(x, y);
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
       ctx.stroke();
     }
 
@@ -585,28 +449,28 @@ function renderVertragPage(vertrag, organisation) {
     async function verifyEmail() {
       const email = document.getElementById('emailInput').value.trim();
       if (!email) {
-        showError('emailError', 'Bitte geben Sie Ihre E-Mail-Adresse ein');
+        document.getElementById('emailError').textContent = 'Bitte E-Mail eingeben';
+        document.getElementById('emailError').classList.remove('hidden');
         return;
       }
 
-      setLoading('verifyBtn', true);
-      hideError('emailError');
+      document.getElementById('verifyBtn').disabled = true;
+      document.getElementById('verifyBtnText').textContent = 'Wird überprüft...';
 
       try {
         const response = await fetch(window.location.href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vertragId: vertragId, kundenEmail: email })
+          body: JSON.stringify({ vertragId, kundenEmail: email })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'E-Mail-Adresse stimmt nicht überein');
+          throw new Error(data.error || 'Fehler');
         }
 
         verifiedEmail = email;
-        contractData = data;
         
         document.getElementById('emailVerification').classList.add('hidden');
         document.getElementById('contractContent').classList.remove('hidden');
@@ -614,81 +478,45 @@ function renderVertragPage(vertrag, organisation) {
         renderContract(data);
         
       } catch (error) {
-        showError('emailError', error.message);
+        document.getElementById('emailError').textContent = error.message;
+        document.getElementById('emailError').classList.remove('hidden');
       } finally {
-        setLoading('verifyBtn', false);
+        document.getElementById('verifyBtn').disabled = false;
+        document.getElementById('verifyBtnText').textContent = '✓ Vertrag anzeigen';
       }
     }
 
     function renderContract(data) {
-      const { vertrag, event, organisation } = data;
+      const { vertrag, event } = data;
 
-      document.getElementById('contractTitle').textContent = vertrag.titel || '';
-      document.getElementById('contractNumber').textContent = vertrag.vertragsnummer || '';
-      
-      if (vertrag.eventinformationen_anzeigen && event) {
-        const eventDate = new Date(event.datum_von);
-        const dateStr = eventDate.toLocaleDateString('de-DE', { 
-          day: '2-digit', 
-          month: 'long', 
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        
-        let eventHtml = '<div class="event-info"><h3>Event-Details</h3>';
-        eventHtml += '<div style="margin-bottom: 0.5rem;">📅 ' + dateStr + ' Uhr</div>';
-        if (event.ort_name) {
-          eventHtml += '<div style="margin-bottom: 0.5rem;">📍 ' + event.ort_name + '</div>';
-        }
-        if (event.ort_adresse) {
-          eventHtml += '<div style="margin-bottom: 0.5rem;">📍 ' + event.ort_adresse + '</div>';
-        }
-        eventHtml += '</div>';
-        
-        document.getElementById('eventInfo').innerHTML = eventHtml;
+      if (event && vertrag.eventinformationen_anzeigen) {
+        const date = new Date(event.datum_von).toLocaleDateString('de-DE');
+        let html = '<div class="info-box" style="margin-bottom: 1rem;"><h3>Event-Details</h3><p>📅 ' + date + '</p>';
+        if (event.ort_name) html += '<p>📍 ' + event.ort_name + '</p>';
+        html += '</div>';
+        document.getElementById('eventInfo').innerHTML = html;
       }
 
       document.getElementById('contractBody').innerHTML = vertrag.inhalt || '';
       
-      if (organisation) {
-        document.getElementById('orgContact').textContent = organisation.name || '';
-        document.getElementById('orgAddress').textContent = organisation.adresse || '';
-      }
-
-      renderSignatureSection(vertrag);
+      renderSignature(vertrag);
     }
 
-    function renderSignatureSection(vertrag) {
+    function renderSignature(vertrag) {
       const section = document.getElementById('signatureSection');
       
       if (vertrag.unterschrift_kunde) {
-        const signDate = new Date(vertrag.unterschrift_kunde_datum);
-        const dateStr = signDate.toLocaleDateString('de-DE');
-        const timeStr = signDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-        
-        section.innerHTML = '<div class="signature-preview">' +
-          '<div style="display: flex; align-items: start; gap: 1rem;">' +
-          '<div style="font-size: 2rem;">✓</div>' +
-          '<div style="flex: 1;">' +
-          '<h3 style="color: #065f46; margin-bottom: 1rem;">Vertrag wurde unterzeichnet</h3>' +
-          '<img src="' + vertrag.unterschrift_kunde + '" alt="Ihre Unterschrift" style="max-width: 400px; width: 100%; height: 120px; object-fit: contain; margin-bottom: 1rem; background: white; padding: 0.5rem; border-radius: 0.25rem;" />' +
-          '<p style="font-weight: 600; color: #1f2937;">' + vertrag.unterschrift_kunde_name + '</p>' +
-          '<p style="color: #6b7280; font-size: 0.875rem;">' + dateStr + ' ' + timeStr + ' Uhr</p>' +
-          '</div></div></div>';
+        section.innerHTML = '<div style="background: #f0fdf4; border: 2px solid #d1fae5; border-radius: 0.5rem; padding: 1rem;">' +
+          '<h3 style="color: #065f46; margin-bottom: 1rem;">✓ Unterzeichnet</h3>' +
+          '<img src="' + vertrag.unterschrift_kunde + '" style="max-width: 100%; height: 120px; object-fit: contain; background: white; padding: 0.5rem; border-radius: 0.25rem;" />' +
+          '<p style="margin-top: 1rem; font-weight: 600;">' + vertrag.unterschrift_kunde_name + '</p>' +
+          '</div>';
       } else {
-        let html = '<div style="text-align: center; padding: 2rem 0;">' +
+        section.innerHTML = '<div style="text-align: center; padding: 2rem;">' +
           '<div style="font-size: 4rem; margin-bottom: 1rem;">✍️</div>' +
-          '<h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Bitte unterschreiben Sie den Vertrag</h3>';
-        
-        if (vertrag.unterzeichnen_bis) {
-          const deadline = new Date(vertrag.unterzeichnen_bis).toLocaleDateString('de-DE');
-          html += '<p style="color: #6b7280; margin-bottom: 1.5rem;">Bitte unterzeichnen Sie bis zum ' + deadline + '</p>';
-        }
-        
-        html += '<button onclick="openSignatureModal()" class="btn btn-primary" style="margin: 0 auto;">✍️ Jetzt unterschreiben</button></div>';
-        
-        section.innerHTML = html;
+          '<h3 style="margin-bottom: 1rem;">Bitte unterschreiben Sie den Vertrag</h3>' +
+          '<button onclick="openSignatureModal()" class="btn btn-primary" style="max-width: 300px;">Jetzt unterschreiben</button>' +
+          '</div>';
       }
     }
 
@@ -700,28 +528,26 @@ function renderVertragPage(vertrag, organisation) {
     function closeSignatureModal() {
       document.getElementById('signatureModal').classList.add('hidden');
       document.getElementById('signatureName').value = '';
-      if (canvas) clearSignature();
-      hideError('signatureError');
     }
 
     async function saveSignature() {
       const name = document.getElementById('signatureName').value.trim();
       if (!name) {
-        showError('signatureError', 'Bitte geben Sie Ihren Namen ein');
+        document.getElementById('signatureError').textContent = 'Bitte Namen eingeben';
+        document.getElementById('signatureError').classList.remove('hidden');
         return;
       }
 
       const signatureData = canvas.toDataURL('image/png');
       
-      setLoading('saveSignatureBtn', true);
-      hideError('signatureError');
+      document.getElementById('saveSignatureBtn').disabled = true;
 
       try {
         const response = await fetch(window.location.href, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            vertragId: vertragId,
+            vertragId,
             kundenEmail: verifiedEmail,
             unterschrift_kunde: signatureData,
             unterschrift_kunde_name: name,
@@ -729,72 +555,26 @@ function renderVertragPage(vertrag, organisation) {
           })
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-          throw new Error(data.error || 'Fehler beim Speichern der Unterschrift');
+          throw new Error('Fehler beim Speichern');
         }
 
-        alert('✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.');
+        alert('✅ Unterschrift gespeichert!');
         closeSignatureModal();
-        
-        const refreshResponse = await fetch(window.location.href, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vertragId: vertragId, kundenEmail: verifiedEmail })
-        });
-        const refreshData = await refreshResponse.json();
-        renderContract(refreshData);
+        location.reload();
         
       } catch (error) {
-        showError('signatureError', error.message);
+        document.getElementById('signatureError').textContent = error.message;
+        document.getElementById('signatureError').classList.remove('hidden');
       } finally {
-        setLoading('saveSignatureBtn', false);
+        document.getElementById('saveSignatureBtn').disabled = false;
       }
     }
 
-    function showError(elementId, message) {
-      const errorDiv = document.getElementById(elementId);
-      const errorText = document.getElementById(elementId + 'Text');
-      if (errorDiv && errorText) {
-        errorText.textContent = message;
-        errorDiv.classList.remove('hidden');
-      }
-    }
-
-    function hideError(elementId) {
-      const errorDiv = document.getElementById(elementId);
-      if (errorDiv) {
-        errorDiv.classList.add('hidden');
-      }
-    }
-
-    function setLoading(buttonId, isLoading) {
-      const btn = document.getElementById(buttonId);
-      const text = document.getElementById(buttonId + 'Text');
-      const loader = document.getElementById(buttonId + 'Loader');
-      
-      if (btn && text && loader) {
-        btn.disabled = isLoading;
-        if (isLoading) {
-          text.classList.add('hidden');
-          loader.classList.remove('hidden');
-        } else {
-          text.classList.remove('hidden');
-          loader.classList.add('hidden');
-        }
-      }
-    }
-
-    document.getElementById('emailInput')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        verifyEmail();
-      }
+    document.getElementById('emailInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') verifyEmail();
     });
   </script>
 </body>
 </html>`;
-
-  return html;
 }
