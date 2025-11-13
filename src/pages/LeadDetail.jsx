@@ -72,6 +72,7 @@ export default function LeadDetailPage() {
   const [isManager, setIsManager] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [userDataLoading, setUserDataLoading] = useState(true); // NEU: Separater Loading-State
 
 
   // 1. Erst Lead laden
@@ -90,6 +91,7 @@ export default function LeadDetailPage() {
       if (!lead) return; // Ensure lead is available
 
       try {
+        setUserDataLoading(true); // Start loading user data
         const user = await base44.auth.me();
         setCurrentUser(user);
 
@@ -105,6 +107,8 @@ export default function LeadDetailPage() {
         console.error("Fehler beim Laden der User-Daten:", error);
         setCurrentUser(null); // Ensure currentUser is null on error
         setIsManager(false);
+      } finally {
+        setUserDataLoading(false); // Loading abgeschlossen
       }
     };
 
@@ -494,10 +498,10 @@ export default function LeadDetailPage() {
   }
 
   // Warte auf User-Daten und Berechtigungsprüfung
-  if (currentUser === null) {
+  if (userDataLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Prüfe Berechtigungen...</p>
+        <p className="text-gray-600">Lade Benutzerdaten und Berechtigungen...</p>
       </div>);
 
   }
@@ -645,7 +649,6 @@ export default function LeadDetailPage() {
 
                   {aufgabe.prioritaet !== 'normal' &&
                   <Badge className={`${priorityBadges[aufgabe.prioritaet]} text-xs`}>
-                      {aufgabe.prioritaet === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
                       {aufgabe.prioritaet}
                     </Badge>
                   }
@@ -932,7 +935,7 @@ export default function LeadDetailPage() {
                     <div className="text-xs text-gray-500 mb-2">
                       {format(new Date(notizen[0].created_date), 'dd.MM.yyyy • HH:mm', { locale: de })}
                     </div>
-                    <p className="text-sm text-gray-700 line-clamp-3">{notizen[0].inhalt}</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{notizen[0].inhalt}</p>
                   </CardContent>
                 </Card>
               }
