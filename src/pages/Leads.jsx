@@ -25,7 +25,7 @@ export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "kanban");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
   const [showStageManager, setShowStageManager] = useState(false);
   const queryClient = useQueryClient();
   const { showConfirm, AlertDialog } = useAlertDialog();
