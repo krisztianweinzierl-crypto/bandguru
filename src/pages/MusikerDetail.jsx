@@ -326,7 +326,7 @@ export default function MusikerDetailPage() {
               <CardContent className="p-6 space-y-4">
                 {musiker.tagessatz_netto &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Tagessatz (netto)</p>
+                    <p className="text-sm text-gray-500 mb-1">Gage</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
