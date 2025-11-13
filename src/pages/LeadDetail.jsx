@@ -488,6 +488,100 @@ export default function LeadDetailPage() {
     sendEmailMutation.mutate(formData);
   };
 
+  // Verlaufs-Timeline erstellen
+  const createTimeline = () => {
+    const timeline = [];
+
+    // Lead erstellt
+    if (lead) {
+      timeline.push({
+        type: 'lead_created',
+        date: lead.created_date,
+        title: 'Lead erstellt',
+        description: `Lead "${lead.titel}" wurde erstellt`,
+        icon: 'target',
+        color: 'blue'
+      });
+    }
+
+    // Notizen
+    notizen.forEach(notiz => {
+      timeline.push({
+        type: 'note',
+        date: notiz.created_date,
+        title: 'Notiz hinzugefügt',
+        description: notiz.inhalt,
+        icon: 'fileText',
+        color: 'yellow'
+      });
+    });
+
+    // Aufgaben
+    aufgaben.forEach(aufgabe => {
+      timeline.push({
+        type: 'task',
+        date: aufgabe.created_date,
+        title: aufgabe.status === 'erledigt' ? 'Aufgabe abgeschlossen' : 'Aufgabe erstellt',
+        description: aufgabe.titel,
+        icon: 'checkSquare',
+        color: aufgabe.status === 'erledigt' ? 'green' : 'purple',
+        priority: aufgabe.prioritaet
+      });
+    });
+
+    // E-Mails
+    emailLogs.forEach(email => {
+      timeline.push({
+        type: 'email',
+        date: email.created_date,
+        title: email.status === 'gesendet' ? 'E-Mail versendet' : 'E-Mail-Fehler',
+        description: `${email.betreff} an ${email.empfaenger_email}`,
+        icon: 'mail',
+        color: email.status === 'gesendet' ? 'green' : 'red'
+      });
+    });
+
+    // Dateien
+    dateien.forEach(datei => {
+      timeline.push({
+        type: 'file',
+        date: datei.created_date,
+        title: 'Datei hochgeladen',
+        description: datei.file_name,
+        icon: 'upload',
+        color: 'indigo'
+      });
+    });
+
+    // Nach Datum sortieren (neueste zuerst)
+    return timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+  };
+
+  const timeline = createTimeline();
+
+  const getTimelineIcon = (iconType) => {
+    switch (iconType) {
+      case 'target': return <Target className="w-4 h-4" />;
+      case 'fileText': return <FileText className="w-4 h-4" />;
+      case 'checkSquare': return <CheckSquare className="w-4 h-4" />;
+      case 'mail': return <Mail className="w-4 h-4" />;
+      case 'upload': return <Upload className="w-4 h-4" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
+  };
+
+  const getTimelineColor = (color) => {
+    const colors = {
+      blue: 'bg-blue-100 text-blue-600 border-blue-200',
+      yellow: 'bg-yellow-100 text-yellow-600 border-yellow-200',
+      green: 'bg-green-100 text-green-600 border-green-200',
+      purple: 'bg-purple-100 text-purple-600 border-purple-200',
+      red: 'bg-red-100 text-red-600 border-red-200',
+      indigo: 'bg-indigo-100 text-indigo-600 border-indigo-200'
+    };
+    return colors[color] || colors.blue;
+  };
+
   // Lade-Status für Lead
   if (leadLoading || !lead) {
     return (
@@ -1388,11 +1482,62 @@ export default function LeadDetailPage() {
 
                 <TabsContent value="verlauf">
                   <Card className="border-none shadow-lg">
-                    <CardContent className="p-12 text-center">
-                      <p className="text-gray-500">Verlaufs-Feature kommt bald...</p>
+                    <CardHeader className="border-b">
+                      <div className="flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-gray-600" />
+                        <CardTitle>Aktivitätenverlauf</CardTitle>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Chronologische Übersicht aller Aktivitäten zu diesem Lead
+                      </p>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      {timeline.length > 0 ? (
+                        <div className="space-y-4">
+                          {timeline.map((item, index) => (
+                            <div key={index} className="flex gap-4">
+                              {/* Timeline Line */}
+                              <div className="flex flex-col items-center">
+                                <div className={`p-2 rounded-full border-2 ${getTimelineColor(item.color)}`}>
+                                  {getTimelineIcon(item.icon)}
+                                </div>
+                                {index < timeline.length - 1 && (
+                                  <div className="w-0.5 h-full bg-gray-200 mt-2" style={{ minHeight: '40px' }} />
+                                )}
+                              </div>
+
+                              {/* Content */}
+                              <div className="flex-1 pb-8">
+                                <div className="flex items-start justify-between gap-4 mb-1">
+                                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                                    {format(new Date(item.date), 'dd.MM.yyyy, HH:mm', { locale: de })}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+                                {item.priority && item.priority !== 'normal' && (
+                                  <Badge className={`${priorityBadges[item.priority]} text-xs mt-2`}>
+                                    {item.priority === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
+                                    {item.priority} Priorität
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
+                          <p className="text-gray-500">
+                            Der Aktivitätenverlauf wird automatisch erstellt, sobald Notizen, Aufgaben oder E-Mails hinzugefügt werden.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
+
               </Tabs>
             </div>
           </div>
