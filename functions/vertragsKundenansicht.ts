@@ -96,6 +96,8 @@ Deno.serve(async (req) => {
       });
     }
 
+    // GET-Request: Nur prüfen ob ID vorhanden, dann HTML zurückgeben
+    // KEINE Datenbank-Abfragen hier!
     if (!vertragId) {
       return new Response(buildErrorPage('Keine Vertrags-ID angegeben'), {
         status: 400,
@@ -103,30 +105,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
-    const vertrag = vertraege[0];
-
-    if (!vertrag) {
-      return new Response(buildErrorPage('Vertrag nicht gefunden'), {
-        status: 404,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
-    }
-
-    if (!vertrag.im_kundenportal_sichtbar) {
-      return new Response(buildErrorPage('Dieser Vertrag ist nicht verfuegbar'), {
-        status: 403,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
-    }
-
-    let organisation = null;
-    if (vertrag.org_id) {
-      const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
-      organisation = orgs[0] || null;
-    }
-
-    return new Response(buildContractPage(vertrag, organisation, vertragId), {
+    // HTML direkt zurückgeben ohne vorher Daten zu laden
+    return new Response(buildLoginPage(vertragId), {
       status: 200,
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
@@ -163,29 +143,24 @@ function buildErrorPage(message) {
   return html;
 }
 
-function buildContractPage(vertrag, organisation, vertragId) {
-  const orgName = organisation?.name || 'Bandguru';
-  const color = organisation?.primary_color || '#8b5cf6';
-  const titel = vertrag.titel || 'Vertrag';
-  const nummer = vertrag.vertragsnummer || '';
-  
+function buildLoginPage(vertragId) {
   const html = '<!DOCTYPE html>' +
     '<html lang="de">' +
     '<head>' +
     '<meta charset="UTF-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-    '<title>' + titel + '</title>' +
+    '<title>Vertrag anzeigen - Bandguru</title>' +
     '<style>' +
     '*{margin:0;padding:0;box-sizing:border-box}' +
     'body{font-family:system-ui;background:linear-gradient(135deg,#f5f3ff,#fff,#fce7f3);min-height:100vh;padding:1rem;color:#1f2937}' +
     '.container{max-width:900px;margin:0 auto}' +
     '.card{background:white;border-radius:1rem;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:1.5rem;overflow:hidden}' +
-    '.header{background:linear-gradient(135deg,' + color + ',#ec4899);color:white;padding:2rem}' +
+    '.header{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white;padding:2rem}' +
     '.body{padding:2rem}' +
     'input{width:100%;padding:0.75rem;border:2px solid #e5e7eb;border-radius:0.5rem;font-size:1rem;margin:0.5rem 0}' +
-    'input:focus{outline:none;border-color:' + color + '}' +
+    'input:focus{outline:none;border-color:#8b5cf6}' +
     'button{padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer;width:100%}' +
-    '.btn-primary{background:linear-gradient(135deg,' + color + ',#ec4899);color:white}' +
+    '.btn-primary{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white}' +
     '.btn-primary:hover{opacity:0.9}' +
     '.btn-secondary{background:#f3f4f6;color:#374151}' +
     '.error{background:#fee2e2;color:#991b1b;padding:1rem;border-radius:0.5rem;margin-bottom:1rem}' +
@@ -199,7 +174,7 @@ function buildContractPage(vertrag, organisation, vertragId) {
     '<div class="container">' +
     '<div class="card">' +
     '<div class="header">' +
-    '<h1>' + orgName + '</h1>' +
+    '<h1>Bandguru</h1>' +
     '<p>Kundenportal</p>' +
     '</div>' +
     '</div>' +
@@ -219,8 +194,8 @@ function buildContractPage(vertrag, organisation, vertragId) {
     '<div id="content" class="hidden">' +
     '<div class="card">' +
     '<div class="header">' +
-    '<h1 id="title">' + titel + '</h1>' +
-    '<p id="number">' + nummer + '</p>' +
+    '<h1 id="title"></h1>' +
+    '<p id="number"></p>' +
     '</div>' +
     '</div>' +
     '<div class="card">' +
@@ -308,7 +283,9 @@ function buildContractPage(vertrag, organisation, vertragId) {
     '}' +
     '}' +
     'function render(data){' +
-    'const {vertrag,event}=data;' +
+    'const {vertrag,event,organisation}=data;' +
+    'document.getElementById("title").textContent=vertrag.titel||"Vertrag";' +
+    'document.getElementById("number").textContent=vertrag.vertragsnummer||"";' +
     'if(event&&vertrag.eventinformationen_anzeigen){' +
     'const d=new Date(event.datum_von).toLocaleDateString("de-DE");' +
     'let h="<div class=info><b>Event</b><p>"+d+"</p>";' +
