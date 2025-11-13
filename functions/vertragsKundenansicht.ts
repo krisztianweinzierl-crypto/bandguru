@@ -16,6 +16,9 @@ Deno.serve(async (req) => {
     });
   }
 
+  console.log('🔍 Request Method:', req.method);
+  console.log('🔍 Request URL:', req.url);
+
   const base44 = createClient(
     Deno.env.get("BASE44_APP_ID"),
     Deno.env.get("BASE44_SERVICE_ROLE_KEY")
@@ -26,11 +29,28 @@ Deno.serve(async (req) => {
     
     // POST-Request: Immer JSON zurückgeben
     if (req.method === 'POST') {
-      const body = await req.json();
+      console.log('📬 POST Request detected');
+      
+      let body;
+      try {
+        body = await req.json();
+        console.log('📦 Body parsed:', JSON.stringify(body));
+      } catch (e) {
+        console.error('❌ Failed to parse JSON body:', e);
+        return Response.json(
+          { error: 'Ungültiges JSON' }, 
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
       const vertragId = body.vertragId;
       const kundenEmail = body.kundenEmail;
       
+      console.log('🔑 Vertrag ID:', vertragId);
+      console.log('📧 Kunden Email:', kundenEmail);
+      
       if (!vertragId) {
+        console.log('❌ Keine Vertrags-ID');
         return Response.json(
           { error: 'Keine Vertrags-ID angegeben' }, 
           { status: 400, headers: corsHeaders }
@@ -38,6 +58,7 @@ Deno.serve(async (req) => {
       }
 
       if (!kundenEmail) {
+        console.log('❌ Keine E-Mail');
         return Response.json(
           { error: 'E-Mail-Adresse erforderlich' }, 
           { status: 400, headers: corsHeaders }
@@ -46,23 +67,31 @@ Deno.serve(async (req) => {
 
       // Unterschrift speichern
       if (body.unterschrift_kunde !== undefined) {
+        console.log('✍️ Unterschrift speichern...');
+        
+        console.log('📊 Lade Vertrag...');
         const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
         const vertrag = vertraege[0];
+        console.log('📊 Vertrag geladen:', vertrag ? 'JA' : 'NEIN');
 
         if (!vertrag || !vertrag.im_kundenportal_sichtbar) {
+          console.log('❌ Vertrag nicht verfügbar');
           return Response.json(
             { error: 'Vertrag nicht verfügbar' }, 
             { status: 403, headers: corsHeaders }
           );
         }
 
+        console.log('📊 Lade Kunde...');
         let kunde = null;
         if (vertrag.kunde_id) {
           const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
           kunde = kunden[0];
+          console.log('📊 Kunde geladen:', kunde ? kunde.email : 'KEIN KUNDE');
         }
 
         if (!kunde || kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
+          console.log('❌ E-Mail stimmt nicht überein');
           return Response.json(
             { error: 'E-Mail-Adresse stimmt nicht überein' }, 
             { status: 403, headers: corsHeaders }
@@ -79,7 +108,10 @@ Deno.serve(async (req) => {
           updateData.status = 'unterzeichnet';
         }
 
+        console.log('💾 Speichere Unterschrift...');
         const updatedVertrag = await base44.entities.Vertrag.update(vertragId, updateData);
+        console.log('✅ Unterschrift gespeichert');
+        
         return Response.json(
           { success: true, vertrag: updatedVertrag },
           { headers: corsHeaders }
@@ -87,10 +119,15 @@ Deno.serve(async (req) => {
       }
 
       // E-Mail Verifizierung
+      console.log('🔐 E-Mail Verifizierung...');
+      
+      console.log('📊 Lade Vertrag...');
       const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
       const vertrag = vertraege[0];
+      console.log('📊 Vertrag gefunden:', vertrag ? 'JA' : 'NEIN');
 
       if (!vertrag) {
+        console.log('❌ Vertrag nicht gefunden');
         return Response.json(
           { error: 'Vertrag nicht gefunden' }, 
           { status: 404, headers: corsHeaders }
@@ -98,44 +135,60 @@ Deno.serve(async (req) => {
       }
 
       if (!vertrag.im_kundenportal_sichtbar) {
+        console.log('❌ Vertrag nicht sichtbar');
         return Response.json(
           { error: 'Vertrag nicht verfügbar' }, 
           { status: 403, headers: corsHeaders }
         );
       }
 
+      console.log('📊 Lade Kunde...');
       let kunde = null;
       if (vertrag.kunde_id) {
         const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
         kunde = kunden[0] || null;
+        console.log('📊 Kunde gefunden:', kunde ? kunde.email : 'NEIN');
       }
 
       if (!kunde) {
+        console.log('❌ Kunde nicht gefunden');
         return Response.json(
           { error: 'Kunde nicht gefunden' }, 
           { status: 404, headers: corsHeaders }
         );
       }
 
+      console.log('🔍 Email-Check:', {
+        kunde: kunde.email?.toLowerCase().trim(),
+        eingabe: kundenEmail.toLowerCase().trim(),
+        match: kunde.email?.toLowerCase().trim() === kundenEmail.toLowerCase().trim()
+      });
+
       if (kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
+        console.log('❌ E-Mail stimmt nicht überein');
         return Response.json(
           { error: 'E-Mail-Adresse stimmt nicht überein' }, 
           { status: 403, headers: corsHeaders }
         );
       }
 
+      console.log('📊 Lade Event...');
       let event = null;
       if (vertrag.event_id) {
         const events = await base44.entities.Event.filter({ id: vertrag.event_id });
         event = events[0] || null;
+        console.log('📊 Event gefunden:', event ? 'JA' : 'NEIN');
       }
 
+      console.log('📊 Lade Organisation...');
       let organisation = null;
       if (vertrag.org_id) {
         const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
         organisation = orgs[0] || null;
+        console.log('📊 Organisation gefunden:', organisation ? 'JA' : 'NEIN');
       }
 
+      console.log('✅ Verifizierung erfolgreich!');
       return Response.json({
         success: true,
         vertrag,
@@ -146,9 +199,11 @@ Deno.serve(async (req) => {
     }
 
     // GET-Request: HTML zurückgeben
+    console.log('🌐 GET Request - HTML zurückgeben');
     const vertragId = url.searchParams.get('id');
     
     if (!vertragId) {
+      console.log('❌ Keine Vertrags-ID in URL');
       return new Response(buildErrorPage('Keine Vertrags-ID angegeben'), {
         status: 400,
         headers: { 
@@ -158,6 +213,7 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log('✅ Sende HTML-Seite');
     return new Response(buildLoginPage(vertragId), {
       status: 200,
       headers: { 
@@ -167,7 +223,9 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Fehler:', error);
+    console.error('💥 FATAL ERROR:', error);
+    console.error('💥 Error Stack:', error.stack);
+    console.error('💥 Error Message:', error.message);
     
     // Bei POST: JSON-Error zurückgeben
     if (req.method === 'POST') {
@@ -180,7 +238,7 @@ Deno.serve(async (req) => {
     }
     
     // Bei GET: HTML-Error zurückgeben
-    return new Response(buildErrorPage('Interner Serverfehler'), {
+    return new Response(buildErrorPage('Interner Serverfehler: ' + error.message), {
       status: 500,
       headers: { 
         'Content-Type': 'text/html; charset=utf-8',
@@ -366,13 +424,23 @@ function buildLoginPage(vertragId) {
     '}' +
     'btn.disabled=true;' +
     'btn.textContent="Lade...";' +
+    'console.log("Sende POST Request...");' +
     'try{' +
     'const res=await fetch(window.location.href,{' +
     'method:"POST",' +
     'headers:{"Content-Type":"application/json"},' +
     'body:JSON.stringify({vertragId:vId,kundenEmail:e})' +
     '});' +
+    'console.log("Response Status:",res.status);' +
+    'const contentType=res.headers.get("content-type");' +
+    'console.log("Content-Type:",contentType);' +
+    'if(!contentType||!contentType.includes("application/json")){' +
+    'const text=await res.text();' +
+    'console.error("Unexpected response:",text.substring(0,200));' +
+    'throw new Error("Server hat keine JSON-Antwort gesendet");' +
+    '}' +
     'const data=await res.json();' +
+    'console.log("Response Data:",data);' +
     'if(!res.ok){throw new Error(data.error||"Fehler")}' +
     'if(!data.success){throw new Error(data.error||"Fehler")}' +
     'email=e;' +
@@ -380,6 +448,7 @@ function buildLoginPage(vertragId) {
     'document.getElementById("content").classList.remove("hidden");' +
     'render(data);' +
     '}catch(err){' +
+    'console.error("Error:",err);' +
     'err.textContent=err.message;' +
     'err.classList.remove("hidden");' +
     'btn.disabled=false;' +
@@ -387,6 +456,7 @@ function buildLoginPage(vertragId) {
     '}' +
     '}' +
     'function render(data){' +
+    'console.log("Rendering data:",data);' +
     'const {vertrag,event,organisation}=data;' +
     'document.getElementById("title").textContent=vertrag.titel||"Vertrag";' +
     'document.getElementById("number").textContent=vertrag.vertragsnummer||"";' +
