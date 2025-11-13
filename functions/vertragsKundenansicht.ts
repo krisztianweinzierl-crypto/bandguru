@@ -1,6 +1,21 @@
 import { createClient } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
+  // CORS Headers für alle Responses
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    });
+  }
+
   const base44 = createClient(
     Deno.env.get("BASE44_APP_ID"),
     Deno.env.get("BASE44_SERVICE_ROLE_KEY")
@@ -16,11 +31,17 @@ Deno.serve(async (req) => {
       const kundenEmail = body.kundenEmail;
       
       if (!vertragId) {
-        return Response.json({ error: 'Keine Vertrags-ID angegeben' }, { status: 400 });
+        return Response.json(
+          { error: 'Keine Vertrags-ID angegeben' }, 
+          { status: 400, headers: corsHeaders }
+        );
       }
 
       if (!kundenEmail) {
-        return Response.json({ error: 'E-Mail-Adresse erforderlich' }, { status: 400 });
+        return Response.json(
+          { error: 'E-Mail-Adresse erforderlich' }, 
+          { status: 400, headers: corsHeaders }
+        );
       }
 
       // Unterschrift speichern
@@ -29,7 +50,10 @@ Deno.serve(async (req) => {
         const vertrag = vertraege[0];
 
         if (!vertrag || !vertrag.im_kundenportal_sichtbar) {
-          return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
+          return Response.json(
+            { error: 'Vertrag nicht verfügbar' }, 
+            { status: 403, headers: corsHeaders }
+          );
         }
 
         let kunde = null;
@@ -39,7 +63,10 @@ Deno.serve(async (req) => {
         }
 
         if (!kunde || kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
-          return Response.json({ error: 'E-Mail-Adresse stimmt nicht überein' }, { status: 403 });
+          return Response.json(
+            { error: 'E-Mail-Adresse stimmt nicht überein' }, 
+            { status: 403, headers: corsHeaders }
+          );
         }
 
         const updateData = {
@@ -53,7 +80,10 @@ Deno.serve(async (req) => {
         }
 
         const updatedVertrag = await base44.entities.Vertrag.update(vertragId, updateData);
-        return Response.json({ success: true, vertrag: updatedVertrag });
+        return Response.json(
+          { success: true, vertrag: updatedVertrag },
+          { headers: corsHeaders }
+        );
       }
 
       // E-Mail Verifizierung
@@ -61,11 +91,17 @@ Deno.serve(async (req) => {
       const vertrag = vertraege[0];
 
       if (!vertrag) {
-        return Response.json({ error: 'Vertrag nicht gefunden' }, { status: 404 });
+        return Response.json(
+          { error: 'Vertrag nicht gefunden' }, 
+          { status: 404, headers: corsHeaders }
+        );
       }
 
       if (!vertrag.im_kundenportal_sichtbar) {
-        return Response.json({ error: 'Vertrag nicht verfügbar' }, { status: 403 });
+        return Response.json(
+          { error: 'Vertrag nicht verfügbar' }, 
+          { status: 403, headers: corsHeaders }
+        );
       }
 
       let kunde = null;
@@ -75,11 +111,17 @@ Deno.serve(async (req) => {
       }
 
       if (!kunde) {
-        return Response.json({ error: 'Kunde nicht gefunden' }, { status: 404 });
+        return Response.json(
+          { error: 'Kunde nicht gefunden' }, 
+          { status: 404, headers: corsHeaders }
+        );
       }
 
       if (kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
-        return Response.json({ error: 'E-Mail-Adresse stimmt nicht überein' }, { status: 403 });
+        return Response.json(
+          { error: 'E-Mail-Adresse stimmt nicht überein' }, 
+          { status: 403, headers: corsHeaders }
+        );
       }
 
       let event = null;
@@ -100,7 +142,7 @@ Deno.serve(async (req) => {
         kunde,
         event,
         organisation
-      });
+      }, { headers: corsHeaders });
     }
 
     // GET-Request: HTML zurückgeben
@@ -109,13 +151,19 @@ Deno.serve(async (req) => {
     if (!vertragId) {
       return new Response(buildErrorPage('Keine Vertrags-ID angegeben'), {
         status: 400,
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          ...corsHeaders
+        }
       });
     }
 
     return new Response(buildLoginPage(vertragId), {
       status: 200,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      headers: { 
+        'Content-Type': 'text/html; charset=utf-8',
+        ...corsHeaders
+      }
     });
 
   } catch (error) {
@@ -125,13 +173,19 @@ Deno.serve(async (req) => {
     if (req.method === 'POST') {
       return Response.json({ 
         error: 'Interner Serverfehler: ' + error.message 
-      }, { status: 500 });
+      }, { 
+        status: 500,
+        headers: corsHeaders
+      });
     }
     
     // Bei GET: HTML-Error zurückgeben
     return new Response(buildErrorPage('Interner Serverfehler'), {
       status: 500,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      headers: { 
+        'Content-Type': 'text/html; charset=utf-8',
+        ...corsHeaders
+      }
     });
   }
 });
