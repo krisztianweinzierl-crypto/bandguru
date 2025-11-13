@@ -324,8 +324,8 @@ function buildErrorPage(message) {
     '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
     '<title>Fehler</title>' +
     '<style>' +
-    'body{margin:0;padding:2rem;font-family:system-ui;background:#f5f3ff;min-height:100vh;display:flex;align-items:center;justify-content:center}' +
-    '.box{background:white;padding:3rem;border-radius:1rem;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;max-width:500px}' +
+    'body{margin:0;padding:2rem;font-family:system-ui;background:#e8eef5;min-height:100vh;display:flex;align-items:center;justify-content:center}' +
+    '.box{background:white;padding:3rem;border-radius:1rem;box-shadow:0 10px 30px rgba(34,58,94,0.15);text-align:center;max-width:500px}' +
     '.icon{font-size:4rem;margin-bottom:1rem}' +
     '</style>' +
     '</head>' +
@@ -348,24 +348,24 @@ function buildLoginPage(vertragId) {
     '<title>Vertrag anzeigen - Bandguru</title>' +
     '<style>' +
     '*{margin:0;padding:0;box-sizing:border-box}' +
-    'body{font-family:system-ui;background:linear-gradient(135deg,#f5f3ff,#fff,#fce7f3);min-height:100vh;padding:1rem;color:#1f2937}' +
+    'body{font-family:system-ui;background:linear-gradient(135deg,#e8eef5,#fff,#f0f4f8);min-height:100vh;padding:1rem;color:#1f2937}' +
     '.container{max-width:900px;margin:0 auto}' +
-    '.card{background:white;border-radius:1rem;box-shadow:0 10px 30px rgba(0,0,0,0.1);margin-bottom:1.5rem;overflow:hidden}' +
-    '.header{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white;padding:2rem}' +
+    '.card{background:white;border-radius:1rem;box-shadow:0 10px 30px rgba(34,58,94,0.1);margin-bottom:1.5rem;overflow:hidden}' +
+    '.header{background:linear-gradient(135deg,#223a5e,#2d4a73);color:white;padding:2rem}' +
     '.body{padding:2rem}' +
     'input{width:100%;padding:0.75rem;border:2px solid #e5e7eb;border-radius:0.5rem;font-size:1rem;margin:0.5rem 0}' +
-    'input:focus{outline:none;border-color:#8b5cf6}' +
+    'input:focus{outline:none;border-color:#223a5e}' +
     'button{padding:0.75rem 1.5rem;border:none;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer;width:100%}' +
-    '.btn-primary{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white}' +
+    '.btn-primary{background:linear-gradient(135deg,#223a5e,#2d4a73);color:white}' +
     '.btn-primary:hover{opacity:0.9}' +
     '.btn-primary:disabled{opacity:0.5;cursor:not-allowed}' +
     '.btn-secondary{background:#f3f4f6;color:#374151}' +
     '.error{background:#fee2e2;color:#991b1b;padding:1rem;border-radius:0.5rem;margin-bottom:1rem}' +
-    '.info{background:#eff6ff;color:#1e40af;padding:1rem;border-radius:0.5rem;font-size:0.875rem}' +
+    '.info{background:#e8eef5;color:#223a5e;padding:1rem;border-radius:0.5rem;font-size:0.875rem}' +
     '.success{background:#f0fdf4;color:#166534;padding:1rem;border-radius:0.5rem;margin-bottom:1rem}' +
     '.hidden{display:none!important}' +
     'canvas{border:2px solid #e5e7eb;border-radius:0.5rem;width:100%;max-width:600px;cursor:crosshair;touch-action:none}' +
-    '.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}' +
+    '.modal{position:fixed;inset:0;background:rgba(34,58,94,0.5);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}' +
     '</style>' +
     '</head>' +
     '<body>' +
