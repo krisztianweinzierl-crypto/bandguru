@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MusikerForm from "@/components/musiker/MusikerForm";
+import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 
 export default function MusikerPage() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export default function MusikerPage() {
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
   const queryClient = useQueryClient();
+  const { showConfirm, AlertDialog } = useAlertDialog();
 
   useEffect(() => {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
@@ -86,8 +88,16 @@ export default function MusikerPage() {
     setShowDropdownId(null);
   };
 
-  const handleDelete = (musiker) => {
-    if (confirm(`Möchtest du ${musiker.name} wirklich löschen?`)) {
+  const handleDelete = async (musiker) => {
+    const confirmed = await showConfirm({
+      title: 'Musiker löschen',
+      message: `Möchtest du ${musiker.name} wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`,
+      type: 'warning',
+      confirmText: 'Löschen',
+      cancelText: 'Abbrechen'
+    });
+    
+    if (confirmed) {
       deleteMusikerMutation.mutate(musiker.id);
     }
   };
@@ -320,113 +330,116 @@ export default function MusikerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Musiker</h1>
-            <p className="text-gray-600">Verwalte dein Musiker-Portfolio</p>
-          </div>
-          <Button
-            onClick={() => {
-              setEditingMusiker(null);
-              setShowForm(true);
-            }}
-            className="bg-slate-800 hover:bg-slate-900 text-white">
-
-            <Plus className="w-4 h-4 mr-2" />
-            Musiker hinzufügen
-          </Button>
-        </div>
-
-        <Card className="mb-6 border-none shadow-md">
-          <CardContent className="p-4">
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Musiker durchsuchen..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10" />
-
-              </div>
-              <Select value={instrumentFilter} onValueChange={setInstrumentFilter}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Instrumente filtern" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="alle">Alle Instrumente</SelectItem>
-                  {allInstrumente.map((instrument) =>
-                  <SelectItem key={instrument} value={instrument}>
-                      {instrument}
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
-
-                  <LayoutGrid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
-
-                  <List className="w-4 h-4" />
-                </Button>
-              </div>
+    <>
+      <AlertDialog />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Musiker</h1>
+              <p className="text-gray-600">Verwalte dein Musiker-Portfolio</p>
             </div>
-          </CardContent>
-        </Card>
+            <Button
+              onClick={() => {
+                setEditingMusiker(null);
+                setShowForm(true);
+              }}
+              className="bg-slate-800 hover:bg-slate-900 text-white">
 
-        {showForm &&
-        <div className="mb-6">
-            <MusikerForm
-            musiker={editingMusiker}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingMusiker(null);
-            }} />
-
+              <Plus className="w-4 h-4 mr-2" />
+              Musiker hinzufügen
+            </Button>
           </div>
-        }
 
-        {filteredMusiker.length > 0 ?
-        viewMode === "grid" ?
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredMusiker.map((m) =>
-          <MusikerCard key={m.id} musiker={m} />
-          )}
-            </div> :
+          <Card className="mb-6 border-none shadow-md">
+            <CardContent className="p-4">
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="relative flex-1 min-w-[200px]">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Musiker durchsuchen..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10" />
 
-        <div className="space-y-3">
-              {filteredMusiker.map((m) =>
-          <MusikerListItem key={m.id} musiker={m} />
-          )}
-            </div> :
+                </div>
+                <Select value={instrumentFilter} onValueChange={setInstrumentFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Instrumente filtern" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="alle">Alle Instrumente</SelectItem>
+                    {allInstrumente.map((instrument) =>
+                    <SelectItem key={instrument} value={instrument}>
+                        {instrument}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
 
+                    <LayoutGrid className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
 
-        <Card className="border-dashed">
-            <CardContent className="p-12 text-center">
-              <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-semibold mb-2">Keine Musiker gefunden</h3>
-              <p className="text-gray-500 mb-4">Füge deinen ersten Musiker hinzu</p>
-              <Button onClick={() => setShowForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Musiker hinzufügen
-              </Button>
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        }
-      </div>
-    </div>);
 
+          {showForm &&
+          <div className="mb-6">
+              <MusikerForm
+              musiker={editingMusiker}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingMusiker(null);
+              }} />
+
+            </div>
+          }
+
+          {filteredMusiker.length > 0 ?
+          viewMode === "grid" ?
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredMusiker.map((m) =>
+            <MusikerCard key={m.id} musiker={m} />
+            )}
+              </div> :
+
+          <div className="space-y-3">
+                {filteredMusiker.map((m) =>
+            <MusikerListItem key={m.id} musiker={m} />
+            )}
+              </div> :
+
+
+          <Card className="border-dashed">
+              <CardContent className="p-12 text-center">
+                <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-semibold mb-2">Keine Musiker gefunden</h3>
+                <p className="text-gray-500 mb-4">Füge deinen ersten Musiker hinzu</p>
+                <Button onClick={() => setShowForm(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Musiker hinzufügen
+                </Button>
+              </CardContent>
+            </Card>
+          }
+        </div>
+      </div>
+    </>
+  );
 }
