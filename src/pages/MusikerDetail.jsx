@@ -17,8 +17,8 @@ import {
   User,
   MapPin,
   AlertCircle,
-  Send
-} from "lucide-react";
+  Send } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ export default function MusikerDetailPage() {
       const result = await base44.entities.Musiker.filter({ id: musikerId });
       return result[0];
     },
-    enabled: !!musikerId,
+    enabled: !!musikerId
   });
 
   const { data: organisation } = useQuery({
@@ -47,13 +47,13 @@ export default function MusikerDetailPage() {
       const orgs = await base44.entities.Organisation.filter({ id: musiker.org_id });
       return orgs[0];
     },
-    enabled: !!musiker?.org_id,
+    enabled: !!musiker?.org_id
   });
 
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', musikerId],
     queryFn: () => base44.entities.EventMusiker.filter({ musiker_id: musikerId }),
-    enabled: !!musikerId,
+    enabled: !!musikerId
   });
 
   const updateMusikerMutation = useMutation({
@@ -62,7 +62,7 @@ export default function MusikerDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['musiker', musikerId] });
       queryClient.invalidateQueries({ queryKey: ['musiker'] });
       setIsEditing(false);
-    },
+    }
   });
 
   const sendInvitationMutation = useMutation({
@@ -70,7 +70,7 @@ export default function MusikerDetailPage() {
       if (!musiker.email) {
         throw new Error("Musiker hat keine E-Mail-Adresse");
       }
-      
+
       await base44.integrations.Core.SendEmail({
         to: musiker.email,
         subject: `Einladung zu ${organisation.name} auf Bandguru`,
@@ -89,15 +89,15 @@ export default function MusikerDetailPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Musiker...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   const handleUpdateSubmit = (data) => {
     updateMusikerMutation.mutate(data);
   };
 
-  const initials = musiker.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'M';
+  const initials = musiker.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'M';
   const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'];
   const color = colors[Math.abs(musiker.name?.charCodeAt(0) || 0) % colors.length];
 
@@ -111,8 +111,8 @@ export default function MusikerDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4"
-            >
+              className="gap-2 mb-4">
+
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
@@ -122,11 +122,11 @@ export default function MusikerDetailPage() {
           <MusikerForm
             musiker={musiker}
             onSubmit={handleUpdateSubmit}
-            onCancel={() => setIsEditing(false)}
-          />
+            onCancel={() => setIsEditing(false)} />
+
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -140,16 +140,16 @@ export default function MusikerDetailPage() {
               variant="ghost"
               size="sm"
               onClick={() => navigate(createPageUrl('Musiker'))}
-              className="gap-2"
-            >
+              className="gap-2">
+
               <ArrowLeft className="w-4 h-4" />
               Zurück
             </Button>
-            {!musiker.aktiv && (
-              <Badge variant="outline" className="bg-gray-100">
+            {!musiker.aktiv &&
+            <Badge variant="outline" className="bg-gray-100">
                 Inaktiv
               </Badge>
-            )}
+            }
           </div>
 
           {/* Profile Header */}
@@ -160,21 +160,21 @@ export default function MusikerDetailPage() {
               </Avatar>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{musiker.name}</h1>
-                {musiker.instrumente && musiker.instrumente.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {musiker.instrumente.map((instrument, i) => (
-                      <Badge key={i} variant="secondary" className="text-sm">
+                {musiker.instrumente && musiker.instrumente.length > 0 &&
+                <div className="flex flex-wrap gap-2 mb-3">
+                    {musiker.instrumente.map((instrument, i) =>
+                  <Badge key={i} variant="secondary" className="text-sm">
                         {instrument}
                       </Badge>
-                    ))}
+                  )}
                   </div>
-                )}
-                {musiker.genre && musiker.genre.length > 0 && (
-                  <div className="flex items-center gap-2 text-gray-600">
+                }
+                {musiker.genre && musiker.genre.length > 0 &&
+                <div className="flex items-center gap-2 text-gray-600">
                     <Music className="w-4 h-4" />
                     <span className="text-sm">{musiker.genre.join(', ')}</span>
                   </div>
-                )}
+                }
               </div>
             </div>
             
@@ -182,24 +182,24 @@ export default function MusikerDetailPage() {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => setIsEditing(true)}
-                className="gap-2 bg-purple-600 hover:bg-purple-700"
-              >
+                onClick={() => setIsEditing(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-purple-700">
+
+
                 <Edit className="w-4 h-4" />
                 Bearbeiten
               </Button>
-              {musiker.email && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => sendInvitationMutation.mutate()}
-                  disabled={sendInvitationMutation.isPending}
-                  className="gap-2"
-                >
+              {musiker.email &&
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => sendInvitationMutation.mutate()}
+                disabled={sendInvitationMutation.isPending}
+                className="gap-2">
+
                   <Send className="w-4 h-4" />
                   {sendInvitationMutation.isPending ? "Wird versendet..." : "Einladung senden"}
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -215,8 +215,8 @@ export default function MusikerDetailPage() {
                 <CardTitle className="text-xl font-bold">Kontaktinformationen</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {musiker.email && (
-                  <div className="flex items-start gap-3">
+                {musiker.email &&
+                <div className="flex items-start gap-3">
                     <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">E-Mail</p>
@@ -225,10 +225,10 @@ export default function MusikerDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {musiker.telefon && (
-                  <div className="flex items-start gap-3">
+                {musiker.telefon &&
+                <div className="flex items-start gap-3">
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Telefon</p>
@@ -237,17 +237,17 @@ export default function MusikerDetailPage() {
                       </a>
                     </div>
                   </div>
-                )}
+                }
 
-                {musiker.notfallkontakt && (
-                  <div className="flex items-start gap-3">
+                {musiker.notfallkontakt &&
+                <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Notfallkontakt</p>
                       <p className="font-medium text-gray-900">{musiker.notfallkontakt}</p>
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -257,43 +257,43 @@ export default function MusikerDetailPage() {
                 <CardTitle className="text-xl font-bold">Fähigkeiten & Sprachen</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {musiker.sprachen && musiker.sprachen.length > 0 && (
-                  <div className="flex items-start gap-3">
+                {musiker.sprachen && musiker.sprachen.length > 0 &&
+                <div className="flex items-start gap-3">
                     <Languages className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-2">Sprachen</p>
                       <div className="flex flex-wrap gap-2">
-                        {musiker.sprachen.map((sprache, i) => (
-                          <Badge key={i} variant="outline" className="text-sm">
+                        {musiker.sprachen.map((sprache, i) =>
+                      <Badge key={i} variant="outline" className="text-sm">
                             {sprache}
                           </Badge>
-                        ))}
+                      )}
                       </div>
                     </div>
                   </div>
-                )}
+                }
 
-                {musiker.genre && musiker.genre.length > 0 && (
-                  <div className="flex items-start gap-3">
+                {musiker.genre && musiker.genre.length > 0 &&
+                <div className="flex items-start gap-3">
                     <Music className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-2">Genres</p>
                       <div className="flex flex-wrap gap-2">
-                        {musiker.genre.map((g, i) => (
-                          <Badge key={i} variant="outline" className="text-sm">
+                        {musiker.genre.map((g, i) =>
+                      <Badge key={i} variant="outline" className="text-sm">
                             {g}
                           </Badge>
-                        ))}
+                      )}
                       </div>
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
             {/* Buchungsbedingungen */}
-            {musiker.buchungsbedingungen && (
-              <Card className="border-none shadow-lg">
+            {musiker.buchungsbedingungen &&
+            <Card className="border-none shadow-lg">
                 <CardHeader className="border-b">
                   <CardTitle className="text-xl font-bold">Buchungsbedingungen</CardTitle>
                 </CardHeader>
@@ -301,11 +301,11 @@ export default function MusikerDetailPage() {
                   <p className="text-gray-700 whitespace-pre-wrap">{musiker.buchungsbedingungen}</p>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Notizen */}
-            {musiker.notizen && (
-              <Card className="border-none shadow-lg">
+            {musiker.notizen &&
+            <Card className="border-none shadow-lg">
                 <CardHeader className="border-b">
                   <CardTitle className="text-xl font-bold">Interne Notizen</CardTitle>
                 </CardHeader>
@@ -313,7 +313,7 @@ export default function MusikerDetailPage() {
                   <p className="text-gray-700 whitespace-pre-wrap">{musiker.notizen}</p>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
 
           {/* Sidebar */}
@@ -324,21 +324,21 @@ export default function MusikerDetailPage() {
                 <CardTitle className="text-lg font-bold">Finanzielle Details</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {musiker.tagessatz_netto && (
-                  <div>
+                {musiker.tagessatz_netto &&
+                <div>
                     <p className="text-sm text-gray-500 mb-1">Tagessatz (netto)</p>
                     <p className="text-2xl font-bold text-gray-900">
                       {musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
-                )}
+                }
 
-                {musiker.reisespesen_regeln && (
-                  <div className="pt-4 border-t">
+                {musiker.reisespesen_regeln &&
+                <div className="pt-4 border-t">
                     <p className="text-sm text-gray-500 mb-1">Reisespesen-Regeln</p>
                     <p className="text-sm text-gray-700">{musiker.reisespesen_regeln}</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -364,6 +364,6 @@ export default function MusikerDetailPage() {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
