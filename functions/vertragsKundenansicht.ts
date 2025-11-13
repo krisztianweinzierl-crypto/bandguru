@@ -6,6 +6,7 @@ Deno.serve(async (req) => {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json',
   };
 
   // Handle preflight OPTIONS request
@@ -35,8 +36,8 @@ Deno.serve(async (req) => {
         console.log('📦 Body parsed:', JSON.stringify(body));
       } catch (e) {
         console.error('❌ Failed to parse JSON body:', e);
-        return Response.json(
-          { error: 'Ungültiges JSON' }, 
+        return new Response(
+          JSON.stringify({ error: 'Ungültiges JSON' }),
           { status: 400, headers: corsHeaders }
         );
       }
@@ -49,16 +50,16 @@ Deno.serve(async (req) => {
       
       if (!vertragId) {
         console.log('❌ Keine Vertrags-ID');
-        return Response.json(
-          { error: 'Keine Vertrags-ID angegeben' }, 
+        return new Response(
+          JSON.stringify({ error: 'Keine Vertrags-ID angegeben' }),
           { status: 400, headers: corsHeaders }
         );
       }
 
       if (!kundenEmail) {
         console.log('❌ Keine E-Mail');
-        return Response.json(
-          { error: 'E-Mail-Adresse erforderlich' }, 
+        return new Response(
+          JSON.stringify({ error: 'E-Mail-Adresse erforderlich' }),
           { status: 400, headers: corsHeaders }
         );
       }
@@ -74,8 +75,8 @@ Deno.serve(async (req) => {
 
         if (!vertrag || !vertrag.im_kundenportal_sichtbar) {
           console.log('❌ Vertrag nicht verfügbar');
-          return Response.json(
-            { error: 'Vertrag nicht verfügbar' }, 
+          return new Response(
+            JSON.stringify({ error: 'Vertrag nicht verfügbar' }),
             { status: 403, headers: corsHeaders }
           );
         }
@@ -90,8 +91,8 @@ Deno.serve(async (req) => {
 
         if (!kunde || kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
           console.log('❌ E-Mail stimmt nicht überein');
-          return Response.json(
-            { error: 'E-Mail-Adresse stimmt nicht überein' }, 
+          return new Response(
+            JSON.stringify({ error: 'E-Mail-Adresse stimmt nicht überein' }),
             { status: 403, headers: corsHeaders }
           );
         }
@@ -110,9 +111,9 @@ Deno.serve(async (req) => {
         const updatedVertrag = await base44.asServiceRole.entities.Vertrag.update(vertragId, updateData);
         console.log('✅ Unterschrift gespeichert');
         
-        return Response.json(
-          { success: true, vertrag: updatedVertrag },
-          { headers: corsHeaders }
+        return new Response(
+          JSON.stringify({ success: true, vertrag: updatedVertrag }),
+          { status: 200, headers: corsHeaders }
         );
       }
 
@@ -126,16 +127,16 @@ Deno.serve(async (req) => {
 
       if (!vertrag) {
         console.log('❌ Vertrag nicht gefunden');
-        return Response.json(
-          { error: 'Vertrag nicht gefunden' }, 
+        return new Response(
+          JSON.stringify({ error: 'Vertrag nicht gefunden' }),
           { status: 404, headers: corsHeaders }
         );
       }
 
       if (!vertrag.im_kundenportal_sichtbar) {
         console.log('❌ Vertrag nicht sichtbar');
-        return Response.json(
-          { error: 'Vertrag nicht verfügbar' }, 
+        return new Response(
+          JSON.stringify({ error: 'Vertrag nicht verfügbar' }),
           { status: 403, headers: corsHeaders }
         );
       }
@@ -150,8 +151,8 @@ Deno.serve(async (req) => {
 
       if (!kunde) {
         console.log('❌ Kunde nicht gefunden');
-        return Response.json(
-          { error: 'Kunde nicht gefunden' }, 
+        return new Response(
+          JSON.stringify({ error: 'Kunde nicht gefunden' }),
           { status: 404, headers: corsHeaders }
         );
       }
@@ -164,8 +165,8 @@ Deno.serve(async (req) => {
 
       if (kunde.email?.toLowerCase().trim() !== kundenEmail.toLowerCase().trim()) {
         console.log('❌ E-Mail stimmt nicht überein');
-        return Response.json(
-          { error: 'E-Mail-Adresse stimmt nicht überein' }, 
+        return new Response(
+          JSON.stringify({ error: 'E-Mail-Adresse stimmt nicht überein' }),
           { status: 403, headers: corsHeaders }
         );
       }
@@ -187,13 +188,16 @@ Deno.serve(async (req) => {
       }
 
       console.log('✅ Verifizierung erfolgreich!');
-      return Response.json({
-        success: true,
-        vertrag,
-        kunde,
-        event,
-        organisation
-      }, { headers: corsHeaders });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          vertrag,
+          kunde,
+          event,
+          organisation
+        }),
+        { status: 200, headers: corsHeaders }
+      );
     }
 
     // GET-Request: HTML zurückgeben
@@ -206,7 +210,7 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { 
           'Content-Type': 'text/html; charset=utf-8',
-          ...corsHeaders
+          'Access-Control-Allow-Origin': '*',
         }
       });
     }
@@ -216,7 +220,7 @@ Deno.serve(async (req) => {
       status: 200,
       headers: { 
         'Content-Type': 'text/html; charset=utf-8',
-        ...corsHeaders
+        'Access-Control-Allow-Origin': '*',
       }
     });
 
@@ -227,12 +231,10 @@ Deno.serve(async (req) => {
     
     // Bei POST: JSON-Error zurückgeben
     if (req.method === 'POST') {
-      return Response.json({ 
-        error: 'Interner Serverfehler: ' + error.message 
-      }, { 
-        status: 500,
-        headers: corsHeaders
-      });
+      return new Response(
+        JSON.stringify({ error: 'Interner Serverfehler: ' + error.message }),
+        { status: 500, headers: corsHeaders }
+      );
     }
     
     // Bei GET: HTML-Error zurückgeben
@@ -240,7 +242,7 @@ Deno.serve(async (req) => {
       status: 500,
       headers: { 
         'Content-Type': 'text/html; charset=utf-8',
-        ...corsHeaders
+        'Access-Control-Allow-Origin': '*',
       }
     });
   }
