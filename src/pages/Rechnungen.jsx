@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Plus,
@@ -16,8 +16,9 @@ import {
   Euro,
   Calendar,
   AlertCircle,
-  CheckCircle } from
-"lucide-react";
+  CheckCircle,
+  ArrowLeft
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ import { de } from "date-fns/locale";
 import RechnungForm from "@/components/finanzen/RechnungForm";
 
 export default function RechnungenPage() {
+  const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,7 +67,7 @@ export default function RechnungenPage() {
       const prefix = organisation?.rechnungspraefix || 'RG';
       const year = new Date().getFullYear();
       const count = rechnungen.filter((r) =>
-      r.rechnungsnummer?.startsWith(`${prefix}-${year}`)
+        r.rechnungsnummer?.startsWith(`${prefix}-${year}`)
       ).length + 1;
       const rechnungsnummer = `${prefix}-${year}-${count.toString().padStart(3, '0')}`;
 
@@ -83,18 +85,18 @@ export default function RechnungenPage() {
 
   const filteredRechnungen = rechnungen.filter((r) => {
     const matchesSearch =
-    r.rechnungsnummer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    kunden.find((k) => k.id === r.kunde_id)?.firmenname?.toLowerCase().includes(searchQuery.toLowerCase());
+      r.rechnungsnummer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kunden.find((k) => k.id === r.kunde_id)?.firmenname?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "alle" || r.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const offeneRechnungen = filteredRechnungen.filter((r) =>
-  ['versendet', 'teilweise_bezahlt'].includes(r.status)
+    ['versendet', 'teilweise_bezahlt'].includes(r.status)
   );
   const ueberfaelligeRechnungen = filteredRechnungen.filter((r) =>
-  r.status === 'überfällig' ||
-  r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date()
+    r.status === 'überfällig' ||
+    (r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date())
   );
   const bezahlteRechnungen = filteredRechnungen.filter((r) => r.status === 'bezahlt');
 
@@ -114,7 +116,7 @@ export default function RechnungenPage() {
   const RechnungCard = ({ rechnung }) => {
     const kunde = kunden.find((k) => k.id === rechnung.kunde_id);
     const isUeberfaellig = new Date(rechnung.faelligkeitsdatum) < new Date() &&
-    rechnung.status === 'versendet';
+      rechnung.status === 'versendet';
 
     return (
       <Card className="hover:shadow-lg transition-all duration-200">
@@ -127,7 +129,7 @@ export default function RechnungenPage() {
                   {rechnung.status}
                 </Badge>
                 {isUeberfaellig &&
-                <Badge className="bg-red-100 text-red-800">
+                  <Badge className="bg-red-100 text-red-800">
                     <AlertCircle className="w-3 h-3 mr-1" />
                     Überfällig
                   </Badge>
@@ -155,7 +157,7 @@ export default function RechnungenPage() {
           </div>
 
           {rechnung.status !== 'bezahlt' &&
-          <div className="pt-3 border-t">
+            <div className="pt-3 border-t">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Fällig am:</span>
                 <span className={`font-medium ${isUeberfaellig ? 'text-red-600' : 'text-gray-900'}`}>
@@ -171,13 +173,13 @@ export default function RechnungenPage() {
               Ansehen
             </Button>
             {rechnung.status === 'entwurf' &&
-            <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+              <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
                 <Send className="w-4 h-4 mr-2" />
                 Versenden
               </Button>
             }
             {rechnung.status !== 'entwurf' &&
-            <Button variant="outline" size="sm" className="flex-1">
+              <Button variant="outline" size="sm" className="flex-1">
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </Button>
@@ -192,19 +194,31 @@ export default function RechnungenPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Rechnungen</h1>
-            <p className="text-gray-600">Erstelle und verwalte deine Rechnungen</p>
-          </div>
+        <div className="mb-6">
           <Button
-            onClick={() => setShowForm(true)}
-            style={{ backgroundColor: '#223a5e' }}
-            className="text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:opacity-90"
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(createPageUrl('Finanzen'))}
+            className="gap-2 mb-4"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Neue Rechnung
+            <ArrowLeft className="w-4 h-4" />
+            Zurück zu Finanzen
           </Button>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Rechnungen</h1>
+              <p className="text-gray-600">Erstelle und verwalte deine Rechnungen</p>
+            </div>
+            <Button
+              onClick={() => setShowForm(true)}
+              style={{ backgroundColor: '#223a5e' }}
+              className="text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:opacity-90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Neue Rechnung
+            </Button>
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -284,24 +298,24 @@ export default function RechnungenPage() {
 
         {/* Form */}
         {showForm &&
-        <div className="mb-6">
+          <div className="mb-6">
             <RechnungForm
-            onSubmit={handleSubmit}
-            onCancel={() => setShowForm(false)}
-            kunden={kunden} />
+              onSubmit={handleSubmit}
+              onCancel={() => setShowForm(false)}
+              kunden={kunden} />
 
           </div>
         }
 
         {/* Rechnungen Grid */}
         {filteredRechnungen.length > 0 ?
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredRechnungen.map((rechnung) =>
-          <RechnungCard key={rechnung.id} rechnung={rechnung} />
-          )}
+              <RechnungCard key={rechnung.id} rechnung={rechnung} />
+            )}
           </div> :
 
-        <Card className="border-dashed">
+          <Card className="border-dashed">
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Rechnungen gefunden</h3>

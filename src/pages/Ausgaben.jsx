@@ -1,6 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import {
   Plus,
   Receipt,
@@ -9,8 +12,9 @@ import {
   Upload,
   Download,
   TrendingDown,
-  PieChart } from
-"lucide-react";
+  PieChart,
+  ArrowLeft
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +24,7 @@ import { de } from "date-fns/locale";
 import AusgabeForm from "@/components/finanzen/AusgabeForm";
 
 export default function AusgabenPage() {
+  const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -124,18 +129,30 @@ export default function AusgabenPage() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Ausgaben</h1>
-            <p className="text-gray-600">Verfolge alle deine Kosten und Ausgaben</p>
-          </div>
+        <div className="mb-6">
           <Button
-            onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700">
-
-            <Plus className="w-4 h-4 mr-2" />
-            Neue Ausgabe
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(createPageUrl('Finanzen'))}
+            className="gap-2 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Zurück zu Finanzen
           </Button>
+
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Ausgaben</h1>
+              <p className="text-gray-600">Verfolge alle deine Kosten und Ausgaben</p>
+            </div>
+            <Button
+              onClick={() => setShowForm(true)}
+              className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Neue Ausgabe
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
