@@ -109,6 +109,16 @@ export default function LeadsPage() {
 
   const saveStagesMutation = useMutation({
     mutationFn: async (stagesToSave) => {
+      // 1. Finde gelöschte Stages (Stages die vorher existierten, aber nicht mehr im Array sind)
+      const existingStageIds = stages.map(s => s.id);
+      const newStageIds = stagesToSave.filter(s => s.id && !s.id.startsWith('temp_')).map(s => s.id);
+      const deletedStageIds = existingStageIds.filter(id => !newStageIds.includes(id));
+      
+      // 2. Lösche die entfernten Stages
+      const deletePromises = deletedStageIds.map(id => base44.entities.LeadStage.delete(id));
+      await Promise.all(deletePromises);
+      
+      // 3. Update/Create die übrigen Stages
       const updates = stagesToSave.map(async (stage) => {
         if (stage.id && typeof stage.id === 'string' && stage.id.startsWith('temp_')) {
           // Neue Stage erstellen
