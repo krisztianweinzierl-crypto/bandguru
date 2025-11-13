@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -65,10 +64,10 @@ export default function MusikerPage() {
   const filteredMusiker = musiker.filter((m) => {
     const matchesSearch = m.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     m.instrumente?.some((i) => i.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    false; // Ensure boolean
+    false;
     const matchesInstrument = instrumentFilter === "alle" ||
     m.instrumente?.includes(instrumentFilter) ||
-    false; // Ensure boolean
+    false;
     return matchesSearch && matchesInstrument;
   });
 
@@ -202,7 +201,7 @@ export default function MusikerPage() {
           {musiker.tagessatz_netto &&
           <div className="flex items-center gap-2 text-sm font-medium text-green-600">
               <Euro className="w-4 h-4" />
-              <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / Tag</span>
+              <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
             </div>
           }
           {musiker.genre && musiker.genre.length > 0 &&
@@ -314,7 +313,7 @@ export default function MusikerPage() {
             {musiker.tagessatz_netto &&
             <div className="flex items-center gap-1 font-medium text-green-600">
                 <Euro className="w-4 h-4" />
-                <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / Tag</span>
+                <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
               </div>
             }
             {musiker.genre && musiker.genre.length > 0 &&
