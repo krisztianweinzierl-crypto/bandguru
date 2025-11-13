@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X, Plus, Save, Trash2, GripVertical } from "lucide-react";
+import { X, Plus, Save, Trash2, GripVertical, Edit2 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function StageManager({ stages, onSave, onCancel }) {
   const [editingStages, setEditingStages] = useState([...stages]);
   const [newStageName, setNewStageName] = useState("");
+  const [editingStageId, setEditingStageId] = useState(null);
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
@@ -54,10 +55,16 @@ export default function StageManager({ stages, onSave, onCancel }) {
 
   const handleDeleteStage = (id) => {
     const stage = editingStages.find(s => s.id === id);
-    if (stage?.ist_standard) {
-      alert("Standard-Stages können nicht gelöscht werden.");
+    
+    // Bestätigungsdialog
+    const confirmMessage = stage?.ist_standard 
+      ? `Möchtest du die Standard-Stage "${stage.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.`
+      : `Möchtest du die Stage "${stage.name}" wirklich löschen?`;
+    
+    if (!confirm(confirmMessage)) {
       return;
     }
+    
     setEditingStages(editingStages.filter(s => s.id !== id));
   };
 
@@ -105,12 +112,28 @@ export default function StageManager({ stages, onSave, onCancel }) {
                               <GripVertical className="w-5 h-5 text-gray-400" />
                             </div>
 
-                            <Input
-                              value={stage.name}
-                              onChange={(e) => handleUpdateStage(stage.id, 'name', e.target.value)}
-                              className="flex-1"
-                              disabled={stage.ist_standard}
-                            />
+                            {editingStageId === stage.id ? (
+                              <Input
+                                value={stage.name}
+                                onChange={(e) => handleUpdateStage(stage.id, 'name', e.target.value)}
+                                onBlur={() => setEditingStageId(null)}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') setEditingStageId(null);
+                                }}
+                                className="flex-1"
+                                autoFocus
+                              />
+                            ) : (
+                              <div 
+                                className="flex-1 px-3 py-2 border border-transparent rounded-md hover:border-gray-300 cursor-pointer transition-colors"
+                                onClick={() => setEditingStageId(stage.id)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span>{stage.name}</span>
+                                  <Edit2 className="w-3 h-3 text-gray-400" />
+                                </div>
+                              </div>
+                            )}
 
                             <Input
                               type="color"
@@ -139,16 +162,14 @@ export default function StageManager({ stages, onSave, onCancel }) {
                               </Badge>
                             )}
 
-                            {!stage.ist_standard && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteStage(stage.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteStage(stage.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       )}
