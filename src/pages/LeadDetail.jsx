@@ -72,7 +72,8 @@ export default function LeadDetailPage() {
   const [isManager, setIsManager] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [userDataLoading, setUserDataLoading] = useState(true); // NEU: Separater Loading-State
+  const [userDataLoading, setUserDataLoading] = useState(true);
+  const [convertingToEvent, setConvertingToEvent] = useState(false);
 
 
   // 1. Erst Lead laden
@@ -155,6 +156,12 @@ export default function LeadDetailPage() {
       bezug_id: leadId
     }, '-created_date'),
     enabled: !!leadId && isManager
+  });
+
+  const { data: kunden = [] } = useQuery({
+    queryKey: ['kunden', lead?.org_id],
+    queryFn: () => base44.entities.Kunde.filter({ org_id: lead.org_id }),
+    enabled: !!lead?.org_id && isManager
   });
 
   // Modified updateLeadMutation to accept {id, data} payload
@@ -465,9 +472,83 @@ export default function LeadDetailPage() {
     setExpandedTasks((prev) => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
-  const handleConvertToEvent = () => {
-    // Später: Lead in Event konvertieren
-    alert("Lead wird in Event konvertiert (Feature kommt später)");
+  const handleConvertToEvent = async () => {
+    if (!lead.event_datum) {
+      alert("Bitte gib zuerst ein Event-Datum für diesen Lead an.");
+      return;
+    }
+
+    const confirmMessage = lead.kunde_id
+      ? `Lead "${lead.titel}" in Event konvertieren?\n\nDer bestehende Kunde wird mit dem Event verknüpft.`
+      : `Lead "${lead.titel}" in Event konvertieren?\n\nEs wird automatisch ein neuer Kunde angelegt.`;
+
+    if (!confirm(confirmMessage)) return;
+
+    setConvertingToEvent(true);
+
+    try {
+      let kundeId = lead.kunde_id;
+
+      // Falls noch kein Kunde existiert, erstelle einen
+      if (!kundeId && (lead.firmenname || lead.kontaktperson)) {
+        const neuerKunde = await base44.entities.Kunde.create({
+          org_id: lead.org_id,
+          firmenname: lead.firmenname || lead.kontaktperson || 'Neuer Kunde',
+          ansprechpartner: lead.kontaktperson || '',
+          email: lead.email || '',
+          telefon: lead.telefon || '',
+          adresse: lead.event_ort || '',
+          notizen: `Erstellt aus Lead: ${lead.titel}`
+        });
+        kundeId = neuerKunde.id;
+
+        // Update Lead mit Kunden-ID
+        await base44.entities.Lead.update(leadId, { kunde_id: kundeId });
+      }
+
+      if (!kundeId) {
+        alert("Fehler: Kunde konnte nicht erstellt werden. Bitte füge Firmenname oder Kontaktperson hinzu.");
+        setConvertingToEvent(false);
+        return;
+      }
+
+      // Event erstellen
+      const eventData = {
+        org_id: lead.org_id,
+        titel: lead.titel,
+        kunde_id: kundeId,
+        status: 'angefragt',
+        datum_von: lead.event_datum + 'T' + (lead.event_uhrzeit || '20:00'),
+        datum_bis: lead.event_datum + 'T23:59',
+        ort_name: lead.event_ort || '',
+        event_typ: lead.event_typ || 'Sonstiges',
+        anzahl_gaeste: lead.anzahl_gaeste || null,
+        oeffentliche_notizen: lead.beschreibung || '',
+        interne_notizen: `Konvertiert aus Lead am ${format(new Date(), 'dd.MM.yyyy, HH:mm', { locale: de })}\n\nLead-Quelle: ${lead.quelle || 'Unbekannt'}\nErwarteter Umsatz: ${lead.erwarteter_umsatz ? lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' }) : 'Nicht angegeben'}`
+      };
+
+      const neuesEvent = await base44.entities.Event.create(eventData);
+
+      // Lead-Status auf "gewonnen" setzen
+      await base44.entities.Lead.update(leadId, { status: 'gewonnen' });
+
+      // Notiz zum Lead hinzufügen
+      await base44.entities.LeadNotiz.create({
+        org_id: lead.org_id,
+        lead_id: leadId,
+        inhalt: `✅ Lead erfolgreich in Event konvertiert (Event-ID: ${neuesEvent.id})`,
+        erstellt_von: currentUser?.id
+      });
+
+      alert(`✅ Lead wurde erfolgreich in Event "${neuesEvent.titel}" konvertiert!`);
+      
+      // Navigiere zum neuen Event
+      navigate(createPageUrl(`EventDetail?id=${neuesEvent.id}`));
+    } catch (error) {
+      console.error("Fehler beim Konvertieren:", error);
+      alert("Fehler beim Konvertieren des Leads: " + error.message);
+      setConvertingToEvent(false);
+    }
   };
 
   const handleCreateAngebot = () => {
@@ -838,10 +919,11 @@ export default function LeadDetailPage() {
                 variant="default"
                 size="sm"
                 onClick={handleConvertToEvent}
+                disabled={convertingToEvent}
                 className="gap-2 bg-green-600 hover:bg-green-700">
 
                 <CheckCircle className="w-4 h-4" />
-                Lead konvertieren
+                {convertingToEvent ? 'Konvertiert...' : 'Lead konvertieren'}
               </Button>
               <Button
                 variant="outline"
