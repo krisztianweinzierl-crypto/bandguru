@@ -50,8 +50,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
-import LeadForm from "@/components/leads/LeadForm"; // Added LeadForm import
+import LeadForm from "@/components/leads/LeadForm";
 import EmailForm from "@/components/leads/EmailForm";
+import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -74,6 +75,7 @@ export default function LeadDetailPage() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [userDataLoading, setUserDataLoading] = useState(true);
   const [convertingToEvent, setConvertingToEvent] = useState(false);
+  const { showAlert, showConfirm, AlertDialog } = useAlertDialog();
 
 
   // 1. Erst Lead laden
@@ -337,13 +339,21 @@ export default function LeadDetailPage() {
         setSendingEmail(false);
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['emailLogs'] });
       setShowEmailForm(false);
-      alert('E-Mail wurde erfolgreich versendet!');
+      await showAlert({
+        title: 'E-Mail versendet',
+        message: 'Die E-Mail wurde erfolgreich versendet!',
+        type: 'success'
+      });
     },
-    onError: (error) => {
-      alert('Fehler beim Versenden: ' + error.message);
+    onError: async (error) => {
+      await showAlert({
+        title: 'Fehler beim Versenden',
+        message: error.message,
+        type: 'error'
+      });
     }
   });
 
@@ -376,14 +386,26 @@ export default function LeadDetailPage() {
       event.target.value = ""; // Clear the file input
     } catch (error) {
       console.error("Fehler beim Hochladen:", error);
-      alert("Fehler beim Hochladen der Datei: " + error.message);
+      await showAlert({
+        title: 'Fehler beim Hochladen',
+        message: "Fehler beim Hochladen der Datei: " + error.message,
+        type: 'error'
+      });
     } finally {
       setUploadingFile(false);
     }
   };
 
-  const handleDeleteFile = (datei) => {
-    if (confirm(`Möchtest du die Datei "${datei.file_name}" wirklich löschen?`)) {
+  const handleDeleteFile = async (datei) => {
+    const confirmed = await showConfirm({
+      title: 'Datei löschen',
+      message: `Möchtest du die Datei "${datei.file_name}" wirklich löschen?`,
+      type: 'warning',
+      confirmText: 'Löschen',
+      cancelText: 'Abbrechen'
+    });
+    
+    if (confirmed) {
       deleteDateiMutation.mutate(datei.id);
     }
   };
@@ -462,8 +484,16 @@ export default function LeadDetailPage() {
     setShowDropdownId(null);
   };
 
-  const handleDeleteAufgabe = (aufgabe) => {
-    if (window.confirm(`Möchtest du die Aufgabe "${aufgabe.titel}" wirklich löschen? Alle Unteraufgaben werden ebenfalls gelöscht.`)) {
+  const handleDeleteAufgabe = async (aufgabe) => {
+    const confirmed = await showConfirm({
+      title: 'Aufgabe löschen',
+      message: `Möchtest du die Aufgabe "${aufgabe.titel}" wirklich löschen?\n\nAlle Unteraufgaben werden ebenfalls gelöscht.`,
+      type: 'warning',
+      confirmText: 'Löschen',
+      cancelText: 'Abbrechen'
+    });
+    
+    if (confirmed) {
       deleteAufgabeMutation.mutate(aufgabe.id);
     }
   };
@@ -474,7 +504,11 @@ export default function LeadDetailPage() {
 
   const handleConvertToEvent = async () => {
     if (!lead.event_datum) {
-      alert("Bitte gib zuerst ein Event-Datum für diesen Lead an.");
+      await showAlert({
+        title: 'Event-Datum fehlt',
+        message: 'Bitte gib zuerst ein Event-Datum für diesen Lead an.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -482,7 +516,15 @@ export default function LeadDetailPage() {
       ? `Lead "${lead.titel}" in Event konvertieren?\n\nDer bestehende Kunde wird mit dem Event verknüpft.`
       : `Lead "${lead.titel}" in Event konvertieren?\n\nEs wird automatisch ein neuer Kunde angelegt.`;
 
-    if (!confirm(confirmMessage)) return;
+    const confirmed = await showConfirm({
+      title: 'Lead konvertieren',
+      message: confirmMessage,
+      type: 'info',
+      confirmText: 'Konvertieren',
+      cancelText: 'Abbrechen'
+    });
+
+    if (!confirmed) return;
 
     setConvertingToEvent(true);
 
@@ -500,14 +542,18 @@ export default function LeadDetailPage() {
           adresse: lead.event_ort || '',
           notizen: `Erstellt aus Lead: ${lead.titel}`
         });
-        kundeId = neuerKunde.id;
+        kundeId = neuerKuer.id;
 
         // Update Lead mit Kunden-ID
         await base44.entities.Lead.update(leadId, { kunde_id: kundeId });
       }
 
       if (!kundeId) {
-        alert("Fehler: Kunde konnte nicht erstellt werden. Bitte füge Firmenname oder Kontaktperson hinzu.");
+        await showAlert({
+          title: 'Fehler',
+          message: 'Kunde konnte nicht erstellt werden. Bitte füge Firmenname oder Kontaktperson hinzu.',
+          type: 'error'
+        });
         setConvertingToEvent(false);
         return;
       }
@@ -540,23 +586,35 @@ export default function LeadDetailPage() {
         erstellt_von: currentUser?.id
       });
 
-      alert(`✅ Lead wurde erfolgreich in Event "${neuesEvent.titel}" konvertiert!`);
+      await showAlert({
+        title: 'Lead konvertiert',
+        message: `Lead wurde erfolgreich in Event "${neuesEvent.titel}" konvertiert!`,
+        type: 'success'
+      });
       
       // Navigiere zum neuen Event
       navigate(createPageUrl(`EventDetail?id=${neuesEvent.id}`));
     } catch (error) {
       console.error("Fehler beim Konvertieren:", error);
-      alert("Fehler beim Konvertieren des Leads: " + error.message);
+      await showAlert({
+        title: 'Fehler',
+        message: 'Fehler beim Konvertieren des Leads: ' + error.message,
+        type: 'error'
+      });
       setConvertingToEvent(false);
     }
   };
 
-  const handleCreateAngebot = () => {
+  const handleCreateAngebot = async () => {
     // Navigiere zur Rechnungsseite mit vorausgefüllten Daten
     if (lead.kunde_id) {
       navigate(createPageUrl('Rechnungen') + '?create=true&kunde_id=' + lead.kunde_id + '&lead_id=' + leadId);
     } else {
-      alert('Bitte erstelle zuerst einen Kunden für diesen Lead, um ein Angebot zu erstellen.');
+      await showAlert({
+        title: 'Kunde fehlt',
+        message: 'Bitte erstelle zuerst einen Kunden für diesen Lead, um ein Angebot zu erstellen.',
+        type: 'warning'
+      });
     }
   };
 
@@ -890,741 +948,744 @@ export default function LeadDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(createPageUrl('Leads'))}
-              className="gap-2">
-
-              <ArrowLeft className="w-4 h-4" />
-              Zurück zu Leads
-            </Button>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{lead.titel}</h1>
-              {lead.firmenname &&
-              <p className="text-lg text-gray-600">{lead.firmenname}</p>
-              }
-            </div>
-
-            <div className="flex flex-wrap gap-2">
+    <>
+      <AlertDialog />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+            <div className="flex items-center gap-3 mb-4">
               <Button
-                variant="default"
+                variant="ghost"
                 size="sm"
-                onClick={handleConvertToEvent}
-                disabled={convertingToEvent}
-                className="gap-2 bg-green-600 hover:bg-green-700">
-
-                <CheckCircle className="w-4 h-4" />
-                {convertingToEvent ? 'Konvertiert...' : 'Lead konvertieren'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={() => navigate(createPageUrl('Leads'))}
                 className="gap-2">
 
-                <Edit className="w-4 h-4" />
-                Edit Lead
+                <ArrowLeft className="w-4 h-4" />
+                Zurück zu Leads
               </Button>
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{lead.titel}</h1>
+                {lead.firmenname &&
+                <p className="text-lg text-gray-600">{lead.firmenname}</p>
+                }
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleConvertToEvent}
+                  disabled={convertingToEvent}
+                  className="gap-2 bg-green-600 hover:bg-green-700">
+
+                  <CheckCircle className="w-4 h-4" />
+                  {convertingToEvent ? 'Konvertiert...' : 'Lead konvertieren'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                  className="gap-2">
+
+                  <Edit className="w-4 h-4" />
+                  Edit Lead
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {isEditing ? (
-          <LeadForm
-            lead={lead}
-            onSubmit={handleLeadUpdate}
-            onCancel={() => setIsEditing(false)}
-            mitglieder={mitglieder}
-          />
-        ) : (
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Lead Fokus */}
-              <Card className="border-l-4 border-l-yellow-400 bg-yellow-50">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-yellow-600" />
-                    <div className="flex-1">
-                      <CardTitle className="text-sm font-semibold">Lead Fokus</CardTitle>
-                      <p className="text-xs text-gray-600">Schnellübersicht</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label className="text-xs text-gray-600 mb-2 block">Status</Label>
-                    <Select value={lead.status} onValueChange={handleStatusChange}>
-                      <SelectTrigger className={`${statusStyle.bg} ${statusStyle.text} border-none`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="neu">Neu</SelectItem>
-                        <SelectItem value="kontaktiert">Kontaktiert</SelectItem>
-                        <SelectItem value="qualifiziert">Qualifiziert</SelectItem>
-                        <SelectItem value="angebot">Angebot</SelectItem>
-                        <SelectItem value="verhandlung">Verhandlung</SelectItem>
-                        <SelectItem value="gewonnen">Gewonnen</SelectItem>
-                        <SelectItem value="verloren">Verloren</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Lead-Details */}
-              <Card className="border-none shadow-lg">
-                <CardHeader className="border-b">
-                  <CardTitle className="text-lg font-bold">Lead-Details</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  {lead.event_datum &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1 uppercase">Event-Datum</p>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <p className="font-semibold text-gray-900">
-                          {format(new Date(lead.event_datum), 'dd.MM.yyyy', { locale: de })}
-                        </p>
+        {/* Content */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+          {isEditing ? (
+            <LeadForm
+              lead={lead}
+              onSubmit={handleLeadUpdate}
+              onCancel={() => setIsEditing(false)}
+              mitglieder={mitglieder}
+            />
+          ) : (
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Sidebar */}
+              <div className="space-y-6">
+                {/* Lead Fokus */}
+                <Card className="border-l-4 border-l-yellow-400 bg-yellow-50">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3">
+                      <Activity className="w-5 h-5 text-yellow-600" />
+                      <div className="flex-1">
+                        <CardTitle className="text-sm font-semibold">Lead Fokus</CardTitle>
+                        <p className="text-xs text-gray-600">Schnellübersicht</p>
                       </div>
                     </div>
-                  }
-
-                  {lead.event_ort &&
-                  <div>
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span>{lead.event_ort}</span>
-                      </div>
-                    </div>
-                  }
-
-                  {lead.event_typ &&
-                  <div>
-                      <Badge variant="outline">{lead.event_typ}</Badge>
-                    </div>
-                  }
-
-                  {lead.kontaktperson &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">Kontaktperson</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{lead.kontaktperson}</span>
-                      </div>
-                    </div>
-                  }
-
-                  {lead.email &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">E-Mail</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline truncate">
-                          {lead.email}
-                        </a>
-                      </div>
-                    </div>
-                  }
-
-                  {lead.telefon &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">Telefon</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <a href={`tel:${lead.telefon}`} className="text-gray-900 hover:underline">
-                          {lead.telefon}
-                        </a>
-                      </div>
-                    </div>
-                  }
-
-                  {lead.firmenname &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">Unternehmen</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Building2 className="w-4 h-4 text-gray-400" />
-                        <span className="font-medium">{lead.firmenname}</span>
-                      </div>
-                    </div>
-                  }
-
-                  <div className="pt-4 border-t">
-                    <p className="text-xs text-gray-500 mb-1">Status</p>
-                    <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
-                      {statusLabels[lead.status]}
-                    </Badge>
-                  </div>
-
-                  {lead.erwarteter_umsatz &&
-                  <div className="bg-green-50 rounded-lg p-4">
-                      <p className="text-xs text-gray-500 mb-1">Erwarteter Umsatz</p>
-                      <div className="flex items-center gap-2">
-                        <Euro className="w-5 h-5 text-green-600" />
-                        <span className="text-xl font-bold text-green-600">
-                          {lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                        </span>
-                      </div>
-                    </div>
-                  }
-
-                  {lead.quelle &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">Quelle</p>
-                      <p className="text-sm font-medium">{lead.quelle}</p>
-                    </div>
-                  }
-
-                  {assignedMitglied &&
-                  <div>
-                      <p className="text-xs text-gray-500 mb-1">Zugewiesen an</p>
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {assignedMitglied.name?.[0]}
-                        </div>
-                        <span className="text-sm font-medium">{assignedMitglied.name}</span>
-                      </div>
-                    </div>
-                  }
-                </CardContent>
-              </Card>
-
-              {/* Letzte Notiz */}
-              {notizen.length > 0 &&
-              <Card className="border-none shadow-lg">
-                  <CardHeader className="border-b">
-                    <CardTitle className="text-sm font-bold">Letzte Notiz</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="text-xs text-gray-500 mb-2">
-                      {format(new Date(notizen[0].created_date), 'dd.MM.yyyy • HH:mm', { locale: de })}
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-xs text-gray-600 mb-2 block">Status</Label>
+                      <Select value={lead.status} onValueChange={handleStatusChange}>
+                        <SelectTrigger className={`${statusStyle.bg} ${statusStyle.text} border-none`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="neu">Neu</SelectItem>
+                          <SelectItem value="kontaktiert">Kontaktiert</SelectItem>
+                          <SelectItem value="qualifiziert">Qualifiziert</SelectItem>
+                          <SelectItem value="angebot">Angebot</SelectItem>
+                          <SelectItem value="verhandlung">Verhandlung</SelectItem>
+                          <SelectItem value="gewonnen">Gewonnen</SelectItem>
+                          <SelectItem value="verloren">Verloren</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{notizen[0].inhalt}</p>
                   </CardContent>
                 </Card>
-              }
-            </div>
 
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Angebote Placeholder */}
-              <Card className="border-none shadow-lg">
-                <CardHeader className="border-b">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-blue-600" />
-                      <CardTitle>Angebote</CardTitle>
+                {/* Lead-Details */}
+                <Card className="border-none shadow-lg">
+                  <CardHeader className="border-b">
+                    <CardTitle className="text-lg font-bold">Lead-Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    {lead.event_datum &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1 uppercase">Event-Datum</p>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <p className="font-semibold text-gray-900">
+                            {format(new Date(lead.event_datum), 'dd.MM.yyyy', { locale: de })}
+                          </p>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.event_ort &&
+                    <div>
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span>{lead.event_ort}</span>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.event_typ &&
+                    <div>
+                        <Badge variant="outline">{lead.event_typ}</Badge>
+                      </div>
+                    }
+
+                    {lead.kontaktperson &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">Kontaktperson</p>
+                        <div className="flex items-center gap-2 text-sm">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <span className="font-medium">{lead.kontaktperson}</span>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.email &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">E-Mail</p>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline truncate">
+                            {lead.email}
+                          </a>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.telefon &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">Telefon</p>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <a href={`tel:${lead.telefon}`} className="text-gray-900 hover:underline">
+                            {lead.telefon}
+                          </a>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.firmenname &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">Unternehmen</p>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Building2 className="w-4 h-4 text-gray-400" />
+                          <span className="font-medium">{lead.firmenname}</span>
+                        </div>
+                      </div>
+                    }
+
+                    <div className="pt-4 border-t">
+                      <p className="text-xs text-gray-500 mb-1">Status</p>
+                      <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
+                        {statusLabels[lead.status]}
+                      </Badge>
                     </div>
+
+                    {lead.erwarteter_umsatz &&
+                    <div className="bg-green-50 rounded-lg p-4">
+                        <p className="text-xs text-gray-500 mb-1">Erwarteter Umsatz</p>
+                        <div className="flex items-center gap-2">
+                          <Euro className="w-5 h-5 text-green-600" />
+                          <span className="text-xl font-bold text-green-600">
+                            {lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </span>
+                        </div>
+                      </div>
+                    }
+
+                    {lead.quelle &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">Quelle</p>
+                        <p className="text-sm font-medium">{lead.quelle}</p>
+                      </div>
+                    }
+
+                    {assignedMitglied &&
+                    <div>
+                        <p className="text-xs text-gray-500 mb-1">Zugewiesen an</p>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            {assignedMitglied.name?.[0]}
+                          </div>
+                          <span className="text-sm font-medium">{assignedMitglied.name}</span>
+                        </div>
+                      </div>
+                    }
+                  </CardContent>
+                </Card>
+
+                {/* Letzte Notiz */}
+                {notizen.length > 0 &&
+                <Card className="border-none shadow-lg">
+                    <CardHeader className="border-b">
+                      <CardTitle className="text-sm font-bold">Letzte Notiz</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="text-xs text-gray-500 mb-2">
+                        {format(new Date(notizen[0].created_date), 'dd.MM.yyyy • HH:mm', { locale: de })}
+                      </div>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{notizen[0].inhalt}</p>
+                    </CardContent>
+                  </Card>
+                }
+              </div>
+
+              {/* Main Content */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Angebote Placeholder */}
+                <Card className="border-none shadow-lg">
+                  <CardHeader className="border-b">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        <CardTitle>Angebote</CardTitle>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCreateAngebot}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Angebot erstellen
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-500">Verknüpfte Angebote für diesen Lead</p>
+                  </CardHeader>
+                  <CardContent className="p-12 text-center">
+                    <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-semibold mb-2">Noch keine Angebote</h3>
+                    <p className="text-gray-500 mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
                     <Button
-                      size="sm"
                       variant="outline"
+                      size="sm"
                       onClick={handleCreateAngebot}
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      Angebot erstellen
+                      Erstes Angebot erstellen
                     </Button>
-                  </div>
-                  <p className="text-sm text-gray-500">Verknüpfte Angebote für diesen Lead</p>
-                </CardHeader>
-                <CardContent className="p-12 text-center">
-                  <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-semibold mb-2">Noch keine Angebote</h3>
-                  <p className="text-gray-500 mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCreateAngebot}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Erstes Angebot erstellen
-                  </Button>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Tabs */}
-              <Tabs defaultValue="notizen" className="space-y-6">
-                <TabsList className="bg-white border shadow-sm">
-                  <TabsTrigger value="notizen">Notizen</TabsTrigger>
-                  <TabsTrigger value="aufgaben">
-                    Aufgaben
-                    {hauptAufgaben.length > 0 &&
-                    <Badge variant="secondary" className="ml-2">
-                        {offeneAufgaben}
-                      </Badge>
-                    }
-                  </TabsTrigger>
-                  <TabsTrigger value="dateien">
-                    Dateien
-                    {dateien.length > 0 &&
-                    <Badge variant="secondary" className="ml-2">
-                        {dateien.length}
-                      </Badge>
-                    }
-                  </TabsTrigger>
-                  <TabsTrigger value="emails">E-Mails</TabsTrigger>
-                  <TabsTrigger value="verlauf">Verlauf</TabsTrigger>
-                </TabsList>
-
-                {/* Notizen Tab */}
-                <TabsContent value="notizen">
-                  <Card className="border-none shadow-lg">
-                    <CardHeader className="border-b">
-                      <CardTitle>Neue Notiz hinzufügen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <Textarea
-                        placeholder="Notiz hier eingeben..."
-                        value={newNote}
-                        onChange={(e) => setNewNote(e.target.value)}
-                        rows={4}
-                        className="mb-4" />
-
-                      <Button
-                        onClick={handleAddNote}
-                        disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
-
-
-                        <Send className="w-4 h-4 mr-2" />
-                        {createNotizMutation.isPending ? "Speichert..." : "Notiz hinzufügen"}
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-none shadow-lg mt-6">
-                    <CardHeader className="border-b">
-                      <CardTitle>Notizen-Verlauf</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      {notizen.length > 0 ?
-                      <div className="space-y-4">
-                          {notizen.map((notiz) =>
-                        <div key={notiz.id} className="bg-yellow-50 rounded-lg p-4 border-l-4 border-l-yellow-400">
-                              <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
-                                <Clock className="w-3 h-3" />
-                                {format(new Date(notiz.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}
-                              </div>
-                              <p className="text-sm text-gray-700 whitespace-pre-wrap">{notiz.inhalt}</p>
-                            </div>
-                        )}
-                        </div> :
-
-                      <p className="text-center text-gray-500 py-8">Noch keine Notizen vorhanden</p>
+                {/* Tabs */}
+                <Tabs defaultValue="notizen" className="space-y-6">
+                  <TabsList className="bg-white border shadow-sm">
+                    <TabsTrigger value="notizen">Notizen</TabsTrigger>
+                    <TabsTrigger value="aufgaben">
+                      Aufgaben
+                      {hauptAufgaben.length > 0 &&
+                      <Badge variant="secondary" className="ml-2">
+                          {offeneAufgaben}
+                        </Badge>
                       }
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                    </TabsTrigger>
+                    <TabsTrigger value="dateien">
+                      Dateien
+                      {dateien.length > 0 &&
+                      <Badge variant="secondary" className="ml-2">
+                          {dateien.length}
+                        </Badge>
+                      }
+                    </TabsTrigger>
+                    <TabsTrigger value="emails">E-Mails</TabsTrigger>
+                    <TabsTrigger value="verlauf">Verlauf</TabsTrigger>
+                  </TabsList>
 
-                {/* Aufgaben Tab */}
-                <TabsContent value="aufgaben">
-                  <Card className="border-none shadow-lg">
-                    <CardHeader className="border-b">
-                      <div className="flex justify-between items-center">
-                        <CardTitle>Aufgaben für diesen Lead</CardTitle>
+                  {/* Notizen Tab */}
+                  <TabsContent value="notizen">
+                    <Card className="border-none shadow-lg">
+                      <CardHeader className="border-b">
+                        <CardTitle>Neue Notiz hinzufügen</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <Textarea
+                          placeholder="Notiz hier eingeben..."
+                          value={newNote}
+                          onChange={(e) => setNewNote(e.target.value)}
+                          rows={4}
+                          className="mb-4" />
+
                         <Button
-                          size="sm"
-                          onClick={() => {
-                            setEditingAufgabe(null);
-                            setShowAufgabeForm(!showAufgabeForm);
-                          }} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                          onClick={handleAddNote}
+                          disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
 
 
-                          <Plus className="w-4 h-4 mr-2" />
-                          Neue Aufgabe
+                          <Send className="w-4 h-4 mr-2" />
+                          {createNotizMutation.isPending ? "Speichert..." : "Notiz hinzufügen"}
                         </Button>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        {offeneAufgaben} offen • {erledigtAufgaben} erledigt
-                      </p>
-                    </CardHeader>
-
-                    {showAufgabeForm &&
-                    <CardContent className="p-6 border-b bg-gray-50">
-                        <AufgabeForm
-                        aufgabe={editingAufgabe}
-                        onSubmit={handleAufgabeSubmit}
-                        onCancel={() => {
-                          setShowAufgabeForm(false);
-                          setEditingAufgabe(null);
-                        }}
-                        mitglieder={mitglieder}
-                        hauptAufgaben={hauptAufgaben}
-                        allAufgaben={aufgaben}
-                      />
                       </CardContent>
-                    }
+                    </Card>
 
-                    <CardContent className="p-0">
-                      {hauptAufgaben.length > 0 ?
-                      <div className="divide-y">
-                          {hauptAufgaben.map((aufgabe) =>
-                        <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
-                        )}
-                        </div> :
+                    <Card className="border-none shadow-lg mt-6">
+                      <CardHeader className="border-b">
+                        <CardTitle>Notizen-Verlauf</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        {notizen.length > 0 ?
+                        <div className="space-y-4">
+                            {notizen.map((notiz) =>
+                          <div key={notiz.id} className="bg-yellow-50 rounded-lg p-4 border-l-4 border-l-yellow-400">
+                                <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                                  <Clock className="w-3 h-3" />
+                                  {format(new Date(notiz.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}
+                                </div>
+                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{notiz.inhalt}</p>
+                              </div>
+                          )}
+                          </div> :
 
-                      <div className="p-12 text-center">
-                          <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                          <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
-                          <p className="text-gray-500 mb-4">
-                            Erstelle die erste Aufgabe für diesen Lead
-                          </p>
+                        <p className="text-center text-gray-500 py-8">Noch keine Notizen vorhanden</p>
+                        }
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Aufgaben Tab */}
+                  <TabsContent value="aufgaben">
+                    <Card className="border-none shadow-lg">
+                      <CardHeader className="border-b">
+                        <div className="flex justify-between items-center">
+                          <CardTitle>Aufgaben für diesen Lead</CardTitle>
                           <Button
-                          onClick={() => setShowAufgabeForm(true)}
-                          variant="outline">
+                            size="sm"
+                            onClick={() => {
+                              setEditingAufgabe(null);
+                              setShowAufgabeForm(!showAufgabeForm);
+                            }} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+
 
                             <Plus className="w-4 h-4 mr-2" />
-                            Aufgabe erstellen
+                            Neue Aufgabe
                           </Button>
                         </div>
-                      }
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Dateien Tab - Added */}
-                <TabsContent value="dateien">
-                  <Card className="border-none shadow-lg">
-                    <CardHeader className="border-b">
-                      <CardTitle>Dateien hochladen</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="fileKategorie">Kategorie</Label>
-                            <Select value={fileKategorie} onValueChange={setFileKategorie}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Kategorie wählen" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="vertrag">Vertrag</SelectItem>
-                                <SelectItem value="angebot">Angebot</SelectItem>
-                                <SelectItem value="rechnung">Rechnung</SelectItem>
-                                <SelectItem value="technische_unterlagen">Technische Unterlagen</SelectItem>
-                                <SelectItem value="bilder">Bilder</SelectItem>
-                                <SelectItem value="sonstiges">Sonstiges</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="fileDescription">Beschreibung (optional)</Label>
-                            <Input
-                              id="fileDescription"
-                              value={fileDescription}
-                              onChange={(e) => setFileDescription(e.target.value)}
-                              placeholder="z.B. Vertragsentwurf vom 15.10." />
-
-                          </div>
-                        </div>
-
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                          <input
-                            type="file"
-                            id="file-upload"
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            disabled={uploadingFile} />
-
-                          <label
-                            htmlFor="file-upload"
-                            className="cursor-pointer flex flex-col items-center">
-
-                            <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                            <p className="text-sm font-medium text-gray-700 mb-2">
-                              {uploadingFile ? "Lädt hoch..." : "Klicke zum Hochladen oder ziehe Dateien hierher"}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              PDF, Word, Excel, Bilder und mehr (max. 10MB)
-                            </p>
-                          </label>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {dateien.length > 0 &&
-                  <Card className="border-none shadow-lg mt-6">
-                      <CardHeader className="border-b">
-                        <CardTitle>Hochgeladene Dateien ({dateien.length})</CardTitle>
+                        <p className="text-sm text-gray-500">
+                          {offeneAufgaben} offen • {erledigtAufgaben} erledigt
+                        </p>
                       </CardHeader>
+
+                      {showAufgabeForm &&
+                      <CardContent className="p-6 border-b bg-gray-50">
+                          <AufgabeForm
+                          aufgabe={editingAufgabe}
+                          onSubmit={handleAufgabeSubmit}
+                          onCancel={() => {
+                            setShowAufgabeForm(false);
+                            setEditingAufgabe(null);
+                          }}
+                          mitglieder={mitglieder}
+                          hauptAufgaben={hauptAufgaben}
+                          allAufgaben={aufgaben}
+                        />
+                        </CardContent>
+                      }
+
                       <CardContent className="p-0">
+                        {hauptAufgaben.length > 0 ?
                         <div className="divide-y">
-                          {dateien.map((datei) =>
-                        <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
-                              <div className="text-3xl">{getFileIcon(datei.file_type)}</div>
+                            {hauptAufgaben.map((aufgabe) =>
+                          <AufgabeItem key={aufgabe.id} aufgabe={aufgabe} />
+                          )}
+                          </div> :
 
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
-                                  <Badge className={`${kategorieBadges[datei.kategorie]} text-xs`}>
-                                    {kategorieLabels[datei.kategorie]}
-                                  </Badge>
-                                </div>
-
-                                {datei.beschreibung &&
-                            <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
-                            }
-
-                                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                                  <span>{formatFileSize(datei.file_size)}</span>
-                                  <span>•</span>
-                                  <span>{format(new Date(datei.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                <a
-                              href={datei.file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Öffnen">
-
-                                  <Eye className="w-4 h-4 text-gray-600" />
-                                </a>
-
-                                <a
-                              href={datei.file_url}
-                              download={datei.file_name}
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                              title="Herunterladen">
-
-                                  <Download className="w-4 h-4 text-gray-600" />
-                                </a>
-
-                                <div className="relative">
-                                  <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => setShowFileDropdownId(showFileDropdownId === datei.id ? null : datei.id)}>
-
-                                    <MoreVertical className="w-4 h-4" />
-                                  </Button>
-
-                                  {showFileDropdownId === datei.id &&
-                              <>
-                                      <div
-                                  className="fixed inset-0 z-40"
-                                  onClick={() => setShowFileDropdownId(null)} />
-
-                                      <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
-                                        <button
-                                    onClick={() => handleDeleteFile(datei)}
-                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600">
-
-                                          <Trash2 className="w-4 h-4" />
-                                          Löschen
-                                        </button>
-                                      </div>
-                                    </>
-                              }
-                                </div>
-                              </div>
-                            </div>
-                        )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  }
-
-                  {dateien.length === 0 && !uploadingFile &&
-                  <Card className="border-dashed border-2 mt-6">
-                      <CardContent className="p-12 text-center">
-                        <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                        <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
-                        <p className="text-gray-500">Lade die erste Datei für diesen Lead hoch</p>
-                      </CardContent>
-                    </Card>
-                  }
-                </TabsContent>
-
-                {/* E-Mails Tab */}
-                <TabsContent value="emails">
-                  {!showEmailForm ? (
-                    <>
-                      <Card className="border-none shadow-lg">
-                        <CardHeader className="border-b">
-                          <div className="flex justify-between items-center">
-                            <CardTitle>E-Mail an Kunden senden</CardTitle>
+                        <div className="p-12 text-center">
+                            <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
+                            <p className="text-gray-500 mb-4">
+                              Erstelle die erste Aufgabe für diesen Lead
+                            </p>
                             <Button
-                              size="sm"
-                              onClick={() => setShowEmailForm(true)}
-                              disabled={!lead.email}
-                              style={{ backgroundColor: '#223a5e' }}
-                              className="hover:opacity-90"
-                            >
-                              <Send className="w-4 h-4 mr-2" />
-                              Neue E-Mail
+                            onClick={() => setShowAufgabeForm(true)}
+                            variant="outline">
+
+                              <Plus className="w-4 h-4 mr-2" />
+                              Aufgabe erstellen
                             </Button>
                           </div>
-                          {!lead.email && (
-                            <p className="text-sm text-red-600 mt-2">
-                              ⚠️ Keine E-Mail-Adresse für diesen Lead hinterlegt
-                            </p>
-                          )}
-                        </CardHeader>
-                      </Card>
+                        }
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                      {/* E-Mail Historie */}
-                      {emailLogs.length > 0 && (
-                        <Card className="border-none shadow-lg mt-6">
-                          <CardHeader className="border-b">
-                            <CardTitle>E-Mail-Verlauf ({emailLogs.length})</CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-0">
-                            <div className="divide-y">
-                              {emailLogs.map((email) => (
-                                <div key={email.id} className="p-4 hover:bg-gray-50 transition-colors">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <div className="flex items-center gap-3">
-                                      <div className={`p-2 rounded-lg ${
-                                        email.status === 'gesendet' ? 'bg-green-100' : 'bg-red-100'
-                                      }`}>
-                                        <Mail className={`w-4 h-4 ${
-                                          email.status === 'gesendet' ? 'text-green-600' : 'text-red-600'
-                                        }`} />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-semibold text-gray-900">{email.betreff}</h4>
-                                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                          <span>An: {email.empfaenger_email}</span>
-                                          <span>•</span>
-                                          <span>Von: {email.gesendet_von_name}</span>
-                                          <span>•</span>
-                                          <span>{format(new Date(email.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <Badge className={
-                                      email.status === 'gesendet' 
-                                        ? 'bg-green-100 text-green-800' 
-                                        : 'bg-red-100 text-red-800'
-                                    }>
-                                      {email.status === 'gesendet' ? 'Gesendet' : 'Fehler'}
+                  {/* Dateien Tab - Added */}
+                  <TabsContent value="dateien">
+                    <Card className="border-none shadow-lg">
+                      <CardHeader className="border-b">
+                        <CardTitle>Dateien hochladen</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="fileKategorie">Kategorie</Label>
+                              <Select value={fileKategorie} onValueChange={setFileKategorie}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Kategorie wählen" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="vertrag">Vertrag</SelectItem>
+                                  <SelectItem value="angebot">Angebot</SelectItem>
+                                  <SelectItem value="rechnung">Rechnung</SelectItem>
+                                  <SelectItem value="technische_unterlagen">Technische Unterlagen</SelectItem>
+                                  <SelectItem value="bilder">Bilder</SelectItem>
+                                  <SelectItem value="sonstiges">Sonstiges</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="fileDescription">Beschreibung (optional)</Label>
+                              <Input
+                                id="fileDescription"
+                                value={fileDescription}
+                                onChange={(e) => setFileDescription(e.target.value)}
+                                placeholder="z.B. Vertragsentwurf vom 15.10." />
+
+                            </div>
+                          </div>
+
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                            <input
+                              type="file"
+                              id="file-upload"
+                              className="hidden"
+                              onChange={handleFileUpload}
+                              disabled={uploadingFile} />
+
+                            <label
+                              htmlFor="file-upload"
+                              className="cursor-pointer flex flex-col items-center">
+
+                              <Upload className="w-12 h-12 text-gray-400 mb-4" />
+                              <p className="text-sm font-medium text-gray-700 mb-2">
+                                {uploadingFile ? "Lädt hoch..." : "Klicke zum Hochladen oder ziehe Dateien hierher"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                PDF, Word, Excel, Bilder und mehr (max. 10MB)
+                              </p>
+                            </label>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {dateien.length > 0 &&
+                    <Card className="border-none shadow-lg mt-6">
+                        <CardHeader className="border-b">
+                          <CardTitle>Hochgeladene Dateien ({dateien.length})</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                          <div className="divide-y">
+                            {dateien.map((datei) =>
+                          <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                                <div className="text-3xl">{getFileIcon(datei.file_type)}</div>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
+                                    <Badge className={`${kategorieBadges[datei.kategorie]} text-xs`}>
+                                      {kategorieLabels[datei.kategorie]}
                                     </Badge>
                                   </div>
 
-                                  {email.fehler_nachricht && (
-                                    <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700 mt-2">
-                                      <strong>Fehler:</strong> {email.fehler_nachricht}
+                                  {datei.beschreibung &&
+                              <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
+                              }
+
+                                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                    <span>{formatFileSize(datei.file_size)}</span>
+                                    <span>•</span>
+                                    <span>{format(new Date(datei.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <a
+                                href={datei.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Öffnen">
+
+                                    <Eye className="w-4 h-4 text-gray-600" />
+                                  </a>
+
+                                  <a
+                                href={datei.file_url}
+                                download={datei.file_name}
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="Herunterladen">
+
+                                    <Download className="w-4 h-4 text-gray-600" />
+                                  </a>
+
+                                  <div className="relative">
+                                    <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => setShowFileDropdownId(showFileDropdownId === datei.id ? null : datei.id)}>
+
+                                      <MoreVertical className="w-4 h-4" />
+                                    </Button>
+
+                                    {showFileDropdownId === datei.id &&
+                                <>
+                                        <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={() => setShowFileDropdownId(null)} />
+
+                                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                                          <button
+                                      onClick={() => handleDeleteFile(datei)}
+                                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600">
+
+                                            <Trash2 className="w-4 h-4" />
+                                            Löschen
+                                          </button>
+                                        </div>
+                                      </>
+                                }
+                                  </div>
+                                </div>
+                              </div>
+                          )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    }
+
+                    {dateien.length === 0 && !uploadingFile &&
+                    <Card className="border-dashed border-2 mt-6">
+                        <CardContent className="p-12 text-center">
+                          <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
+                          <p className="text-gray-500">Lade die erste Datei für diesen Lead hoch</p>
+                        </CardContent>
+                      </Card>
+                    }
+                  </TabsContent>
+
+                  {/* E-Mails Tab */}
+                  <TabsContent value="emails">
+                    {!showEmailForm ? (
+                      <>
+                        <Card className="border-none shadow-lg">
+                          <CardHeader className="border-b">
+                            <div className="flex justify-between items-center">
+                              <CardTitle>E-Mail an Kunden senden</CardTitle>
+                              <Button
+                                size="sm"
+                                onClick={() => setShowEmailForm(true)}
+                                disabled={!lead.email}
+                                style={{ backgroundColor: '#223a5e' }}
+                                className="hover:opacity-90"
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                Neue E-Mail
+                              </Button>
+                            </div>
+                            {!lead.email && (
+                              <p className="text-sm text-red-600 mt-2">
+                                ⚠️ Keine E-Mail-Adresse für diesen Lead hinterlegt
+                              </p>
+                            )}
+                          </CardHeader>
+                        </Card>
+
+                        {/* E-Mail Historie */}
+                        {emailLogs.length > 0 && (
+                          <Card className="border-none shadow-lg mt-6">
+                            <CardHeader className="border-b">
+                              <CardTitle>E-Mail-Verlauf ({emailLogs.length})</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                              <div className="divide-y">
+                                {emailLogs.map((email) => (
+                                  <div key={email.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <div className="flex items-center gap-3">
+                                        <div className={`p-2 rounded-lg ${
+                                          email.status === 'gesendet' ? 'bg-green-100' : 'bg-red-100'
+                                        }`}>
+                                          <Mail className={`w-4 h-4 ${
+                                            email.status === 'gesendet' ? 'text-green-600' : 'text-red-600'
+                                          }`} />
+                                        </div>
+                                        <div>
+                                          <h4 className="font-semibold text-gray-900">{email.betreff}</h4>
+                                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                            <span>An: {email.empfaenger_email}</span>
+                                            <span>•</span>
+                                            <span>Von: {email.gesendet_von_name}</span>
+                                            <span>•</span>
+                                            <span>{format(new Date(email.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <Badge className={
+                                        email.status === 'gesendet' 
+                                          ? 'bg-green-100 text-green-800' 
+                                          : 'bg-red-100 text-red-800'
+                                      }>
+                                        {email.status === 'gesendet' ? 'Gesendet' : 'Fehler'}
+                                      </Badge>
                                     </div>
+
+                                    {email.fehler_nachricht && (
+                                      <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700 mt-2">
+                                        <strong>Fehler:</strong> {email.fehler_nachricht}
+                                      </div>
+                                    )}
+
+                                    <div 
+                                      className="text-sm text-gray-700 mt-3 line-clamp-3"
+                                      dangerouslySetInnerHTML={{ __html: email.inhalt }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        {emailLogs.length === 0 && lead.email && (
+                          <Card className="border-dashed border-2 mt-6">
+                            <CardContent className="p-12 text-center">
+                              <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                              <h3 className="text-lg font-semibold mb-2">Noch keine E-Mails versendet</h3>
+                              <p className="text-gray-500 mb-4">Sende die erste E-Mail an diesen Lead</p>
+                              <Button 
+                                onClick={() => setShowEmailForm(true)}
+                                style={{ backgroundColor: '#223a5e' }}
+                                className="hover:opacity-90"
+                              >
+                                <Send className="w-4 h-4 mr-2" />
+                                E-Mail verfassen
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
+                    ) : (
+                      <EmailForm
+                        lead={lead}
+                        onSubmit={handleSendEmail}
+                        onCancel={() => setShowEmailForm(false)}
+                        isSending={sendingEmail}
+                      />
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="verlauf">
+                    <Card className="border-none shadow-lg">
+                      <CardHeader className="border-b">
+                        <div className="flex items-center gap-2">
+                          <Activity className="w-5 h-5 text-gray-600" />
+                          <CardTitle>Aktivitätenverlauf</CardTitle>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Chronologische Übersicht aller Aktivitäten zu diesem Lead
+                        </p>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        {timeline.length > 0 ? (
+                          <div className="space-y-4">
+                            {timeline.map((item, index) => (
+                              <div key={index} className="flex gap-4">
+                                {/* Timeline Line */}
+                                <div className="flex flex-col items-center">
+                                  <div className={`p-2 rounded-full border-2 ${getTimelineColor(item.color)}`}>
+                                    {getTimelineIcon(item.icon)}
+                                  </div>
+                                  {index < timeline.length - 1 && (
+                                    <div className="w-0.5 h-full bg-gray-200 mt-2" style={{ minHeight: '40px' }} />
                                   )}
-
-                                  <div 
-                                    className="text-sm text-gray-700 mt-3 line-clamp-3"
-                                    dangerouslySetInnerHTML={{ __html: email.inhalt }}
-                                  />
                                 </div>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
 
-                      {emailLogs.length === 0 && lead.email && (
-                        <Card className="border-dashed border-2 mt-6">
-                          <CardContent className="p-12 text-center">
-                            <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                            <h3 className="text-lg font-semibold mb-2">Noch keine E-Mails versendet</h3>
-                            <p className="text-gray-500 mb-4">Sende die erste E-Mail an diesen Lead</p>
-                            <Button 
-                              onClick={() => setShowEmailForm(true)}
-                              style={{ backgroundColor: '#223a5e' }}
-                              className="hover:opacity-90"
-                            >
-                              <Send className="w-4 h-4 mr-2" />
-                              E-Mail verfassen
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </>
-                  ) : (
-                    <EmailForm
-                      lead={lead}
-                      onSubmit={handleSendEmail}
-                      onCancel={() => setShowEmailForm(false)}
-                      isSending={sendingEmail}
-                    />
-                  )}
-                </TabsContent>
-
-                <TabsContent value="verlauf">
-                  <Card className="border-none shadow-lg">
-                    <CardHeader className="border-b">
-                      <div className="flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-gray-600" />
-                        <CardTitle>Aktivitätenverlauf</CardTitle>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Chronologische Übersicht aller Aktivitäten zu diesem Lead
-                      </p>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                      {timeline.length > 0 ? (
-                        <div className="space-y-4">
-                          {timeline.map((item, index) => (
-                            <div key={index} className="flex gap-4">
-                              {/* Timeline Line */}
-                              <div className="flex flex-col items-center">
-                                <div className={`p-2 rounded-full border-2 ${getTimelineColor(item.color)}`}>
-                                  {getTimelineIcon(item.icon)}
+                                {/* Content */}
+                                <div className="flex-1 pb-8">
+                                  <div className="flex items-start justify-between gap-4 mb-1">
+                                    <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                                      {format(new Date(item.date), 'dd.MM.yyyy, HH:mm', { locale: de })}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+                                  {item.priority && item.priority !== 'normal' && (
+                                    <Badge className={`${priorityBadges[item.priority]} text-xs mt-2`}>
+                                      {item.priority === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
+                                      {item.priority} Priorität
+                                    </Badge>
+                                  )}
                                 </div>
-                                {index < timeline.length - 1 && (
-                                  <div className="w-0.5 h-full bg-gray-200 mt-2" style={{ minHeight: '40px' }} />
-                                )}
                               </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-12">
+                            <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
+                            <p className="text-gray-500">
+                              Der Aktivitätenverlauf wird automatisch erstellt, sobald Notizen, Aufgaben oder E-Mails hinzugefügt werden.
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
 
-                              {/* Content */}
-                              <div className="flex-1 pb-8">
-                                <div className="flex items-start justify-between gap-4 mb-1">
-                                  <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                                  <span className="text-xs text-gray-500 whitespace-nowrap">
-                                    {format(new Date(item.date), 'dd.MM.yyyy, HH:mm', { locale: de })}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
-                                {item.priority && item.priority !== 'normal' && (
-                                  <Badge className={`${priorityBadges[item.priority]} text-xs mt-2`}>
-                                    {item.priority === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
-                                    {item.priority} Priorität
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-12">
-                          <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                          <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
-                          <p className="text-gray-500">
-                            Der Aktivitätenverlauf wird automatisch erstellt, sobald Notizen, Aufgaben oder E-Mails hinzugefügt werden.
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-              </Tabs>
+                </Tabs>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>);
-
+    </>
+  );
 }
