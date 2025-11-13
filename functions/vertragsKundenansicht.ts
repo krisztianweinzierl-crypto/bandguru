@@ -1,19 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
-  // CORS Headers für alle Responses
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
-
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
     });
   }
 
@@ -38,7 +34,13 @@ Deno.serve(async (req) => {
         console.error('❌ Failed to parse JSON body:', e);
         return new Response(
           JSON.stringify({ error: 'Ungültiges JSON' }),
-          { status: 400, headers: corsHeaders }
+          { 
+            status: 400, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -52,7 +54,13 @@ Deno.serve(async (req) => {
         console.log('❌ Keine Vertrags-ID');
         return new Response(
           JSON.stringify({ error: 'Keine Vertrags-ID angegeben' }),
-          { status: 400, headers: corsHeaders }
+          { 
+            status: 400, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -60,7 +68,13 @@ Deno.serve(async (req) => {
         console.log('❌ Keine E-Mail');
         return new Response(
           JSON.stringify({ error: 'E-Mail-Adresse erforderlich' }),
-          { status: 400, headers: corsHeaders }
+          { 
+            status: 400, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -77,7 +91,13 @@ Deno.serve(async (req) => {
           console.log('❌ Vertrag nicht verfügbar');
           return new Response(
             JSON.stringify({ error: 'Vertrag nicht verfügbar' }),
-            { status: 403, headers: corsHeaders }
+            { 
+              status: 403, 
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              }
+            }
           );
         }
 
@@ -93,7 +113,13 @@ Deno.serve(async (req) => {
           console.log('❌ E-Mail stimmt nicht überein');
           return new Response(
             JSON.stringify({ error: 'E-Mail-Adresse stimmt nicht überein' }),
-            { status: 403, headers: corsHeaders }
+            { 
+              status: 403, 
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              }
+            }
           );
         }
 
@@ -113,7 +139,13 @@ Deno.serve(async (req) => {
         
         return new Response(
           JSON.stringify({ success: true, vertrag: updatedVertrag }),
-          { status: 200, headers: corsHeaders }
+          { 
+            status: 200, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -129,7 +161,13 @@ Deno.serve(async (req) => {
         console.log('❌ Vertrag nicht gefunden');
         return new Response(
           JSON.stringify({ error: 'Vertrag nicht gefunden' }),
-          { status: 404, headers: corsHeaders }
+          { 
+            status: 404, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -137,7 +175,13 @@ Deno.serve(async (req) => {
         console.log('❌ Vertrag nicht sichtbar');
         return new Response(
           JSON.stringify({ error: 'Vertrag nicht verfügbar' }),
-          { status: 403, headers: corsHeaders }
+          { 
+            status: 403, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -153,7 +197,13 @@ Deno.serve(async (req) => {
         console.log('❌ Kunde nicht gefunden');
         return new Response(
           JSON.stringify({ error: 'Kunde nicht gefunden' }),
-          { status: 404, headers: corsHeaders }
+          { 
+            status: 404, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -167,7 +217,13 @@ Deno.serve(async (req) => {
         console.log('❌ E-Mail stimmt nicht überein');
         return new Response(
           JSON.stringify({ error: 'E-Mail-Adresse stimmt nicht überein' }),
-          { status: 403, headers: corsHeaders }
+          { 
+            status: 403, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            }
+          }
         );
       }
 
@@ -196,7 +252,13 @@ Deno.serve(async (req) => {
           event,
           organisation
         }),
-        { status: 200, headers: corsHeaders }
+        { 
+          status: 200, 
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          }
+        }
       );
     }
 
@@ -233,7 +295,13 @@ Deno.serve(async (req) => {
     if (req.method === 'POST') {
       return new Response(
         JSON.stringify({ error: 'Interner Serverfehler: ' + error.message }),
-        { status: 500, headers: corsHeaders }
+        { 
+          status: 500, 
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          }
+        }
       );
     }
     
@@ -424,7 +492,6 @@ function buildLoginPage(vertragId) {
     '}' +
     'btn.disabled=true;' +
     'btn.textContent="Lade...";' +
-    'console.log("Sende POST Request...");' +
     'try{' +
     'const res=await fetch(window.location.href,{' +
     'method:"POST",' +
@@ -432,23 +499,19 @@ function buildLoginPage(vertragId) {
     'body:JSON.stringify({vertragId:vId,kundenEmail:e})' +
     '});' +
     'console.log("Response Status:",res.status);' +
-    'const contentType=res.headers.get("content-type");' +
-    'console.log("Content-Type:",contentType);' +
-    'if(!contentType||!contentType.includes("application/json")){' +
-    'const text=await res.text();' +
-    'console.error("Unexpected response:",text.substring(0,200));' +
-    'throw new Error("Server hat keine JSON-Antwort gesendet");' +
+    'console.log("Content-Type Header:",res.headers.get("content-type"));' +
+    'if(!res.ok){' +
+    'const data=await res.json();' +
+    'throw new Error(data.error||"Fehler");' +
     '}' +
     'const data=await res.json();' +
-    'console.log("Response Data:",data);' +
-    'if(!res.ok){throw new Error(data.error||"Fehler")}' +
     'if(!data.success){throw new Error(data.error||"Fehler")}' +
     'email=e;' +
     'document.getElementById("emailVerification").classList.add("hidden");' +
     'document.getElementById("content").classList.remove("hidden");' +
     'render(data);' +
     '}catch(err){' +
-    'console.error("Error:",err);' +
+    'console.error("Verify Error:",err);' +
     'err.textContent=err.message;' +
     'err.classList.remove("hidden");' +
     'btn.disabled=false;' +
@@ -514,11 +577,15 @@ function buildLoginPage(vertragId) {
     'unterschrift_kunde_datum:new Date().toISOString()' +
     '})' +
     '});' +
+    'if(!res.ok){' +
     'const data=await res.json();' +
-    'if(!res.ok){throw new Error(data.error||"Fehler")}' +
+    'throw new Error(data.error||"Fehler");' +
+    '}' +
+    'const data=await res.json();' +
     'alert("✅ Vielen Dank! Ihre Unterschrift wurde gespeichert.");' +
     'location.reload();' +
     '}catch(err){' +
+    'console.error("Save Error:",err);' +
     'err.textContent=err.message;' +
     'err.classList.remove("hidden");' +
     'btn.disabled=false;' +
