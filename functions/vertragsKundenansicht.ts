@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
   // CORS Headers für alle Responses
@@ -19,17 +19,15 @@ Deno.serve(async (req) => {
   console.log('🔍 Request Method:', req.method);
   console.log('🔍 Request URL:', req.url);
 
-  const base44 = createClient(
-    Deno.env.get("BASE44_APP_ID"),
-    Deno.env.get("BASE44_SERVICE_ROLE_KEY")
-  );
-
   try {
     const url = new URL(req.url);
     
     // POST-Request: Immer JSON zurückgeben
     if (req.method === 'POST') {
       console.log('📬 POST Request detected');
+      
+      // Base44 Client mit Service Role
+      const base44 = createClientFromRequest(req);
       
       let body;
       try {
@@ -70,7 +68,7 @@ Deno.serve(async (req) => {
         console.log('✍️ Unterschrift speichern...');
         
         console.log('📊 Lade Vertrag...');
-        const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
+        const vertraege = await base44.asServiceRole.entities.Vertrag.filter({ id: vertragId });
         const vertrag = vertraege[0];
         console.log('📊 Vertrag geladen:', vertrag ? 'JA' : 'NEIN');
 
@@ -85,7 +83,7 @@ Deno.serve(async (req) => {
         console.log('📊 Lade Kunde...');
         let kunde = null;
         if (vertrag.kunde_id) {
-          const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
+          const kunden = await base44.asServiceRole.entities.Kunde.filter({ id: vertrag.kunde_id });
           kunde = kunden[0];
           console.log('📊 Kunde geladen:', kunde ? kunde.email : 'KEIN KUNDE');
         }
@@ -109,7 +107,7 @@ Deno.serve(async (req) => {
         }
 
         console.log('💾 Speichere Unterschrift...');
-        const updatedVertrag = await base44.entities.Vertrag.update(vertragId, updateData);
+        const updatedVertrag = await base44.asServiceRole.entities.Vertrag.update(vertragId, updateData);
         console.log('✅ Unterschrift gespeichert');
         
         return Response.json(
@@ -122,7 +120,7 @@ Deno.serve(async (req) => {
       console.log('🔐 E-Mail Verifizierung...');
       
       console.log('📊 Lade Vertrag...');
-      const vertraege = await base44.entities.Vertrag.filter({ id: vertragId });
+      const vertraege = await base44.asServiceRole.entities.Vertrag.filter({ id: vertragId });
       const vertrag = vertraege[0];
       console.log('📊 Vertrag gefunden:', vertrag ? 'JA' : 'NEIN');
 
@@ -145,7 +143,7 @@ Deno.serve(async (req) => {
       console.log('📊 Lade Kunde...');
       let kunde = null;
       if (vertrag.kunde_id) {
-        const kunden = await base44.entities.Kunde.filter({ id: vertrag.kunde_id });
+        const kunden = await base44.asServiceRole.entities.Kunde.filter({ id: vertrag.kunde_id });
         kunde = kunden[0] || null;
         console.log('📊 Kunde gefunden:', kunde ? kunde.email : 'NEIN');
       }
@@ -175,7 +173,7 @@ Deno.serve(async (req) => {
       console.log('📊 Lade Event...');
       let event = null;
       if (vertrag.event_id) {
-        const events = await base44.entities.Event.filter({ id: vertrag.event_id });
+        const events = await base44.asServiceRole.entities.Event.filter({ id: vertrag.event_id });
         event = events[0] || null;
         console.log('📊 Event gefunden:', event ? 'JA' : 'NEIN');
       }
@@ -183,7 +181,7 @@ Deno.serve(async (req) => {
       console.log('📊 Lade Organisation...');
       let organisation = null;
       if (vertrag.org_id) {
-        const orgs = await base44.entities.Organisation.filter({ id: vertrag.org_id });
+        const orgs = await base44.asServiceRole.entities.Organisation.filter({ id: vertrag.org_id });
         organisation = orgs[0] || null;
         console.log('📊 Organisation gefunden:', organisation ? 'JA' : 'NEIN');
       }
