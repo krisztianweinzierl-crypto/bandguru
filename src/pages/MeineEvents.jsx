@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -13,12 +14,14 @@ export default function MeineEventsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedEventMusiker, setSelectedEventMusiker] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
+        setIsLoading(true);
         const orgId = localStorage.getItem('currentOrgId');
         setCurrentOrgId(orgId);
         
@@ -41,6 +44,8 @@ export default function MeineEventsPage() {
         }
       } catch (error) {
         console.error("Fehler beim Laden:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     loadUser();
@@ -161,6 +166,20 @@ export default function MeineEventsPage() {
       </div>
     );
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
+            <h3 className="text-lg font-semibold mb-2">Lade Events...</h3>
+            <p className="text-sm text-gray-500">Bitte warten</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!currentMusiker) {
     return (
