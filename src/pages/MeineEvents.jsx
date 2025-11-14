@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, MapPin, Music, Euro, AlertCircle, Users, Shirt, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Music, Euro, AlertCircle, Users, Shirt, CheckCircle2, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -12,6 +13,8 @@ export default function MeineEventsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedEventMusiker, setSelectedEventMusiker] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -72,6 +75,11 @@ export default function MeineEventsPage() {
     return events.find(e => e.id === em.event_id);
   };
 
+  const handleOpenDetailsDialog = (em) => {
+    setSelectedEventMusiker(em);
+    setShowDetailsDialog(true);
+  };
+
   const sortedEventMusiker = [...eventMusiker].sort((a, b) => {
     const eventA = getEventForEventMusiker(a);
     const eventB = getEventForEventMusiker(b);
@@ -90,126 +98,67 @@ export default function MeineEventsPage() {
     return event && new Date(event.datum_von) < now;
   });
 
-  const EventCard = ({ em }) => {
+  const EventListItem = ({ em }) => {
     const event = getEventForEventMusiker(em);
     if (!event) return null;
 
     const isPast = new Date(event.datum_von) < now;
 
     return (
-      <Card className={`border-l-4 ${isPast ? 'border-l-gray-400 opacity-75' : 'border-l-green-500'} hover:shadow-lg transition-all`}>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-lg mb-1">{event.titel}</CardTitle>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-green-100 text-green-800">
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  Zugesagt
-                </Badge>
-                {isPast && (
-                  <Badge variant="outline" className="text-gray-600">
-                    Vergangen
-                  </Badge>
-                )}
-              </div>
-            </div>
+      <div
+        onClick={() => handleOpenDetailsDialog(em)}
+        className={`group flex items-center gap-4 p-4 border-l-4 ${
+          isPast ? 'border-l-gray-400' : 'border-l-green-500'
+        } bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg ${
+          isPast ? 'opacity-75' : ''
+        }`}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+            <Badge className="bg-green-100 text-green-800 flex-shrink-0">
+              <CheckCircle2 className="w-3 h-3 mr-1" />
+              Zugesagt
+            </Badge>
+            {isPast && (
+              <Badge variant="outline" className="text-gray-600 flex-shrink-0">
+                Vergangen
+              </Badge>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
+          
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
+              <span>{format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
               <span>{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</span>
             </div>
             {event.ort_name && (
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4" />
-                <span className="truncate">{event.ort_name}</span>
+                <span className="truncate max-w-[200px]">{event.ort_name}</span>
               </div>
             )}
             {em.rolle && (
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-1.5">
                 <Music className="w-4 h-4" />
                 <span className="font-medium">{em.rolle}</span>
               </div>
             )}
             {em.gage_netto && (
-              <div className="flex items-center gap-2 text-green-600 font-medium">
+              <div className="flex items-center gap-1.5 font-semibold text-green-600">
                 <Euro className="w-4 h-4" />
                 <span>€{em.gage_netto.toFixed(2)}</span>
               </div>
             )}
-            {em.calltime && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <Clock className="w-4 h-4" />
-                <span>Calltime: {format(new Date(em.calltime), 'HH:mm', { locale: de })}</span>
-              </div>
-            )}
           </div>
+        </div>
 
-          {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
-            <div className="pt-2 border-t">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Details</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                {event.event_typ && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span className="text-lg">🎉</span>
-                    <span>{event.event_typ}</span>
-                  </div>
-                )}
-                {event.anzahl_gaeste && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Users className="w-4 h-4" />
-                    <span>{event.anzahl_gaeste} Gäste</span>
-                  </div>
-                )}
-                {event.dresscode && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Shirt className="w-4 h-4" />
-                    <span>{event.dresscode}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {event.ort_adresse && (
-            <div className="pt-2 border-t">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Adresse</p>
-              <p className="text-sm text-gray-600">{event.ort_adresse}</p>
-            </div>
-          )}
-
-          {em.notizen && (
-            <div className="p-3 bg-blue-50 rounded-lg border-t">
-              <p className="text-xs font-semibold text-blue-900 mb-1">Notizen:</p>
-              <p className="text-sm text-blue-800">{em.notizen}</p>
-            </div>
-          )}
-
-          {event.hotel_name && (
-            <div className="pt-2 border-t">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Hotel</p>
-              <p className="text-sm text-gray-900 font-medium">{event.hotel_name}</p>
-              {event.hotel_adresse && (
-                <p className="text-sm text-gray-600">{event.hotel_adresse}</p>
-              )}
-            </div>
-          )}
-
-          {event.technik_hinweise && (
-            <div className="pt-2 border-t">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-1">Technik</p>
-              <p className="text-sm text-gray-600">{event.technik_hinweise}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+      </div>
     );
   };
 
@@ -278,13 +227,11 @@ export default function MeineEventsPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upcoming" className="space-y-4">
+          <TabsContent value="upcoming" className="space-y-3">
             {upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {upcomingEvents.map((em) => (
-                  <EventCard key={em.id} em={em} />
-                ))}
-              </div>
+              upcomingEvents.map((em) => (
+                <EventListItem key={em.id} em={em} />
+              ))
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
@@ -296,13 +243,11 @@ export default function MeineEventsPage() {
             )}
           </TabsContent>
 
-          <TabsContent value="past" className="space-y-4">
+          <TabsContent value="past" className="space-y-3">
             {pastEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pastEvents.map((em) => (
-                  <EventCard key={em.id} em={em} />
-                ))}
-              </div>
+              pastEvents.map((em) => (
+                <EventListItem key={em.id} em={em} />
+              ))
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
@@ -314,6 +259,131 @@ export default function MeineEventsPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Details Dialog */}
+        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {selectedEventMusiker && (
+              <>
+                <DialogHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <DialogTitle className="text-2xl mb-2">
+                        {getEventForEventMusiker(selectedEventMusiker)?.titel}
+                      </DialogTitle>
+                      <Badge className="bg-green-100 text-green-800">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Zugesagt
+                      </Badge>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  {/* Event Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="w-5 h-5 flex-shrink-0" />
+                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="w-5 h-5 flex-shrink-0" />
+                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'HH:mm', { locale: de })} Uhr</span>
+                    </div>
+                    {getEventForEventMusiker(selectedEventMusiker).ort_name && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MapPin className="w-5 h-5 flex-shrink-0" />
+                        <span>{getEventForEventMusiker(selectedEventMusiker).ort_name}</span>
+                      </div>
+                    )}
+                    {selectedEventMusiker.rolle && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Music className="w-5 h-5 flex-shrink-0" />
+                        <span className="font-medium">{selectedEventMusiker.rolle}</span>
+                      </div>
+                    )}
+                    {selectedEventMusiker.gage_netto && (
+                      <div className="flex items-center gap-2 text-green-600 font-semibold">
+                        <Euro className="w-5 h-5 flex-shrink-0" />
+                        <span>€{selectedEventMusiker.gage_netto.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {selectedEventMusiker.calltime && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Clock className="w-5 h-5 flex-shrink-0" />
+                        <span>Calltime: {format(new Date(selectedEventMusiker.calltime), 'HH:mm', { locale: de })}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Publikum & Ambiente */}
+                  {(getEventForEventMusiker(selectedEventMusiker).event_typ || 
+                    getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste || 
+                    getEventForEventMusiker(selectedEventMusiker).dresscode) && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Details</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {getEventForEventMusiker(selectedEventMusiker).event_typ && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <span className="text-xl">🎉</span>
+                            <span>{getEventForEventMusiker(selectedEventMusiker).event_typ}</span>
+                          </div>
+                        )}
+                        {getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Users className="w-5 h-5" />
+                            <span>{getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste} Gäste</span>
+                          </div>
+                        )}
+                        {getEventForEventMusiker(selectedEventMusiker).dresscode && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Shirt className="w-5 h-5" />
+                            <span>{getEventForEventMusiker(selectedEventMusiker).dresscode}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Adresse */}
+                  {getEventForEventMusiker(selectedEventMusiker).ort_adresse && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Adresse</p>
+                      <p className="text-gray-700">{getEventForEventMusiker(selectedEventMusiker).ort_adresse}</p>
+                    </div>
+                  )}
+
+                  {/* Notizen */}
+                  {selectedEventMusiker.notizen && (
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900 mb-2">Notizen:</p>
+                      <p className="text-sm text-blue-700">{selectedEventMusiker.notizen}</p>
+                    </div>
+                  )}
+
+                  {/* Hotel */}
+                  {getEventForEventMusiker(selectedEventMusiker).hotel_name && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Hotel</p>
+                      <p className="font-medium text-gray-900">{getEventForEventMusiker(selectedEventMusiker).hotel_name}</p>
+                      {getEventForEventMusiker(selectedEventMusiker).hotel_adresse && (
+                        <p className="text-sm text-gray-600 mt-1">{getEventForEventMusiker(selectedEventMusiker).hotel_adresse}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Technik */}
+                  {getEventForEventMusiker(selectedEventMusiker).technik_hinweise && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Technik</p>
+                      <p className="text-gray-700">{getEventForEventMusiker(selectedEventMusiker).technik_hinweise}</p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
