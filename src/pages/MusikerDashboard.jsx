@@ -16,7 +16,8 @@ import {
   FileText,
   Music,
   Users,
-  Shirt
+  Shirt,
+  ChevronRight // Added ChevronRight icon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default function MusikerDashboard() {
   const [loadingState, setLoadingState] = useState("loading"); // "loading", "success", "no_profile", "error"
   const [errorMessage, setErrorMessage] = useState("");
   const [showResponseDialog, setShowResponseDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false); // Added new state for details dialog
   const [selectedEventMusiker, setSelectedEventMusiker] = useState(null);
   const [responseType, setResponseType] = useState(null);
   const [bedingungenAkzeptiert, setBedingungenAkzeptiert] = useState(false);
@@ -249,7 +251,7 @@ export default function MusikerDashboard() {
       );
       const result = await Promise.all(eventsPromises);
       console.log("   Events geladen:", result.length);
-      return result;
+      return result.filter(Boolean); // Filter out any undefined events if an ID didn't match
     },
     enabled: eventMusiker.length > 0,
   });
@@ -335,6 +337,13 @@ export default function MusikerDashboard() {
     setSelectedEventMusiker(em);
     setResponseType(type);
     setShowResponseDialog(true);
+    setAblehnungsgrund(""); // Reset ablehnungsgrund
+    setBedingungenAkzeptiert(false); // Reset bedingungenAkzeptiert
+  };
+
+  const handleOpenDetailsDialog = (em) => {
+    setSelectedEventMusiker(em);
+    setShowDetailsDialog(true);
   };
 
   const handleSubmitResponse = () => {
@@ -368,181 +377,58 @@ export default function MusikerDashboard() {
     abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400" }
   };
 
-  const AnfrageCard = ({ em, event }) => {
+  // New component for list items
+  const AnfrageListItem = ({ em, event }) => {
     if (!event) return null;
 
     const statusStyle = statusColors[em.status] || statusColors.angefragt;
-    const [showFullBuchungsbedingungen, setShowFullBuchungsbedingungen] = React.useState(false);
-
-    // Helper-Funktion um reinen Text aus HTML zu extrahieren
-    const getPlainTextFromHtml = (html) => {
-      const div = document.createElement('div');
-      div.innerHTML = html;
-      return div.textContent || div.innerText || '';
-    };
-
-    const buchungsbedingungenText = em.buchungsbedingungen ? getPlainTextFromHtml(em.buchungsbedingungen) : '';
-    const showMoreButton = buchungsbedingungenText.length > 150;
-    const displayText = showFullBuchungsbedingungen ? em.buchungsbedingungen : 
-      (showMoreButton ? buchungsbedingungenText.substring(0, 150) + '...' : em.buchungsbedingungen);
 
     return (
-      <Card className={`border-l-4 ${statusStyle.border} hover:shadow-lg transition-all`}>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1">
-              <CardTitle className="text-lg mb-1">{event.titel}</CardTitle>
-              <Badge className={`${statusStyle.bg} ${statusStyle.text}`}>
-                {em.status === 'angefragt' && '⏳ Offen'}
-                {em.status === 'optional' && '❓ Optional'}
-                {em.status === 'zugesagt' && '✅ Zugesagt'}
-                {em.status === 'abgelehnt' && '❌ Abgelehnt'}
-              </Badge>
-            </div>
+      <div
+        onClick={() => handleOpenDetailsDialog(em)}
+        className={`group flex items-center gap-4 p-4 border-l-4 ${statusStyle.border} bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg shadow-sm`}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+            <Badge className={`${statusStyle.bg} ${statusStyle.text} flex-shrink-0`}>
+              {em.status === 'angefragt' && '⏳ Offen'}
+              {em.status === 'optional' && '❓ Optional'}
+              {em.status === 'zugesagt' && '✅ Zugesagt'}
+              {em.status === 'abgelehnt' && '❌ Abgelehnt'}
+            </Badge>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
+          
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
+              <span>{format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
               <span>{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</span>
             </div>
             {event.ort_name && (
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4" />
-                <span className="truncate">{event.ort_name}</span>
+                <span className="truncate max-w-[200px]">{event.ort_name}</span>
               </div>
             )}
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-1.5">
               <Music className="w-4 h-4" />
               <span className="font-medium">{em.rolle}</span>
             </div>
             {em.gage_netto && (
-              <div className="flex items-center gap-2 text-gray-600">
+              <div className="flex items-center gap-1.5 font-semibold text-green-600">
                 <Euro className="w-4 h-4" />
-                <span className="font-medium">€{em.gage_netto.toFixed(2)}</span>
+                <span>€{em.gage_netto.toFixed(2)}</span>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Publikum & Ambiente Section */}
-          {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
-            <div className="pt-2 border-t">
-              <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Publikum & Ambiente</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                {event.event_typ && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <span className="text-lg">🎉</span>
-                    <span>{event.event_typ}</span>
-                  </div>
-                )}
-                {event.anzahl_gaeste && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Users className="w-4 h-4" />
-                    <span>{event.anzahl_gaeste} Gäste</span>
-                  </div>
-                )}
-                {event.dresscode && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Shirt className="w-4 h-4" />
-                    <span>{event.dresscode}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {em.notizen && (
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-700">{em.notizen}</p>
-            </div>
-          )}
-
-          {em.buchungsbedingungen && (
-            <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-              <div className="flex items-start gap-2">
-                <FileText className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-amber-800 mb-2">Buchungsbedingungen:</p>
-                  {showMoreButton && !showFullBuchungsbedingungen ? (
-                    <p className="text-sm text-amber-700">{displayText}</p>
-                  ) : (
-                    <div 
-                      className="text-sm text-amber-700 quill-content prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: displayText }}
-                    />
-                  )}
-                  {showMoreButton && (
-                    <button
-                      onClick={() => setShowFullBuchungsbedingungen(!showFullBuchungsbedingungen)}
-                      className="text-xs text-amber-600 hover:text-amber-800 font-medium mt-2 underline"
-                    >
-                      {showFullBuchungsbedingungen ? '▲ Weniger anzeigen' : '▼ Mehr anzeigen'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {em.status === 'angefragt' && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Button
-                onClick={() => handleOpenResponseDialog(em, 'zugesagt')}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                size="sm"
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Zusagen
-              </Button>
-              <Button
-                onClick={() => handleOpenResponseDialog(em, 'optional')}
-                variant="outline"
-                className="flex-1"
-                size="sm"
-              >
-                <HelpCircle className="w-4 h-4 mr-2" />
-                Optional
-              </Button>
-              <Button
-                onClick={() => handleOpenResponseDialog(em, 'abgelehnt')}
-                variant="outline"
-                className="flex-1 text-red-600 hover:text-red-700 hover:border-red-600"
-                size="sm"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Ablehnen
-              </Button>
-            </div>
-          )}
-
-          {em.status === 'optional' && (
-            <div className="flex gap-2 pt-2">
-              <Button
-                onClick={() => handleOpenResponseDialog(em, 'zugesagt')}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                size="sm"
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Zusagen
-              </Button>
-              <Button
-                onClick={() => handleOpenResponseDialog(em, 'abgelehnt')}
-                variant="outline"
-                className="flex-1"
-                size="sm"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Ablehnen
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+      </div>
     );
   };
 
@@ -694,9 +580,9 @@ export default function MusikerDashboard() {
                 Offene Buchungsanfragen ({offeneAnfragen.length})
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3"> {/* Changed to space-y-3 */}
               {offeneAnfragen.map(em => (
-                <AnfrageCard key={em.id} em={em} event={getEventForEventMusiker(em)} />
+                <AnfrageListItem key={em.id} em={em} event={getEventForEventMusiker(em)} />
               ))}
             </div>
           </div>
@@ -711,9 +597,9 @@ export default function MusikerDashboard() {
                 Optionale Anfragen ({optionaleAnfragen.length})
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3"> {/* Changed to space-y-3 */}
               {optionaleAnfragen.map(em => (
-                <AnfrageCard key={em.id} em={em} event={getEventForEventMusiker(em)} />
+                <AnfrageListItem key={em.id} em={em} event={getEventForEventMusiker(em)} />
               ))}
             </div>
           </div>
@@ -728,9 +614,9 @@ export default function MusikerDashboard() {
                 Bestätigte Events ({bestaetigteEvents.length})
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3"> {/* Changed to space-y-3 */}
               {bestaetigteEvents.map(em => (
-                <AnfrageCard key={em.id} em={em} event={getEventForEventMusiker(em)} />
+                <AnfrageListItem key={em.id} em={em} event={getEventForEventMusiker(em)} />
               ))}
             </div>
           </div>
@@ -747,6 +633,176 @@ export default function MusikerDashboard() {
           </Card>
         )}
 
+        {/* Details Dialog */}
+        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {selectedEventMusiker && getEventForEventMusiker(selectedEventMusiker) && (
+              <>
+                <DialogHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <DialogTitle className="text-2xl mb-2">
+                        {getEventForEventMusiker(selectedEventMusiker)?.titel}
+                      </DialogTitle>
+                      <Badge className={`${statusColors[selectedEventMusiker.status].bg} ${statusColors[selectedEventMusiker.status].text}`}>
+                        {selectedEventMusiker.status === 'angefragt' && '⏳ Offen'}
+                        {selectedEventMusiker.status === 'optional' && '❓ Optional'}
+                        {selectedEventMusiker.status === 'zugesagt' && '✅ Zugesagt'}
+                        {selectedEventMusiker.status === 'abgelehnt' && '❌ Abgelehnt'}
+                      </Badge>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  {/* Event Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="w-5 h-5 flex-shrink-0" />
+                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock className="w-5 h-5 flex-shrink-0" />
+                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'HH:mm', { locale: de })} Uhr</span>
+                    </div>
+                    {getEventForEventMusiker(selectedEventMusiker).ort_name && (
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <MapPin className="w-5 h-5 flex-shrink-0" />
+                        <span>{getEventForEventMusiker(selectedEventMusiker).ort_name}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Music className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium">{selectedEventMusiker.rolle}</span>
+                    </div>
+                    {selectedEventMusiker.gage_netto && (
+                      <div className="flex items-center gap-2 text-green-600 font-semibold">
+                        <Euro className="w-5 h-5 flex-shrink-0" />
+                        <span>€{selectedEventMusiker.gage_netto.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Publikum & Ambiente */}
+                  {(getEventForEventMusiker(selectedEventMusiker).event_typ || getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste || getEventForEventMusiker(selectedEventMusiker).dresscode) && (
+                    <div className="pt-4 border-t">
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Publikum & Ambiente</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {getEventForEventMusiker(selectedEventMusiker).event_typ && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <span className="text-xl">🎉</span>
+                            <span>{getEventForEventMusiker(selectedEventMusiker).event_typ}</span>
+                          </div>
+                        )}
+                        {getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Users className="w-5 h-5" />
+                            <span>{getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste} Gäste</span>
+                          </div>
+                        )}
+                        {getEventForEventMusiker(selectedEventMusiker).dresscode && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <Shirt className="w-5 h-5" />
+                            <span>{getEventForEventMusiker(selectedEventMusiker).dresscode}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notizen */}
+                  {selectedEventMusiker.notizen && (
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900 mb-2">Notizen:</p>
+                      <p className="text-sm text-blue-700">{selectedEventMusiker.notizen}</p>
+                    </div>
+                  )}
+
+                  {/* Buchungsbedingungen */}
+                  {selectedEventMusiker.buchungsbedingungen && (
+                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                      <div className="flex items-start gap-2">
+                        <FileText className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-amber-900 mb-2">Buchungsbedingungen:</p>
+                          <div 
+                            className="text-sm text-amber-700 prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aktionen */}
+                  {selectedEventMusiker.status === 'angefragt' && (
+                    <div className="flex flex-wrap gap-2 pt-4 border-t">
+                      <Button
+                        onClick={() => {
+                          setShowDetailsDialog(false);
+                          handleOpenResponseDialog(selectedEventMusiker, 'zugesagt');
+                        }}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Zusagen
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowDetailsDialog(false);
+                          handleOpenResponseDialog(selectedEventMusiker, 'optional');
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <HelpCircle className="w-4 h-4 mr-2" />
+                        Optional
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowDetailsDialog(false);
+                          handleOpenResponseDialog(selectedEventMusiker, 'abgelehnt');
+                        }}
+                        variant="outline"
+                        className="flex-1 text-red-600 hover:text-red-700 hover:border-red-600"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Ablehnen
+                      </Button>
+                    </div>
+                  )}
+
+                  {selectedEventMusiker.status === 'optional' && (
+                    <div className="flex gap-2 pt-4 border-t">
+                      <Button
+                        onClick={() => {
+                          setShowDetailsDialog(false);
+                          handleOpenResponseDialog(selectedEventMusiker, 'zugesagt');
+                        }}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Zusagen
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowDetailsDialog(false);
+                          handleOpenResponseDialog(selectedEventMusiker, 'abgelehnt');
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Ablehnen
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Response Dialog */}
         <Dialog open={showResponseDialog} onOpenChange={setShowResponseDialog}>
           <DialogContent className="max-w-md">
@@ -759,7 +815,7 @@ export default function MusikerDashboard() {
             </DialogHeader>
 
             <div className="space-y-4">
-              {selectedEventMusiker && (
+              {selectedEventMusiker && getEventForEventMusiker(selectedEventMusiker) && (
                 <div className="p-4 bg-gray-50 rounded-lg space-y-2">
                   <p className="font-semibold">
                     {getEventForEventMusiker(selectedEventMusiker)?.titel}
