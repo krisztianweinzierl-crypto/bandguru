@@ -85,7 +85,7 @@ export default function FinanzenPage() {
   r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date()
   ).length;
 
-  const offeneAngebote = angebote.filter((a) => a.status === 'versendet').length;
+  const offeneAngebote = angebote.length;
   const angenommeneAngebote = angebote.filter((a) => a.status === 'angenommen').length;
 
   const statusColors = {
