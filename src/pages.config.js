@@ -26,7 +26,8 @@ import MeineEvents from './pages/MeineEvents';
 import acceptInvite from './pages/accept-invite';
 import MusikerProfil from './pages/MusikerProfil';
 import MeineAufgaben from './pages/MeineAufgaben';
-import Layout from './Layout.jsx';
+import Angebote from './pages/Angebote';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -58,10 +59,11 @@ export const PAGES = {
     "accept-invite": acceptInvite,
     "MusikerProfil": MusikerProfil,
     "MeineAufgaben": MeineAufgaben,
+    "Angebote": Angebote,
 }
 
 export const pagesConfig = {
     mainPage: "Dashboard",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };

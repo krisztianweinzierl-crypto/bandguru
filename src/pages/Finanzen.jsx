@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -35,6 +34,12 @@ export default function FinanzenPage() {
   const { data: rechnungen = [] } = useQuery({
     queryKey: ['rechnungen', currentOrgId],
     queryFn: () => base44.entities.Rechnung.filter({ org_id: currentOrgId }, '-rechnungsdatum'),
+    enabled: !!currentOrgId
+  });
+
+  const { data: angebote = [] } = useQuery({
+    queryKey: ['angebote', currentOrgId],
+    queryFn: () => base44.entities.Angebot.filter({ org_id: currentOrgId }, '-angebotsdatum'),
     enabled: !!currentOrgId
   });
 
