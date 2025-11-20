@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,6 +92,103 @@ export default function AngebotePage() {
     createAngebotMutation.mutate(data);
   };
 
+  const handleExportPDF = (angebot) => {
+    const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
+          .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #223a5e; padding-bottom: 20px; }
+          .header h1 { color: #223a5e; margin: 0; font-size: 32px; }
+          .info { display: flex; justify-content: space-between; margin-bottom: 40px; }
+          .info-block { width: 45%; }
+          .info-block h3 { color: #223a5e; margin-bottom: 10px; font-size: 14px; }
+          table { width: 100%; border-collapse: collapse; margin: 30px 0; }
+          th { background: #223a5e; color: white; padding: 12px; text-align: left; }
+          td { padding: 10px; border-bottom: 1px solid #ddd; }
+          .total { text-align: right; margin-top: 20px; }
+          .total-row { font-size: 18px; font-weight: bold; color: #223a5e; margin-top: 10px; }
+          .notes { margin-top: 40px; padding: 20px; background: #f9f9f9; border-left: 4px solid #223a5e; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>ANGEBOT</h1>
+          <p style="margin: 5px 0;">${angebot.angebotsnummer}</p>
+        </div>
+        
+        <div class="info">
+          <div class="info-block">
+            <h3>KUNDE</h3>
+            <p><strong>${kunde?.firmenname || 'Unbekannt'}</strong></p>
+            ${kunde?.ansprechpartner ? `<p>${kunde.ansprechpartner}</p>` : ''}
+            ${kunde?.adresse ? `<p>${kunde.adresse}</p>` : ''}
+            ${kunde?.email ? `<p>${kunde.email}</p>` : ''}
+          </div>
+          <div class="info-block">
+            <h3>ANGEBOTSDATEN</h3>
+            <p>Datum: ${format(new Date(angebot.angebotsdatum), 'dd.MM.yyyy', { locale: de })}</p>
+            <p>Gültig bis: ${format(new Date(angebot.gueltig_bis), 'dd.MM.yyyy', { locale: de })}</p>
+          </div>
+        </div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Beschreibung</th>
+              <th style="text-align: center;">Menge</th>
+              <th style="text-align: right;">Einzelpreis</th>
+              <th style="text-align: right;">Summe</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${angebot.positionen?.map(pos => `
+              <tr>
+                <td>${pos.beschreibung}</td>
+                <td style="text-align: center;">${pos.menge} ${pos.einheit || ''}</td>
+                <td style="text-align: right;">${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+                <td style="text-align: right;">${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+              </tr>
+            `).join('') || ''}
+          </tbody>
+        </table>
+        
+        <div class="total">
+          <p>Netto: ${(angebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+          <p>MwSt.: ${(angebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+          <p class="total-row">Gesamt: ${(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+        </div>
+        
+        ${angebot.zahlungsbedingungen ? `
+          <div class="notes">
+            <h3 style="margin-top: 0;">Zahlungsbedingungen</h3>
+            <p>${angebot.zahlungsbedingungen}</p>
+          </div>
+        ` : ''}
+        
+        ${angebot.kunde_notizen ? `
+          <div class="notes">
+            <h3 style="margin-top: 0;">Anmerkungen</h3>
+            <p>${angebot.kunde_notizen}</p>
+          </div>
+        ` : ''}
+      </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+
   const AngebotCard = ({ angebot }) => {
     const kunde = kunden.find((k) => k.id === angebot.kunde_id);
     const isAbgelaufen = new Date(angebot.gueltig_bis) < new Date() && angebot.status === 'versendet';
@@ -146,6 +243,15 @@ export default function AngebotePage() {
             <Button variant="outline" size="sm" className="flex-1">
               <Eye className="w-4 h-4 mr-2" />
               Ansehen
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleExportPDF(angebot)}
+              className="flex-1"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              PDF
             </Button>
             {angebot.status === 'entwurf' && (
               <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
