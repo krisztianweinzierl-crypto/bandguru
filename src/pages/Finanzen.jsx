@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
-  Euro, // Changed from DollarSign to Euro
+  Euro,
   TrendingUp,
   TrendingDown,
   FileText,
@@ -14,7 +14,10 @@ import {
   Receipt,
   PieChart,
   ArrowUpRight,
-  ArrowDownRight } from
+  ArrowDownRight,
+  FileCheck,
+  Plus,
+  ArrowRight } from
 "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
 export default function FinanzenPage() {
+  const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [timeRange, setTimeRange] = useState("month"); // month, quarter, year
 
@@ -55,6 +59,12 @@ export default function FinanzenPage() {
     enabled: !!currentOrgId
   });
 
+  const { data: kunden = [] } = useQuery({
+    queryKey: ['kunden', currentOrgId],
+    queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId
+  });
+
   // Berechnungen
   const gesamtEinnahmen = rechnungen.
   filter((r) => r.status === 'bezahlt').
@@ -74,6 +84,9 @@ export default function FinanzenPage() {
   r.status === 'überfällig' ||
   r.status === 'versendet' && new Date(r.faelligkeitsdatum) < new Date()
   ).length;
+
+  const offeneAngebote = angebote.filter((a) => a.status === 'versendet').length;
+  const angenommeneAngebote = angebote.filter((a) => a.status === 'angenommen').length;
 
   const statusColors = {
     entwurf: "bg-gray-100 text-gray-800",
@@ -118,7 +131,7 @@ export default function FinanzenPage() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {/* Gesamteinnahmen */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
@@ -207,16 +220,128 @@ export default function FinanzenPage() {
               }
             </CardContent>
           </Card>
+
+          {/* Angebote */}
+          <Card className="relative overflow-hidden border-none shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-sm font-medium text-gray-600">Angebote</CardTitle>
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <FileCheck className="w-5 h-5 text-amber-600" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-gray-900">{offeneAngebote}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {angenommeneAngebote} angenommen
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="uebersicht" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="uebersicht">Übersicht</TabsTrigger>
+            <TabsTrigger value="angebote">Angebote ({offeneAngebote})</TabsTrigger>
             <TabsTrigger value="rechnungen">Rechnungen</TabsTrigger>
             <TabsTrigger value="ausgaben">Ausgaben</TabsTrigger>
             <TabsTrigger value="berichte">Berichte</TabsTrigger>
           </TabsList>
+
+          {/* Angebote Tab */}
+          <TabsContent value="angebote" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between border-b">
+                <CardTitle>Angebote verwalten</CardTitle>
+                <Button
+                  onClick={() => navigate(createPageUrl('Angebote'))}
+                  style={{ backgroundColor: '#223a5e' }}
+                  className="hover:opacity-90"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Neues Angebot
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Versendet</p>
+                    <p className="text-2xl font-bold text-blue-600">{offeneAngebote}</p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Angenommen</p>
+                    <p className="text-2xl font-bold text-green-600">{angenommeneAngebote}</p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-1">Gesamt</p>
+                    <p className="text-2xl font-bold text-gray-900">{angebote.length}</p>
+                  </div>
+                </div>
+                
+                {angebote.length > 0 ? (
+                  <div className="space-y-3">
+                    {angebote.slice(0, 5).map((angebot) => {
+                      const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+                      const statusColors = {
+                        entwurf: "bg-gray-100 text-gray-800",
+                        versendet: "bg-blue-100 text-blue-800",
+                        angenommen: "bg-green-100 text-green-800",
+                        abgelehnt: "bg-red-100 text-red-800",
+                        abgelaufen: "bg-orange-100 text-orange-800"
+                      };
+
+                      return (
+                        <div
+                          key={angebot.id}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className="p-2 bg-amber-100 rounded-lg">
+                              <FileCheck className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{angebot.angebotsnummer}</p>
+                                <Badge className={statusColors[angebot.status]}>{angebot.status}</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">{kunde?.firmenname || 'Unbekannt'}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900">
+                              {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {format(new Date(angebot.angebotsdatum), 'dd. MMM yyyy', { locale: de })}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <FileCheck className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p>Noch keine Angebote erstellt</p>
+                  </div>
+                )}
+
+                {angebote.length > 5 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(createPageUrl('Angebote'))}
+                    className="w-full mt-4"
+                  >
+                    Alle Angebote anzeigen
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Übersicht Tab */}
           <TabsContent value="uebersicht" className="space-y-6">
