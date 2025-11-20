@@ -296,7 +296,8 @@ export default function FinanzenPage() {
                       return (
                         <div
                           key={angebot.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                          onClick={() => navigate(createPageUrl('Angebote'))}
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                         >
                           <div className="flex items-center gap-4 flex-1">
                             <div className="p-2 bg-amber-100 rounded-lg">
