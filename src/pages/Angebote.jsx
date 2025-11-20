@@ -224,8 +224,11 @@ export default function AngebotePage() {
         <meta charset="UTF-8">
         <style>
           body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-          .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #223a5e; padding-bottom: 20px; }
-          .header h1 { color: #223a5e; margin: 0; font-size: 32px; }
+          .header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px; border-bottom: 3px solid #223a5e; padding-bottom: 20px; }
+          .header-left { flex: 1; }
+          .header-left h1 { color: #223a5e; margin: 0; font-size: 32px; }
+          .header-right { text-align: right; font-size: 12px; }
+          .header-right strong { display: block; font-size: 14px; margin-bottom: 5px; }
           .info { display: flex; justify-content: space-between; margin-bottom: 40px; }
           .info-block { width: 45%; }
           .info-block h3 { color: #223a5e; margin-bottom: 10px; font-size: 14px; }
@@ -239,8 +242,15 @@ export default function AngebotePage() {
       </head>
       <body>
         <div class="header">
-          <h1>ANGEBOT</h1>
-          <p style="margin: 5px 0;">${angebot.angebotsnummer}</p>
+          <div class="header-left">
+            <h1>ANGEBOT</h1>
+            <p style="margin: 5px 0;">${angebot.angebotsnummer}</p>
+          </div>
+          <div class="header-right">
+            <strong>${organisation?.name || ''}</strong>
+            ${organisation?.adresse ? `<p style="margin: 3px 0; white-space: pre-line;">${organisation.adresse}</p>` : ''}
+            ${organisation?.steuernummer ? `<p style="margin: 3px 0;">Steuernr.: ${organisation.steuernummer}</p>` : ''}
+          </div>
         </div>
         
         <div class="info">
@@ -579,6 +589,17 @@ export default function AngebotePage() {
                         {selectedAngebot.status}
                       </Badge>
                     </div>
+                    {organisation && (
+                      <div className="text-right text-sm">
+                        <p className="font-semibold text-gray-900">{organisation.name}</p>
+                        {organisation.adresse && (
+                          <p className="text-gray-600 text-xs mt-1 whitespace-pre-line">{organisation.adresse}</p>
+                        )}
+                        {organisation.steuernummer && (
+                          <p className="text-gray-500 text-xs mt-1">Steuernr.: {organisation.steuernummer}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </DialogHeader>
 
