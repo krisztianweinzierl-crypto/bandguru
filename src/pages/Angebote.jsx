@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock, Download } from "lucide-react";
+import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock, Download, Edit, Trash2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AngebotForm from "@/components/finanzen/AngebotForm";
@@ -16,9 +18,14 @@ export default function AngebotePage() {
   const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingAngebot, setEditingAngebot] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
+  const [showDropdownId, setShowDropdownId] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedAngebot, setSelectedAngebot] = useState(null);
   const queryClient = useQueryClient();
+  const { showAlert, showConfirm, AlertDialog } = useAlertDialog();
 
   useEffect(() => {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
@@ -63,6 +70,65 @@ export default function AngebotePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['angebote'] });
       setShowForm(false);
+      setEditingAngebot(null);
+    }
+  });
+
+  const updateAngebotMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Angebot.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['angebote'] });
+      setShowForm(false);
+      setEditingAngebot(null);
+      setShowDropdownId(null);
+    }
+  });
+
+  const deleteAngebotMutation = useMutation({
+    mutationFn: (id) => base44.entities.Angebot.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['angebote'] });
+      setShowDropdownId(null);
+    }
+  });
+
+  const sendAngebotMutation = useMutation({
+    mutationFn: async ({ angebot, kunde }) => {
+      // Email senden
+      await base44.integrations.Core.SendEmail({
+        to: kunde.email,
+        subject: `Angebot ${angebot.angebotsnummer}`,
+        body: `
+          <h2>Neues Angebot von ${organisation?.name || 'uns'}</h2>
+          <p>Sehr geehrte Damen und Herren,</p>
+          <p>anbei erhalten Sie unser Angebot ${angebot.angebotsnummer}.</p>
+          <p><strong>Betrag:</strong> ${(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+          <p><strong>Gültig bis:</strong> ${format(new Date(angebot.gueltig_bis), 'dd. MMMM yyyy', { locale: de })}</p>
+          <br/>
+          <p>Mit freundlichen Grüßen</p>
+        `
+      });
+
+      // Status aktualisieren
+      return await base44.entities.Angebot.update(angebot.id, {
+        status: 'versendet',
+        versandt_am: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['angebote'] });
+      showAlert({
+        title: 'Angebot versendet',
+        message: 'Das Angebot wurde erfolgreich per E-Mail versendet.',
+        type: 'success'
+      });
+    },
+    onError: (error) => {
+      showAlert({
+        title: 'Fehler',
+        message: 'Angebot konnte nicht versendet werden: ' + error.message,
+        type: 'error'
+      });
     }
   });
 
@@ -89,7 +155,63 @@ export default function AngebotePage() {
   };
 
   const handleSubmit = (data) => {
-    createAngebotMutation.mutate(data);
+    if (editingAngebot) {
+      updateAngebotMutation.mutate({ id: editingAngebot.id, data });
+    } else {
+      createAngebotMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (angebot) => {
+    setEditingAngebot(angebot);
+    setShowForm(true);
+    setShowDropdownId(null);
+  };
+
+  const handleDelete = async (angebot) => {
+    const confirmed = await showConfirm({
+      title: 'Angebot löschen',
+      message: `Möchtest du das Angebot "${angebot.angebotsnummer}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`,
+      type: 'warning',
+      confirmText: 'Löschen',
+      cancelText: 'Abbrechen'
+    });
+
+    if (confirmed) {
+      deleteAngebotMutation.mutate(angebot.id);
+    }
+  };
+
+  const handleView = (angebot) => {
+    setSelectedAngebot(angebot);
+    setShowDetailsDialog(true);
+    setShowDropdownId(null);
+  };
+
+  const handleSend = async (angebot) => {
+    const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+    
+    if (!kunde?.email) {
+      showAlert({
+        title: 'Keine E-Mail-Adresse',
+        message: 'Der Kunde hat keine E-Mail-Adresse hinterlegt.',
+        type: 'error'
+      });
+      return;
+    }
+
+    const confirmed = await showConfirm({
+      title: 'Angebot versenden',
+      message: `Möchtest du das Angebot "${angebot.angebotsnummer}" an ${kunde.email} versenden?`,
+      type: 'info',
+      confirmText: 'Versenden',
+      cancelText: 'Abbrechen'
+    });
+
+    if (confirmed) {
+      sendAngebotMutation.mutate({ angebot, kunde });
+    }
+    setShowDropdownId(null);
   };
 
   const handleExportPDF = (angebot) => {
@@ -212,9 +334,52 @@ export default function AngebotePage() {
               </div>
               <p className="text-sm text-gray-600">{kunde?.firmenname || 'Kunde unbekannt'}</p>
             </div>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="w-4 h-4" />
-            </Button>
+            <div className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDropdownId(showDropdownId === angebot.id ? null : angebot.id);
+                }}
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+
+              {showDropdownId === angebot.id && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDropdownId(null);
+                    }}
+                  />
+                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(angebot);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <Edit className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium">Angebot bearbeiten</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(angebot);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="text-sm font-medium">Angebot löschen</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -240,7 +405,12 @@ export default function AngebotePage() {
           </div>
 
           <div className="flex gap-2 pt-3">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => handleView(angebot)}
+            >
               <Eye className="w-4 h-4 mr-2" />
               Ansehen
             </Button>
@@ -254,7 +424,11 @@ export default function AngebotePage() {
               PDF
             </Button>
             {angebot.status === 'entwurf' && (
-              <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+              <Button 
+                size="sm" 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => handleSend(angebot)}
+              >
                 <Send className="w-4 h-4 mr-2" />
                 Versenden
               </Button>
@@ -266,8 +440,10 @@ export default function AngebotePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <AlertDialog />
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Button
@@ -286,7 +462,10 @@ export default function AngebotePage() {
               <p className="text-gray-600">Erstelle und verwalte deine Angebote</p>
             </div>
             <Button
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setEditingAngebot(null);
+                setShowForm(true);
+              }}
               style={{ backgroundColor: '#223a5e' }}
               className="hover:opacity-90"
             >
@@ -374,12 +553,132 @@ export default function AngebotePage() {
         {showForm && (
           <div className="mb-6">
             <AngebotForm
+              angebot={editingAngebot}
               onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingAngebot(null);
+              }}
               kunden={kunden}
             />
           </div>
         )}
+
+        {/* Details Dialog */}
+        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            {selectedAngebot && (
+              <>
+                <DialogHeader>
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <DialogTitle className="text-2xl mb-2">
+                        {selectedAngebot.angebotsnummer}
+                      </DialogTitle>
+                      <Badge className={statusColors[selectedAngebot.status]}>
+                        {selectedAngebot.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                <div className="space-y-6">
+                  {/* Kunde & Daten */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Kunde</p>
+                      <p className="font-semibold text-gray-900">
+                        {kunden.find((k) => k.id === selectedAngebot.kunde_id)?.firmenname || 'Unbekannt'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Datum</p>
+                      <p className="text-gray-700">
+                        Erstellt: {format(new Date(selectedAngebot.angebotsdatum), 'dd. MMMM yyyy', { locale: de })}
+                      </p>
+                      <p className="text-gray-700">
+                        Gültig bis: {format(new Date(selectedAngebot.gueltig_bis), 'dd. MMMM yyyy', { locale: de })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Positionen */}
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Positionen</p>
+                    <div className="space-y-2">
+                      {selectedAngebot.positionen?.map((pos, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="font-medium">{pos.beschreibung}</p>
+                            <p className="font-semibold">
+                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                            </p>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {pos.menge} {pos.einheit || 'Stk'} × {(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Summen */}
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Netto:</span>
+                      <span className="font-medium">{(selectedAngebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">MwSt.:</span>
+                      <span className="font-medium">{(selectedAngebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold border-t pt-2">
+                      <span>Gesamt:</span>
+                      <span>{(selectedAngebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+                    </div>
+                  </div>
+
+                  {/* Zahlungsbedingungen */}
+                  {selectedAngebot.zahlungsbedingungen && (
+                    <div>
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Zahlungsbedingungen</p>
+                      <p className="text-gray-700 whitespace-pre-wrap">{selectedAngebot.zahlungsbedingungen}</p>
+                    </div>
+                  )}
+
+                  {/* Notizen */}
+                  {selectedAngebot.kunde_notizen && (
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-semibold text-blue-900 mb-2">Notizen für Kunde</p>
+                      <p className="text-sm text-blue-700 whitespace-pre-wrap">{selectedAngebot.kunde_notizen}</p>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex gap-3 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleExportPDF(selectedAngebot)}
+                      className="flex-1"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      PDF Export
+                    </Button>
+                    {selectedAngebot.status === 'entwurf' && (
+                      <Button
+                        onClick={() => handleSend(selectedAngebot)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Mail className="w-4 h-4 mr-2" />
+                        Versenden
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Angebote Grid */}
         {filteredAngebote.length > 0 ? (
@@ -401,7 +700,8 @@ export default function AngebotePage() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

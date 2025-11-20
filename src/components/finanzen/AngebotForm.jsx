@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Save } from "lucide-react";
+import ReactQuill from "react-quill";
 
 export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
   const [formData, setFormData] = useState(angebot || {
@@ -131,19 +132,26 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
             <div className="space-y-3">
               {formData.positionen.map((position, index) => (
                 <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                    <div className="md:col-span-5">
+                  <div className="space-y-3">
+                    <div>
                       <Label htmlFor={`beschreibung-${index}`} className="text-xs">Beschreibung</Label>
-                      <Input
-                        id={`beschreibung-${index}`}
-                        value={position.beschreibung}
-                        onChange={(e) => handlePositionChange(index, 'beschreibung', e.target.value)}
+                      <ReactQuill
+                        value={position.beschreibung || ''}
+                        onChange={(value) => handlePositionChange(index, 'beschreibung', value)}
                         placeholder="z.B. Live-Performance"
-                        required
+                        modules={{
+                          toolbar: [
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['clean']
+                          ]
+                        }}
+                        className="bg-white rounded-md"
                       />
                     </div>
 
-                    <div className="md:col-span-2">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                      <div className="md:col-span-2">
                       <Label htmlFor={`menge-${index}`} className="text-xs">Menge</Label>
                       <Input
                         id={`menge-${index}`}
@@ -192,17 +200,18 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
                       />
                     </div>
 
-                    <div className="md:col-span-1 flex items-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removePosition(index)}
-                        disabled={formData.positionen.length === 1}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="md:col-span-1 flex items-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removePosition(index)}
+                          disabled={formData.positionen.length === 1}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
