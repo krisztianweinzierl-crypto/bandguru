@@ -216,102 +216,233 @@ export default function AngebotePage() {
 
   const handleExportPDF = (angebot) => {
     const kunde = kunden.find((k) => k.id === angebot.kunde_id);
-    
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
         <style>
-          body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-          .header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px; border-bottom: 3px solid #223a5e; padding-bottom: 20px; }
-          .header-left { flex: 1; }
-          .header-left h1 { color: #223a5e; margin: 0; font-size: 32px; }
-          .header-right { text-align: right; font-size: 12px; }
-          .header-right strong { display: block; font-size: 14px; margin-bottom: 5px; }
-          .info { display: flex; justify-content: space-between; margin-bottom: 40px; }
-          .info-block { width: 45%; }
-          .info-block h3 { color: #223a5e; margin-bottom: 10px; font-size: 14px; }
-          table { width: 100%; border-collapse: collapse; margin: 30px 0; }
-          th { background: #223a5e; color: white; padding: 12px; text-align: left; }
-          td { padding: 10px; border-bottom: 1px solid #ddd; }
-          .total { text-align: right; margin-top: 20px; }
-          .total-row { font-size: 18px; font-weight: bold; color: #223a5e; margin-top: 10px; }
-          .notes { margin-top: 40px; padding: 20px; background: #f9f9f9; border-left: 4px solid #223a5e; }
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 40px; 
+            color: #333;
+            font-size: 11pt;
+          }
+          .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start; 
+            margin-bottom: 30px;
+          }
+          .header-left img {
+            max-width: 150px;
+            max-height: 80px;
+          }
+          .header-right { 
+            text-align: right;
+          }
+          .header-right h1 {
+            color: #2563eb;
+            font-size: 28pt;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+          }
+          .header-right .meta {
+            font-size: 10pt;
+            color: #666;
+            line-height: 1.6;
+          }
+          .addresses {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            gap: 40px;
+          }
+          .address-block {
+            flex: 1;
+          }
+          .address-block h3 {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+            letter-spacing: 0.5px;
+          }
+          .address-block .name {
+            color: #2563eb;
+            font-weight: bold;
+            font-size: 13pt;
+            margin-bottom: 5px;
+          }
+          .address-block p {
+            margin: 3px 0;
+            line-height: 1.5;
+            font-size: 10pt;
+          }
+          .bank-info {
+            margin-top: 10px;
+            font-size: 9pt;
+            color: #666;
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 30px 0;
+          }
+          thead {
+            border-bottom: 3px solid #2563eb;
+          }
+          th { 
+            color: #2563eb;
+            padding: 12px 8px;
+            text-align: left;
+            font-size: 9pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) {
+            text-align: right;
+          }
+          td { 
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 10pt;
+          }
+          td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5) {
+            text-align: right;
+          }
+          .description-cell {
+            color: #374151;
+          }
+          .totals { 
+            margin-top: 30px;
+            float: right;
+            width: 350px;
+          }
+          .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 11pt;
+          }
+          .totals-row.subtotal {
+            color: #666;
+            font-weight: bold;
+          }
+          .totals-row.tax {
+            color: #2563eb;
+            font-weight: bold;
+          }
+          .totals-row.total {
+            border-top: 3px solid #2563eb;
+            padding-top: 12px;
+            margin-top: 8px;
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2563eb;
+          }
+          .conditions { 
+            margin-top: 80px;
+            padding-top: 20px;
+            clear: both;
+          }
+          .conditions h3 {
+            color: #2563eb;
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+            letter-spacing: 0.5px;
+          }
+          .conditions p {
+            font-size: 10pt;
+            line-height: 1.6;
+            color: #666;
+          }
         </style>
       </head>
       <body>
         <div class="header">
           <div class="header-left">
-            <h1>ANGEBOT</h1>
-            <p style="margin: 5px 0;">${angebot.angebotsnummer}</p>
+            ${organisation?.logo_url ? `<img src="${organisation.logo_url}" alt="Logo">` : ''}
           </div>
           <div class="header-right">
-            <strong>${organisation?.name || ''}</strong>
-            ${organisation?.adresse ? `<p style="margin: 3px 0; white-space: pre-line;">${organisation.adresse}</p>` : ''}
-            ${organisation?.steuernummer ? `<p style="margin: 3px 0;">Steuernr.: ${organisation.steuernummer}</p>` : ''}
+            <h1>ANGEBOT ${angebot.angebotsnummer}</h1>
+            <div class="meta">
+              <div>ERSTELLT: ${format(new Date(angebot.angebotsdatum), 'dd. MMM. yyyy', { locale: de }).toUpperCase()}</div>
+              <div>GÜLTIG BIS: ${format(new Date(angebot.gueltig_bis), 'dd. MMM. yyyy', { locale: de }).toUpperCase()}</div>
+            </div>
           </div>
         </div>
-        
-        <div class="info">
-          <div class="info-block">
-            <h3>KUNDE</h3>
-            <p><strong>${kunde?.firmenname || 'Unbekannt'}</strong></p>
+
+        <div class="addresses">
+          <div class="address-block">
+            <h3>An</h3>
+            <div class="name">${kunde?.firmenname || 'Unbekannt'}</div>
             ${kunde?.ansprechpartner ? `<p>${kunde.ansprechpartner}</p>` : ''}
-            ${kunde?.adresse ? `<p>${kunde.adresse}</p>` : ''}
+            ${kunde?.adresse ? `<p style="white-space: pre-line;">${kunde.adresse}</p>` : ''}
             ${kunde?.email ? `<p>${kunde.email}</p>` : ''}
           </div>
-          <div class="info-block">
-            <h3>ANGEBOTSDATEN</h3>
-            <p>Datum: ${format(new Date(angebot.angebotsdatum), 'dd.MM.yyyy', { locale: de })}</p>
-            <p>Gültig bis: ${format(new Date(angebot.gueltig_bis), 'dd.MM.yyyy', { locale: de })}</p>
+          <div class="address-block">
+            <h3>Von</h3>
+            <div class="name">${organisation?.name || ''}</div>
+            ${organisation?.adresse ? `<p style="white-space: pre-line;">${organisation.adresse}</p>` : ''}
+            ${organisation?.steuernummer ? `<div class="bank-info">USt.-IdNr: ${organisation.steuernummer}</div>` : ''}
           </div>
         </div>
-        
+
         <table>
           <thead>
             <tr>
-              <th>Beschreibung</th>
-              <th style="text-align: center;">Menge</th>
-              <th style="text-align: right;">Einzelpreis</th>
-              <th style="text-align: right;">Summe</th>
+              <th style="text-align: left;">Beschreibung</th>
+              <th>Preis (ohne USt.)</th>
+              <th>USt.-Satz</th>
+              <th>Anzahl</th>
+              <th>Gesamt</th>
             </tr>
           </thead>
           <tbody>
             ${angebot.positionen?.map(pos => `
               <tr>
-                <td>${pos.beschreibung}</td>
-                <td style="text-align: center;">${pos.menge} ${pos.einheit || ''}</td>
-                <td style="text-align: right;">${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
-                <td style="text-align: right;">${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+                <td class="description-cell">${pos.beschreibung}</td>
+                <td>${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+                <td>${(pos.steuersatz || 0)} %</td>
+                <td>${pos.menge}</td>
+                <td>${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
               </tr>
             `).join('') || ''}
           </tbody>
         </table>
-        
-        <div class="total">
-          <p>Netto: ${(angebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
-          <p>MwSt.: ${(angebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
-          <p class="total-row">Gesamt: ${(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
-        </div>
-        
-        ${angebot.zahlungsbedingungen ? `
-          <div class="notes">
-            <h3 style="margin-top: 0;">Zahlungsbedingungen</h3>
-            <p>${angebot.zahlungsbedingungen}</p>
+
+        <div class="totals">
+          <div class="totals-row subtotal">
+            <span>NETTOBETRAG</span>
+            <span>${(angebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
           </div>
-        ` : ''}
-        
-        ${angebot.kunde_notizen ? `
-          <div class="notes">
-            <h3 style="margin-top: 0;">Anmerkungen</h3>
-            <p>${angebot.kunde_notizen}</p>
+          <div class="totals-row tax">
+            <span>UMSATZSTEUER ${angebot.positionen?.[0]?.steuersatz || 19}%</span>
+            <span>${(angebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+          </div>
+          <div class="totals-row total">
+            <span>GESAMTBETRAG</span>
+            <span>${(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+          </div>
+        </div>
+
+        ${angebot.zahlungsbedingungen || angebot.kunde_notizen ? `
+          <div class="conditions">
+            <h3>Bedingungen</h3>
+            ${angebot.zahlungsbedingungen ? `<p>${angebot.zahlungsbedingungen}</p>` : ''}
+            ${angebot.kunde_notizen ? `<p>${angebot.kunde_notizen}</p>` : ''}
           </div>
         ` : ''}
       </body>
       </html>
     `;
-    
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write(htmlContent);
     printWindow.document.close();
