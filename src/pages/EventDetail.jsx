@@ -141,6 +141,7 @@ export default function EventDetailPage() {
       } catch (error) {
         console.error("Fehler beim Laden der User-Daten:", error);
         setHasAccess(false);
+        setAccessChecked(true);
       }
     };
     
