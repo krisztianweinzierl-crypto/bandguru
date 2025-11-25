@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -205,6 +204,24 @@ export default function EventDetailPage() {
     onError: (error) => {
       console.error("Fehler beim Aktualisieren:", error);
       alert("Fehler beim Aktualisieren des Events: " + (error.message || "Unbekannter Fehler"));
+    }
+  });
+
+  const deleteEventMutation = useMutation({
+    mutationFn: async () => {
+      // Zuerst alle EventMusiker löschen
+      const eventMusikerToDelete = await base44.entities.EventMusiker.filter({ event_id: eventId });
+      await Promise.all(eventMusikerToDelete.map(em => base44.entities.EventMusiker.delete(em.id)));
+      // Dann Event löschen
+      return await base44.entities.Event.delete(eventId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      navigate(createPageUrl('Events'));
+    },
+    onError: (error) => {
+      console.error("Fehler beim Löschen:", error);
+      alert("Fehler beim Löschen des Events: " + (error.message || "Unbekannter Fehler"));
     }
   });
 
@@ -454,6 +471,12 @@ Das Team`;
     updateEventMutation.mutate(data);
   };
 
+  const handleDeleteEvent = () => {
+    if (confirm("Möchtest du dieses Event wirklich löschen?\n\nAlle zugehörigen Musiker-Zuweisungen werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.")) {
+      deleteEventMutation.mutate();
+    }
+  };
+
   // Wenn im Bearbeitungsmodus, zeige das Formular
   if (isEditing) {
     return (
@@ -476,6 +499,7 @@ Das Team`;
             event={event}
             onSubmit={handleUpdateSubmit}
             onCancel={() => setIsEditing(false)}
+            onDelete={handleDeleteEvent}
             kunden={kunden}
           />
         </div>
