@@ -60,6 +60,7 @@ export default function EventDetailPage() {
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   const modules = {
     toolbar: [
