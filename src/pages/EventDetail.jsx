@@ -390,21 +390,6 @@ Das Team`;
     );
   }
 
-  // Warte auf User-Daten und Berechtigungsprüfung - Then, ensure user and permissions are evaluated
-  // currentUser is set *after* the async base44.auth.me() call in useEffect.
-  // We need to wait for this to complete before making access decisions.
-  // Also wait until hasAccess has been explicitly set (not just default false)
-  const [accessChecked, setAccessChecked] = useState(false);
-
-  // Update useEffect to set accessChecked when done
-  useEffect(() => {
-    if (currentUser !== null && event) {
-      // Small delay to ensure hasAccess is set
-      const timer = setTimeout(() => setAccessChecked(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [currentUser, event, isManager, hasAccess]);
-
   if (currentUser === null || !accessChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
