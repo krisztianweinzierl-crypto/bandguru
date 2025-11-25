@@ -11,10 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save, MapPin, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus } from "lucide-react";
+import { X, Save, MapPin, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus, Trash2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-export default function EventForm({ onSubmit, onCancel, kunden, event = null }) {
+export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event = null }) {
   const [formData, setFormData] = useState(event || {
     titel: "",
     kunde_id: "",
@@ -579,14 +579,29 @@ export default function EventForm({ onSubmit, onCancel, kunden, event = null }) 
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Abbrechen
-        </Button>
-        <Button type="submit" className="bg-gray-900 hover:bg-gray-800 gap-2">
-          <Save className="w-4 h-4" />
-          Änderungen speichern
-        </Button>
+      <div className="flex justify-between">
+        {event && onDelete ? (
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onDelete}
+            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Löschen
+          </Button>
+        ) : (
+          <div />
+        )}
+        <div className="flex gap-3">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Abbrechen
+          </Button>
+          <Button type="submit" className="bg-gray-900 hover:bg-gray-800 gap-2">
+            <Save className="w-4 h-4" />
+            {event ? 'Änderungen speichern' : 'Event erstellen'}
+          </Button>
+        </div>
       </div>
     </form>
   );
