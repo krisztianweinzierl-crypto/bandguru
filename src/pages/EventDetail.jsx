@@ -112,7 +112,8 @@ export default function EventDetailPage() {
         if (mitglied?.rolle === "Band Manager") {
           setIsManager(true);
           setHasAccess(true);
-        } else if (mitglied?.rolle === "Musiker") {
+          setAccessChecked(true);
+          } else if (mitglied?.rolle === "Musiker") {
           // Wenn Musiker, lade Musiker-Profil
           const alleMusiker = await base44.entities.Musiker.filter({ org_id: event.org_id });
           const musikerProfil = alleMusiker.find(m => 
@@ -128,12 +129,15 @@ export default function EventDetailPage() {
               status: 'zugesagt'
             });
             setHasAccess(eventMusikerList.length > 0);
-          } else {
+            setAccessChecked(true);
+            } else {
             setHasAccess(false);
-          }
-        } else {
-          setHasAccess(false);
-        }
+            setAccessChecked(true);
+            }
+            } else {
+            setHasAccess(false);
+            setAccessChecked(true);
+            }
       } catch (error) {
         console.error("Fehler beim Laden der User-Daten:", error);
         setHasAccess(false);
