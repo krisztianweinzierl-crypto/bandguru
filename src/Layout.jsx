@@ -78,6 +78,7 @@ export default function Layout({ children, currentPageName }) {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [pendingInvites, setPendingInvites] = useState([]);
   const [showPendingInvites, setShowPendingInvites] = useState(false);
+  const [currentMusiker, setCurrentMusiker] = useState(null);
   const [orgData, setOrgData] = useState({
     name: "",
     adresse: "",
@@ -191,6 +192,19 @@ export default function Layout({ children, currentPageName }) {
           console.log("✅ Organisation geladen:", org.name);
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
+          
+          // Lade Musiker-Profil für den aktuellen User (falls vorhanden)
+          const currentMitglied = mitglieder.find(m => m.org_id === org.id);
+          if (currentMitglied?.rolle === "Musiker") {
+            const alleMusiker = await base44.entities.Musiker.filter({ org_id: org.id });
+            const musikerProfil = alleMusiker.find(m => 
+              m.email?.toLowerCase().trim() === userData.email.toLowerCase().trim() && m.aktiv === true
+            );
+            if (musikerProfil) {
+              setCurrentMusiker(musikerProfil);
+              console.log("🎵 Musiker-Profil geladen:", musikerProfil.name);
+            }
+          }
         }
         setInitialLoadComplete(true);
       } else {
@@ -1160,7 +1174,7 @@ export default function Layout({ children, currentPageName }) {
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
                   <p className="font-medium text-gray-900 text-sm truncate">
-                    {user?.full_name || user?.email}
+                    {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
                   <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
                 </div>
