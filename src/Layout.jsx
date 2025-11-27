@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -130,12 +129,19 @@ export default function Layout({ children, currentPageName }) {
 
       // 🔥 NEU: ZUERST pending invites prüfen (BEVOR aktive Mitgliedschaften)
       console.log("📨 Prüfe auf schwebende Einladungen...");
-      const invites = await base44.entities.Mitglied.filter({ 
+      const allInvites = await base44.entities.Mitglied.filter({ 
         invite_email: userData.email,
         status: "eingeladen"
       });
       
-      console.log(`   ${invites.length} schwebende Einladungen gefunden`, invites);
+      // Filtere abgelaufene Einladungen heraus
+      const now = new Date();
+      const invites = allInvites.filter(invite => {
+        if (!invite.invite_expires_at) return true; // Keine Ablaufzeit = immer gültig
+        return new Date(invite.invite_expires_at) > now;
+      });
+      
+      console.log(`   ${invites.length} gültige Einladungen gefunden (${allInvites.length - invites.length} abgelaufen)`, invites);
       
       // Wenn Einladungen vorhanden sind, IMMER Einladungsansicht zeigen
       if (invites.length > 0) {
