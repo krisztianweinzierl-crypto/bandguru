@@ -140,7 +140,7 @@ export default function NotificationBell({ user, currentOrgId }) {
       {showDropdown && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
-          <div className="notification-dropdown absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
+          <div className="notification-dropdown absolute right-0 mt-2 w-80 md:w-96 max-w-[calc(100vw-4rem)] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 flex items-center justify-between">
               <h3 className="font-semibold text-white flex items-center gap-2">
                 <Bell className="w-4 h-4" />
