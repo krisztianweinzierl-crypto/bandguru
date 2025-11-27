@@ -246,6 +246,7 @@ export default function EventDetailPage() {
           status: "aktiv"
         });
         
+        // In-App Benachrichtigung erstellen
         if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
           await base44.entities.Benachrichtigung.create({
             org_id: event.org_id,
@@ -260,8 +261,33 @@ export default function EventDetailPage() {
             prioritaet: 'hoch'
           });
         }
+        
+        // Automatisch E-Mail an Musiker senden
+        if (selectedMusiker?.email) {
+          const emailBody = `Hey ${selectedMusiker.name}! 👋
+
+Du wurdest für folgendes Event angefragt:
+
+🎵 Event: ${event.titel}
+📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr
+📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}
+🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}
+💰 Gage: €${variables.gage_netto || 0}
+
+${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
+
+Viele Grüße
+Das Team`;
+
+          await base44.integrations.Core.SendEmail({
+            to: selectedMusiker.email,
+            subject: `🎵 Event-Anfrage: ${event.titel}`,
+            body: emailBody
+          });
+          console.log(`✅ E-Mail automatisch an ${selectedMusiker.name} versendet`);
+        }
       } catch (error) {
-        console.error("Fehler beim Erstellen der Benachrichtigung:", error);
+        console.error("Fehler beim Erstellen der Benachrichtigung/E-Mail:", error);
       }
       
       setShowMusikerForm(false);
