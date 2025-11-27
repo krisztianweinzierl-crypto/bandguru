@@ -264,20 +264,7 @@ export default function EventDetailPage() {
         
         // Automatisch E-Mail an Musiker senden über Mailgun
         if (selectedMusiker?.email) {
-          const emailBody = `Hey ${selectedMusiker.name}! 👋
-
-Du wurdest für folgendes Event angefragt:
-
-🎵 Event: ${event.titel}
-📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr
-📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}
-🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}
-💰 Gage: €${variables.gage_netto || 0}
-
-${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
-
-Viele Grüße
-Das Team`;
+          const emailBody = `Hey ${selectedMusiker.name}! 👋\n\nDu wurdest für folgendes Event angefragt:\n\n🎵 Event: ${event.titel}\n\n📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr\n\n📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}\n\n🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}\n\n💰 Gage: €${variables.gage_netto || 0}\n\n${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!\n\nViele Grüße\nDas Team`;
 
           try {
             await base44.functions.invoke('sendMailgunEmail', {
