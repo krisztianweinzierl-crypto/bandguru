@@ -262,7 +262,7 @@ export default function EventDetailPage() {
           });
         }
         
-        // Automatisch E-Mail an Musiker senden
+        // Automatisch E-Mail an Musiker senden über Mailgun
         if (selectedMusiker?.email) {
           const emailBody = `Hey ${selectedMusiker.name}! 👋
 
@@ -279,12 +279,17 @@ ${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich 
 Viele Grüße
 Das Team`;
 
-          await base44.integrations.Core.SendEmail({
-            to: selectedMusiker.email,
-            subject: `🎵 Event-Anfrage: ${event.titel}`,
-            body: emailBody
-          });
-          console.log(`✅ E-Mail automatisch an ${selectedMusiker.name} versendet`);
+          try {
+            await base44.functions.invoke('sendMailgunEmail', {
+              to: selectedMusiker.email,
+              subject: `🎵 Event-Anfrage: ${event.titel}`,
+              body: emailBody,
+              from_name: 'Bandguru'
+            });
+            console.log(`✅ E-Mail automatisch an ${selectedMusiker.name} versendet`);
+          } catch (emailError) {
+            console.error("Fehler beim Senden der E-Mail über Mailgun:", emailError);
+          }
         }
       } catch (error) {
         console.error("Fehler beim Erstellen der Benachrichtigung/E-Mail:", error);
