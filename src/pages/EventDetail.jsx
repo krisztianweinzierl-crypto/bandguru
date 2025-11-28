@@ -42,6 +42,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
+import EventAufgabenTab from "@/components/events/EventAufgabenTab";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -60,10 +61,6 @@ export default function EventDetailPage() {
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null);
-  const [showAufgabeDialog, setShowAufgabeDialog] = useState(false);
-  const [editingAufgabe, setEditingAufgabe] = useState(null);
-  const [neueAufgabe, setNeueAufgabe] = useState({ titel: '', beschreibung: '', prioritaet: 'normal', faellig_am: '', zugewiesen_an: '' });
-  const [neueUnteraufgaben, setNeueUnteraufgaben] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
