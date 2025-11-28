@@ -1329,7 +1329,54 @@ ${orgName} Team`;
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
-  );
-}
+
+        {/* Contact Customer Dialog */}
+        <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Kunde kontaktieren</DialogTitle>
+              <DialogDescription>
+                E-Mail an {kunde?.firmenname} ({kunde?.email}) senden
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="email-subject">Betreff</Label>
+                <Input
+                  id="email-subject"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Betreff der E-Mail"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email-body">Nachricht</Label>
+                <Textarea
+                  id="email-body"
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  placeholder="Ihre Nachricht..."
+                  rows={10}
+                  className="font-mono text-sm"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowContactDialog(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleSendEmail}
+                disabled={sendingEmail || !emailSubject || !emailBody}
+                className="text-white"
+                style={{ backgroundColor: '#223a5e' }}
+              >
+                {sendingEmail ? 'Wird gesendet...' : 'E-Mail senden'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        </div>
+        </div>
+        );
+        }
