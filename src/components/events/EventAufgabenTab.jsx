@@ -240,9 +240,8 @@ export default function EventAufgabenTab({
                           variant="ghost"
                           size="icon"
                           onClick={() => {
-                            if (confirm('Aufgabe löschen?')) {
-                              deleteAufgabeMutation.mutate(aufgabe.id);
-                            }
+                            setDeleteConfirmId(aufgabe.id);
+                            setDeleteConfirmType('aufgabe');
                           }}
                           className="text-gray-400 hover:text-red-500"
                         >
