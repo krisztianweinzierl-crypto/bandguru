@@ -185,6 +185,11 @@ export default function EventAufgabenTab({
                         <>
                           <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                             {aufgabe.titel}
+                            {hasUnteraufgaben && (
+                              <span className="ml-2 text-xs text-gray-500">
+                                ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
+                              </span>
+                            )}
                           </p>
                           <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
                             {aufgabe.faellig_am && (
@@ -195,11 +200,6 @@ export default function EventAufgabenTab({
                             )}
                             {zugewiesenerUser && (
                               <span>@ {zugewiesenerUser.full_name}</span>
-                            )}
-                            {hasUnteraufgaben && (
-                              <span className="text-blue-600">
-                                {unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length} Unteraufgaben
-                              </span>
                             )}
                           </div>
                         </>
