@@ -86,6 +86,9 @@ export default function EventAufgabenTab({
       faellig_am: aufgabe.faellig_am ? aufgabe.faellig_am.split('T')[0] : '',
       zugewiesen_an: aufgabe.zugewiesen_an || ''
     });
+    // Lade existierende Unteraufgaben
+    const existingSubs = aufgaben.filter(a => a.parent_task_id === aufgabe.id);
+    setExistingUnteraufgaben(existingSubs);
     setNeueUnteraufgaben([]);
     setShowAufgabeDialog(true);
   };
