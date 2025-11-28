@@ -238,11 +238,11 @@ export default function EventAufgabenTab({
                   
                   {/* Unteraufgaben - aufklappbar */}
                   {hasUnteraufgaben && isExpanded && (
-                    <div className="bg-gray-50 border-t px-4 py-2 space-y-2">
+                    <div className="bg-gray-50 border-t px-4 py-2 space-y-1">
                       {unteraufgaben.map((sub) => (
                         <div 
                           key={sub.id} 
-                          className="flex items-center gap-3 pl-6 py-1 hover:bg-gray-100 rounded transition-colors"
+                          className="flex items-center gap-3 ml-6 border-l-2 border-gray-200 pl-4 py-2 hover:bg-gray-100 rounded-r transition-colors"
                           onDoubleClick={() => handleDoubleClick(sub)}
                         >
                           <button
@@ -255,7 +255,7 @@ export default function EventAufgabenTab({
                             {sub.status === 'erledigt' ? (
                               <CheckCircle2 className="w-5 h-5 text-green-500" />
                             ) : (
-                              <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400" />
+                              <Circle className="w-5 h-5 text-blue-400 hover:text-blue-500" />
                             )}
                           </button>
                           
@@ -283,16 +283,30 @@ export default function EventAufgabenTab({
                               {sub.titel}
                             </span>
                           )}
-                          
+
                           {isManager && inlineEditId !== sub.id && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteAufgabeMutation.mutate(sub.id)}
-                              className="h-6 w-6 text-gray-400 hover:text-red-500"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => openEditDialog(sub)}
+                                className="h-6 w-6 text-gray-400 hover:text-blue-500"
+                              >
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  if (confirm('Unteraufgabe löschen?')) {
+                                    deleteAufgabeMutation.mutate(sub.id);
+                                  }
+                                }}
+                                className="h-6 w-6 text-gray-400 hover:text-red-500"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
                           )}
                         </div>
                       ))}
