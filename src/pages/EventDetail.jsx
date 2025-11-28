@@ -24,7 +24,10 @@ import {
   Euro,
   MessageSquare,
   Send,
-  AlertCircle
+  AlertCircle,
+  CheckSquare,
+  Circle,
+  CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -196,6 +199,24 @@ export default function EventDetailPage() {
     enabled: !!event?.org_id && isManager,
   });
 
+  const { data: aufgaben = [] } = useQuery({
+    queryKey: ['aufgaben', eventId],
+    queryFn: () => base44.entities.Aufgabe.filter({ bezug_typ: 'event', bezug_id: eventId }),
+    enabled: !!eventId,
+  });
+
+  const { data: mitglieder = [] } = useQuery({
+    queryKey: ['mitglieder', event?.org_id],
+    queryFn: () => base44.entities.Mitglied.filter({ org_id: event.org_id, status: 'aktiv' }),
+    enabled: !!event?.org_id,
+  });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: !!event?.org_id,
+  });
+
   const updateEventMutation = useMutation({
     mutationFn: async (eventData) => {
       console.log("Aktualisiere Event:", eventData);
@@ -323,6 +344,38 @@ export default function EventDetailPage() {
       console.error("Fehler beim Entfernen des Musikers:", error);
       alert("Fehler beim Entfernen des Musikers: " + (error.message || "Unbekannter Fehler"));
     }
+  });
+
+  const createAufgabeMutation = useMutation({
+    mutationFn: async (aufgabeData) => {
+      return await base44.entities.Aufgabe.create({
+        ...aufgabeData,
+        org_id: event.org_id,
+        bezug_typ: 'event',
+        bezug_id: eventId
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
+    },
+  });
+
+  const updateAufgabeMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.Aufgabe.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
+    },
+  });
+
+  const deleteAufgabeMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.entities.Aufgabe.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
+    },
   });
 
   const sendEinladungMutation = useMutation({
@@ -1221,13 +1274,123 @@ ${orgName} Team`;
             </TabsContent>
           )}
 
-          {/* Platzhalter für andere Tabs */}
-          <TabsContent value="aufgaben">
+          {/* Aufgaben Tab */}
+          <TabsContent value="aufgaben" className="space-y-6">
             <Card className="border-none shadow-lg">
-              <CardContent className="p-12 text-center">
-                <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Aufgaben</h3>
-                <p className="text-gray-500">Diese Funktion wird in Kürze verfügbar sein</p>
+              <CardHeader className="border-b">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl font-bold">Aufgaben für dieses Event</CardTitle>
+                  {isManager && (
+                    <Button
+                      onClick={() => {
+                        const titel = prompt("Aufgabentitel:");
+                        if (titel) {
+                          createAufgabeMutation.mutate({ titel, status: 'offen', prioritaet: 'normal' });
+                        }
+                      }}
+                      size="sm"
+                      className="text-white"
+                      style={{ backgroundColor: '#223a5e' }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Aufgabe hinzufügen
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {aufgaben.length > 0 ? (
+                  <div className="space-y-3">
+                    {aufgaben.map((aufgabe) => {
+                      const zugewiesenerUser = users.find(u => u.id === aufgabe.zugewiesen_an);
+                      const prioritaetColors = {
+                        niedrig: 'bg-gray-100 text-gray-600',
+                        normal: 'bg-blue-100 text-blue-600',
+                        hoch: 'bg-red-100 text-red-600'
+                      };
+                      
+                      return (
+                        <div
+                          key={aufgabe.id}
+                          className={`flex items-center gap-4 p-4 rounded-lg border ${
+                            aufgabe.status === 'erledigt' ? 'bg-gray-50 opacity-60' : 'bg-white'
+                          }`}
+                        >
+                          <button
+                            onClick={() => updateAufgabeMutation.mutate({
+                              id: aufgabe.id,
+                              data: { status: aufgabe.status === 'erledigt' ? 'offen' : 'erledigt' }
+                            })}
+                            className="flex-shrink-0"
+                          >
+                            {aufgabe.status === 'erledigt' ? (
+                              <CheckCircle2 className="w-6 h-6 text-green-500" />
+                            ) : (
+                              <Circle className="w-6 h-6 text-gray-300 hover:text-gray-400" />
+                            )}
+                          </button>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                              {aufgabe.titel}
+                            </p>
+                            <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                              {aufgabe.faellig_am && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {format(new Date(aufgabe.faellig_am), 'dd.MM.yyyy', { locale: de })}
+                                </span>
+                              )}
+                              {zugewiesenerUser && (
+                                <span>@ {zugewiesenerUser.full_name}</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <Badge className={prioritaetColors[aufgabe.prioritaet] || prioritaetColors.normal}>
+                            {aufgabe.prioritaet}
+                          </Badge>
+                          
+                          {isManager && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                if (confirm('Aufgabe löschen?')) {
+                                  deleteAufgabeMutation.mutate(aufgabe.id);
+                                }
+                              }}
+                              className="text-gray-400 hover:text-red-500"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <CheckSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
+                    <p className="text-gray-500 mb-4">Es gibt noch keine Aufgaben für dieses Event</p>
+                    {isManager && (
+                      <Button
+                        onClick={() => {
+                          const titel = prompt("Aufgabentitel:");
+                          if (titel) {
+                            createAufgabeMutation.mutate({ titel, status: 'offen', prioritaet: 'normal' });
+                          }
+                        }}
+                        className="text-white"
+                        style={{ backgroundColor: '#223a5e' }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Erste Aufgabe erstellen
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
