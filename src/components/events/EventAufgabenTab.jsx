@@ -433,53 +433,83 @@ export default function EventAufgabenTab({
               </Select>
             </div>
 
-            {/* Unteraufgaben - nur bei neuer Aufgabe */}
-            {!editingAufgabe && (
-              <div className="space-y-3 pt-4 border-t">
-                <div className="flex justify-between items-center">
-                  <Label>Unteraufgaben</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setNeueUnteraufgaben([...neueUnteraufgaben, { titel: '', prioritaet: 'normal' }])}
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Hinzufügen
-                  </Button>
-                </div>
-
-                {neueUnteraufgaben.length > 0 ? (
-                  <div className="space-y-2">
-                    {neueUnteraufgaben.map((sub, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <Input
-                          value={sub.titel}
-                          onChange={(e) => {
-                            const updated = [...neueUnteraufgaben];
-                            updated[idx].titel = e.target.value;
-                            setNeueUnteraufgaben(updated);
-                          }}
-                          placeholder={`Unteraufgabe ${idx + 1}`}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setNeueUnteraufgaben(neueUnteraufgaben.filter((_, i) => i !== idx))}
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-2">Keine Unteraufgaben</p>
-                )}
+            {/* Unteraufgaben */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex justify-between items-center">
+                <Label>Unteraufgaben</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNeueUnteraufgaben([...neueUnteraufgaben, { titel: '', prioritaet: 'normal' }])}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Hinzufügen
+                </Button>
               </div>
-            )}
+
+              {/* Existierende Unteraufgaben (beim Bearbeiten) */}
+              {editingAufgabe && existingUnteraufgaben.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-500">Bestehende Unteraufgaben:</p>
+                  {existingUnteraufgaben.map((sub) => (
+                    <div key={sub.id} className="flex gap-2 items-center bg-gray-50 p-2 rounded">
+                      <span className={`text-sm flex-1 ${sub.status === 'erledigt' ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                        {sub.titel}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (confirm('Unteraufgabe löschen?')) {
+                            deleteAufgabeMutation.mutate(sub.id);
+                            setExistingUnteraufgaben(existingUnteraufgaben.filter(s => s.id !== sub.id));
+                          }
+                        }}
+                        className="h-7 w-7 text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Neue Unteraufgaben */}
+              {neueUnteraufgaben.length > 0 && (
+                <div className="space-y-2">
+                  {editingAufgabe && <p className="text-xs text-gray-500">Neue Unteraufgaben:</p>}
+                  {neueUnteraufgaben.map((sub, idx) => (
+                    <div key={idx} className="flex gap-2 items-center">
+                      <Input
+                        value={sub.titel}
+                        onChange={(e) => {
+                          const updated = [...neueUnteraufgaben];
+                          updated[idx].titel = e.target.value;
+                          setNeueUnteraufgaben(updated);
+                        }}
+                        placeholder={`Unteraufgabe ${idx + 1}`}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setNeueUnteraufgaben(neueUnteraufgaben.filter((_, i) => i !== idx))}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {existingUnteraufgaben.length === 0 && neueUnteraufgaben.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-2">Keine Unteraufgaben</p>
+              )}
+            </div>
           </div>
 
           <DialogFooter>
