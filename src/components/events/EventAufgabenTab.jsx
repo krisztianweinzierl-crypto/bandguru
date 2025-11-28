@@ -535,6 +535,21 @@ export default function EventAufgabenTab({
                       zugewiesen_an: neueAufgabe.zugewiesen_an || null
                     }
                   });
+                  
+                  // Create new subtasks for existing task
+                  for (const sub of neueUnteraufgaben) {
+                    if (sub.titel.trim()) {
+                      await base44.entities.Aufgabe.create({
+                        org_id: event.org_id,
+                        bezug_typ: 'event',
+                        bezug_id: eventId,
+                        parent_task_id: editingAufgabe.id,
+                        titel: sub.titel,
+                        prioritaet: sub.prioritaet,
+                        status: 'offen'
+                      });
+                    }
+                  }
                 } else {
                   // Create new
                   const hauptaufgabe = await createAufgabeMutation.mutateAsync({
