@@ -61,6 +61,10 @@ export default function EventDetailPage() {
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null);
+  const [showContactDialog, setShowContactDialog] = useState(false);
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
