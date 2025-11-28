@@ -54,6 +54,8 @@ export default function EventAufgabenTab({
   const [existingUnteraufgaben, setExistingUnteraufgaben] = useState([]);
   const [inlineEditId, setInlineEditId] = useState(null);
   const [inlineEditValue, setInlineEditValue] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [deleteConfirmType, setDeleteConfirmType] = useState(null); // 'aufgabe' or 'unteraufgabe'
 
   const prioritaetColors = {
     niedrig: 'bg-gray-100 text-gray-600',
