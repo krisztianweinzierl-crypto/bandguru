@@ -41,6 +41,7 @@ export default function EventAufgabenTab({
   const [editingAufgabe, setEditingAufgabe] = useState(null);
   const [neueAufgabe, setNeueAufgabe] = useState({ titel: '', beschreibung: '', prioritaet: 'normal', faellig_am: '', zugewiesen_an: '' });
   const [neueUnteraufgaben, setNeueUnteraufgaben] = useState([]);
+  const [existingUnteraufgaben, setExistingUnteraufgaben] = useState([]);
   const [inlineEditId, setInlineEditId] = useState(null);
   const [inlineEditValue, setInlineEditValue] = useState('');
 
