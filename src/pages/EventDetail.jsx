@@ -552,7 +552,31 @@ ${orgName} Team`;
 
   const handleContactCustomer = () => {
     if (kunde?.email) {
-      window.location.href = `mailto:${kunde.email}?subject=${encodeURIComponent('Event: ' + event.titel)}`;
+      setEmailSubject(`Event: ${event.titel}`);
+      setEmailBody(`Hallo ${kunde.ansprechpartner || kunde.firmenname},\n\n\n\nMit freundlichen Grüßen`);
+      setShowContactDialog(true);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!kunde?.email || !emailSubject || !emailBody) return;
+    
+    setSendingEmail(true);
+    try {
+      await base44.functions.invoke('sendMailgunEmail', {
+        to: kunde.email,
+        subject: emailSubject,
+        body: emailBody
+      });
+      setShowContactDialog(false);
+      setEmailSubject('');
+      setEmailBody('');
+      alert('✅ E-Mail erfolgreich versendet!');
+    } catch (error) {
+      console.error("Fehler beim Senden der E-Mail:", error);
+      alert('❌ Fehler beim Senden der E-Mail: ' + error.message);
+    } finally {
+      setSendingEmail(false);
     }
   };
 
