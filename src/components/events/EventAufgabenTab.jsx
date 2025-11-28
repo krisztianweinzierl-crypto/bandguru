@@ -472,10 +472,8 @@ export default function EventAufgabenTab({
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          if (confirm('Unteraufgabe löschen?')) {
-                            deleteAufgabeMutation.mutate(sub.id);
-                            setExistingUnteraufgaben(existingUnteraufgaben.filter(s => s.id !== sub.id));
-                          }
+                          setDeleteConfirmId(sub.id);
+                          setDeleteConfirmType('dialog-unteraufgabe');
                         }}
                         className="h-7 w-7 text-red-500 hover:text-red-600"
                       >
