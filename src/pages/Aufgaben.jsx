@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -28,6 +27,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import AufgabeForm from "@/components/aufgaben/AufgabeForm";
+import { Link } from "react-router-dom";
+import { createPageUrl as createUrl } from "@/utils";
 
 // Helper function to create page URLs for notifications
 const createPageUrl = (pageName) => {
@@ -83,6 +84,12 @@ export default function AufgabenPage() {
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', currentOrgId],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: currentOrgId, status: "aktiv" }),
+    enabled: !!currentOrgId
+  });
+
+  const { data: events = [] } = useQuery({
+    queryKey: ['events', currentOrgId],
+    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
     enabled: !!currentOrgId
   });
 
@@ -272,6 +279,7 @@ export default function AufgabenPage() {
     const isExpanded = expandedTasks[aufgabe.id];
     const isOverdue = aufgabe.faellig_am && new Date(aufgabe.faellig_am) < new Date() && aufgabe.status !== 'erledigt';
     const assignedMitglied = mitglieder.find((m) => m.user_id === aufgabe.zugewiesen_an);
+    const linkedEvent = aufgabe.bezug_typ === 'event' && aufgabe.bezug_id ? events.find(e => e.id === aufgabe.bezug_id) : null;
 
     return (
       <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
@@ -329,6 +337,17 @@ export default function AufgabenPage() {
 
                 {/* Meta Info */}
                 <div className="flex flex-wrap items-center gap-3 mt-2">
+                  {linkedEvent && (
+                    <Link 
+                      to={createUrl('EventDetail') + `?id=${linkedEvent.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full hover:bg-blue-100 transition-colors"
+                    >
+                      <CalendarIcon className="w-3 h-3" />
+                      {linkedEvent.titel}
+                    </Link>
+                  )}
+                
                   {aufgabe.faellig_am &&
                   <div className={`flex items-center gap-1 text-xs ${
                   isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
