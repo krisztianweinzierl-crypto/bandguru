@@ -494,6 +494,29 @@ export default function AufgabenPage() {
                 </div>
               }
 
+              {/* Event-Verknüpfung */}
+              {selectedAufgabe.bezug_typ === 'event' && selectedAufgabe.bezug_id && (() => {
+                const linkedEvent = events.find(e => e.id === selectedAufgabe.bezug_id);
+                if (!linkedEvent) return null;
+                return (
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">Verknüpftes Event</Label>
+                    <Link 
+                      to={createUrl('EventDetail') + `?id=${linkedEvent.id}`}
+                      className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
+                    >
+                      <CalendarIcon className="w-4 h-4 text-blue-600" />
+                      <span className="text-blue-800 font-medium">{linkedEvent.titel}</span>
+                      {linkedEvent.datum_von && (
+                        <span className="text-blue-600 text-sm ml-auto">
+                          {format(new Date(linkedEvent.datum_von), 'dd. MMM yyyy', { locale: de })}
+                        </span>
+                      )}
+                    </Link>
+                  </div>
+                );
+              })()}
+
               {/* Unteraufgaben Sektion */}
               {hasUnteraufgaben &&
               <div className="border-t pt-6">
