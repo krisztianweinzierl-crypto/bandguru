@@ -264,14 +264,19 @@ export default function EventDetailPage() {
         
         // Automatisch E-Mail an Musiker senden über Mailgun
         if (selectedMusiker?.email) {
-          const emailBody = `Hey ${selectedMusiker.name}! 👋\n\nDu wurdest für folgendes Event angefragt:\n\n🎵 Event: ${event.titel}\n\n📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr\n\n📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}\n\n🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}\n\n💰 Gage: €${variables.gage_netto || 0}\n\n${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!\n\nViele Grüße\nDas Team`;
+          // Lade Organisation für den Absendernamen
+          const orgList = await base44.entities.Organisation.filter({ id: event.org_id });
+          const organisation = orgList[0];
+          const orgName = organisation?.name || 'Das Team';
+          
+          const emailBody = `Hey ${selectedMusiker.name}! 👋\n\nDu wurdest für folgendes Event angefragt:\n\n🎵 Event: ${event.titel}\n\n📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr\n\n📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}\n\n🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}\n\n💰 Gage: €${variables.gage_netto || 0}\n\n${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!\n\n👉 Hier geht's zur App: https://app.bandguru.de\n\nViele Grüße,\n${orgName} Team`;
 
           try {
             await base44.functions.invoke('sendMailgunEmail', {
               to: selectedMusiker.email,
               subject: `🎵 Event-Anfrage: ${event.titel}`,
               body: emailBody,
-              from_name: 'Bandguru'
+              from_name: orgName
             });
             console.log(`✅ E-Mail automatisch an ${selectedMusiker.name} versendet`);
           } catch (emailError) {
@@ -325,20 +330,31 @@ export default function EventDetailPage() {
       const eventMusikerEntry = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
       const em = eventMusikerEntry[0];
       
+      // Lade Organisation für den Absendernamen
+      const orgList = await base44.entities.Organisation.filter({ id: event.org_id });
+      const organisation = orgList[0];
+      const orgName = organisation?.name || 'Das Team';
+      
       const emailBody = `Hey ${musikerData.name}! 👋
 
 Du wurdest für folgendes Event angefragt:
 
 🎵 Event: ${event.titel}
+
 📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr
+
 📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}
+
 🎸 Rolle: ${em.rolle}
+
 💰 Gage: €${em.gage_netto}
 
 ${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}${em.buchungsbedingungen ? `Buchungsbedingungen: ${em.buchungsbedingungen}\n\n` : ''}Bitte gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
 
-Viele Grüße
-Das Team`;
+👉 Hier geht's zur App: https://app.bandguru.de
+
+Viele Grüße,
+${orgName} Team`;
 
       await base44.integrations.Core.SendEmail({
         to: musikerData.email,
