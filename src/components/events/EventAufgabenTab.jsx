@@ -597,6 +597,41 @@ export default function EventAufgabenTab({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteConfirmType === 'aufgabe' ? 'Aufgabe löschen?' : 'Unteraufgabe löschen?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteConfirmType === 'aufgabe' 
+                ? 'Möchtest du diese Aufgabe wirklich löschen? Alle zugehörigen Unteraufgaben werden ebenfalls gelöscht.'
+                : 'Möchtest du diese Unteraufgabe wirklich löschen?'
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteConfirmType === 'dialog-unteraufgabe') {
+                  deleteAufgabeMutation.mutate(deleteConfirmId);
+                  setExistingUnteraufgaben(existingUnteraufgaben.filter(s => s.id !== deleteConfirmId));
+                } else {
+                  deleteAufgabeMutation.mutate(deleteConfirmId);
+                }
+                setDeleteConfirmId(null);
+                setDeleteConfirmType(null);
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
