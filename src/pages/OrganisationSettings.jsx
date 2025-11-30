@@ -92,6 +92,13 @@ export default function OrganisationSettingsPage() {
     enabled: !!currentOrgId,
   });
 
+  // Lade alle Musiker der Organisation
+  const { data: allMusiker = [] } = useQuery({
+    queryKey: ['allMusiker', currentOrgId],
+    queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
   const updateOrgMutation = useMutation({
     mutationFn: (data) => base44.entities.Organisation.update(currentOrgId, data),
     onSuccess: () => {
