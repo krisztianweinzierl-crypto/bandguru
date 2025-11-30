@@ -253,17 +253,13 @@ Das ${organisation.name} Team 🎵`;
 
   // Helper-Funktion um E-Mail eines Mitglieds zu ermitteln
   const getMitgliedEmail = (mitglied) => {
-    console.log("📧 Ermittle E-Mail für Mitglied:", mitglied.id);
-    
     // 1. Priorität: invite_email (bei eingeladenen oder neu akzeptierten Mitgliedern)
     if (mitglied.invite_email) {
-      console.log("   ✅ Verwende invite_email:", mitglied.invite_email);
       return mitglied.invite_email;
     }
     
     // 2. Priorität: Aktueller User (wenn es der eigene Account ist)
     if (mitglied.user_id === user?.id && user?.email) {
-      console.log("   ✅ Verwende current user email:", user.email);
       return user.email;
     }
     
@@ -271,18 +267,18 @@ Das ${organisation.name} Team 🎵`;
     if (mitglied.user_id && allUsers.length > 0) {
       const userData = allUsers.find(u => u.id === mitglied.user_id);
       if (userData?.email) {
-        console.log("   ✅ Verwende User-Entity email:", userData.email);
         return userData.email;
-      } else {
-        console.log("   ⚠️ Kein User gefunden in allUsers für user_id:", mitglied.user_id);
       }
-    } else {
-      console.log("   ⚠️ Keine user_id oder allUsers ist leer");
-      console.log("      user_id:", mitglied.user_id);
-      console.log("      allUsers.length:", allUsers.length);
     }
     
-    console.log("   ❌ Keine E-Mail gefunden");
+    // 4. Priorität: Musiker-Profil (über musiker_id im Mitglied oder E-Mail-Matching)
+    if (mitglied.musiker_id && allMusiker.length > 0) {
+      const musikerData = allMusiker.find(m => m.id === mitglied.musiker_id);
+      if (musikerData?.email) {
+        return musikerData.email;
+      }
+    }
+    
     return null;
   };
 
