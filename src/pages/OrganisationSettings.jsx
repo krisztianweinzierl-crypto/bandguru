@@ -269,9 +269,19 @@ Das ${organisation.name} Team 🎵`;
       if (userData?.email) {
         return userData.email;
       }
+      
+      // 3b. Wenn User gefunden, suche Musiker-Profil über E-Mail
+      if (userData?.email && allMusiker.length > 0) {
+        const musikerByEmail = allMusiker.find(m => 
+          m.email?.toLowerCase().trim() === userData.email.toLowerCase().trim()
+        );
+        if (musikerByEmail?.email) {
+          return musikerByEmail.email;
+        }
+      }
     }
     
-    // 4. Priorität: Musiker-Profil (über musiker_id im Mitglied oder E-Mail-Matching)
+    // 4. Priorität: Musiker-Profil (über musiker_id)
     if (mitglied.musiker_id && allMusiker.length > 0) {
       const musikerData = allMusiker.find(m => m.id === mitglied.musiker_id);
       if (musikerData?.email) {
