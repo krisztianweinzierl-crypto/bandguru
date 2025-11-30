@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -300,13 +299,14 @@ Das ${organisation.name} Team 🎵`;
         if (userData?.full_name) {
           return userData.full_name;
         }
-        if (userData?.email) { // Fallback to email if full_name is not available
+        if (userData?.email) {
           return userData.email;
         }
       }
     }
     
-    return mitglied.user_id || "Unbekannt";
+    // Fallback: E-Mail aus invite_email oder "Unbekannt"
+    return mitglied.invite_email || "Unbekannt";
   };
 
   if (!organisation || !orgFormData) {
