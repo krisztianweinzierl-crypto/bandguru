@@ -312,13 +312,24 @@ Das ${organisation.name} Team 🎵`;
         if (userData?.full_name) {
           return userData.full_name;
         }
+        
+        // Wenn User-Email bekannt, suche Musiker-Profil über E-Mail
+        if (userData?.email && allMusiker.length > 0) {
+          const musikerByEmail = allMusiker.find(m => 
+            m.email?.toLowerCase().trim() === userData.email.toLowerCase().trim()
+          );
+          if (musikerByEmail?.name) {
+            return musikerByEmail.name;
+          }
+        }
+        
         if (userData?.email) {
           return userData.email;
         }
       }
     }
     
-    // Fallback: Musiker-Name aus Musiker-Profil
+    // Fallback: Musiker-Name aus Musiker-Profil (über musiker_id)
     if (mitglied.musiker_id && allMusiker.length > 0) {
       const musikerData = allMusiker.find(m => m.id === mitglied.musiker_id);
       if (musikerData?.name) {
