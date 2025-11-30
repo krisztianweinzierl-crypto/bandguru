@@ -296,7 +296,7 @@ Das ${organisation.name} Team 🎵`;
         return user.full_name;
       }
       
-      // Andere User
+      // Andere User aus User-Entity
       if (allUsers.length > 0) {
         const userData = allUsers.find(u => u.id === mitglied.user_id);
         if (userData?.full_name) {
@@ -308,7 +308,18 @@ Das ${organisation.name} Team 🎵`;
       }
     }
     
-    // Fallback: E-Mail aus invite_email oder "Unbekannt"
+    // Fallback: Musiker-Name aus Musiker-Profil
+    if (mitglied.musiker_id && allMusiker.length > 0) {
+      const musikerData = allMusiker.find(m => m.id === mitglied.musiker_id);
+      if (musikerData?.name) {
+        return musikerData.name;
+      }
+      if (musikerData?.email) {
+        return musikerData.email;
+      }
+    }
+    
+    // Letzter Fallback: invite_email oder "Unbekannt"
     return mitglied.invite_email || "Unbekannt";
   };
 
