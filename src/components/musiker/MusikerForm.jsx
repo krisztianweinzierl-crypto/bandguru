@@ -1,15 +1,17 @@
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Plus } from "lucide-react";
+import { X, Save, Plus, Upload, User, Loader2 } from "lucide-react";
 
 export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
   const [formData, setFormData] = useState({
     name: musiker?.name || "",
+    profilbild_url: musiker?.profilbild_url || "",
     instrumente: musiker?.instrumente || [],
     genre: musiker?.genre || [],
     sprachen: musiker?.sprachen || [],
@@ -26,6 +28,33 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
   const [instrumentInput, setInstrumentInput] = useState("");
   const [genreInput, setGenreInput] = useState("");
   const [spracheInput, setSpracheInput] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validierung
+    if (!file.type.startsWith('image/')) {
+      alert('Bitte wähle eine Bilddatei aus');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Das Bild darf maximal 5MB groß sein');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      handleChange('profilbild_url', file_url);
+    } catch (error) {
+      console.error('Fehler beim Hochladen:', error);
+      alert('Fehler beim Hochladen des Bildes');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -59,6 +88,55 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Profilbild Upload */}
+          <div className="flex items-start gap-6">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                {formData.profilbild_url ? (
+                  <img 
+                    src={formData.profilbild_url} 
+                    alt="Profilbild" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-10 h-10 text-gray-400" />
+                )}
+              </div>
+              <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#223a5e] hover:bg-[#1a2d4a] text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-colors">
+                {uploadingImage ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  disabled={uploadingImage}
+                />
+              </label>
+            </div>
+            <div className="flex-1 space-y-1">
+              <Label>Profilbild</Label>
+              <p className="text-sm text-gray-500">
+                JPG, PNG oder GIF. Max. 5MB.
+              </p>
+              {formData.profilbild_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleChange('profilbild_url', '')}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 p-0 h-auto"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Entfernen
+                </Button>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name">Name / Künstlername *</Label>

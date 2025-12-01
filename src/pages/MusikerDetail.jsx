@@ -181,8 +181,18 @@ ${orgName} Team`;
           {/* Profile Header */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-start gap-6">
-              <Avatar className={`w-24 h-24 ${color} text-white text-3xl font-bold`}>
-                <AvatarFallback className="bg-[#223a5e] rounded-full flex h-full w-full items-center justify-center">{initials}</AvatarFallback>
+              <Avatar className="w-24 h-24">
+                {musiker.profilbild_url ? (
+                  <img 
+                    src={musiker.profilbild_url} 
+                    alt={musiker.name} 
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <AvatarFallback className="bg-[#223a5e] text-white text-3xl font-bold rounded-full flex h-full w-full items-center justify-center">
+                    {initials}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{musiker.name}</h1>

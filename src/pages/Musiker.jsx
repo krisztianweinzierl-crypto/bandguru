@@ -185,8 +185,18 @@ export default function MusikerPage() {
 
         <CardHeader className="pb-4">
           <div className="flex items-start gap-4">
-            <div className={`w-14 h-14 ${color} rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0`}>
-              {initials}
+            <div className="w-14 h-14 rounded-full flex-shrink-0 overflow-hidden">
+              {musiker.profilbild_url ? (
+                <img 
+                  src={musiker.profilbild_url} 
+                  alt={musiker.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className={`${color} w-full h-full flex items-center justify-center text-white font-bold text-lg`}>
+                  {initials}
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{musiker.name}</CardTitle>
@@ -295,8 +305,18 @@ export default function MusikerPage() {
         className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer"
         onClick={() => handleCardClick(musiker.id)}>
 
-        <div className="bg-[#223a5e] text-white font-bold rounded-full ] w-12 h-12 flex items-center justify-center flex-shrink-0">
-          {initials}
+        <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden">
+          {musiker.profilbild_url ? (
+            <img 
+              src={musiker.profilbild_url} 
+              alt={musiker.name} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="bg-[#223a5e] text-white font-bold w-full h-full flex items-center justify-center">
+              {initials}
+            </div>
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
