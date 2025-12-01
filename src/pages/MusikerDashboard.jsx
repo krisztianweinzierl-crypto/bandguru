@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +16,10 @@ import {
   Music,
   Users,
   Shirt,
-  ChevronRight // Added ChevronRight icon
+  ChevronRight,
+  Hotel,
+  ExternalLink,
+  Wrench
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -251,10 +253,34 @@ export default function MusikerDashboard() {
       );
       const result = await Promise.all(eventsPromises);
       console.log("   Events geladen:", result.length);
-      return result.filter(Boolean); // Filter out any undefined events if an ID didn't match
+      return result.filter(Boolean);
     },
     enabled: eventMusiker.length > 0,
   });
+
+  // Lade Dokumente für Events
+  const { data: eventDateien = [] } = useQuery({
+    queryKey: ['eventDateien', events, currentOrgId],
+    queryFn: async () => {
+      const eventIds = events.map(e => e.id);
+      const allDateien = await base44.entities.Datei.filter({ 
+        org_id: currentOrgId,
+        bezug_typ: 'event'
+      });
+      return allDateien.filter(d => eventIds.includes(d.bezug_id));
+    },
+    enabled: events.length > 0 && !!currentOrgId,
+  });
+
+  const getDateienForEvent = (eventId) => {
+    return eventDateien.filter(d => d.bezug_id === eventId);
+  };
+
+  const openGoogleMaps = (address) => {
+    if (!address) return;
+    const encodedAddress = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+  };
 
   const updateEventMusikerMutation = useMutation({
     mutationFn: async ({ eventMusikerId, newStatus, antwortNotizen }) => {
@@ -655,84 +681,227 @@ export default function MusikerDashboard() {
                 </DialogHeader>
 
                 <div className="space-y-6">
-                  {/* Event Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar className="w-5 h-5 flex-shrink-0" />
-                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Clock className="w-5 h-5 flex-shrink-0" />
-                      <span>{format(new Date(getEventForEventMusiker(selectedEventMusiker).datum_von), 'HH:mm', { locale: de })} Uhr</span>
-                    </div>
-                    {getEventForEventMusiker(selectedEventMusiker).ort_name && (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-5 h-5 flex-shrink-0" />
-                        <span>{getEventForEventMusiker(selectedEventMusiker).ort_name}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Music className="w-5 h-5 flex-shrink-0" />
-                      <span className="font-medium">{selectedEventMusiker.rolle}</span>
-                    </div>
-                    {selectedEventMusiker.gage_netto && (
-                      <div className="flex items-center gap-2 text-green-600 font-semibold">
-                        <Euro className="w-5 h-5 flex-shrink-0" />
-                        <span>€{selectedEventMusiker.gage_netto.toFixed(2)}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Publikum & Ambiente */}
-                  {(getEventForEventMusiker(selectedEventMusiker).event_typ || getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste || getEventForEventMusiker(selectedEventMusiker).dresscode) && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Publikum & Ambiente</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {getEventForEventMusiker(selectedEventMusiker).event_typ && (
+                  {(() => {
+                    const event = getEventForEventMusiker(selectedEventMusiker);
+                    const dateien = getDateienForEvent(event?.id);
+                    
+                    return (
+                      <>
+                        {/* Event Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="flex items-center gap-2 text-gray-600">
-                            <span className="text-xl">🎉</span>
-                            <span>{getEventForEventMusiker(selectedEventMusiker).event_typ}</span>
+                            <Calendar className="w-5 h-5 flex-shrink-0" />
+                            <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
                           </div>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste && (
                           <div className="flex items-center gap-2 text-gray-600">
-                            <Users className="w-5 h-5" />
-                            <span>{getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste} Gäste</span>
+                            <Clock className="w-5 h-5 flex-shrink-0" />
+                            <span>{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</span>
                           </div>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).dresscode && (
                           <div className="flex items-center gap-2 text-gray-600">
-                            <Shirt className="w-5 h-5" />
-                            <span>{getEventForEventMusiker(selectedEventMusiker).dresscode}</span>
+                            <Music className="w-5 h-5 flex-shrink-0" />
+                            <span className="font-medium">{selectedEventMusiker.rolle}</span>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Notizen */}
-                  {selectedEventMusiker.notizen && (
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm font-semibold text-blue-900 mb-2">Notizen:</p>
-                      <p className="text-sm text-blue-700">{selectedEventMusiker.notizen}</p>
-                    </div>
-                  )}
-
-                  {/* Buchungsbedingungen */}
-                  {selectedEventMusiker.buchungsbedingungen && (
-                    <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                      <div className="flex items-start gap-2">
-                        <FileText className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-amber-900 mb-2">Buchungsbedingungen:</p>
-                          <div 
-                            className="text-sm text-amber-700 prose prose-sm max-w-none"
-                            dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
-                          />
+                          {selectedEventMusiker.gage_netto && (
+                            <div className="flex items-center gap-2 text-green-600 font-semibold">
+                              <Euro className="w-5 h-5 flex-shrink-0" />
+                              <span>€{selectedEventMusiker.gage_netto.toFixed(2)}</span>
+                              {selectedEventMusiker.spesen > 0 && (
+                                <span className="text-gray-500 font-normal text-sm">
+                                  (+ €{selectedEventMusiker.spesen.toFixed(2)} Reisekosten)
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </div>
-                  )}
+
+                        {/* Location mit Google Maps */}
+                        {(event.ort_name || event.ort_adresse) && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Location</p>
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                              {event.ort_name && (
+                                <p className="font-semibold text-gray-900">{event.ort_name}</p>
+                              )}
+                              {event.ort_adresse && (
+                                <p className="text-gray-600 mt-1">{event.ort_adresse}</p>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openGoogleMaps(event.ort_adresse || event.ort_name)}
+                                className="mt-3 gap-2"
+                              >
+                                <MapPin className="w-4 h-4" />
+                                In Google Maps öffnen
+                                <ExternalLink className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Ablaufplan / Schedule */}
+                        {(event.get_in_zeit || event.soundcheck_zeit || selectedEventMusiker.calltime) && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Ablaufplan</p>
+                            <div className="space-y-2">
+                              {selectedEventMusiker.calltime && (
+                                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                                  <Clock className="w-5 h-5 text-orange-600" />
+                                  <div>
+                                    <p className="text-sm text-orange-600">Deine Calltime</p>
+                                    <p className="font-semibold text-orange-700">{format(new Date(selectedEventMusiker.calltime), 'HH:mm', { locale: de })} Uhr</p>
+                                  </div>
+                                </div>
+                              )}
+                              {event.get_in_zeit && (
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                  <Clock className="w-5 h-5 text-gray-500" />
+                                  <div>
+                                    <p className="text-sm text-gray-500">Get-In</p>
+                                    <p className="font-semibold">{event.get_in_zeit} Uhr</p>
+                                  </div>
+                                </div>
+                              )}
+                              {event.soundcheck_zeit && (
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                  <Wrench className="w-5 h-5 text-gray-500" />
+                                  <div>
+                                    <p className="text-sm text-gray-500">Soundcheck</p>
+                                    <p className="font-semibold">{event.soundcheck_zeit} Uhr</p>
+                                  </div>
+                                </div>
+                              )}
+                              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                                <Music className="w-5 h-5 text-green-600" />
+                                <div>
+                                  <p className="text-sm text-green-600">Showbeginn</p>
+                                  <p className="font-semibold text-green-700">{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Publikum & Ambiente */}
+                        {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Details</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {event.event_typ && (
+                                <div className="flex items-center gap-2 text-gray-600">
+                                  <span className="text-xl">🎉</span>
+                                  <span>{event.event_typ}</span>
+                                </div>
+                              )}
+                              {event.anzahl_gaeste && (
+                                <div className="flex items-center gap-2 text-gray-600">
+                                  <Users className="w-5 h-5" />
+                                  <span>{event.anzahl_gaeste} Gäste</span>
+                                </div>
+                              )}
+                              {event.dresscode && (
+                                <div className="flex items-center gap-2 text-gray-600">
+                                  <Shirt className="w-5 h-5" />
+                                  <span>{event.dresscode}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Notizen */}
+                        {selectedEventMusiker.notizen && (
+                          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm font-semibold text-blue-900 mb-2">Notizen:</p>
+                            <p className="text-sm text-blue-700">{selectedEventMusiker.notizen}</p>
+                          </div>
+                        )}
+
+                        {/* Hotel mit Google Maps */}
+                        {event.hotel_name && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Hotel</p>
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                              <div className="flex items-start gap-3">
+                                <Hotel className="w-5 h-5 text-gray-500 mt-0.5" />
+                                <div className="flex-1">
+                                  <p className="font-semibold text-gray-900">{event.hotel_name}</p>
+                                  {event.hotel_adresse && (
+                                    <p className="text-gray-600 mt-1">{event.hotel_adresse}</p>
+                                  )}
+                                </div>
+                              </div>
+                              {event.hotel_adresse && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openGoogleMaps(event.hotel_adresse)}
+                                  className="mt-3 gap-2"
+                                >
+                                  <MapPin className="w-4 h-4" />
+                                  In Google Maps öffnen
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Technik */}
+                        {event.technik_hinweise && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Technik</p>
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                              <p className="text-gray-700 whitespace-pre-wrap">{event.technik_hinweise}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Dokumente */}
+                        {dateien.length > 0 && (
+                          <div className="pt-4 border-t">
+                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Dokumente</p>
+                            <div className="space-y-2">
+                              {dateien.map((datei) => (
+                                <a
+                                  key={datei.id}
+                                  href={datei.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                >
+                                  <FileText className="w-5 h-5 text-blue-600" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
+                                    {datei.beschreibung && (
+                                      <p className="text-sm text-gray-500 truncate">{datei.beschreibung}</p>
+                                    )}
+                                  </div>
+                                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Buchungsbedingungen */}
+                        {selectedEventMusiker.buchungsbedingungen && (
+                          <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                            <div className="flex items-start gap-2">
+                              <FileText className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-amber-900 mb-2">Buchungsbedingungen:</p>
+                                <div 
+                                  className="text-sm text-amber-700 prose prose-sm max-w-none"
+                                  dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
 
                   {/* Aktionen */}
                   {selectedEventMusiker.status === 'angefragt' && (
