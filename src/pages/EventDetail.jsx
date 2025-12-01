@@ -1402,7 +1402,17 @@ ${orgName} Team`;
                                         <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
                                       </div>
                                     </div>
-                                  </div>
+
+                                    {em.spesen > 0 && (
+                                      <div className="flex items-center gap-2 text-gray-600">
+                                        <Euro className="w-4 h-4" />
+                                        <div>
+                                          <p className="text-xs text-gray-500">Fahrtkosten</p>
+                                          <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                        </div>
+                                      </div>
+                                    )}
+                                    </div>
 
                                   {em.notizen && (
                                     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
@@ -1598,9 +1608,9 @@ ${orgName} Team`;
                           <UsersIcon className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Musiker-Gagen</p>
+                          <p className="text-xs text-gray-500">Musiker-Gagen + Fahrtkosten</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0).toFixed(2)}
+                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -1652,12 +1662,12 @@ ${orgName} Team`;
                           <p className="text-xs text-gray-500">Gewinn (netto)</p>
                           <p className={`text-lg font-bold ${
                             (rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0) - 
+                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
                              ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)) >= 0 
                               ? 'text-green-600' : 'text-red-600'
                           }`}>
                             €{(rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0) - 
+                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
                                ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)).toFixed(2)}
                           </p>
                         </div>
@@ -1692,16 +1702,23 @@ ${orgName} Team`;
                                   <p className="text-sm text-gray-500">{em.rolle}</p>
                                 </div>
                               </div>
-                              <p className="font-semibold">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
-                            </div>
-                          );
-                        })}
-                        <div className="flex justify-between pt-3 border-t mt-3">
-                          <p className="font-semibold">Gesamt Musiker-Gagen</p>
-                          <p className="font-bold text-lg">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0).toFixed(2)}
-                          </p>
-                        </div>
+                              <div className="text-right">
+                                  <p className="font-semibold">€{((em.gage_netto || 0) + (em.spesen || 0)).toFixed(2)}</p>
+                                  {em.spesen > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      (Gage: €{em.gage_netto?.toFixed(2)} + Fahrt: €{em.spesen?.toFixed(2)})
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              );
+                              })}
+                              <div className="flex justify-between pt-3 border-t mt-3">
+                              <p className="font-semibold">Gesamt Musiker-Kosten</p>
+                              <p className="font-bold text-lg">
+                              €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
+                              </p>
+                              </div>
                       </div>
                     ) : (
                       <p className="text-center text-gray-500 py-6">Noch keine zugesagten Musiker</p>
