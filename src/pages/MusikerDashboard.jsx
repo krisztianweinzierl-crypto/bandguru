@@ -740,7 +740,7 @@ export default function MusikerDashboard() {
                         )}
 
                         {/* Ablaufplan / Schedule */}
-                        {(event.get_in_zeit || event.soundcheck_zeit || selectedEventMusiker.calltime) && (
+                        {(event.get_in_zeit || event.soundcheck_zeit || selectedEventMusiker.calltime || event.oeffentliche_notizen) && (
                           <div className="pt-4 border-t">
                             <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Ablaufplan</p>
                             <div className="space-y-2">
@@ -778,6 +778,16 @@ export default function MusikerDashboard() {
                                   <p className="font-semibold text-green-700">{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</p>
                                 </div>
                               </div>
+                              
+                              {/* Detaillierter Ablaufplan */}
+                              {event.oeffentliche_notizen && (
+                                <div className="mt-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                  <p className="text-sm font-semibold text-purple-700 mb-2">Detaillierter Ablauf</p>
+                                  <div className="text-sm text-purple-900 whitespace-pre-wrap">
+                                    {event.oeffentliche_notizen}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}

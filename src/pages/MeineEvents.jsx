@@ -390,10 +390,19 @@ export default function MeineEventsPage() {
                         )}
 
                         {/* Ablaufplan / Schedule */}
-                        {(event.get_in_zeit || event.soundcheck_zeit) && (
+                        {(event.get_in_zeit || event.soundcheck_zeit || event.oeffentliche_notizen) && (
                           <div className="pt-4 border-t">
                             <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Ablaufplan</p>
                             <div className="space-y-2">
+                              {selectedEventMusiker.calltime && (
+                                <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                                  <Clock className="w-5 h-5 text-orange-600" />
+                                  <div>
+                                    <p className="text-sm text-orange-600">Deine Calltime</p>
+                                    <p className="font-semibold text-orange-700">{format(new Date(selectedEventMusiker.calltime), 'HH:mm', { locale: de })} Uhr</p>
+                                  </div>
+                                </div>
+                              )}
                               {event.get_in_zeit && (
                                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                                   <Clock className="w-5 h-5 text-gray-500" />
@@ -419,6 +428,16 @@ export default function MeineEventsPage() {
                                   <p className="font-semibold text-green-700">{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</p>
                                 </div>
                               </div>
+                              
+                              {/* Detaillierter Ablaufplan */}
+                              {event.oeffentliche_notizen && (
+                                <div className="mt-3 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                  <p className="text-sm font-semibold text-purple-700 mb-2">Detaillierter Ablauf</p>
+                                  <div className="text-sm text-purple-900 whitespace-pre-wrap">
+                                    {event.oeffentliche_notizen}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
