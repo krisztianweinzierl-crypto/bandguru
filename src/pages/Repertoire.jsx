@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -165,8 +164,8 @@ export default function RepertoirePage() {
         return visibleEvents.some(e => e.id === setlist.event_id);
       });
 
-  // Songs und Setlists sind für Musiker nur zugänglich wenn sie Teil eines zugesagten Events sind
-  const hasAccess = isManager || (currentMusiker && eventMusiker.length > 0);
+  // Musiker sehen das Repertoire NUR wenn eine Setliste einem ihrer zugesagten Events zugewiesen ist
+  const hasAccess = isManager || (currentMusiker && visibleSetlists.length > 0);
 
   const handleSongSubmit = (data) => {
     if (editingSong) {
@@ -233,7 +232,7 @@ export default function RepertoirePage() {
     );
   }
 
-  // Wenn Musiker ohne Zugriff
+  // Wenn Musiker ohne Zugriff (keine Setliste an zugesagten Events)
   if (!hasAccess) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
@@ -242,7 +241,7 @@ export default function RepertoirePage() {
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf Repertoire</h3>
             <p className="text-sm text-gray-600">
-              Du siehst das Repertoire, sobald du zu einem Event zugesagt hast.
+              Du siehst das Repertoire, sobald eine Setliste einem deiner zugesagten Events zugewiesen wurde.
             </p>
           </CardContent>
         </Card>
