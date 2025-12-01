@@ -23,8 +23,8 @@ Deno.serve(async (req) => {
     }
 
     const fromAddress = from_name 
-      ? `${from_name} <noreply@${MAILGUN_DOMAIN}>`
-      : `Bandguru <noreply@${MAILGUN_DOMAIN}>`;
+      ? `${from_name} <noreply@mail.bandguru.de>`
+      : `Bandguru <noreply@mail.bandguru.de>`;
 
     const formData = new FormData();
     formData.append('from', fromAddress);
