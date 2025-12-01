@@ -33,6 +33,7 @@ export default function OrganisationSettingsPage() {
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
   const queryClient = useQueryClient();
+  const { showAlert, AlertDialog } = useAlertDialog();
 
   // Helper function to create page URLs.
   // In a real application, this would typically come from a routing library
