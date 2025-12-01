@@ -457,6 +457,7 @@ export default function RepertoirePage() {
                       <th className="text-left p-4 font-semibold text-gray-700">Noten</th>
                       <th className="text-left p-4 font-semibold text-gray-700">YouTube</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Drive</th>
+                      <th className="text-left p-4 font-semibold text-gray-700">Dateien</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Aktionen</th>
                     </tr>
                   </thead>
@@ -496,16 +497,35 @@ export default function RepertoirePage() {
                           </td>
                           <td className="p-4 text-gray-600">-</td>
                           <td className="p-4">
-                            <div className="flex justify-end gap-2">
+                            <div className="flex items-center gap-2">
                               {song.lead_sheet_url && (
-                                <Button 
-                                  size="sm" 
-                                  variant="outline"
-                                  onClick={() => window.open(song.lead_sheet_url, '_blank')}
+                                <a
+                                  href={song.lead_sheet_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="Lead Sheet"
+                                  className="text-blue-600 hover:text-blue-800"
                                 >
-                                  Noten ansehen
-                                </Button>
+                                  📄
+                                </a>
                               )}
+                              {song.noten_dateien?.length > 0 && song.noten_dateien.map((datei, i) => (
+                                <a
+                                  key={i}
+                                  href={datei.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title={datei.name}
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  🎼
+                                </a>
+                              ))}
+                              {!song.lead_sheet_url && (!song.noten_dateien || song.noten_dateien.length === 0) && '-'}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex justify-end gap-2">
                               {isManager && (
                                 <>
                                   <Button
@@ -534,7 +554,7 @@ export default function RepertoirePage() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="9" className="p-12 text-center">
+                        <td colSpan="10" className="p-12 text-center">
                           <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Songs gefunden</h3>
                           <p className="text-gray-500 mb-4">
