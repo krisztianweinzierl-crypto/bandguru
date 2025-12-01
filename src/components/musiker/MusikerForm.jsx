@@ -8,19 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { X, Save, Plus } from "lucide-react";
 
 export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
-  const [formData, setFormData] = useState(musiker || {
-    name: "",
-    instrumente: [],
-    genre: [],
-    sprachen: [],
-    buchungsbedingungen: "",
-    tagessatz_netto: "",
-    reisespesen_regeln: "",
-    email: "",
-    telefon: "",
-    notfallkontakt: "",
-    notizen: "",
-    aktiv: true
+  const [formData, setFormData] = useState({
+    name: musiker?.name || "",
+    instrumente: musiker?.instrumente || [],
+    genre: musiker?.genre || [],
+    sprachen: musiker?.sprachen || [],
+    buchungsbedingungen: musiker?.buchungsbedingungen || "",
+    tagessatz_netto: musiker?.tagessatz_netto || "",
+    reisespesen_regeln: musiker?.reisespesen_regeln || "",
+    email: musiker?.email || "",
+    telefon: musiker?.telefon || "",
+    notfallkontakt: musiker?.notfallkontakt || "",
+    notizen: musiker?.notizen || "",
+    aktiv: musiker?.aktiv !== undefined ? musiker.aktiv : true
   });
 
   const [instrumentInput, setInstrumentInput] = useState("");
