@@ -65,6 +65,10 @@ export default function EventDetailPage() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [showEinladungDialog, setShowEinladungDialog] = useState(false);
+  const [einladungMusiker, setEinladungMusiker] = useState(null);
+  const [einladungEventMusikerId, setEinladungEventMusikerId] = useState(null);
+  const [einladungText, setEinladungText] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
@@ -385,7 +389,7 @@ export default function EventDetailPage() {
   });
 
   const sendEinladungMutation = useMutation({
-    mutationFn: async ({ eventMusikerId, musikerData }) => {
+    mutationFn: async ({ eventMusikerId, musikerData, customMessage }) => {
       const eventMusikerEntry = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
       const em = eventMusikerEntry[0];
       
@@ -393,6 +397,8 @@ export default function EventDetailPage() {
       const orgList = await base44.entities.Organisation.filter({ id: event.org_id });
       const organisation = orgList[0];
       const orgName = organisation?.name || 'Das Team';
+      
+      const personalMessage = customMessage ? `\n💬 Persönliche Nachricht:\n"${customMessage}"\n` : '';
       
       const emailBody = `Hey ${musikerData.name}! 👋
 
@@ -407,7 +413,7 @@ Du wurdest für folgendes Event angefragt:
 🎸 Rolle: ${em.rolle}
 
 💰 Gage: €${em.gage_netto}
-
+${personalMessage}
 ${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}${em.buchungsbedingungen ? `Buchungsbedingungen: ${em.buchungsbedingungen}\n\n` : ''}Bitte gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!
 
 👉 Hier geht's zur App: https://app.bandguru.de
@@ -415,15 +421,20 @@ ${em.notizen ? `Notizen: ${em.notizen}\n\n` : ''}${em.buchungsbedingungen ? `Buc
 Viele Grüße,
 ${orgName} Team`;
 
-      await base44.integrations.Core.SendEmail({
+      await base44.functions.invoke('sendMailgunEmail', {
         to: musikerData.email,
         subject: `🎵 Event-Anfrage: ${event.titel}`,
-        body: emailBody
+        body: emailBody,
+        from_name: orgName
       });
 
       return musikerData;
     },
     onSuccess: (musikerData) => {
+      setShowEinladungDialog(false);
+      setEinladungMusiker(null);
+      setEinladungEventMusikerId(null);
+      setEinladungText('');
       alert(`✅ Einladung wurde an ${musikerData.name} versendet!`);
     },
     onError: (error) => {
@@ -470,12 +481,26 @@ ${orgName} Team`;
     });
   };
 
-  const handleSendEinladung = (eventMusikerId, musikerId) => {
+  const handleOpenEinladungDialog = (eventMusikerId, musikerId) => {
     const musikerData = musiker.find(m => m.id === musikerId);
     if (musikerData?.email) {
-      sendEinladungMutation.mutate({ eventMusikerId, musikerData });
+      setEinladungMusiker(musikerData);
+      setEinladungEventMusikerId(eventMusikerId);
+      setEinladungText('');
+      setShowEinladungDialog(true);
+      setShowDropdownId(null);
     } else {
       alert("Dieser Musiker hat keine E-Mail-Adresse hinterlegt.");
+    }
+  };
+
+  const handleSendEinladung = () => {
+    if (einladungMusiker && einladungEventMusikerId) {
+      sendEinladungMutation.mutate({ 
+        eventMusikerId: einladungEventMusikerId, 
+        musikerData: einladungMusiker,
+        customMessage: einladungText 
+      });
     }
   };
 
@@ -1196,7 +1221,7 @@ ${orgName} Team`;
                                               )}
                                               {musikerData?.email && (
                                                 <button
-                                                  onClick={() => handleSendEinladung(em.id, em.musiker_id)}
+                                                  onClick={() => handleOpenEinladungDialog(em.id, em.musiker_id)}
                                                   className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
                                                 >
                                                   <Send className="w-4 h-4" />
@@ -1329,6 +1354,53 @@ ${orgName} Team`;
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Einladung an Musiker Dialog */}
+        <Dialog open={showEinladungDialog} onOpenChange={setShowEinladungDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Einladung an {einladungMusiker?.name}</DialogTitle>
+              <DialogDescription>
+                Sende eine Event-Einladung an {einladungMusiker?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg text-sm space-y-2">
+                <p><strong>Event:</strong> {event?.titel}</p>
+                <p><strong>Datum:</strong> {event?.datum_von && format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</p>
+                <p><strong>Ort:</strong> {event?.ort_name || event?.ort_adresse || 'Nicht angegeben'}</p>
+              </div>
+              
+              <div>
+                <Label htmlFor="einladung-text">Persönliche Nachricht (optional)</Label>
+                <Textarea
+                  id="einladung-text"
+                  value={einladungText}
+                  onChange={(e) => setEinladungText(e.target.value)}
+                  placeholder="z.B. Freue mich auf dich! Wäre toll, wenn du dabei bist..."
+                  rows={4}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Diese Nachricht wird in der E-Mail angezeigt
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEinladungDialog(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleSendEinladung}
+                disabled={sendEinladungMutation.isPending}
+                className="text-white"
+                style={{ backgroundColor: '#223a5e' }}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                {sendEinladungMutation.isPending ? 'Wird gesendet...' : 'Einladung senden'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Contact Customer Dialog */}
         <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
