@@ -805,6 +805,9 @@ ${orgName} Team`;
             <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Aufgaben
             </TabsTrigger>
+            <TabsTrigger value="dokumente" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+              Dokumente ({dateien.length})
+            </TabsTrigger>
             <TabsTrigger value="finanzen" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Finanzen
             </TabsTrigger>
