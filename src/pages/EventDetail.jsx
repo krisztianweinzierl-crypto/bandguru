@@ -73,6 +73,7 @@ export default function EventDetailPage() {
   const [einladungMusiker, setEinladungMusiker] = useState(null);
   const [einladungEventMusikerId, setEinladungEventMusikerId] = useState(null);
   const [einladungText, setEinladungText] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentMusiker, setCurrentMusiker] = useState(null);
   const [isManager, setIsManager] = useState(false);
