@@ -27,7 +27,11 @@ import {
   AlertCircle,
   CheckSquare,
   Circle,
-  CheckCircle2
+  CheckCircle2,
+  Upload,
+  Download,
+  FileIcon,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
