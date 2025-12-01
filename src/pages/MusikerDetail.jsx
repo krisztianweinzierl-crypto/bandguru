@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import MusikerForm from "@/components/musiker/MusikerForm";
 
 export default function MusikerDetailPage() {
@@ -31,6 +34,8 @@ export default function MusikerDetailPage() {
   const musikerId = urlParams.get('id');
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
+  const [showEinladungDialog, setShowEinladungDialog] = useState(false);
+  const [einladungText, setEinladungText] = useState('');
 
   const { data: musiker, isLoading } = useQuery({
     queryKey: ['musiker', musikerId],
@@ -66,22 +71,43 @@ export default function MusikerDetailPage() {
   });
 
   const sendInvitationMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (customMessage) => {
       if (!musiker.email) {
         throw new Error("Musiker hat keine E-Mail-Adresse");
       }
 
-      await base44.integrations.Core.SendEmail({
+      const orgName = organisation?.name || 'Das Team';
+      const personalMessage = customMessage ? `\n💬 Persönliche Nachricht:\n"${customMessage}"\n` : '';
+
+      const emailBody = `Hey ${musiker.name}! 👋
+
+Du wurdest eingeladen, ${orgName} auf Bandguru als Musiker beizutreten! 🎵
+${personalMessage}
+Mit Bandguru kannst du:
+✨ Events & Auftritte verwalten
+💰 Gagen & Finanzen im Blick behalten
+📋 Aufgaben & Deadlines managen
+💬 Mit dem Team kommunizieren
+
+👉 Hier geht's zur App: https://app.bandguru.de
+
+Viele Grüße,
+${orgName} Team`;
+
+      await base44.functions.invoke('sendMailgunEmail', {
         to: musiker.email,
-        subject: `Einladung zu ${organisation.name} auf Bandguru`,
-        body: `Hallo ${musiker.name},\n\ndu wurdest eingeladen, ${organisation.name} auf Bandguru als Musiker beizutreten.\n\nBitte melde dich an unter: ${window.location.origin}\n\nViele Grüße\n${organisation.name}`
+        subject: `🎵 Einladung zu ${orgName} auf Bandguru`,
+        body: emailBody,
+        from_name: orgName
       });
     },
     onSuccess: () => {
-      alert(`Einladung wurde an ${musiker.email} versendet!`);
+      setShowEinladungDialog(false);
+      setEinladungText('');
+      alert(`✅ Einladung wurde an ${musiker.email} versendet!`);
     },
     onError: (error) => {
-      alert("Fehler beim Versenden der Einladung: " + error.message);
+      alert("❌ Fehler beim Versenden der Einladung: " + error.message);
     }
   });
 
@@ -192,12 +218,11 @@ export default function MusikerDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => sendInvitationMutation.mutate()}
-                disabled={sendInvitationMutation.isPending}
+                onClick={() => setShowEinladungDialog(true)}
                 className="gap-2">
 
                   <Send className="w-4 h-4" />
-                  {sendInvitationMutation.isPending ? "Wird versendet..." : "Einladung senden"}
+                  Einladung senden
                 </Button>
               }
             </div>
@@ -364,6 +389,53 @@ export default function MusikerDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Einladung Dialog */}
+      <Dialog open={showEinladungDialog} onOpenChange={setShowEinladungDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Einladung an {musiker?.name}</DialogTitle>
+            <DialogDescription>
+              Sende eine Einladung zu {organisation?.name} an {musiker?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg text-sm">
+              <p><strong>Organisation:</strong> {organisation?.name}</p>
+              <p><strong>Musiker:</strong> {musiker?.name}</p>
+              <p><strong>E-Mail:</strong> {musiker?.email}</p>
+            </div>
+            
+            <div>
+              <Label htmlFor="einladung-text">Persönliche Nachricht (optional)</Label>
+              <Textarea
+                id="einladung-text"
+                value={einladungText}
+                onChange={(e) => setEinladungText(e.target.value)}
+                placeholder="z.B. Freue mich auf die Zusammenarbeit mit dir!"
+                rows={4}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Diese Nachricht wird in der E-Mail angezeigt
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEinladungDialog(false)}>
+              Abbrechen
+            </Button>
+            <Button
+              onClick={() => sendInvitationMutation.mutate(einladungText)}
+              disabled={sendInvitationMutation.isPending}
+              className="text-white"
+              style={{ backgroundColor: '#223a5e' }}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              {sendInvitationMutation.isPending ? 'Wird gesendet...' : 'Einladung senden'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>);
 
 }
