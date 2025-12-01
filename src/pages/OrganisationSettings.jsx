@@ -363,6 +363,8 @@ Das ${organisation.name} Team 🎵`;
   }
 
   return (
+    <>
+    <AlertDialog />
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
