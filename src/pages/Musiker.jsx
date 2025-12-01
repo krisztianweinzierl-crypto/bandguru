@@ -83,8 +83,38 @@ export default function MusikerPage() {
 
   const updateMusikerMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Musiker.update(id, data),
-    onSuccess: () => {
+    onSuccess: async (updatedMusiker) => {
+      // Bei E-Mail-Änderung: Prüfe ob Verknüpfung aktualisiert werden muss
+      if (updatedMusiker.email) {
+        try {
+          const mitglieder = await base44.entities.Mitglied.filter({ org_id: currentOrgId });
+          const allUsers = await base44.entities.User.list();
+          
+          for (const mitglied of mitglieder) {
+            if (mitglied.musiker_id || mitglied.rolle !== "Musiker") continue;
+            
+            let mitgliedEmail = mitglied.invite_email;
+            if (!mitgliedEmail && mitglied.user_id) {
+              const userData = allUsers.find(u => u.id === mitglied.user_id);
+              mitgliedEmail = userData?.email;
+            }
+            
+            if (mitgliedEmail && 
+                mitgliedEmail.toLowerCase().trim() === updatedMusiker.email.toLowerCase().trim()) {
+              console.log(`🔗 Verknüpfe Musiker "${updatedMusiker.name}" mit Mitglied (${mitgliedEmail})`);
+              await base44.entities.Mitglied.update(mitglied.id, { 
+                musiker_id: updatedMusiker.id 
+              });
+              break;
+            }
+          }
+        } catch (error) {
+          console.error("Fehler bei automatischer Musiker-Mitglied-Verknüpfung:", error);
+        }
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['musiker'] });
+      queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
       setShowForm(false);
       setEditingMusiker(null);
       setShowDropdownId(null);
