@@ -21,7 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 
 export default function OrganisationSettingsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -33,7 +32,6 @@ export default function OrganisationSettingsPage() {
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
   const queryClient = useQueryClient();
-  const { showAlert, AlertDialog } = useAlertDialog();
 
   // Helper function to create page URLs.
   // In a real application, this would typically come from a routing library
@@ -203,11 +201,7 @@ Das ${organisation.name} Team 🎵`;
     },
     onSuccess: (mitglied) => {
       queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
-      showAlert({
-        title: 'Einladung versendet',
-        message: `Die Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`,
-        type: 'success'
-      });
+      alert(`✅ Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`);
       setInviteEmail("");
       setInviteName("");
       setInviteMessage("");
@@ -217,11 +211,7 @@ Das ${organisation.name} Team 🎵`;
       console.error("Fehler beim Versenden der Einladung:", error);
       
       const errorMessage = error.message || "Unbekannter Fehler";
-      showAlert({
-        title: 'Fehler beim Versenden',
-        message: `${errorMessage}\n\nBitte überprüfe:\n• Mailgun API Key korrekt?\n• Mailgun Domain korrekt?\n• Domain verifiziert bei Mailgun?`,
-        type: 'error'
-      });
+      alert(`❌ Fehler beim Versenden der Einladung:\n\n${errorMessage}\n\nBitte überprüfe:\n- Mailgun API Key korrekt?\n- Mailgun Domain korrekt?\n- Domain verifiziert bei Mailgun?`);
     }
   });
 
@@ -363,8 +353,6 @@ Das ${organisation.name} Team 🎵`;
   }
 
   return (
-    <>
-    <AlertDialog />
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
@@ -662,6 +650,5 @@ Das ${organisation.name} Team 🎵`;
         </Tabs>
       </div>
     </div>
-    </>
   );
 }
