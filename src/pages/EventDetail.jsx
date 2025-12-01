@@ -63,6 +63,7 @@ export default function EventDetailPage() {
   const [selectedMusikerId, setSelectedMusikerId] = useState("");
   const [musikerRolle, setMusikerRolle] = useState("");
   const [musikerGage, setMusikerGage] = useState("");
+  const [musikerSpesen, setMusikerSpesen] = useState("");
   const [musikerNotizen, setMusikerNotizen] = useState("");
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
@@ -531,6 +532,7 @@ ${orgName} Team`;
     setSelectedMusikerId("");
     setMusikerRolle("");
     setMusikerGage("");
+    setMusikerSpesen("");
     setMusikerNotizen("");
     setBuchungsbedingungen("");
     setSelectedVorlageId("");
@@ -546,6 +548,7 @@ ${orgName} Team`;
       musiker_id: selectedMusikerId,
       rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
+      spesen: parseFloat(musikerSpesen) || 0,
       status: "angefragt",
       notizen: musikerNotizen,
       buchungsbedingungen: buchungsbedingungen
@@ -1162,7 +1165,7 @@ ${orgName} Team`;
                             </Select>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-3 gap-4">
                             <div>
                               <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
                               <Input
@@ -1177,6 +1180,15 @@ ${orgName} Team`;
                                 type="number"
                                 value={musikerGage}
                                 onChange={(e) => setMusikerGage(e.target.value)}
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div>
+                              <Label>Fahrtkosten</Label>
+                              <Input
+                                type="number"
+                                value={musikerSpesen}
+                                onChange={(e) => setMusikerSpesen(e.target.value)}
                                 placeholder="0.00"
                               />
                             </div>
