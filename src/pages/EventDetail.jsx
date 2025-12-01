@@ -220,6 +220,12 @@ export default function EventDetailPage() {
     enabled: !!eventId,
   });
 
+  const { data: dateien = [] } = useQuery({
+    queryKey: ['dateien', eventId],
+    queryFn: () => base44.entities.Datei.filter({ bezug_typ: 'event', bezug_id: eventId }),
+    enabled: !!eventId,
+  });
+
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', event?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: event.org_id, status: 'aktiv' }),
