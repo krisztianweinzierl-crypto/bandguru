@@ -203,7 +203,11 @@ Das ${organisation.name} Team 🎵`;
     },
     onSuccess: (mitglied) => {
       queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
-      alert(`✅ Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`);
+      showAlert({
+        title: 'Einladung versendet',
+        message: `Die Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`,
+        type: 'success'
+      });
       setInviteEmail("");
       setInviteName("");
       setInviteMessage("");
@@ -213,7 +217,11 @@ Das ${organisation.name} Team 🎵`;
       console.error("Fehler beim Versenden der Einladung:", error);
       
       const errorMessage = error.message || "Unbekannter Fehler";
-      alert(`❌ Fehler beim Versenden der Einladung:\n\n${errorMessage}\n\nBitte überprüfe:\n- Mailgun API Key korrekt?\n- Mailgun Domain korrekt?\n- Domain verifiziert bei Mailgun?`);
+      showAlert({
+        title: 'Fehler beim Versenden',
+        message: `${errorMessage}\n\nBitte überprüfe:\n• Mailgun API Key korrekt?\n• Mailgun Domain korrekt?\n• Domain verifiziert bei Mailgun?`,
+        type: 'error'
+      });
     }
   });
 
