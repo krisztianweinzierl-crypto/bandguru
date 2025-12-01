@@ -16,10 +16,10 @@ export function AlertDialog({
   if (!isOpen) return null;
 
   const icons = {
-    info: <Info className="w-6 h-6 text-blue-500" />,
-    success: <CheckCircle className="w-6 h-6 text-green-500" />,
-    warning: <AlertCircle className="w-6 h-6 text-yellow-500" />,
-    error: <XCircle className="w-6 h-6 text-red-500" />
+    info: <Info className="w-6 h-6 text-white" />,
+    success: <CheckCircle className="w-6 h-6 text-white" />,
+    warning: <AlertCircle className="w-6 h-6 text-white" />,
+    error: <XCircle className="w-6 h-6 text-white" />
   };
 
   const handleConfirm = () => {
