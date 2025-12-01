@@ -661,7 +661,6 @@ Das ${organisation.name} Team 🎵`;
           </TabsContent>
         </Tabs>
       </div>
-      </div>
     </div>
     </>
   );
