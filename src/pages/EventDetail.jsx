@@ -229,6 +229,18 @@ export default function EventDetailPage() {
     enabled: !!eventId,
   });
 
+  const { data: rechnungen = [] } = useQuery({
+    queryKey: ['rechnungen', eventId],
+    queryFn: () => base44.entities.Rechnung.filter({ event_id: eventId }),
+    enabled: !!eventId && isManager,
+  });
+
+  const { data: ausgaben = [] } = useQuery({
+    queryKey: ['ausgaben', eventId],
+    queryFn: () => base44.entities.Ausgabe.filter({ event_id: eventId }),
+    enabled: !!eventId && isManager,
+  });
+
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', event?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: event.org_id, status: 'aktiv' }),
