@@ -1184,7 +1184,7 @@ ${orgName} Team`;
                               />
                             </div>
                             <div>
-                              <Label>Fahrtkosten</Label>
+                              <Label>Fahrtkosten (Cent/km)</Label>
                               <Input
                                 type="number"
                                 value={musikerSpesen}
