@@ -399,6 +399,64 @@ export default function EventDetailPage() {
     },
   });
 
+  const deleteDateiMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.entities.Datei.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
+    },
+  });
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      await base44.entities.Datei.create({
+        org_id: event.org_id,
+        file_url,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        bezug_typ: 'event',
+        bezug_id: eventId,
+        kategorie: 'sonstiges'
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
+    } catch (error) {
+      console.error("Fehler beim Hochladen:", error);
+      alert("Fehler beim Hochladen der Datei: " + error.message);
+    } finally {
+      setUploadingFile(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteDatei = (dateiId) => {
+    if (confirm("Möchtest du diese Datei wirklich löschen?")) {
+      deleteDateiMutation.mutate(dateiId);
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  const getFileIcon = (fileType) => {
+    if (fileType?.includes('pdf')) return '📄';
+    if (fileType?.includes('image')) return '🖼️';
+    if (fileType?.includes('word') || fileType?.includes('document')) return '📝';
+    if (fileType?.includes('sheet') || fileType?.includes('excel')) return '📊';
+    return '📁';
+  };
+
   const sendEinladungMutation = useMutation({
     mutationFn: async ({ eventMusikerId, musikerData, customMessage }) => {
       const eventMusikerEntry = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
