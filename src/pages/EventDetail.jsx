@@ -63,6 +63,7 @@ export default function EventDetailPage() {
   const [selectedMusikerId, setSelectedMusikerId] = useState("");
   const [musikerRolle, setMusikerRolle] = useState("");
   const [musikerGage, setMusikerGage] = useState("");
+  const [musikerSpesen, setMusikerSpesen] = useState("");
   const [musikerNotizen, setMusikerNotizen] = useState("");
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
@@ -531,6 +532,7 @@ ${orgName} Team`;
     setSelectedMusikerId("");
     setMusikerRolle("");
     setMusikerGage("");
+    setMusikerSpesen("");
     setMusikerNotizen("");
     setBuchungsbedingungen("");
     setSelectedVorlageId("");
@@ -546,6 +548,7 @@ ${orgName} Team`;
       musiker_id: selectedMusikerId,
       rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
+      spesen: parseFloat(musikerSpesen) || 0,
       status: "angefragt",
       notizen: musikerNotizen,
       buchungsbedingungen: buchungsbedingungen
@@ -1017,8 +1020,23 @@ ${orgName} Team`;
             {(event.hotel_name || event.hotel_adresse) && (
               <Card className="border border-gray-200 shadow-sm">
                 <CardHeader className="border-b bg-white">
-                  <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
-                  <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
+                      <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                    </div>
+                    {event.hotel_adresse && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                        className="gap-2 text-sm"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        In Maps öffnen
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1039,7 +1057,12 @@ ${orgName} Team`;
                         <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Hotel-Adresse</p>
-                          <p className="font-medium text-gray-900">{event.hotel_adresse}</p>
+                          <button
+                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                            className="font-medium text-gray-900 hover:text-blue-600 hover:underline text-left transition-colors"
+                          >
+                            {event.hotel_adresse}
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1142,7 +1165,7 @@ ${orgName} Team`;
                             </Select>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-3 gap-4">
                             <div>
                               <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
                               <Input
@@ -1157,6 +1180,15 @@ ${orgName} Team`;
                                 type="number"
                                 value={musikerGage}
                                 onChange={(e) => setMusikerGage(e.target.value)}
+                                placeholder="0.00"
+                              />
+                            </div>
+                            <div>
+                              <Label>Fahrtkosten</Label>
+                              <Input
+                                type="number"
+                                value={musikerSpesen}
+                                onChange={(e) => setMusikerSpesen(e.target.value)}
                                 placeholder="0.00"
                               />
                             </div>
@@ -1370,7 +1402,17 @@ ${orgName} Team`;
                                         <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
                                       </div>
                                     </div>
-                                  </div>
+
+                                    {em.spesen > 0 && (
+                                      <div className="flex items-center gap-2 text-gray-600">
+                                        <Euro className="w-4 h-4" />
+                                        <div>
+                                          <p className="text-xs text-gray-500">Fahrtkosten</p>
+                                          <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                        </div>
+                                      </div>
+                                    )}
+                                    </div>
 
                                   {em.notizen && (
                                     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
@@ -1566,9 +1608,9 @@ ${orgName} Team`;
                           <UsersIcon className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Musiker-Gagen</p>
+                          <p className="text-xs text-gray-500">Musiker-Gagen + Fahrtkosten</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0).toFixed(2)}
+                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -1620,12 +1662,12 @@ ${orgName} Team`;
                           <p className="text-xs text-gray-500">Gewinn (netto)</p>
                           <p className={`text-lg font-bold ${
                             (rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0) - 
+                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
                              ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)) >= 0 
                               ? 'text-green-600' : 'text-red-600'
                           }`}>
                             €{(rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0) - 
+                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
                                ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)).toFixed(2)}
                           </p>
                         </div>
@@ -1660,16 +1702,23 @@ ${orgName} Team`;
                                   <p className="text-sm text-gray-500">{em.rolle}</p>
                                 </div>
                               </div>
-                              <p className="font-semibold">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
-                            </div>
-                          );
-                        })}
-                        <div className="flex justify-between pt-3 border-t mt-3">
-                          <p className="font-semibold">Gesamt Musiker-Gagen</p>
-                          <p className="font-bold text-lg">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0), 0).toFixed(2)}
-                          </p>
-                        </div>
+                              <div className="text-right">
+                                  <p className="font-semibold">€{((em.gage_netto || 0) + (em.spesen || 0)).toFixed(2)}</p>
+                                  {em.spesen > 0 && (
+                                    <p className="text-xs text-gray-500">
+                                      (Gage: €{em.gage_netto?.toFixed(2)} + Fahrt: €{em.spesen?.toFixed(2)})
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              );
+                              })}
+                              <div className="flex justify-between pt-3 border-t mt-3">
+                              <p className="font-semibold">Gesamt Musiker-Kosten</p>
+                              <p className="font-bold text-lg">
+                              €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
+                              </p>
+                              </div>
                       </div>
                     ) : (
                       <p className="text-center text-gray-500 py-6">Noch keine zugesagten Musiker</p>
