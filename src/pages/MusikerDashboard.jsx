@@ -259,6 +259,20 @@ export default function MusikerDashboard() {
     enabled: eventMusiker.length > 0,
   });
 
+  // Lade Dokumente für alle Events
+  const { data: eventDateien = [] } = useQuery({
+    queryKey: ['eventDateien', events],
+    queryFn: async () => {
+      const eventIds = events.map(e => e.id);
+      const allDateien = await base44.entities.Datei.filter({ 
+        org_id: currentOrgId, 
+        bezug_typ: 'event' 
+      });
+      return allDateien.filter(d => eventIds.includes(d.bezug_id));
+    },
+    enabled: events.length > 0 && !!currentOrgId,
+  });
+
   const updateEventMusikerMutation = useMutation({
     mutationFn: async ({ eventMusikerId, newStatus, antwortNotizen }) => {
       return await base44.entities.EventMusiker.update(eventMusikerId, {
