@@ -1416,6 +1416,115 @@ ${orgName} Team`;
             />
           </TabsContent>
 
+          {/* Dokumente Tab */}
+          <TabsContent value="dokumente" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-xl font-bold">Dokumente</CardTitle>
+                    <p className="text-sm text-gray-500 mt-1">Wegebeschreibungen, Abläufe und andere wichtige Dateien</p>
+                  </div>
+                  {isManager && (
+                    <div>
+                      <input
+                        type="file"
+                        id="file-upload"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                      />
+                      <Button
+                        onClick={() => document.getElementById('file-upload').click()}
+                        disabled={uploadingFile}
+                        size="sm"
+                        className="text-white"
+                        style={{ backgroundColor: '#223a5e' }}
+                      >
+                        {uploadingFile ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Wird hochgeladen...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Datei hochladen
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {dateien.length > 0 ? (
+                  <div className="space-y-3">
+                    {dateien.map((datei) => (
+                      <div
+                        key={datei.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <span className="text-2xl">{getFileIcon(datei.file_type)}</span>
+                          <div>
+                            <p className="font-medium text-gray-900">{datei.file_name}</p>
+                            <p className="text-sm text-gray-500">
+                              {formatFileSize(datei.file_size)} • {format(new Date(datei.created_date), 'dd.MM.yyyy', { locale: de })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(datei.file_url, '_blank')}
+                            className="gap-2"
+                          >
+                            <Download className="w-4 h-4" />
+                            Öffnen
+                          </Button>
+                          {isManager && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteDatei(datei.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <FileIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-semibold mb-2">Noch keine Dokumente</h3>
+                    <p className="text-gray-500 mb-4">
+                      {isManager 
+                        ? "Lade Wegebeschreibungen, Abläufe oder andere wichtige Dateien hoch"
+                        : "Es wurden noch keine Dokumente für dieses Event hochgeladen"
+                      }
+                    </p>
+                    {isManager && (
+                      <Button
+                        onClick={() => document.getElementById('file-upload').click()}
+                        disabled={uploadingFile}
+                        className="text-white"
+                        style={{ backgroundColor: '#223a5e' }}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Erste Datei hochladen
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="finanzen">
             <Card className="border-none shadow-lg">
               <CardContent className="p-12 text-center">
