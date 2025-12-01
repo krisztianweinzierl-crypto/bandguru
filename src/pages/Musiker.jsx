@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -37,8 +36,46 @@ export default function MusikerPage() {
 
   const createMusikerMutation = useMutation({
     mutationFn: (data) => base44.entities.Musiker.create({ ...data, org_id: currentOrgId }),
-    onSuccess: () => {
+    onSuccess: async (createdMusiker) => {
+      // Automatische Verknüpfung: Suche Mitglied mit gleicher E-Mail und setze musiker_id
+      if (createdMusiker.email) {
+        try {
+          // Lade alle Mitglieder der Organisation
+          const mitglieder = await base44.entities.Mitglied.filter({ org_id: currentOrgId });
+          
+          // Lade alle User, um E-Mails zu vergleichen
+          const allUsers = await base44.entities.User.list();
+          
+          // Finde Mitglied mit passender E-Mail (über User-Profil)
+          for (const mitglied of mitglieder) {
+            // Nur Mitglieder ohne musiker_id und mit Rolle "Musiker" verknüpfen
+            if (mitglied.musiker_id || mitglied.rolle !== "Musiker") continue;
+            
+            let mitgliedEmail = mitglied.invite_email;
+            
+            // Wenn keine invite_email, suche über user_id
+            if (!mitgliedEmail && mitglied.user_id) {
+              const userData = allUsers.find(u => u.id === mitglied.user_id);
+              mitgliedEmail = userData?.email;
+            }
+            
+            // Vergleiche E-Mails (case-insensitive)
+            if (mitgliedEmail && 
+                mitgliedEmail.toLowerCase().trim() === createdMusiker.email.toLowerCase().trim()) {
+              console.log(`🔗 Verknüpfe Musiker "${createdMusiker.name}" mit Mitglied (${mitgliedEmail})`);
+              await base44.entities.Mitglied.update(mitglied.id, { 
+                musiker_id: createdMusiker.id 
+              });
+              break;
+            }
+          }
+        } catch (error) {
+          console.error("Fehler bei automatischer Musiker-Mitglied-Verknüpfung:", error);
+        }
+      }
+      
       queryClient.invalidateQueries({ queryKey: ['musiker'] });
+      queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
       setShowForm(false);
       setEditingMusiker(null);
     }
