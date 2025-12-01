@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,11 +17,7 @@ import {
   Music,
   Users,
   Shirt,
-  ChevronRight,
-  ExternalLink,
-  Hotel,
-  Wrench,
-  Download
+  ChevronRight // Added ChevronRight icon
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -259,20 +256,6 @@ export default function MusikerDashboard() {
     enabled: eventMusiker.length > 0,
   });
 
-  // Lade Dokumente für alle Events
-  const { data: eventDateien = [] } = useQuery({
-    queryKey: ['eventDateien', events],
-    queryFn: async () => {
-      const eventIds = events.map(e => e.id);
-      const allDateien = await base44.entities.Datei.filter({ 
-        org_id: currentOrgId, 
-        bezug_typ: 'event' 
-      });
-      return allDateien.filter(d => eventIds.includes(d.bezug_id));
-    },
-    enabled: events.length > 0 && !!currentOrgId,
-  });
-
   const updateEventMusikerMutation = useMutation({
     mutationFn: async ({ eventMusikerId, newStatus, antwortNotizen }) => {
       return await base44.entities.EventMusiker.update(eventMusikerId, {
@@ -385,14 +368,6 @@ export default function MusikerDashboard() {
 
   const getEventForEventMusiker = (em) => {
     return events.find(e => e.id === em.event_id);
-  };
-
-  const getDateienForEvent = (eventId) => {
-    return eventDateien.filter(d => d.bezug_id === eventId);
-  };
-
-  const openGoogleMaps = (address) => {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
   };
 
   const statusColors = {
@@ -708,107 +683,10 @@ export default function MusikerDashboard() {
                     )}
                   </div>
 
-                  {/* Location mit Google Maps Link */}
-                  {(getEventForEventMusiker(selectedEventMusiker).ort_name || getEventForEventMusiker(selectedEventMusiker).ort_adresse) && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Location</p>
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        {getEventForEventMusiker(selectedEventMusiker).ort_name && (
-                          <p className="font-semibold text-gray-900">{getEventForEventMusiker(selectedEventMusiker).ort_name}</p>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).ort_adresse && (
-                          <p className="text-gray-600 mt-1">{getEventForEventMusiker(selectedEventMusiker).ort_adresse}</p>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-3"
-                          onClick={() => openGoogleMaps(
-                            getEventForEventMusiker(selectedEventMusiker).ort_adresse || 
-                            getEventForEventMusiker(selectedEventMusiker).ort_name
-                          )}
-                        >
-                          <MapPin className="w-4 h-4 mr-2" />
-                          In Google Maps öffnen
-                          <ExternalLink className="w-3 h-3 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Hotel mit Google Maps Link */}
-                  {(getEventForEventMusiker(selectedEventMusiker).hotel_name || getEventForEventMusiker(selectedEventMusiker).hotel_adresse) && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Hotel</p>
-                      <div className="p-4 bg-purple-50 rounded-lg">
-                        {getEventForEventMusiker(selectedEventMusiker).hotel_name && (
-                          <div className="flex items-center gap-2">
-                            <Hotel className="w-5 h-5 text-purple-600" />
-                            <p className="font-semibold text-gray-900">{getEventForEventMusiker(selectedEventMusiker).hotel_name}</p>
-                          </div>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).hotel_adresse && (
-                          <p className="text-gray-600 mt-1 ml-7">{getEventForEventMusiker(selectedEventMusiker).hotel_adresse}</p>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-3"
-                          onClick={() => openGoogleMaps(
-                            getEventForEventMusiker(selectedEventMusiker).hotel_adresse || 
-                            getEventForEventMusiker(selectedEventMusiker).hotel_name
-                          )}
-                        >
-                          <MapPin className="w-4 h-4 mr-2" />
-                          In Google Maps öffnen
-                          <ExternalLink className="w-3 h-3 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ablaufplan / Zeiten */}
-                  {(getEventForEventMusiker(selectedEventMusiker).get_in_zeit || getEventForEventMusiker(selectedEventMusiker).soundcheck_zeit || selectedEventMusiker.calltime) && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Ablaufplan</p>
-                      <div className="space-y-2">
-                        {selectedEventMusiker.calltime && (
-                          <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg">
-                            <Clock className="w-5 h-5 text-orange-600" />
-                            <div>
-                              <p className="text-sm text-gray-500">Calltime</p>
-                              <p className="font-semibold text-gray-900">
-                                {format(new Date(selectedEventMusiker.calltime), 'HH:mm', { locale: de })} Uhr
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).get_in_zeit && (
-                          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <Clock className="w-5 h-5 text-gray-600" />
-                            <div>
-                              <p className="text-sm text-gray-500">Get-In</p>
-                              <p className="font-semibold text-gray-900">{getEventForEventMusiker(selectedEventMusiker).get_in_zeit} Uhr</p>
-                            </div>
-                          </div>
-                        )}
-                        {getEventForEventMusiker(selectedEventMusiker).soundcheck_zeit && (
-                          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                            <Clock className="w-5 h-5 text-gray-600" />
-                            <div>
-                              <p className="text-sm text-gray-500">Soundcheck</p>
-                              <p className="font-semibold text-gray-900">{getEventForEventMusiker(selectedEventMusiker).soundcheck_zeit} Uhr</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Publikum & Ambiente */}
                   {(getEventForEventMusiker(selectedEventMusiker).event_typ || getEventForEventMusiker(selectedEventMusiker).anzahl_gaeste || getEventForEventMusiker(selectedEventMusiker).dresscode) && (
                     <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Details</p>
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Publikum & Ambiente</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {getEventForEventMusiker(selectedEventMusiker).event_typ && (
                           <div className="flex items-center gap-2 text-gray-600">
@@ -828,46 +706,6 @@ export default function MusikerDashboard() {
                             <span>{getEventForEventMusiker(selectedEventMusiker).dresscode}</span>
                           </div>
                         )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Technik-Hinweise */}
-                  {getEventForEventMusiker(selectedEventMusiker).technik_hinweise && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Technik</p>
-                      <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                        <Wrench className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
-                        <p className="text-gray-700">{getEventForEventMusiker(selectedEventMusiker).technik_hinweise}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Dokumente */}
-                  {getDateienForEvent(getEventForEventMusiker(selectedEventMusiker).id).length > 0 && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Dokumente</p>
-                      <div className="space-y-2">
-                        {getDateienForEvent(getEventForEventMusiker(selectedEventMusiker).id).map((datei) => (
-                          <a
-                            key={datei.id}
-                            href={datei.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <FileText className="w-5 h-5 text-blue-600" />
-                              <div>
-                                <p className="font-medium text-gray-900">{datei.file_name}</p>
-                                {datei.beschreibung && (
-                                  <p className="text-sm text-gray-500">{datei.beschreibung}</p>
-                                )}
-                              </div>
-                            </div>
-                            <Download className="w-4 h-4 text-gray-400" />
-                          </a>
-                        ))}
                       </div>
                     </div>
                   )}
