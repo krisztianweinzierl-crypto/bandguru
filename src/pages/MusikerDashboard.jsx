@@ -387,6 +387,14 @@ export default function MusikerDashboard() {
     return events.find(e => e.id === em.event_id);
   };
 
+  const getDateienForEvent = (eventId) => {
+    return eventDateien.filter(d => d.bezug_id === eventId);
+  };
+
+  const openGoogleMaps = (address) => {
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+  };
+
   const statusColors = {
     angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400" },
     optional: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400" },
