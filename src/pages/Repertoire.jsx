@@ -189,7 +189,17 @@ export default function RepertoirePage() {
     setShowImport(false);
   };
 
-  const filteredSongs = songs.filter(s => {
+  // Für Musiker: Nur Songs aus ihren zugewiesenen Setlisten
+  const visibleSongs = isManager
+    ? songs
+    : songs.filter(song => {
+        // Prüfe ob der Song in einer der sichtbaren Setlisten enthalten ist
+        return visibleSetlists.some(setlist => 
+          setlist.songs?.some(s => s.song_id === song.id)
+        );
+      });
+
+  const filteredSongs = visibleSongs.filter(s => {
     const matchesSearch = s.titel?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = genreFilter === "alle" || s.tags?.includes(genreFilter);
@@ -262,9 +272,9 @@ export default function RepertoirePage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="bibliothek" className="gap-2">
-              <Music className="w-4 h-4" />
-              Song-Bibliothek
-              <Badge variant="secondary" className="ml-2">{songs.length}</Badge>
+            <Music className="w-4 h-4" />
+            Song-Bibliothek
+            <Badge variant="secondary" className="ml-2">{visibleSongs.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="setlists" className="gap-2">
               <List className="w-4 h-4" />
@@ -282,7 +292,7 @@ export default function RepertoirePage() {
                   <p className="text-sm text-blue-900">
                     {isManager 
                       ? `Sie sehen alle ${songs.length} Songs in der Bibliothek` 
-                      : `Du siehst ${songs.length} Songs für deine Events`
+                      : `Du siehst ${visibleSongs.length} Songs aus deinen Setlisten`
                     }
                   </p>
                 </div>
@@ -533,68 +543,101 @@ export default function RepertoirePage() {
             {filteredSetlists.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSetlists.map((setlist) => {
-                  const event = visibleEvents.find(e => e.id === setlist.event_id);
-                  const songCount = setlist.songs?.length || 0;
-                  
-                  return (
-                    <Card key={setlist.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                      <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <CardTitle className="text-xl">{setlist.name}</CardTitle>
-                          <Badge className="bg-green-100 text-green-800 border-green-200">
-                            Bereit
-                          </Badge>
+                const event = visibleEvents.find(e => e.id === setlist.event_id);
+                const songCount = setlist.songs?.length || 0;
+                const setlistSongs = setlist.songs?.map(s => songs.find(song => song.id === s.song_id)).filter(Boolean) || [];
+
+                return (
+                <Card key={setlist.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <CardTitle className="text-xl">{setlist.name}</CardTitle>
+                      <Badge className="bg-green-100 text-green-800 border-green-200">
+                        Bereit
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {event && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>{event.titel} - {new Date(event.datum_von).toLocaleDateString('de-DE')}</span>
+                      </div>
+                    )}
+
+                    {setlist.beschreibung && (
+                      <p className="text-sm text-gray-600 line-clamp-2">{setlist.beschreibung}</p>
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Clock className="w-4 h-4" />
+                      <span>Gesamtdauer: {setlist.gesamtdauer || 0} Min.</span>
+                    </div>
+
+                    <div className="text-sm text-gray-600">
+                      <Music className="w-4 h-4 inline mr-2" />
+                      {songCount} {songCount === 1 ? 'Song' : 'Songs'}
+                    </div>
+
+                    {/* Song-Liste für alle sichtbar */}
+                    {setlistSongs.length > 0 && (
+                      <div className="pt-3 border-t space-y-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase">Songs in dieser Setliste:</p>
+                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                          {setlist.songs?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0)).map((s, index) => {
+                            const songData = songs.find(song => song.id === s.song_id);
+                            if (!songData) return null;
+                            return (
+                              <div key={s.song_id} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                                <span className="text-gray-400 w-5 text-center">{index + 1}.</span>
+                                <span className="font-medium flex-1">{songData.titel}</span>
+                                {songData.tonart && (
+                                  <Badge variant="outline" className="text-xs">{songData.tonart}</Badge>
+                                )}
+                                {songData.lead_sheet_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 px-2 text-blue-600"
+                                    onClick={() => window.open(songData.lead_sheet_url, '_blank')}
+                                  >
+                                    Noten
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {event && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4" />
-                            <span>{event.titel} - {new Date(event.datum_von).toLocaleDateString('de-DE')}</span>
-                          </div>
-                        )}
+                      </div>
+                    )}
 
-                        {setlist.beschreibung && (
-                          <p className="text-sm text-gray-600 line-clamp-2">{setlist.beschreibung}</p>
-                        )}
-
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          <span>Gesamtdauer: {setlist.gesamtdauer || 0} Min.</span>
-                        </div>
-
-                        <div className="text-sm text-gray-600">
-                          <Music className="w-4 h-4 inline mr-2" />
-                          {songCount} {songCount === 1 ? 'Song' : 'Songs'}
-                        </div>
-
-                        {isManager && (
-                          <div className="flex gap-2 pt-4 border-t">
-                            <Button
-                              variant="default"
-                              className="flex-1 hover:opacity-90"
-                              style={{ backgroundColor: '#223a5e' }}
-                              onClick={() => {
-                                setEditingSetlist(setlist);
-                                setShowSetlistForm(true);
-                              }}
-                            >
-                              <Edit className="w-4 h-4 mr-2" />
-                              Bearbeiten
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => handleDeleteSetlist(setlist)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
+                    {isManager && (
+                      <div className="flex gap-2 pt-4 border-t">
+                        <Button
+                          variant="default"
+                          className="flex-1 hover:opacity-90"
+                          style={{ backgroundColor: '#223a5e' }}
+                          onClick={() => {
+                            setEditingSetlist(setlist);
+                            setShowSetlistForm(true);
+                          }}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteSetlist(setlist)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                );
                 })}
               </div>
             ) : (
