@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle } from "lucide-react";
+import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -220,6 +220,79 @@ export default function RepertoirePage() {
     if (confirm(`Möchtest du die Setlist "${setlist.name}" wirklich löschen?`)) {
       deleteSetlistMutation.mutate(setlist.id);
     }
+  };
+
+  const handlePrintSetlist = (setlist) => {
+    const event = events.find(e => e.id === setlist.event_id);
+    const setlistSongs = setlist.songs?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0))
+      .map(s => songs.find(song => song.id === s.song_id))
+      .filter(Boolean) || [];
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${setlist.name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { font-size: 28px; margin-bottom: 8px; color: #1a1a1a; }
+          .event-info { color: #666; margin-bottom: 24px; font-size: 14px; }
+          .meta { display: flex; gap: 24px; margin-bottom: 24px; padding: 12px; background: #f5f5f5; border-radius: 8px; }
+          .meta-item { font-size: 13px; color: #555; }
+          table { width: 100%; border-collapse: collapse; }
+          th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #333; font-size: 12px; text-transform: uppercase; color: #666; }
+          td { padding: 12px 8px; border-bottom: 1px solid #eee; }
+          .num { width: 40px; color: #999; }
+          .title { font-weight: 500; }
+          .artist { color: #666; font-size: 14px; }
+          .key { text-align: center; background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+          .bpm { text-align: center; color: #666; }
+          .duration { text-align: right; color: #666; }
+          .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <h1>${setlist.name}</h1>
+        ${event ? `<div class="event-info">${event.titel} - ${new Date(event.datum_von).toLocaleDateString('de-DE')}</div>` : ''}
+        <div class="meta">
+          <div class="meta-item"><strong>${setlistSongs.length}</strong> Songs</div>
+          <div class="meta-item"><strong>${setlist.gesamtdauer || 0}</strong> Minuten</div>
+        </div>
+        ${setlist.beschreibung ? `<p style="margin-bottom: 24px; color: #555;">${setlist.beschreibung}</p>` : ''}
+        <table>
+          <thead>
+            <tr>
+              <th class="num">#</th>
+              <th>Titel</th>
+              <th>Künstler</th>
+              <th style="text-align: center;">Tonart</th>
+              <th style="text-align: center;">BPM</th>
+              <th style="text-align: right;">Länge</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${setlistSongs.map((song, index) => `
+              <tr>
+                <td class="num">${index + 1}</td>
+                <td class="title">${song.titel}</td>
+                <td class="artist">${song.kuenstler_original || '-'}</td>
+                <td style="text-align: center;">${song.tonart ? `<span class="key">${song.tonart}</span>` : '-'}</td>
+                <td class="bpm">${song.bpm || '-'}</td>
+                <td class="duration">${song.laenge || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="footer">Gedruckt am ${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   const allGenres = [...new Set(songs.flatMap(s => s.tags || []))];
@@ -578,6 +651,17 @@ export default function RepertoirePage() {
                       <Music className="w-4 h-4 inline mr-2" />
                       {songCount} {songCount === 1 ? 'Song' : 'Songs'}
                     </div>
+
+                    {/* Drucken Button für alle */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePrintSetlist(setlist)}
+                      className="w-full gap-2"
+                    >
+                      <Printer className="w-4 h-4" />
+                      Setliste drucken / PDF
+                    </Button>
 
                     {/* Song-Liste für alle sichtbar */}
                     {setlistSongs.length > 0 && (
