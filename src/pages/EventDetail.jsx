@@ -1017,8 +1017,23 @@ ${orgName} Team`;
             {(event.hotel_name || event.hotel_adresse) && (
               <Card className="border border-gray-200 shadow-sm">
                 <CardHeader className="border-b bg-white">
-                  <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
-                  <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
+                      <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                    </div>
+                    {event.hotel_adresse && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                        className="gap-2 text-sm"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        In Maps öffnen
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1039,7 +1054,12 @@ ${orgName} Team`;
                         <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Hotel-Adresse</p>
-                          <p className="font-medium text-gray-900">{event.hotel_adresse}</p>
+                          <button
+                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                            className="font-medium text-gray-900 hover:text-blue-600 hover:underline text-left transition-colors"
+                          >
+                            {event.hotel_adresse}
+                          </button>
                         </div>
                       </div>
                     )}
