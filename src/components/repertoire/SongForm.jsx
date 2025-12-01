@@ -1,12 +1,12 @@
-
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Plus } from "lucide-react";
+import { X, Save, Plus, Upload, FileText, Loader2, Trash2 } from "lucide-react";
 
 export default function SongForm({ song, onSubmit, onCancel }) {
   const [formData, setFormData] = useState(song || {
@@ -17,11 +17,48 @@ export default function SongForm({ song, onSubmit, onCancel }) {
     laenge: "",
     tags: [],
     lead_sheet_url: "",
+    noten_dateien: [],
     audio_demo_url: "",
     notizen: ""
   });
 
   const [tagInput, setTagInput] = useState("");
+  const [uploadingFile, setUploadingFile] = useState(false);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validierung: PDF, Bilder erlauben
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Bitte wähle eine PDF- oder Bilddatei aus');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Die Datei darf maximal 10MB groß sein');
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const newFile = {
+        name: file.name,
+        url: file_url
+      };
+      handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
+    } catch (error) {
+      console.error('Fehler beim Hochladen:', error);
+      alert('Fehler beim Hochladen der Datei');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const removeFile = (index) => {
+    handleChange('noten_dateien', formData.noten_dateien.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -114,10 +151,70 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             </div>
           </div>
 
+          {/* Noten-Upload */}
+          <div className="space-y-3">
+            <Label>Noten / Dokumente</Label>
+            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                  {uploadingFile ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {uploadingFile ? 'Wird hochgeladen...' : 'Datei hochladen'}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={uploadingFile}
+                  />
+                </label>
+                <span className="text-sm text-gray-500">PDF oder Bilder, max. 10MB</span>
+              </div>
+              
+              {/* Hochgeladene Dateien */}
+              {formData.noten_dateien && formData.noten_dateien.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {formData.noten_dateien.map((datei, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        <a 
+                          href={datei.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-blue-600 hover:underline truncate max-w-xs"
+                        >
+                          {datei.name}
+                        </a>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* URLs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="lead_sheet">Lead Sheet URL</Label>
+              <Label htmlFor="lead_sheet">Lead Sheet URL (extern)</Label>
               <Input
                 id="lead_sheet"
                 value={formData.lead_sheet_url}
