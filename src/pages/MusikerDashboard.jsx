@@ -397,11 +397,20 @@ export default function MusikerDashboard() {
   };
 
   const statusColors = {
-    angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400" },
-    optional: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400" },
-    zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400" },
-    abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400" }
-  };
+        angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400" },
+        optional: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400" },
+        zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400" },
+        abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400" }
+      };
+
+      const eventStatusColors = {
+        entwurf: { bg: "bg-gray-100", text: "text-gray-700", label: "Entwurf" },
+        angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Angefragt" },
+        bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
+        durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
+        abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" },
+        storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
+      };
 
   // New component for list items
   const AnfrageListItem = ({ em, event }) => {
@@ -670,12 +679,23 @@ export default function MusikerDashboard() {
                       <DialogTitle className="text-2xl mb-2">
                         {getEventForEventMusiker(selectedEventMusiker)?.titel}
                       </DialogTitle>
-                      <Badge className={`${statusColors[selectedEventMusiker.status].bg} ${statusColors[selectedEventMusiker.status].text}`}>
-                        {selectedEventMusiker.status === 'angefragt' && '⏳ Offen'}
-                        {selectedEventMusiker.status === 'optional' && '❓ Optional'}
-                        {selectedEventMusiker.status === 'zugesagt' && '✅ Zugesagt'}
-                        {selectedEventMusiker.status === 'abgelehnt' && '❌ Abgelehnt'}
-                      </Badge>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className={`${statusColors[selectedEventMusiker.status].bg} ${statusColors[selectedEventMusiker.status].text}`}>
+                          {selectedEventMusiker.status === 'angefragt' && '⏳ Offen'}
+                          {selectedEventMusiker.status === 'optional' && '❓ Optional'}
+                          {selectedEventMusiker.status === 'zugesagt' && '✅ Zugesagt'}
+                          {selectedEventMusiker.status === 'abgelehnt' && '❌ Abgelehnt'}
+                        </Badge>
+                        {(() => {
+                          const event = getEventForEventMusiker(selectedEventMusiker);
+                          const eventStatus = eventStatusColors[event?.status] || eventStatusColors.entwurf;
+                          return (
+                            <Badge className={`${eventStatus.bg} ${eventStatus.text}`}>
+                              Event: {eventStatus.label}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </DialogHeader>

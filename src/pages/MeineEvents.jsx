@@ -127,33 +127,42 @@ export default function MeineEventsPage() {
     return event && new Date(event.datum_von) < now;
   });
 
-  const EventListItem = ({ em }) => {
-    const event = getEventForEventMusiker(em);
-    if (!event) return null;
+  const eventStatusColors = {
+        entwurf: { bg: "bg-gray-100", text: "text-gray-700", label: "Entwurf" },
+        angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Angefragt" },
+        bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
+        durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
+        abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" },
+        storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
+      };
 
-    const isPast = new Date(event.datum_von) < now;
+      const EventListItem = ({ em }) => {
+        const event = getEventForEventMusiker(em);
+        if (!event) return null;
 
-    return (
-      <div
-        onClick={() => handleOpenDetailsDialog(em)}
-        className={`group flex items-center gap-4 p-4 border-l-4 ${
-          isPast ? 'border-l-gray-400' : 'border-l-green-500'
-        } bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg ${
-          isPast ? 'opacity-75' : ''
-        }`}
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
-            <Badge className="bg-green-100 text-green-800 flex-shrink-0">
-              <CheckCircle2 className="w-3 h-3 mr-1" />
-              Zugesagt
-            </Badge>
-            {isPast && (
-              <Badge variant="outline" className="text-gray-600 flex-shrink-0">
-                Vergangen
-              </Badge>
-            )}
+        const isPast = new Date(event.datum_von) < now;
+        const eventStatus = eventStatusColors[event.status] || eventStatusColors.entwurf;
+
+        return (
+          <div
+            onClick={() => handleOpenDetailsDialog(em)}
+            className={`group flex items-center gap-4 p-4 border-l-4 ${
+              isPast ? 'border-l-gray-400' : 'border-l-green-500'
+            } bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg ${
+              isPast ? 'opacity-75' : ''
+            }`}
+          >
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+                <Badge className={`${eventStatus.bg} ${eventStatus.text} flex-shrink-0`}>
+                  {eventStatus.label}
+                </Badge>
+                {isPast && (
+                  <Badge variant="outline" className="text-gray-600 flex-shrink-0">
+                    Vergangen
+                  </Badge>
+                )}
           </div>
           
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -312,12 +321,17 @@ export default function MeineEventsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <DialogTitle className="text-2xl mb-2">
-                        {getEventForEventMusiker(selectedEventMusiker)?.titel}
-                      </DialogTitle>
-                      <Badge className="bg-green-100 text-green-800">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
-                        Zugesagt
-                      </Badge>
+                              {getEventForEventMusiker(selectedEventMusiker)?.titel}
+                            </DialogTitle>
+                            {(() => {
+                              const event = getEventForEventMusiker(selectedEventMusiker);
+                              const eventStatus = eventStatusColors[event?.status] || eventStatusColors.entwurf;
+                              return (
+                                <Badge className={`${eventStatus.bg} ${eventStatus.text}`}>
+                                  {eventStatus.label}
+                                </Badge>
+                              );
+                            })()}
                     </div>
                   </div>
                 </DialogHeader>
