@@ -191,17 +191,14 @@ export default function EventDetailPage() {
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', eventId],
     queryFn: async () => {
+      // Lade alle EventMusiker für dieses Event (Manager sieht alle, Musiker nur zugesagte)
+      const allEventMusiker = await base44.entities.EventMusiker.filter({ event_id: eventId });
       if (isManager) {
-        return base44.entities.EventMusiker.filter({ event_id: eventId });
-      } else if (currentMusiker?.id) {
-        const myEventMusiker = await base44.entities.EventMusiker.filter({
-          event_id: eventId,
-          musiker_id: currentMusiker.id,
-          status: 'zugesagt'
-        });
-        return myEventMusiker;
+        return allEventMusiker;
+      } else {
+        // Musiker sehen nur zugesagte Kollegen
+        return allEventMusiker.filter(em => em.status === 'zugesagt');
       }
-      return [];
     },
     enabled: !!eventId && (isManager || !!currentMusiker?.id),
   });
@@ -209,7 +206,7 @@ export default function EventDetailPage() {
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', event?.org_id],
     queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id && isManager,
+    enabled: !!event?.org_id,
   });
 
   const { data: vorlagen = [] } = useQuery({
@@ -809,17 +806,9 @@ ${orgName} Team`;
             <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Übersicht
             </TabsTrigger>
-            {isManager && (
-              <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-                Musiker ({eventMusiker.length})
-              </TabsTrigger>
-            )}
-            {/* Musiker only see their own tab if zugesagt */}
-            {!isManager && eventMusiker.length > 0 && (
-              <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-                Mein Engagement
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+              Musiker ({eventMusiker.length})
+            </TabsTrigger>
             <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Aufgaben
             </TabsTrigger>
@@ -1103,26 +1092,27 @@ ${orgName} Team`;
             </Card>
           </TabsContent>
 
-          {/* Musiker Tab (Conditional for Manager and Zugesagter Musiker) */}
-          {(isManager || (eventMusiker.length > 0)) && (
-            <TabsContent value="musiker" className="space-y-6">
-              <Card className="border-none shadow-lg">
-                <CardHeader className="border-b">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-xl font-bold">{isManager ? "Gebuchte Musiker" : "Mein Engagement"}</CardTitle>
-                    {isManager && (
-                      <Button
-                        onClick={() => setShowMusikerForm(true)}
-                        size="sm"
-                        className="text-white"
-                        style={{ backgroundColor: '#223a5e' }}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Musiker hinzufügen
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
+          {/* Musiker Tab */}
+          <TabsContent value="musiker" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-xl font-bold">
+                    {isManager ? "Gebuchte Musiker" : "Musiker bei diesem Event"}
+                  </CardTitle>
+                  {isManager && (
+                    <Button
+                      onClick={() => setShowMusikerForm(true)}
+                      size="sm"
+                      className="text-white"
+                      style={{ backgroundColor: '#223a5e' }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Musiker hinzufügen
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
                 <CardContent className="p-6">
                   {isManager && showMusikerForm && (
                     <Card className="mb-6 bg-blue-50 border-blue-200">
@@ -1293,9 +1283,10 @@ ${orgName} Team`;
                         const musikerData = musiker.find(m => m.id === em.musiker_id);
                         const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
                         const initials = musikerData?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+                        const isCurrentUserMusiker = currentMusiker?.id === em.musiker_id;
                         
                         return (
-                          <Card key={em.id} className={`border-l-4 ${statusStyle.border}`}>
+                          <Card key={em.id} className={`border-l-4 ${statusStyle.border} ${isCurrentUserMusiker && !isManager ? 'ring-2 ring-blue-300' : ''}`}>
                             <CardContent className="p-4">
                               <div className="flex items-start gap-4">
                                 <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
@@ -1307,10 +1298,17 @@ ${orgName} Team`;
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-start justify-between gap-4 mb-2">
                                     <div>
-                                      <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
-                                      <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
-                                        {statusStyle.label}
-                                      </Badge>
+                                      <div className="flex items-center gap-2">
+                                        <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
+                                        {isCurrentUserMusiker && !isManager && (
+                                          <Badge variant="outline" className="text-xs">Du</Badge>
+                                        )}
+                                      </div>
+                                      {isManager && (
+                                        <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
+                                          {statusStyle.label}
+                                        </Badge>
+                                      )}
                                     </div>
                                     {isManager && (
                                       <div className="relative">
@@ -1376,65 +1374,92 @@ ${orgName} Team`;
 
                                   <p className="text-sm text-gray-600 mb-3">{em.rolle}</p>
 
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Calendar className="w-4 h-4" />
-                                      <div>
-                                        <p className="text-xs text-gray-500">Eingeladen am</p>
-                                        <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
-                                      </div>
-                                    </div>
-
-                                    {em.status === 'zugesagt' && (
-                                      <div className="flex items-center gap-2 text-gray-600">
-                                        <Calendar className="w-4 h-4 text-green-600" />
-                                        <div>
-                                          <p className="text-xs text-gray-500">Zugesagt am</p>
-                                          <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                  {/* Manager sieht alle Details, Musiker nur Rolle und Instrument */}
+                                  {isManager ? (
+                                    <>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                          <Calendar className="w-4 h-4" />
+                                          <div>
+                                            <p className="text-xs text-gray-500">Eingeladen am</p>
+                                            <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
 
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                      <Euro className="w-4 h-4" />
-                                      <div>
-                                        <p className="text-xs text-gray-500">Gage (netto)</p>
-                                        <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
-                                      </div>
-                                    </div>
+                                        {em.status === 'zugesagt' && (
+                                          <div className="flex items-center gap-2 text-gray-600">
+                                            <Calendar className="w-4 h-4 text-green-600" />
+                                            <div>
+                                              <p className="text-xs text-gray-500">Zugesagt am</p>
+                                              <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
+                                            </div>
+                                          </div>
+                                        )}
 
-                                    {em.spesen > 0 && (
-                                      <div className="flex items-center gap-2 text-gray-600">
-                                        <Euro className="w-4 h-4" />
-                                        <div>
-                                          <p className="text-xs text-gray-500">Fahrtkosten</p>
-                                          <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                          <Euro className="w-4 h-4" />
+                                          <div>
+                                            <p className="text-xs text-gray-500">Gage (netto)</p>
+                                            <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                    </div>
 
-                                  {em.notizen && (
-                                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                                      <div className="flex items-start gap-2 text-sm">
-                                        <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
-                                        <div>
-                                          <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
-                                          <p className="text-gray-700">{em.notizen}</p>
-                                        </div>
+                                        {em.spesen > 0 && (
+                                          <div className="flex items-center gap-2 text-gray-600">
+                                            <Euro className="w-4 h-4" />
+                                            <div>
+                                              <p className="text-xs text-gray-500">Fahrtkosten</p>
+                                              <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-                                    </div>
-                                  )}
-                                  {em.buchungsbedingungen && (
-                                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                      <div className="flex items-start gap-2 text-sm">
-                                        <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                                        <div className="flex-1">
-                                          <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
-                                          <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
+
+                                      {em.notizen && (
+                                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                          <div className="flex items-start gap-2 text-sm">
+                                            <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
+                                            <div>
+                                              <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
+                                              <p className="text-gray-700">{em.notizen}</p>
+                                            </div>
+                                          </div>
                                         </div>
+                                      )}
+                                      {em.buchungsbedingungen && (
+                                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                          <div className="flex items-start gap-2 text-sm">
+                                            <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                                            <div className="flex-1">
+                                              <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
+                                              <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    /* Musiker sieht nur eigene Gage-Details */
+                                    isCurrentUserMusiker && (
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-2">
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                          <Euro className="w-4 h-4" />
+                                          <div>
+                                            <p className="text-xs text-gray-500">Deine Gage (netto)</p>
+                                            <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                          </div>
+                                        </div>
+                                        {em.spesen > 0 && (
+                                          <div className="flex items-center gap-2 text-gray-600">
+                                            <Euro className="w-4 h-4" />
+                                            <div>
+                                              <p className="text-xs text-gray-500">Fahrtkosten</p>
+                                              <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-                                    </div>
+                                    )
                                   )}
                                 </div>
                               </div>
@@ -1459,9 +1484,9 @@ ${orgName} Team`;
                         </div>
                       ) : (
                         <div className="text-center py-12">
-                           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
-                          <h3 className="text-lg font-semibold mb-2">Kein Engagement gefunden</h3>
-                          <p className="text-gray-500 mb-4">Du bist für dieses Event nicht als Musiker eingetragen oder dein Status ist noch nicht 'zugesagt'.</p>
+                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <h3 className="text-lg font-semibold mb-2">Keine Musiker</h3>
+                          <p className="text-gray-500">Es sind noch keine anderen Musiker für dieses Event bestätigt.</p>
                         </div>
                       )
                     )}
@@ -1469,7 +1494,6 @@ ${orgName} Team`;
                 </CardContent>
               </Card>
             </TabsContent>
-          )}
 
           {/* Aufgaben Tab */}
           <TabsContent value="aufgaben" className="space-y-6">
