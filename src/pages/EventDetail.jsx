@@ -191,13 +191,13 @@ export default function EventDetailPage() {
   const { data: eventMusiker = [] } = useQuery({
     queryKey: ['eventMusiker', eventId],
     queryFn: async () => {
-      // Lade alle EventMusiker für dieses Event (Manager sieht alle, Musiker nur zugesagte)
+      // Lade alle EventMusiker für dieses Event (Manager sieht alle, Musiker nur zugesagte + optionale)
       const allEventMusiker = await base44.entities.EventMusiker.filter({ event_id: eventId });
       if (isManager) {
         return allEventMusiker;
       } else {
-        // Musiker sehen nur zugesagte Kollegen
-        return allEventMusiker.filter(em => em.status === 'zugesagt');
+        // Musiker sehen zugesagte und optionale Kollegen
+        return allEventMusiker.filter(em => em.status === 'zugesagt' || em.status === 'optional');
       }
     },
     enabled: !!eventId && (isManager || !!currentMusiker?.id),
