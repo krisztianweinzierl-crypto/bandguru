@@ -637,8 +637,8 @@ ${orgName} Team`;
   };
 
   const musikerStatusColors = {
-    angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-l-yellow-400", label: "Angefragt" },
-    optional: { bg: "bg-blue-100", text: "text-blue-800", border: "border-l-blue-400", label: "Optional" },
+    angefragt: { bg: "bg-red-100", text: "text-red-800", border: "border-l-red-400", label: "Angefragt" },
+    optional: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-l-yellow-400", label: "Optional" },
     zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-l-green-500", label: "Zugesagt" },
     abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-l-red-400", label: "Abgelehnt" },
     ersetzt: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400", label: "Ersetzt" }
