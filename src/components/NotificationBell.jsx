@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
+import { UserPlus } from "lucide-react";
+
 const iconMap = {
   Calendar,
   CheckCircle,
@@ -27,7 +29,8 @@ const iconMap = {
   Target,
   FileSignature,
   Music,
-  AlertCircle
+  AlertCircle,
+  UserPlus
 };
 
 export default function NotificationBell({ user, currentOrgId }) {
@@ -108,6 +111,7 @@ export default function NotificationBell({ user, currentOrgId }) {
       case 'vertrag_unterschrieben': return 'text-emerald-600 bg-emerald-50';
       case 'musiker_zugesagt': return 'text-green-600 bg-green-50';
       case 'musiker_abgelehnt': return 'text-red-600 bg-red-50';
+      case 'neuer_nutzer': return 'text-teal-600 bg-teal-50';
       default: return 'text-gray-600 bg-gray-50';
     }
   };

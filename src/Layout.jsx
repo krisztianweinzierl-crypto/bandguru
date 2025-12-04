@@ -227,45 +227,74 @@ export default function Layout({ children, currentPageName }) {
     console.log("   Mitglied ID:", invite.id);
     console.log("   Organisation:", invite.organisation?.name);
     console.log("   User:", user?.email);
-    
+
     try {
       // SCHRITT 1: Mitglied-Eintrag aktualisieren
       console.log("📋 Schritt 1: Aktualisiere Mitglied-Eintrag...");
-      
+
       const updateData = {
         user_id: user.id,
         status: "aktiv",
         invite_token: null,
         invite_email: null // Optional: E-Mail auch löschen
       };
-      
+
       console.log("   Update-Daten:", updateData);
-      
+
       const updatedMitglied = await base44.entities.Mitglied.update(invite.id, updateData);
-      
+
       console.log("✅ Mitglied erfolgreich aktualisiert!");
       console.log("   Aktualisiertes Mitglied:", updatedMitglied);
-      
-      // SCHRITT 2: Organisation setzen
-      console.log("📋 Schritt 2: Setze currentOrgId...");
+
+      // SCHRITT 2: Benachrichtigung an Band Manager senden
+      console.log("📋 Schritt 2: Sende Benachrichtigung an Manager...");
+      try {
+        // Finde alle Band Manager der Organisation
+        const manager = await base44.entities.Mitglied.filter({
+          org_id: invite.org_id,
+          rolle: "Band Manager",
+          status: "aktiv"
+        });
+
+        // Erstelle Benachrichtigung für jeden Manager
+        await Promise.all(manager.map(m => 
+          m.user_id && base44.entities.Benachrichtigung.create({
+            org_id: invite.org_id,
+            user_id: m.user_id,
+            typ: 'neuer_nutzer',
+            titel: `Neues Teammitglied: ${user.full_name || user.email}`,
+            nachricht: `${user.full_name || user.email} hat die Einladung als ${invite.rolle} angenommen und ist jetzt Teil des Teams.`,
+            link_url: createPageUrl('OrganisationSettings'),
+            icon: 'UserPlus',
+            prioritaet: 'normal'
+          })
+        ));
+        console.log("✅ Benachrichtigungen an Manager gesendet");
+      } catch (notifError) {
+        console.error("⚠️ Fehler beim Senden der Benachrichtigung:", notifError);
+        // Nicht abbrechen, Einladung wurde trotzdem angenommen
+      }
+
+      // SCHRITT 3: Organisation setzen
+      console.log("📋 Schritt 3: Setze currentOrgId...");
       localStorage.setItem('currentOrgId', invite.org_id);
       console.log("   currentOrgId gesetzt auf:", invite.org_id);
-      
-      // SCHRITT 3: Vollständiger Reload
-      console.log("📋 Schritt 3: Lade Seite neu...");
+
+      // SCHRITT 4: Vollständiger Reload
+      console.log("📋 Schritt 4: Lade Seite neu...");
       console.log("✅ === EINLADUNG ERFOLGREICH ANGENOMMEN ===");
-      
+
       // Kurze Verzögerung für User-Feedback
       setTimeout(() => {
         window.location.reload();
       }, 500);
-      
+
     } catch (error) {
       console.error("❌ === FEHLER BEIM ANNEHMEN DER EINLADUNG ===");
       console.error("   Fehler:", error);
       console.error("   Message:", error.message);
       console.error("   Stack:", error.stack);
-      
+
       alert("Fehler beim Annehmen der Einladung: " + error.message);
     }
   };
