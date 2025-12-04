@@ -20,6 +20,8 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
     reisespesen_regeln: musiker?.reisespesen_regeln || "",
     email: musiker?.email || "",
     telefon: musiker?.telefon || "",
+    adresse: musiker?.adresse || "",
+    steuernummer: musiker?.steuernummer || "",
     notfallkontakt: musiker?.notfallkontakt || "",
     notizen: musiker?.notizen || "",
     aktiv: musiker?.aktiv !== undefined ? musiker.aktiv : true
@@ -179,6 +181,26 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
                 onChange={(e) => handleChange('tagessatz_netto', parseFloat(e.target.value))}
                 placeholder="500" />
 
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="adresse">Adresse</Label>
+              <Input
+                id="adresse"
+                value={formData.adresse}
+                onChange={(e) => handleChange('adresse', e.target.value)}
+                placeholder="Musterstraße 123, 12345 Berlin" />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="steuernummer">Steuernummer / USt-IdNr.</Label>
+              <Input
+                id="steuernummer"
+                value={formData.steuernummer}
+                onChange={(e) => handleChange('steuernummer', e.target.value)}
+                placeholder="z.B. 123/456/78901 oder DE123456789" />
             </div>
           </div>
 

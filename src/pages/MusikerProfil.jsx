@@ -23,6 +23,8 @@ export default function MusikerProfilPage() {
     name: "",
     email: "",
     telefon: "",
+    adresse: "",
+    steuernummer: "",
     instrumente: [],
     genre: [],
     sprachen: [],
@@ -106,6 +108,8 @@ export default function MusikerProfilPage() {
             name: gefundenerMusiker.name || "",
             email: gefundenerMusiker.email || "",
             telefon: gefundenerMusiker.telefon || "",
+            adresse: gefundenerMusiker.adresse || "",
+            steuernummer: gefundenerMusiker.steuernummer || "",
             instrumente: gefundenerMusiker.instrumente || [],
             genre: gefundenerMusiker.genre || [],
             sprachen: gefundenerMusiker.sprachen || [],
@@ -259,6 +263,28 @@ export default function MusikerProfilPage() {
                     value={formData.notfallkontakt}
                     onChange={(e) => handleChange('notfallkontakt', e.target.value)}
                     placeholder="Name und Telefon"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                <div className="space-y-2">
+                  <Label htmlFor="adresse">Adresse</Label>
+                  <Input
+                    id="adresse"
+                    value={formData.adresse}
+                    onChange={(e) => handleChange('adresse', e.target.value)}
+                    placeholder="Musterstraße 123, 12345 Berlin"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="steuernummer">Steuernummer / USt-IdNr.</Label>
+                  <Input
+                    id="steuernummer"
+                    value={formData.steuernummer}
+                    onChange={(e) => handleChange('steuernummer', e.target.value)}
+                    placeholder="z.B. 123/456/78901 oder DE123456789"
                   />
                 </div>
               </div>
