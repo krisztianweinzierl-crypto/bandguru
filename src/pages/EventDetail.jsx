@@ -421,6 +421,43 @@ export default function EventDetailPage() {
     },
   });
 
+  // Hilfsfunktion: Benachrichtigung an alle zugesagten Musiker senden
+  const notifyEventMusicians = async (titel, nachricht, typ = 'event_update') => {
+    try {
+      // Lade alle zugesagten EventMusiker
+      const zugesagteMusiker = await base44.entities.EventMusiker.filter({ 
+        event_id: eventId, 
+        status: 'zugesagt' 
+      });
+      
+      // Finde die User-IDs der Musiker
+      for (const em of zugesagteMusiker) {
+        const mitgliedschaften = await base44.entities.Mitglied.filter({
+          org_id: event.org_id,
+          musiker_id: em.musiker_id,
+          status: "aktiv"
+        });
+        
+        if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
+          await base44.entities.Benachrichtigung.create({
+            org_id: event.org_id,
+            user_id: mitgliedschaften[0].user_id,
+            typ: typ,
+            titel: titel,
+            nachricht: nachricht,
+            link_url: `${createPageUrl('EventDetail')}?id=${eventId}`,
+            bezug_typ: 'event',
+            bezug_id: eventId,
+            icon: typ === 'event_update' ? 'Calendar' : 'FileText',
+            prioritaet: 'normal'
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Fehler beim Senden der Benachrichtigungen:", error);
+    }
+  };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -441,6 +478,13 @@ export default function EventDetailPage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
+      
+      // Benachrichtigung an Musiker senden
+      await notifyEventMusicians(
+        `📄 Neues Dokument: ${event.titel}`,
+        `Ein neues Dokument "${file.name}" wurde zum Event "${event.titel}" hinzugefügt.`,
+        'event_update'
+      );
     } catch (error) {
       console.error("Fehler beim Hochladen:", error);
       alert("Fehler beim Hochladen der Datei: " + error.message);
@@ -450,9 +494,19 @@ export default function EventDetailPage() {
     }
   };
 
-  const handleDeleteDatei = (dateiId) => {
+  const handleDeleteDatei = async (dateiId) => {
+    const datei = dateien.find(d => d.id === dateiId);
     if (confirm("Möchtest du diese Datei wirklich löschen?")) {
       deleteDateiMutation.mutate(dateiId);
+      
+      // Benachrichtigung an Musiker senden
+      if (datei) {
+        await notifyEventMusicians(
+          `🗑️ Dokument entfernt: ${event.titel}`,
+          `Das Dokument "${datei.file_name}" wurde vom Event "${event.titel}" entfernt.`,
+          'event_update'
+        );
+      }
     }
   };
 
@@ -696,8 +750,47 @@ ${orgName} Team`;
     }
   };
 
-  const handleUpdateSubmit = (data) => {
-    updateEventMutation.mutate(data);
+  const handleUpdateSubmit = async (data) => {
+    // Prüfe, welche relevanten Felder sich geändert haben
+    const relevantChanges = [];
+    
+    if (data.datum_von !== event.datum_von || data.datum_bis !== event.datum_bis) {
+      relevantChanges.push('Datum/Uhrzeit');
+    }
+    if (data.ort_name !== event.ort_name || data.ort_adresse !== event.ort_adresse) {
+      relevantChanges.push('Veranstaltungsort');
+    }
+    if (data.get_in_zeit !== event.get_in_zeit) {
+      relevantChanges.push('Get-In Zeit');
+    }
+    if (data.soundcheck_zeit !== event.soundcheck_zeit) {
+      relevantChanges.push('Soundcheck-Zeit');
+    }
+    if (data.oeffentliche_notizen !== event.oeffentliche_notizen) {
+      relevantChanges.push('Ablaufplan');
+    }
+    if (data.dresscode !== event.dresscode) {
+      relevantChanges.push('Dresscode');
+    }
+    if (data.hotel_name !== event.hotel_name || data.hotel_adresse !== event.hotel_adresse) {
+      relevantChanges.push('Hotel-Informationen');
+    }
+    if (data.technik_hinweise !== event.technik_hinweise) {
+      relevantChanges.push('Technik-Hinweise');
+    }
+    
+    updateEventMutation.mutate(data, {
+      onSuccess: async () => {
+        // Nur benachrichtigen, wenn relevante Änderungen vorliegen
+        if (relevantChanges.length > 0) {
+          await notifyEventMusicians(
+            `📝 Event aktualisiert: ${event.titel}`,
+            `Folgende Details wurden geändert: ${relevantChanges.join(', ')}. Bitte prüfe die aktuellen Event-Informationen.`,
+            'event_update'
+          );
+        }
+      }
+    });
   };
 
   const handleDeleteEvent = () => {
