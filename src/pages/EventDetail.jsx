@@ -1576,6 +1576,11 @@ ${orgName} Team`;
                                             <div>
                                               <p className="text-xs text-gray-500">Fahrtkosten</p>
                                               <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                              {em.distanz_km > 0 && (
+                                                <p className="text-xs text-gray-400">
+                                                  ({em.distanz_km} km × 2 × {em.fahrtkosten_pro_km?.toFixed(2) || '0.30'} €/km)
+                                                </p>
+                                              )}
                                             </div>
                                           </div>
                                         )}
