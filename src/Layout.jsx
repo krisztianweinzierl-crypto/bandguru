@@ -1190,7 +1190,7 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.1.1</p>
+                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.1.3</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
