@@ -70,6 +70,15 @@ export default function EventDetailPage() {
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [editingEventMusiker, setEditingEventMusiker] = useState(null);
+  const [showEditMusikerDialog, setShowEditMusikerDialog] = useState(false);
+  const [editMusikerData, setEditMusikerData] = useState({
+    rolle: "",
+    gage_netto: "",
+    distanz_km: "",
+    fahrtkosten_pro_km: "0.30",
+    notizen: "",
+    buchungsbedingungen: ""
+  });
   const [showContactDialog, setShowContactDialog] = useState(false);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
@@ -638,6 +647,43 @@ ${orgName} Team`;
     } else {
       alert("Dieser Musiker hat keine E-Mail-Adresse hinterlegt.");
     }
+  };
+
+  const handleOpenEditMusikerDialog = (em) => {
+    setEditingEventMusiker(em);
+    setEditMusikerData({
+      rolle: em.rolle || "",
+      gage_netto: em.gage_netto?.toString() || "",
+      distanz_km: em.distanz_km?.toString() || "",
+      fahrtkosten_pro_km: em.fahrtkosten_pro_km?.toString() || "0.30",
+      notizen: em.notizen || "",
+      buchungsbedingungen: em.buchungsbedingungen || ""
+    });
+    setShowEditMusikerDialog(true);
+    setShowDropdownId(null);
+  };
+
+  const handleSaveEditMusiker = () => {
+    if (!editingEventMusiker) return;
+    
+    const distanz = parseFloat(editMusikerData.distanz_km) || 0;
+    const fahrtkostenProKm = parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30;
+    const berechneteSpesen = distanz * 2 * fahrtkostenProKm;
+    
+    updateEventMusikerMutation.mutate({
+      id: editingEventMusiker.id,
+      data: {
+        rolle: editMusikerData.rolle,
+        gage_netto: parseFloat(editMusikerData.gage_netto) || 0,
+        distanz_km: distanz,
+        fahrtkosten_pro_km: fahrtkostenProKm,
+        spesen: berechneteSpesen,
+        notizen: editMusikerData.notizen,
+        buchungsbedingungen: editMusikerData.buchungsbedingungen
+      }
+    });
+    setShowEditMusikerDialog(false);
+    setEditingEventMusiker(null);
   };
 
   const handleSendEinladung = () => {
@@ -1470,6 +1516,13 @@ ${orgName} Team`;
                                                   </button>
                                                 </>
                                               )}
+                                              <button
+                                                onClick={() => handleOpenEditMusikerDialog(em)}
+                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                                              >
+                                                <Edit className="w-4 h-4" />
+                                                Bearbeiten
+                                              </button>
                                               {musikerData?.email && (
                                                 <button
                                                   onClick={() => handleOpenEinladungDialog(em.id, em.musiker_id)}
@@ -2012,6 +2065,104 @@ ${orgName} Team`;
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Musiker bearbeiten Dialog */}
+        <Dialog open={showEditMusikerDialog} onOpenChange={setShowEditMusikerDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Musiker bearbeiten</DialogTitle>
+              <DialogDescription>
+                {musiker.find(m => m.id === editingEventMusiker?.musiker_id)?.name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Rolle/Instrument</Label>
+                <Input
+                  value={editMusikerData.rolle}
+                  onChange={(e) => setEditMusikerData({...editMusikerData, rolle: e.target.value})}
+                  placeholder="z.B. Gitarre, Gesang"
+                />
+              </div>
+              
+              <div>
+                <Label>Gage (netto)</Label>
+                <Input
+                  type="number"
+                  value={editMusikerData.gage_netto}
+                  onChange={(e) => setEditMusikerData({...editMusikerData, gage_netto: e.target.value})}
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Entfernung (km)</Label>
+                  <Input
+                    type="number"
+                    value={editMusikerData.distanz_km}
+                    onChange={(e) => setEditMusikerData({...editMusikerData, distanz_km: e.target.value})}
+                    placeholder="z.B. 50"
+                  />
+                </div>
+                <div>
+                  <Label>€/km</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={editMusikerData.fahrtkosten_pro_km}
+                    onChange={(e) => setEditMusikerData({...editMusikerData, fahrtkosten_pro_km: e.target.value})}
+                    placeholder="0.30"
+                  />
+                </div>
+                <div>
+                  <Label>Fahrtkosten</Label>
+                  <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
+                    €{((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label>Notizen</Label>
+                <Textarea
+                  value={editMusikerData.notizen}
+                  onChange={(e) => setEditMusikerData({...editMusikerData, notizen: e.target.value})}
+                  placeholder="Zusätzliche Informationen..."
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label>Buchungsbedingungen</Label>
+                <div className="border border-gray-200 rounded-lg">
+                  <ReactQuill
+                    theme="snow"
+                    value={editMusikerData.buchungsbedingungen}
+                    onChange={(value) => setEditMusikerData({...editMusikerData, buchungsbedingungen: value})}
+                    modules={modules}
+                    formats={formats}
+                    placeholder="Buchungsbedingungen..."
+                    className="min-h-[100px]"
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEditMusikerDialog(false)}>
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleSaveEditMusiker}
+                disabled={updateEventMusikerMutation.isPending}
+                className="text-white"
+                style={{ backgroundColor: '#223a5e' }}
+              >
+                {updateEventMusikerMutation.isPending ? 'Wird gespeichert...' : 'Speichern'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Einladung an Musiker Dialog */}
         <Dialog open={showEinladungDialog} onOpenChange={setShowEinladungDialog}>
