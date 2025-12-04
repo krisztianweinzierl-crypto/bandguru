@@ -63,7 +63,8 @@ export default function EventDetailPage() {
   const [selectedMusikerId, setSelectedMusikerId] = useState("");
   const [musikerRolle, setMusikerRolle] = useState("");
   const [musikerGage, setMusikerGage] = useState("");
-  const [musikerSpesen, setMusikerSpesen] = useState("");
+  const [musikerDistanz, setMusikerDistanz] = useState("");
+  const [musikerFahrtkostenProKm, setMusikerFahrtkostenProKm] = useState("0.30");
   const [musikerNotizen, setMusikerNotizen] = useState("");
   const [buchungsbedingungen, setBuchungsbedingungen] = useState("");
   const [selectedVorlageId, setSelectedVorlageId] = useState("");
