@@ -2068,7 +2068,7 @@ ${orgName} Team`;
 
         {/* Musiker bearbeiten Dialog */}
         <Dialog open={showEditMusikerDialog} onOpenChange={setShowEditMusikerDialog}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Musiker bearbeiten</DialogTitle>
               <DialogDescription>
@@ -2133,9 +2133,11 @@ ${orgName} Team`;
                 />
               </div>
 
-              <div>
-                <Label>Buchungsbedingungen</Label>
-                <div className="border border-gray-200 rounded-lg">
+              <details className="border border-gray-200 rounded-lg">
+                <summary className="px-3 py-2 cursor-pointer font-medium text-sm hover:bg-gray-50">
+                  Buchungsbedingungen {editMusikerData.buchungsbedingungen ? '✓' : ''}
+                </summary>
+                <div className="border-t">
                   <ReactQuill
                     theme="snow"
                     value={editMusikerData.buchungsbedingungen}
@@ -2146,7 +2148,7 @@ ${orgName} Team`;
                     className="min-h-[100px]"
                   />
                 </div>
-              </div>
+              </details>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowEditMusikerDialog(false)}>
