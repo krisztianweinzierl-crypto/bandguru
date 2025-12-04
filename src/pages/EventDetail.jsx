@@ -584,7 +584,8 @@ ${orgName} Team`;
     setSelectedMusikerId("");
     setMusikerRolle("");
     setMusikerGage("");
-    setMusikerSpesen("");
+    setMusikerDistanz("");
+    setMusikerFahrtkostenProKm("0.30");
     setMusikerNotizen("");
     setBuchungsbedingungen("");
     setSelectedVorlageId("");
@@ -595,12 +596,18 @@ ${orgName} Team`;
 
     const selectedMusiker = musiker.find(m => m.id === selectedMusikerId);
     
+    const distanz = parseFloat(musikerDistanz) || 0;
+    const fahrtkostenProKm = parseFloat(musikerFahrtkostenProKm) || 0.30;
+    const berechneteSpesen = distanz * 2 * fahrtkostenProKm;
+    
     addMusikerMutation.mutate({
       event_id: eventId,
       musiker_id: selectedMusikerId,
       rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
-      spesen: parseFloat(musikerSpesen) || 0,
+      distanz_km: distanz,
+      fahrtkosten_pro_km: fahrtkostenProKm,
+      spesen: berechneteSpesen,
       status: "angefragt",
       notizen: musikerNotizen,
       buchungsbedingungen: buchungsbedingungen
@@ -1249,7 +1256,7 @@ ${orgName} Team`;
                             </Select>
                           </div>
 
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <div>
                               <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
                               <Input
@@ -1267,14 +1274,34 @@ ${orgName} Team`;
                                 placeholder="0.00"
                               />
                             </div>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-4">
                             <div>
-                              <Label>Fahrtkosten (Cent/km)</Label>
+                              <Label>Entfernung (km, einfach)</Label>
                               <Input
                                 type="number"
-                                value={musikerSpesen}
-                                onChange={(e) => setMusikerSpesen(e.target.value)}
-                                placeholder="0.00"
+                                value={musikerDistanz}
+                                onChange={(e) => setMusikerDistanz(e.target.value)}
+                                placeholder="z.B. 50"
                               />
+                            </div>
+                            <div>
+                              <Label>€/km</Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={musikerFahrtkostenProKm}
+                                onChange={(e) => setMusikerFahrtkostenProKm(e.target.value)}
+                                placeholder="0.30"
+                              />
+                            </div>
+                            <div>
+                              <Label>Fahrtkosten (berechnet)</Label>
+                              <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
+                                €{((parseFloat(musikerDistanz) || 0) * 2 * (parseFloat(musikerFahrtkostenProKm) || 0.30)).toFixed(2)}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">= {musikerDistanz || 0} km × 2 × {musikerFahrtkostenProKm || 0.30} €/km</p>
                             </div>
                           </div>
 
