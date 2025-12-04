@@ -2133,22 +2133,25 @@ ${orgName} Team`;
                 />
               </div>
 
-              <details className="border border-gray-200 rounded-lg">
-                <summary className="px-3 py-2 cursor-pointer font-medium text-sm hover:bg-gray-50">
-                  Buchungsbedingungen {editMusikerData.buchungsbedingungen ? '✓' : ''}
-                </summary>
-                <div className="border-t">
-                  <ReactQuill
-                    theme="snow"
-                    value={editMusikerData.buchungsbedingungen}
-                    onChange={(value) => setEditMusikerData({...editMusikerData, buchungsbedingungen: value})}
-                    modules={modules}
-                    formats={formats}
-                    placeholder="Buchungsbedingungen..."
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </details>
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <span className="font-medium text-sm">Buchungsbedingungen</span>
+                  <ChevronDown className="w-4 h-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                  <div className="border border-gray-200 rounded-lg">
+                    <ReactQuill
+                      theme="snow"
+                      value={editMusikerData.buchungsbedingungen}
+                      onChange={(value) => setEditMusikerData({...editMusikerData, buchungsbedingungen: value})}
+                      modules={modules}
+                      formats={formats}
+                      placeholder="Buchungsbedingungen..."
+                      className="min-h-[150px]"
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowEditMusikerDialog(false)}>
