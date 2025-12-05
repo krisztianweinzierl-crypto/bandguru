@@ -12,8 +12,12 @@ import {
   Copy,
   Check,
   Save,
-  Send
+  Send,
+  Clock,
+  CalendarCheck
 } from "lucide-react";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 
 export default function OrganisationSettingsPage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -32,6 +37,7 @@ export default function OrganisationSettingsPage() {
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
   const queryClient = useQueryClient();
+  const { showAlert, AlertDialog } = useAlertDialog();
 
   // Helper function to create page URLs.
   // In a real application, this would typically come from a routing library
@@ -201,7 +207,11 @@ Das ${organisation.name} Team 🎵`;
     },
     onSuccess: (mitglied) => {
       queryClient.invalidateQueries({ queryKey: ['mitglieder'] });
-      alert(`✅ Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`);
+      showAlert({
+        title: 'Einladung versendet',
+        message: `Die Einladung wurde erfolgreich an ${mitglied.invite_email} versendet!`,
+        type: 'success'
+      });
       setInviteEmail("");
       setInviteName("");
       setInviteMessage("");
@@ -211,7 +221,11 @@ Das ${organisation.name} Team 🎵`;
       console.error("Fehler beim Versenden der Einladung:", error);
       
       const errorMessage = error.message || "Unbekannter Fehler";
-      alert(`❌ Fehler beim Versenden der Einladung:\n\n${errorMessage}\n\nBitte überprüfe:\n- Mailgun API Key korrekt?\n- Mailgun Domain korrekt?\n- Domain verifiziert bei Mailgun?`);
+      showAlert({
+        title: 'Fehler beim Versenden',
+        message: `${errorMessage}\n\nBitte überprüfe:\n• Mailgun API Key korrekt?\n• Mailgun Domain korrekt?\n• Domain verifiziert bei Mailgun?`,
+        type: 'error'
+      });
     }
   });
 
@@ -353,6 +367,8 @@ Das ${organisation.name} Team 🎵`;
   }
 
   return (
+    <>
+    <AlertDialog />
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
@@ -601,7 +617,7 @@ Das ${organisation.name} Team 🎵`;
                                 Keine E-Mail verfügbar
                               </p>
                             )}
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <Badge
                                 variant="outline"
                                 className={
@@ -623,6 +639,20 @@ Das ${organisation.name} Team 🎵`;
                               >
                                 {mitglied.status}
                               </Badge>
+                            </div>
+                            {/* Timestamp-Anzeige */}
+                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                              {isInvited ? (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  Eingeladen am {format(new Date(mitglied.created_date), 'dd. MMM yyyy', { locale: de })}
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1">
+                                  <CalendarCheck className="w-3 h-3" />
+                                  Aktiv seit {format(new Date(mitglied.updated_date || mitglied.created_date), 'dd. MMM yyyy', { locale: de })}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -650,5 +680,6 @@ Das ${organisation.name} Team 🎵`;
         </Tabs>
       </div>
     </div>
+    </>
   );
 }
