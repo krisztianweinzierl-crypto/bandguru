@@ -338,6 +338,13 @@ export default function Layout({ children, currentPageName }) {
     window.location.reload();
   };
 
+  // Redirect Musiker to their dashboard if they're on wrong page
+  useEffect(() => {
+    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
+      window.location.href = createPageUrl('MusikerDashboard');
+    }
+  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
+
   const handleLogout = async () => {
     try {
       // Logout durchführen (funktioniert in beiden Modi)
@@ -361,7 +368,7 @@ export default function Layout({ children, currentPageName }) {
   const isManager = currentMitglied?.rolle === "Band Manager";
 
   const managerNavItems = [
-    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+    { title: "Übersicht", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
     { 
       title: "Events", 
       icon: Calendar,
@@ -381,7 +388,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const musikerNavItems = [
-    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+    { title: "Übersicht", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
     { 
       title: "Events", 
       icon: Calendar,
@@ -1199,7 +1206,23 @@ export default function Layout({ children, currentPageName }) {
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
-                    {user?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+                    {(() => {
+                      if (currentMusiker?.name) {
+                        // Musiker name: Nimm erste Buchstaben von jedem Wort
+                        const parts = currentMusiker.name.split(' ').filter(p => p.length > 0);
+                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+                        return parts[0][0].toUpperCase();
+                      }
+                      if (user?.full_name) {
+                        const parts = user.full_name.split(' ').filter(p => p.length > 0);
+                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+                        return parts[0][0].toUpperCase();
+                      }
+                      if (user?.email) {
+                        return user.email[0].toUpperCase();
+                      }
+                      return '?';
+                    })()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
@@ -1278,7 +1301,7 @@ export default function Layout({ children, currentPageName }) {
                 }`}
               >
                 <LayoutDashboard className="w-6 h-6" />
-                <span className="text-xs font-medium">Dashboard</span>
+                <span className="text-xs font-medium">Übersicht</span>
               </Link>
 
               <Link
