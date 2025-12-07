@@ -559,7 +559,7 @@ export default function MusikerDashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Übersicht
+            Dashboard
           </h1>
           <p className="text-gray-600">Willkommen zurück{currentMusiker ? `, ${currentMusiker.name}` : ''}! 🎵</p>
           <p className="text-gray-600">Deine Buchungsanfragen und Events im Überblick</p>

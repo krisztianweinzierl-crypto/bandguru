@@ -368,7 +368,7 @@ export default function Layout({ children, currentPageName }) {
   }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
 
   const managerNavItems = [
-    { title: "Übersicht", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
     { 
       title: "Events", 
       icon: Calendar,
@@ -388,7 +388,7 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const musikerNavItems = [
-    { title: "Übersicht", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
     { 
       title: "Events", 
       icon: Calendar,
@@ -1301,8 +1301,8 @@ export default function Layout({ children, currentPageName }) {
                 }`}
               >
                 <LayoutDashboard className="w-6 h-6" />
-                <span className="text-xs font-medium">Übersicht</span>
-              </Link>
+                <span className="text-xs font-medium">Dashboard</span>
+                </Link>
 
               <Link
                 to={createPageUrl(isManager ? "Events" : "MeineEvents")}
