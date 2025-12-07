@@ -338,13 +338,6 @@ export default function Layout({ children, currentPageName }) {
     window.location.reload();
   };
 
-  // Redirect Musiker to their dashboard if they're on wrong page
-  useEffect(() => {
-    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
-      window.location.href = createPageUrl('MusikerDashboard');
-    }
-  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
-
   const handleLogout = async () => {
     try {
       // Logout durchführen (funktioniert in beiden Modi)
@@ -366,6 +359,13 @@ export default function Layout({ children, currentPageName }) {
 
   const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrg?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
+
+  // Redirect Musiker to their dashboard if they're on wrong page
+  useEffect(() => {
+    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
+      window.location.href = createPageUrl('MusikerDashboard');
+    }
+  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
 
   const managerNavItems = [
     { title: "Übersicht", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
