@@ -268,10 +268,48 @@ export default function EventDetailPage() {
       console.log("Aktualisiere Event:", eventData);
       return await base44.entities.Event.update(eventId, eventData);
     },
-    onSuccess: (data) => {
+    onSuccess: async (data, variables) => {
       console.log("Event erfolgreich aktualisiert:", data);
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      
+      // Prüfe, welche relevanten Felder sich geändert haben
+      const relevantChanges = [];
+      
+      if (variables.datum_von !== event.datum_von || variables.datum_bis !== event.datum_bis) {
+        relevantChanges.push('Datum/Uhrzeit');
+      }
+      if (variables.ort_name !== event.ort_name || variables.ort_adresse !== event.ort_adresse) {
+        relevantChanges.push('Veranstaltungsort');
+      }
+      if (variables.get_in_zeit !== event.get_in_zeit) {
+        relevantChanges.push('Get-In Zeit');
+      }
+      if (variables.soundcheck_zeit !== event.soundcheck_zeit) {
+        relevantChanges.push('Soundcheck-Zeit');
+      }
+      if (variables.oeffentliche_notizen !== event.oeffentliche_notizen) {
+        relevantChanges.push('Ablaufplan');
+      }
+      if (variables.dresscode !== event.dresscode) {
+        relevantChanges.push('Dresscode');
+      }
+      if (variables.hotel_name !== event.hotel_name || variables.hotel_adresse !== event.hotel_adresse) {
+        relevantChanges.push('Hotel-Informationen');
+      }
+      if (variables.technik_hinweise !== event.technik_hinweise) {
+        relevantChanges.push('Technik-Hinweise');
+      }
+      
+      // Nur benachrichtigen, wenn relevante Änderungen vorliegen
+      if (relevantChanges.length > 0) {
+        await notifyEventMusicians(
+          `📝 Event aktualisiert: ${event.titel}`,
+          `Folgende Details wurden geändert: ${relevantChanges.join(', ')}. Bitte prüfe die aktuellen Event-Informationen.`,
+          'event_update'
+        );
+      }
+      
       setIsEditing(false);
     },
     onError: (error) => {
@@ -807,46 +845,7 @@ ${orgName} Team`;
   };
 
   const handleUpdateSubmit = async (data) => {
-    // Prüfe, welche relevanten Felder sich geändert haben
-    const relevantChanges = [];
-    
-    if (data.datum_von !== event.datum_von || data.datum_bis !== event.datum_bis) {
-      relevantChanges.push('Datum/Uhrzeit');
-    }
-    if (data.ort_name !== event.ort_name || data.ort_adresse !== event.ort_adresse) {
-      relevantChanges.push('Veranstaltungsort');
-    }
-    if (data.get_in_zeit !== event.get_in_zeit) {
-      relevantChanges.push('Get-In Zeit');
-    }
-    if (data.soundcheck_zeit !== event.soundcheck_zeit) {
-      relevantChanges.push('Soundcheck-Zeit');
-    }
-    if (data.oeffentliche_notizen !== event.oeffentliche_notizen) {
-      relevantChanges.push('Ablaufplan');
-    }
-    if (data.dresscode !== event.dresscode) {
-      relevantChanges.push('Dresscode');
-    }
-    if (data.hotel_name !== event.hotel_name || data.hotel_adresse !== event.hotel_adresse) {
-      relevantChanges.push('Hotel-Informationen');
-    }
-    if (data.technik_hinweise !== event.technik_hinweise) {
-      relevantChanges.push('Technik-Hinweise');
-    }
-    
-    updateEventMutation.mutate(data, {
-      onSuccess: async () => {
-        // Nur benachrichtigen, wenn relevante Änderungen vorliegen
-        if (relevantChanges.length > 0) {
-          await notifyEventMusicians(
-            `📝 Event aktualisiert: ${event.titel}`,
-            `Folgende Details wurden geändert: ${relevantChanges.join(', ')}. Bitte prüfe die aktuellen Event-Informationen.`,
-            'event_update'
-          );
-        }
-      }
-    });
+    updateEventMutation.mutate(data);
   };
 
   const handleDeleteEvent = () => {
