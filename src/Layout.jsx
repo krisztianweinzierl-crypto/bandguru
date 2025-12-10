@@ -256,22 +256,30 @@ export default function Layout({ children, currentPageName }) {
           status: "aktiv"
         });
 
-        // Erstelle Benachrichtigung für jeden Manager
-        await Promise.all(manager.map(m => 
-          m.user_id && base44.entities.Benachrichtigung.create({
-            org_id: invite.org_id,
-            user_id: m.user_id,
-            typ: 'neuer_nutzer',
-            titel: `Neues Teammitglied: ${user.full_name || user.email}`,
-            nachricht: `${user.full_name || user.email} hat die Einladung als ${invite.rolle} angenommen und ist jetzt Teil des Teams.`,
-            link_url: createPageUrl('OrganisationSettings'),
-            icon: 'UserPlus',
-            prioritaet: 'normal'
-          })
-        ));
-        console.log("✅ Benachrichtigungen an Manager gesendet");
+        console.log(`   Gefundene Manager: ${manager.length}`);
+        manager.forEach(m => console.log(`   - Manager user_id: ${m.user_id || 'NICHT GESETZT'}`));
+
+        // Erstelle Benachrichtigung für jeden Manager mit user_id
+        const notificationPromises = manager
+          .filter(m => m.user_id) // Nur Manager mit user_id
+          .map(m => 
+            base44.entities.Benachrichtigung.create({
+              org_id: invite.org_id,
+              user_id: m.user_id,
+              typ: 'neuer_nutzer',
+              titel: `Neues Teammitglied: ${user.full_name || user.email}`,
+              nachricht: `${user.full_name || user.email} hat die Einladung als ${invite.rolle} angenommen und ist jetzt Teil des Teams.`,
+              link_url: createPageUrl('OrganisationSettings'),
+              icon: 'UserPlus',
+              prioritaet: 'normal'
+            })
+          );
+
+        await Promise.all(notificationPromises);
+        console.log(`✅ ${notificationPromises.length} Benachrichtigungen an Manager gesendet`);
       } catch (notifError) {
         console.error("⚠️ Fehler beim Senden der Benachrichtigung:", notifError);
+        console.error("   Stack:", notifError.stack);
         // Nicht abbrechen, Einladung wurde trotzdem angenommen
       }
 
