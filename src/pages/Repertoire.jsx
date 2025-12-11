@@ -101,11 +101,20 @@ export default function RepertoirePage() {
   });
 
   const createSongMutation = useMutation({
-    mutationFn: (data) => base44.entities.Song.create({ ...data, org_id: currentOrgId }),
+    mutationFn: async (data) => {
+      console.log('🎵 Creating song with data:', data, 'org_id:', currentOrgId);
+      const result = await base44.entities.Song.create({ ...data, org_id: currentOrgId });
+      console.log('✅ Song created successfully:', result);
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['songs'] });
       setShowSongForm(false);
       setEditingSong(null);
+    },
+    onError: (error) => {
+      console.error('❌ Error creating song:', error);
+      alert('Fehler beim Speichern des Songs: ' + error.message);
     },
   });
 
