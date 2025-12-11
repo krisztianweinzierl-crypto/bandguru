@@ -263,6 +263,12 @@ export default function EventDetailPage() {
     enabled: !!event?.org_id,
   });
 
+  const { data: aktivitaeten = [] } = useQuery({
+    queryKey: ['eventAktivitaeten', eventId],
+    queryFn: () => base44.entities.EventAktivitaet.filter({ event_id: eventId }, '-created_date'),
+    enabled: !!eventId,
+  });
+
   const updateEventMutation = useMutation({
     mutationFn: async (eventData) => {
       console.log("Aktualisiere Event:", eventData);
@@ -308,6 +314,13 @@ export default function EventDetailPage() {
           `Folgende Details wurden geändert: ${relevantChanges.join(', ')}. Bitte prüfe die aktuellen Event-Informationen.`,
           'event_update'
         );
+        
+        // Aktivität loggen
+        await logActivity(
+          'event_bearbeitet',
+          `Event-Details aktualisiert: ${relevantChanges.join(', ')}`,
+          { changes: relevantChanges }
+        );
       }
       
       setIsEditing(false);
@@ -345,6 +358,14 @@ export default function EventDetailPage() {
       
       try {
         const selectedMusiker = musiker.find(m => m.id === variables.musiker_id);
+        
+        // Aktivität loggen
+        await logActivity(
+          'musiker_hinzugefuegt',
+          `${selectedMusiker?.name || 'Musiker'} wurde zum Event hinzugefügt (${variables.rolle})`,
+          { musiker_name: selectedMusiker?.name, rolle: variables.rolle }
+        );
+        
         const mitgliedschaften = await base44.entities.Mitglied.filter({
           org_id: event.org_id,
           musiker_id: selectedMusiker.id,
@@ -405,8 +426,32 @@ export default function EventDetailPage() {
     mutationFn: async ({ id, data }) => {
       return await base44.entities.EventMusiker.update(id, data);
     },
-    onSuccess: () => {
+    onSuccess: async (updatedData, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      
+      // Wenn Status geändert wurde, Aktivität loggen
+      if (variables.data.status) {
+        const em = eventMusiker.find(m => m.id === variables.id);
+        const musikerData = musiker.find(m => m.id === em?.musiker_id);
+        const statusLabels = {
+          angefragt: 'Angefragt',
+          optional: 'Optional',
+          zugesagt: 'Zugesagt',
+          abgelehnt: 'Abgelehnt',
+          ersetzt: 'Ersetzt'
+        };
+        
+        await logActivity(
+          'musiker_status_geaendert',
+          `Status von ${musikerData?.name || 'Musiker'} geändert auf: ${statusLabels[variables.data.status] || variables.data.status}`,
+          { 
+            musiker_name: musikerData?.name,
+            alter_status: em?.status,
+            neuer_status: variables.data.status 
+          }
+        );
+      }
+      
       setShowDropdownId(null);
       setEditingEventMusiker(null);
     },
@@ -418,10 +463,23 @@ export default function EventDetailPage() {
 
   const deleteEventMusikerMutation = useMutation({
     mutationFn: async (id) => {
-      return await base44.entities.EventMusiker.delete(id);
+      const em = eventMusiker.find(m => m.id === id);
+      const musikerData = musiker.find(m => m.id === em?.musiker_id);
+      
+      await base44.entities.EventMusiker.delete(id);
+      
+      return { musikerData };
     },
-    onSuccess: () => {
+    onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
+      
+      // Aktivität loggen
+      await logActivity(
+        'musiker_entfernt',
+        `${result.musikerData?.name || 'Musiker'} wurde vom Event entfernt`,
+        { musiker_name: result.musikerData?.name }
+      );
+      
       setShowDropdownId(null);
     },
     onError: (error) => {
@@ -470,6 +528,23 @@ export default function EventDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
     },
   });
+
+  // Hilfsfunktion: Aktivität loggen
+  const logActivity = async (typ, beschreibung, details = {}) => {
+    try {
+      await base44.entities.EventAktivitaet.create({
+        org_id: event.org_id,
+        event_id: eventId,
+        typ,
+        beschreibung,
+        details,
+        benutzer_name: currentUser?.full_name || currentUser?.email || 'Unbekannt'
+      });
+      queryClient.invalidateQueries({ queryKey: ['eventAktivitaeten', eventId] });
+    } catch (error) {
+      console.error("Fehler beim Loggen der Aktivität:", error);
+    }
+  };
 
   // Hilfsfunktion: Benachrichtigung an alle zugesagten Musiker senden
   const notifyEventMusicians = async (titel, nachricht, typ = 'event_update') => {
@@ -529,6 +604,13 @@ export default function EventDetailPage() {
 
       queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
       
+      // Aktivität loggen
+      await logActivity(
+        'dokument_hinzugefuegt',
+        `Dokument "${file.name}" hochgeladen`,
+        { datei_name: file.name, datei_groesse: file.size }
+      );
+      
       // Benachrichtigung an Musiker senden
       await notifyEventMusicians(
         `📄 Neues Dokument: ${event.titel}`,
@@ -549,8 +631,15 @@ export default function EventDetailPage() {
     if (confirm("Möchtest du diese Datei wirklich löschen?")) {
       deleteDateiMutation.mutate(dateiId);
       
-      // Benachrichtigung an Musiker senden
+      // Aktivität loggen
       if (datei) {
+        await logActivity(
+          'dokument_geloescht',
+          `Dokument "${datei.file_name}" gelöscht`,
+          { datei_name: datei.file_name }
+        );
+        
+        // Benachrichtigung an Musiker senden
         await notifyEventMusicians(
           `🗑️ Dokument entfernt: ${event.titel}`,
           `Das Dokument "${datei.file_name}" wurde vom Event "${event.titel}" entfernt.`,
@@ -965,6 +1054,9 @@ ${orgName} Team`;
             </TabsTrigger>
             <TabsTrigger value="finanzen" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
               Finanzen
+            </TabsTrigger>
+            <TabsTrigger value="verlauf" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+              Verlauf ({aktivitaeten.length})
             </TabsTrigger>
           </TabsList>
 
@@ -2064,6 +2156,72 @@ ${orgName} Team`;
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Verlauf Tab */}
+          <TabsContent value="verlauf" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-xl font-bold">Aktivitätsverlauf</CardTitle>
+                <p className="text-sm text-gray-500 mt-1">Alle Änderungen und Aktivitäten zu diesem Event</p>
+              </CardHeader>
+              <CardContent className="p-6">
+                {aktivitaeten.length > 0 ? (
+                  <div className="space-y-4">
+                    {aktivitaeten.map((aktivitaet) => {
+                      const iconMap = {
+                        event_erstellt: '✨',
+                        event_bearbeitet: '📝',
+                        musiker_hinzugefuegt: '➕',
+                        musiker_entfernt: '➖',
+                        musiker_status_geaendert: '🔄',
+                        dokument_hinzugefuegt: '📄',
+                        dokument_geloescht: '🗑️',
+                        aufgabe_erstellt: '✅',
+                        aufgabe_geaendert: '📋',
+                        aufgabe_geloescht: '❌'
+                      };
+
+                      const colorMap = {
+                        event_erstellt: 'bg-green-50 border-green-200',
+                        event_bearbeitet: 'bg-blue-50 border-blue-200',
+                        musiker_hinzugefuegt: 'bg-green-50 border-green-200',
+                        musiker_entfernt: 'bg-red-50 border-red-200',
+                        musiker_status_geaendert: 'bg-yellow-50 border-yellow-200',
+                        dokument_hinzugefuegt: 'bg-purple-50 border-purple-200',
+                        dokument_geloescht: 'bg-red-50 border-red-200',
+                        aufgabe_erstellt: 'bg-blue-50 border-blue-200',
+                        aufgabe_geaendert: 'bg-orange-50 border-orange-200',
+                        aufgabe_geloescht: 'bg-red-50 border-red-200'
+                      };
+
+                      return (
+                        <div 
+                          key={aktivitaet.id} 
+                          className={`flex items-start gap-4 p-4 rounded-lg border ${colorMap[aktivitaet.typ] || 'bg-gray-50 border-gray-200'}`}
+                        >
+                          <span className="text-2xl">{iconMap[aktivitaet.typ] || '📌'}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900">{aktivitaet.beschreibung}</p>
+                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                              <span>{aktivitaet.benutzer_name}</span>
+                              <span>•</span>
+                              <span>{format(new Date(aktivitaet.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
+                    <p className="text-gray-500">Änderungen am Event werden hier protokolliert</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 
