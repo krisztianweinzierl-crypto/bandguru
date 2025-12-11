@@ -402,7 +402,11 @@ export default function RepertoirePage() {
             </tr>
           </thead>
           <tbody>
-            ${setlistSongs.map((song, index) => `
+            ${setlist.songs?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0)).map((s, index) => {
+              const song = songs.find(song => song.id === s.song_id);
+              if (!song) return '';
+              const hasNotes = s.notizen || song.notizen;
+              return `
               <tr>
                 <td class="num">${index + 1}</td>
                 <td class="title">${song.titel}</td>
@@ -411,7 +415,17 @@ export default function RepertoirePage() {
                 <td class="bpm">${song.bpm || '-'}</td>
                 <td class="duration">${song.laenge || '-'}</td>
               </tr>
-            `).join('')}
+              ${hasNotes ? `
+              <tr>
+                <td></td>
+                <td colspan="5" style="padding: 8px 8px 12px 8px; font-size: 11px; color: #666; font-style: italic; border-bottom: 1px solid #eee;">
+                  ${s.notizen ? `<strong>Setlist-Notiz:</strong> ${s.notizen}` : ''}
+                  ${s.notizen && song.notizen ? '<br>' : ''}
+                  ${song.notizen ? `<strong>Song-Notiz:</strong> ${song.notizen}` : ''}
+                </td>
+              </tr>
+              ` : ''}
+            `}).join('')}
           </tbody>
         </table>
         <div class="footer">Gedruckt am ${new Date().toLocaleDateString('de-DE')} um ${new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
