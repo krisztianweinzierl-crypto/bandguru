@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -148,6 +147,41 @@ export default function NachrichtenPage() {
         letzte_nachricht_zeit: new Date().toISOString(),
         letzte_nachricht_vorschau: inhalt.substring(0, 100)
       });
+
+      // 3. E-Mail an alle Teilnehmer senden (außer dem Absender)
+      try {
+        const konversation = await base44.entities.Konversation.filter({ id: konversationId }).then(res => res[0]);
+        if (konversation && konversation.teilnehmer_ids) {
+          const empfaengerIds = konversation.teilnehmer_ids.filter(id => id !== currentUser.id);
+          const empfaengerUsers = allUsers.filter(user => empfaengerIds.includes(user.id) && user.email);
+
+          if (empfaengerUsers.length > 0) {
+            const chatName = konversation.titel || `Chat mit ${currentUser.full_name || currentUser.email}`;
+            
+            await Promise.all(empfaengerUsers.map(user =>
+              base44.integrations.Core.SendEmail({
+                to: user.email,
+                subject: `Neue Nachricht in "${chatName}"`,
+                body: `Hallo ${user.full_name || ''},
+
+Du hast eine neue Nachricht in "${chatName}" von ${currentUser.full_name || currentUser.email} erhalten:
+
+---
+${inhalt}
+---
+
+Um auf diese Nachricht zu antworten, melde dich bitte bei Bandguru an:
+${window.location.origin}
+
+Viele Grüße,
+Dein Bandguru Team`
+              }).catch(err => console.error('E-Mail-Fehler:', err))
+            ));
+          }
+        }
+      } catch (error) {
+        console.error('Fehler beim Senden der E-Mail-Benachrichtigungen:', error);
+      }
 
       return nachricht;
     },
