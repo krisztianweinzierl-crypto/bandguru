@@ -24,6 +24,8 @@ export default function AngebotePage() {
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [selectedAngebot, setSelectedAngebot] = useState(null);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [statusToChange, setStatusToChange] = useState(null);
   const queryClient = useQueryClient();
   const { showAlert, showConfirm, AlertDialog } = useAlertDialog();
 
@@ -81,6 +83,8 @@ export default function AngebotePage() {
       setShowForm(false);
       setEditingAngebot(null);
       setShowDropdownId(null);
+      setShowStatusDialog(false);
+      setStatusToChange(null);
     }
   });
 
@@ -180,6 +184,20 @@ export default function AngebotePage() {
     if (confirmed) {
       deleteAngebotMutation.mutate(angebot.id);
     }
+  };
+
+  const handleChangeStatus = (angebot) => {
+    setStatusToChange(angebot);
+    setShowStatusDialog(true);
+    setShowDropdownId(null);
+  };
+
+  const handleStatusSubmit = (newStatus) => {
+    if (!statusToChange) return;
+    updateAngebotMutation.mutate({
+      id: statusToChange.id,
+      data: { status: newStatus }
+    });
   };
 
   const handleView = (angebot) => {
@@ -503,9 +521,19 @@ export default function AngebotePage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleEdit(angebot);
+                        handleChangeStatus(angebot);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      <CheckCircle className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium">Status ändern</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(angebot);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t"
                     >
                       <Edit className="w-4 h-4 text-gray-600" />
                       <span className="text-sm font-medium">Angebot bearbeiten</span>
@@ -707,6 +735,65 @@ export default function AngebotePage() {
             />
           </div>
         )}
+
+        {/* Status ändern Dialog */}
+        <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
+          <DialogContent className="max-w-md">
+            {statusToChange && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>Status ändern</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="font-semibold">{statusToChange.angebotsnummer}</p>
+                    <p className="text-sm text-gray-600">
+                      Aktueller Status: <Badge className={statusColors[statusToChange.status]}>{statusToChange.status}</Badge>
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Neuer Status:</p>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => handleStatusSubmit('entwurf')}
+                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors ${
+                          statusToChange.status === 'entwurf' ? 'border-gray-400 bg-gray-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <Badge className={statusColors.entwurf}>Entwurf</Badge>
+                      </button>
+                      <button
+                        onClick={() => handleStatusSubmit('versendet')}
+                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-blue-50 transition-colors ${
+                          statusToChange.status === 'versendet' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <Badge className={statusColors.versendet}>Versendet</Badge>
+                      </button>
+                      <button
+                        onClick={() => handleStatusSubmit('angenommen')}
+                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-green-50 transition-colors ${
+                          statusToChange.status === 'angenommen' ? 'border-green-400 bg-green-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <Badge className={statusColors.angenommen}>Angenommen</Badge>
+                      </button>
+                      <button
+                        onClick={() => handleStatusSubmit('abgelehnt')}
+                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-red-50 transition-colors ${
+                          statusToChange.status === 'abgelehnt' ? 'border-red-400 bg-red-50' : 'border-gray-200'
+                        }`}
+                      >
+                        <Badge className={statusColors.abgelehnt}>Abgelehnt</Badge>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Details Dialog */}
         <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
