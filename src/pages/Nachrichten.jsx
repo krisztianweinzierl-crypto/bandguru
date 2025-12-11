@@ -531,11 +531,8 @@ Dein Bandguru Team`
                         <h3 className="font-semibold text-gray-900">
                           {getKonversationName(selectedKonversation)}
                         </h3>
-                        <p 
-                          className="text-sm text-gray-500 cursor-pointer hover:text-blue-600 transition-colors"
-                          onClick={() => setShowTeilnehmerModal(true)}
-                        >
-                          {getKonversationTeilnehmer(selectedKonversation).length + 1} Teilnehmer • Verwalten
+                        <p className="text-sm text-gray-500">
+                          {getKonversationTeilnehmer(selectedKonversation).length + 1} Teilnehmer
                         </p>
                       </div>
                     </div>
@@ -563,13 +560,23 @@ Dein Bandguru Team`
                           />
                           <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                             <button
+                              onClick={() => {
+                                setShowTeilnehmerModal(true);
+                                setShowKonversationMenu(null);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                            >
+                              <Users className="w-4 h-4" />
+                              Teilnehmer verwalten
+                            </button>
+                            <button
                               onClick={() =>
                                 archiveKonversationMutation.mutate({
                                   id: selectedKonversation.id,
                                   archiviert: !selectedKonversation.archiviert,
                                 })
                               }
-                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
                             >
                               {selectedKonversation.archiviert ? (
                                 <>
