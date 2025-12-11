@@ -140,8 +140,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
               <Input
                 id="bpm"
                 type="number"
-                value={formData.bpm}
-                onChange={(e) => handleChange('bpm', e.target.value ? parseInt(e.target.value) : "")}
+                value={formData.bpm || ""}
+                onChange={(e) => handleChange('bpm', e.target.value ? parseInt(e.target.value) : null)}
                 placeholder="z.B. 115" />
 
             </div>
