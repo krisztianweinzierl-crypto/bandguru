@@ -37,6 +37,7 @@ export default function NachrichtenPage() {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [newChatTitel, setNewChatTitel] = useState("");
   const [showKonversationMenu, setShowKonversationMenu] = useState(null);
+  const [showTeilnehmerModal, setShowTeilnehmerModal] = useState(false);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -202,6 +203,34 @@ Dein Bandguru Team`
         setSelectedKonversation(null);
       }
       setShowKonversationMenu(null);
+    }
+  });
+
+  const addTeilnehmerMutation = useMutation({
+    mutationFn: async ({ konversationId, userId }) => {
+      const konversation = await base44.entities.Konversation.filter({ id: konversationId }).then(res => res[0]);
+      if (konversation && !konversation.teilnehmer_ids.includes(userId)) {
+        await base44.entities.Konversation.update(konversationId, {
+          teilnehmer_ids: [...konversation.teilnehmer_ids, userId]
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['konversationen'] });
+    }
+  });
+
+  const removeTeilnehmerMutation = useMutation({
+    mutationFn: async ({ konversationId, userId }) => {
+      const konversation = await base44.entities.Konversation.filter({ id: konversationId }).then(res => res[0]);
+      if (konversation) {
+        await base44.entities.Konversation.update(konversationId, {
+          teilnehmer_ids: konversation.teilnehmer_ids.filter(id => id !== userId)
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['konversationen'] });
     }
   });
 
@@ -502,8 +531,11 @@ Dein Bandguru Team`
                         <h3 className="font-semibold text-gray-900">
                           {getKonversationName(selectedKonversation)}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          {getKonversationTeilnehmer(selectedKonversation).length} Teilnehmer
+                        <p 
+                          className="text-sm text-gray-500 cursor-pointer hover:text-blue-600 transition-colors"
+                          onClick={() => setShowTeilnehmerModal(true)}
+                        >
+                          {getKonversationTeilnehmer(selectedKonversation).length + 1} Teilnehmer • Verwalten
                         </p>
                       </div>
                     </div>
@@ -611,6 +643,109 @@ Dein Bandguru Team`
           </Card>
         </div>
       </div>
+
+      {/* Teilnehmer verwalten Modal */}
+      {showTeilnehmerModal && selectedKonversation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="border-b">
+              <div className="flex justify-between items-center">
+                <CardTitle>Teilnehmer verwalten</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowTeilnehmerModal(false)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {/* Aktuelle Teilnehmer */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Aktuelle Teilnehmer</label>
+                <div className="border rounded-lg divide-y max-h-48 overflow-y-auto">
+                  {selectedKonversation.teilnehmer_ids?.map((userId) => {
+                    const mitglied = mitglieder.find((m) => m.user_id === userId);
+                    const user = allUsers.find((u) => u.id === userId);
+                    const displayName = user?.full_name || user?.email || mitglied?.invite_name || mitglied?.invite_email || mitglied?.rolle || 'Unbekannt';
+                    const isCurrentUser = userId === currentUser?.id;
+
+                    return (
+                      <div key={userId} className="flex items-center gap-3 p-3">
+                        <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                          <AvatarFallback className="bg-[#223a5e] text-white text-xs">
+                            {displayName[0]?.toUpperCase() || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {displayName} {isCurrentUser && '(Du)'}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{mitglied?.rolle}</p>
+                        </div>
+                        {!isCurrentUser && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTeilnehmerMutation.mutate({
+                              konversationId: selectedKonversation.id,
+                              userId
+                            })}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Neue Teilnehmer hinzufügen */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Teilnehmer hinzufügen</label>
+                <div className="border rounded-lg max-h-48 overflow-y-auto">
+                  {mitglieder
+                    .filter((m) => m.user_id && !selectedKonversation.teilnehmer_ids?.includes(m.user_id))
+                    .map((mitglied) => {
+                      const user = allUsers.find((u) => u.id === mitglied.user_id);
+                      const displayName = user?.full_name || user?.email || mitglied.invite_name || mitglied.invite_email || mitglied.rolle || 'Unbekannt';
+
+                      return (
+                        <div
+                          key={mitglied.user_id}
+                          onClick={() => addTeilnehmerMutation.mutate({
+                            konversationId: selectedKonversation.id,
+                            userId: mitglied.user_id
+                          })}
+                          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                          <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                            <AvatarFallback className="bg-[#223a5e] text-white text-xs">
+                              {displayName[0]?.toUpperCase() || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{displayName}</p>
+                            <p className="text-xs text-gray-500 truncate">{mitglied.rolle}</p>
+                          </div>
+                          <Plus className="w-4 h-4 text-gray-400" />
+                        </div>
+                      );
+                    })}
+                  {mitglieder.filter((m) => m.user_id && !selectedKonversation.teilnehmer_ids?.includes(m.user_id)).length === 0 && (
+                    <div className="p-6 text-center text-sm text-gray-500">
+                      Alle Mitglieder sind bereits im Chat
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* New Chat Modal */}
       {showNewChatModal &&
