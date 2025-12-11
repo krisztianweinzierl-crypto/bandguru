@@ -405,15 +405,18 @@ export default function AngebotePage() {
             </tr>
           </thead>
           <tbody>
-            ${angebot.positionen?.map(pos => `
+            ${angebot.positionen?.map(pos => {
+              // HTML-Tags entfernen oder beibehalten für PDF
+              const beschreibung = pos.beschreibung || '';
+              return `
               <tr>
-                <td class="description-cell">${pos.beschreibung}</td>
+                <td class="description-cell">${beschreibung}</td>
                 <td>${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
                 <td>${(pos.steuersatz || 0)} %</td>
                 <td>${pos.menge}</td>
                 <td>${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
               </tr>
-            `).join('') || ''}
+            `}).join('') || ''}
           </tbody>
         </table>
 
@@ -758,19 +761,22 @@ export default function AngebotePage() {
                   <div>
                     <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Positionen</p>
                     <div className="space-y-2">
-                      {selectedAngebot.positionen?.map((pos, idx) => (
-                        <div key={idx} className="p-3 bg-gray-50 rounded-lg">
-                          <div className="flex justify-between items-start mb-1">
-                            <p className="font-medium">{pos.beschreibung}</p>
-                            <p className="font-semibold">
-                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                            </p>
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            {pos.menge} {pos.einheit || 'Stk'} × {(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                          </p>
-                        </div>
-                      ))}
+                     {selectedAngebot.positionen?.map((pos, idx) => (
+                       <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                         <div className="flex justify-between items-start mb-1">
+                           <div 
+                             className="font-medium prose prose-sm max-w-none flex-1"
+                             dangerouslySetInnerHTML={{ __html: pos.beschreibung }}
+                           />
+                           <p className="font-semibold ml-4">
+                             {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                           </p>
+                         </div>
+                         <p className="text-sm text-gray-600">
+                           {pos.menge} {pos.einheit || 'Stk'} × {(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                         </p>
+                       </div>
+                     ))}
                     </div>
                   </div>
 
