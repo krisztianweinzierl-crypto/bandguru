@@ -60,9 +60,15 @@ export default function SongForm({ song, onSubmit, onCancel }) {
     handleChange('noten_dateien', formData.noten_dateien.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    if (!formData.titel?.trim()) {
+      alert('Bitte gib einen Titel ein');
+      return;
+    }
+    
+    await onSubmit(formData);
   };
 
   const handleChange = (field, value) => {
