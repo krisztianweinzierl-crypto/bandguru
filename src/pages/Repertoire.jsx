@@ -126,8 +126,46 @@ export default function RepertoirePage() {
 
   const createSetlistMutation = useMutation({
     mutationFn: (data) => base44.entities.Setliste.create({ ...data, org_id: currentOrgId }),
-    onSuccess: () => {
+    onSuccess: async (createdSetlist) => {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
+      
+      // Wenn Setlist einem Event zugeordnet ist, Musiker benachrichtigen
+      if (createdSetlist.event_id) {
+        try {
+          const zugesagteMusiker = await base44.entities.EventMusiker.filter({ 
+            event_id: createdSetlist.event_id, 
+            status: 'zugesagt' 
+          });
+          
+          const event = events.find(e => e.id === createdSetlist.event_id);
+          
+          for (const em of zugesagteMusiker) {
+            const mitgliedschaften = await base44.entities.Mitglied.filter({
+              org_id: currentOrgId,
+              musiker_id: em.musiker_id,
+              status: "aktiv"
+            });
+            
+            if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
+              await base44.entities.Benachrichtigung.create({
+                org_id: currentOrgId,
+                user_id: mitgliedschaften[0].user_id,
+                typ: 'setlist_update',
+                titel: `🎵 Neue Setlist: ${createdSetlist.name}`,
+                nachricht: `Eine neue Setlist "${createdSetlist.name}" wurde für das Event "${event?.titel}" erstellt.`,
+                link_url: `${createPageUrl('Repertoire')}`,
+                bezug_typ: 'event',
+                bezug_id: createdSetlist.event_id,
+                icon: 'Music',
+                prioritaet: 'normal'
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Fehler beim Senden der Setlist-Benachrichtigungen:", error);
+        }
+      }
+      
       setShowSetlistForm(false);
       setEditingSetlist(null);
     },
@@ -135,17 +173,99 @@ export default function RepertoirePage() {
 
   const updateSetlistMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Setliste.update(id, data),
-    onSuccess: () => {
+    onSuccess: async (updatedSetlist, variables) => {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
+      
+      // Wenn Setlist einem Event zugeordnet ist, Musiker benachrichtigen
+      const setlist = setlists.find(s => s.id === variables.id);
+      const eventId = updatedSetlist.event_id || setlist?.event_id;
+      
+      if (eventId) {
+        try {
+          const zugesagteMusiker = await base44.entities.EventMusiker.filter({ 
+            event_id: eventId, 
+            status: 'zugesagt' 
+          });
+          
+          const event = events.find(e => e.id === eventId);
+          
+          for (const em of zugesagteMusiker) {
+            const mitgliedschaften = await base44.entities.Mitglied.filter({
+              org_id: currentOrgId,
+              musiker_id: em.musiker_id,
+              status: "aktiv"
+            });
+            
+            if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
+              await base44.entities.Benachrichtigung.create({
+                org_id: currentOrgId,
+                user_id: mitgliedschaften[0].user_id,
+                typ: 'setlist_update',
+                titel: `🎵 Setlist aktualisiert: ${setlist?.name || 'Unbekannt'}`,
+                nachricht: `Die Setlist "${setlist?.name}" für das Event "${event?.titel}" wurde aktualisiert.`,
+                link_url: `${createPageUrl('Repertoire')}`,
+                bezug_typ: 'event',
+                bezug_id: eventId,
+                icon: 'Music',
+                prioritaet: 'normal'
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Fehler beim Senden der Setlist-Benachrichtigungen:", error);
+        }
+      }
+      
       setShowSetlistForm(false);
       setEditingSetlist(null);
     },
   });
 
   const deleteSetlistMutation = useMutation({
-    mutationFn: (id) => base44.entities.Setliste.delete(id),
-    onSuccess: () => {
+    mutationFn: async (id) => {
+      const setlist = setlists.find(s => s.id === id);
+      await base44.entities.Setliste.delete(id);
+      return setlist;
+    },
+    onSuccess: async (deletedSetlist) => {
       queryClient.invalidateQueries({ queryKey: ['setlists'] });
+      
+      // Wenn Setlist einem Event zugeordnet war, Musiker benachrichtigen
+      if (deletedSetlist?.event_id) {
+        try {
+          const zugesagteMusiker = await base44.entities.EventMusiker.filter({ 
+            event_id: deletedSetlist.event_id, 
+            status: 'zugesagt' 
+          });
+          
+          const event = events.find(e => e.id === deletedSetlist.event_id);
+          
+          for (const em of zugesagteMusiker) {
+            const mitgliedschaften = await base44.entities.Mitglied.filter({
+              org_id: currentOrgId,
+              musiker_id: em.musiker_id,
+              status: "aktiv"
+            });
+            
+            if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
+              await base44.entities.Benachrichtigung.create({
+                org_id: currentOrgId,
+                user_id: mitgliedschaften[0].user_id,
+                typ: 'setlist_update',
+                titel: `🗑️ Setlist entfernt: ${deletedSetlist.name}`,
+                nachricht: `Die Setlist "${deletedSetlist.name}" für das Event "${event?.titel}" wurde entfernt.`,
+                link_url: `${createPageUrl('Repertoire')}`,
+                bezug_typ: 'event',
+                bezug_id: deletedSetlist.event_id,
+                icon: 'Music',
+                prioritaet: 'normal'
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Fehler beim Senden der Setlist-Benachrichtigungen:", error);
+        }
+      }
     },
   });
 
