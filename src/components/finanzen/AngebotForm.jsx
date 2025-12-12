@@ -1,13 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, List } from "lucide-react";
 import ReactQuill from "react-quill";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
+  const [currentOrgId, setCurrentOrgId] = useState(null);
+
+  useEffect(() => {
+    setCurrentOrgId(localStorage.getItem('currentOrgId'));
+  }, []);
+
+  const { data: artikel = [] } = useQuery({
+    queryKey: ['artikel', currentOrgId],
+    queryFn: () => base44.entities.Artikel.filter({ org_id: currentOrgId, aktiv: true }),
+    enabled: !!currentOrgId
+  });
   const [formData, setFormData] = useState(angebot || {
     kunde_id: "",
     angebotsdatum: new Date().toISOString().split('T')[0],
@@ -31,6 +44,19 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
     setFormData(prev => ({
       ...prev,
       positionen: [...prev.positionen, { beschreibung: "", menge: 1, einheit: "Stk", einzelpreis: 0, steuersatz: 19 }]
+    }));
+  };
+
+  const addArtikelPosition = (artikel) => {
+    setFormData(prev => ({
+      ...prev,
+      positionen: [...prev.positionen, { 
+        beschreibung: artikel.beschreibung || artikel.bezeichnung, 
+        menge: 1, 
+        einheit: artikel.einheit, 
+        einzelpreis: artikel.einzelpreis, 
+        steuersatz: artikel.steuersatz 
+      }]
     }));
   };
 
@@ -121,12 +147,37 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
 
           {/* Positionen */}
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <Label className="text-base font-semibold">Angebotspositionen</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addPosition}>
-                <Plus className="w-4 h-4 mr-2" />
-                Position hinzufügen
-              </Button>
+              <div className="flex gap-2">
+                {artikel.length > 0 && (
+                  <div className="relative group">
+                    <Button type="button" variant="outline" size="sm">
+                      <List className="w-4 h-4 mr-2" />
+                      Aus Artikeln
+                    </Button>
+                    <div className="hidden group-hover:block absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                      {artikel.map((art) => (
+                        <button
+                          key={art.id}
+                          type="button"
+                          onClick={() => addArtikelPosition(art)}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
+                        >
+                          <p className="font-medium text-sm">{art.bezeichnung}</p>
+                          <p className="text-xs text-gray-500">
+                            {art.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / {art.einheit}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <Button type="button" variant="outline" size="sm" onClick={addPosition}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Neue Position
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-3">
