@@ -388,7 +388,16 @@ export default function Layout({ children, currentPageName }) {
     { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
     { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
     { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
-    { title: "Finanzen", url: createPageUrl("Finanzen"), icon: DollarSign },
+    { 
+      title: "Finanzen", 
+      icon: DollarSign,
+      url: createPageUrl("Finanzen"),
+      submenu: [
+        { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
+        { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
+        { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }
+      ]
+    },
     { title: "Leads", url: createPageUrl("Leads"), icon: Target },
     { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
     { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
@@ -1002,21 +1011,25 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem key={item.title}>
                       {item.submenu ? (
                         <>
-                          <button
-                            onClick={() => toggleMenu(index)}
+                          <Link
+                            to={item.url || '#'}
+                            onClick={(e) => {
+                              if (!item.url) e.preventDefault();
+                              toggleMenu(index);
+                            }}
                             className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
-                            style={item.submenu.some(sub => location.pathname === sub.url) ? {
+                            style={(item.url && location.pathname === item.url) || item.submenu.some(sub => location.pathname === sub.url) ? {
                               backgroundColor: 'rgba(34, 58, 94, 0.15)',
                               color: '#223a5e'
                             } : {}}
                             onMouseEnter={(e) => {
-                              if (!item.submenu.some(sub => location.pathname === sub.url)) {
+                              if (!(item.url && location.pathname === item.url) && !item.submenu.some(sub => location.pathname === sub.url)) {
                                 e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
                                 e.currentTarget.style.color = '#223a5e';
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (!item.submenu.some(sub => location.pathname === sub.url)) {
+                              if (!(item.url && location.pathname === item.url) && !item.submenu.some(sub => location.pathname === sub.url)) {
                                 e.currentTarget.style.backgroundColor = 'transparent';
                                 e.currentTarget.style.color = '';
                               }
@@ -1027,8 +1040,8 @@ export default function Layout({ children, currentPageName }) {
                               <span className="font-medium">{item.title}</span>
                             </div>
                             <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
-                          </button>
-                          
+                          </Link>
+
                           {expandedMenus[index] && (
                             <div className="ml-4 mb-1 space-y-1">
                               {item.submenu.map((subItem) => (
@@ -1060,7 +1073,7 @@ export default function Layout({ children, currentPageName }) {
                                     <subItem.icon className="w-4 h-4" />
                                     <span className="font-medium">{subItem.title}</span>
                                   </Link>
-                                
+
                                 </SidebarMenuButton>
                               ))}
                             </div>
