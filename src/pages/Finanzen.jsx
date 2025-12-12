@@ -12,13 +12,17 @@ import {
   AlertCircle,
   Calendar,
   Receipt,
-  PieChart,
+  PieChart as PieChartIcon,
   ArrowUpRight,
   ArrowDownRight,
   FileCheck,
   Plus,
-  ArrowRight } from
+  ArrowRight,
+  CheckCircle,
+  DollarSign,
+  Clock } from
 "lucide-react";
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -245,104 +249,10 @@ export default function FinanzenPage() {
         <Tabs defaultValue="uebersicht" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="uebersicht">Übersicht</TabsTrigger>
-            <TabsTrigger value="angebote">Angebote ({offeneAngebote})</TabsTrigger>
-            <TabsTrigger value="rechnungen">Rechnungen</TabsTrigger>
-            <TabsTrigger value="ausgaben">Ausgaben</TabsTrigger>
             <TabsTrigger value="berichte">Berichte</TabsTrigger>
           </TabsList>
 
-          {/* Angebote Tab */}
-          <TabsContent value="angebote" className="space-y-6">
-            <Card className="border-none shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between border-b">
-                <CardTitle>Angebote verwalten</CardTitle>
-                <Button
-                  onClick={() => navigate(createPageUrl('Angebote'))}
-                  style={{ backgroundColor: '#223a5e' }}
-                  className="hover:opacity-90"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Neues Angebot
-                </Button>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Versendet</p>
-                    <p className="text-2xl font-bold text-blue-600">{offeneAngebote}</p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Angenommen</p>
-                    <p className="text-2xl font-bold text-green-600">{angenommeneAngebote}</p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-600 mb-1">Gesamt</p>
-                    <p className="text-2xl font-bold text-gray-900">{angebote.length}</p>
-                  </div>
-                </div>
-                
-                {angebote.length > 0 ? (
-                  <div className="space-y-3">
-                    {angebote.slice(0, 5).map((angebot) => {
-                      const kunde = kunden.find((k) => k.id === angebot.kunde_id);
-                      const statusColors = {
-                        entwurf: "bg-gray-100 text-gray-800",
-                        versendet: "bg-blue-100 text-blue-800",
-                        angenommen: "bg-green-100 text-green-800",
-                        abgelehnt: "bg-red-100 text-red-800",
-                        abgelaufen: "bg-orange-100 text-orange-800"
-                      };
 
-                      return (
-                        <div
-                          key={angebot.id}
-                          onClick={() => navigate(createPageUrl('Angebote'))}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                          <div className="flex items-center gap-4 flex-1">
-                            <div className="p-2 bg-amber-100 rounded-lg">
-                              <FileCheck className="w-5 h-5 text-amber-600" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="font-medium">{angebot.angebotsnummer}</p>
-                                <Badge className={statusColors[angebot.status]}>{angebot.status}</Badge>
-                              </div>
-                              <p className="text-sm text-gray-600">{kunde?.firmenname || 'Unbekannt'}</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-900">
-                              {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {format(new Date(angebot.angebotsdatum), 'dd. MMM yyyy', { locale: de })}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <FileCheck className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                    <p>Noch keine Angebote erstellt</p>
-                  </div>
-                )}
-
-                {angebote.length > 5 && (
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate(createPageUrl('Angebote'))}
-                    className="w-full mt-4"
-                  >
-                    Alle Angebote anzeigen
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Übersicht Tab */}
           <TabsContent value="uebersicht" className="space-y-6">
@@ -413,50 +323,214 @@ export default function FinanzenPage() {
             </div>
           </TabsContent>
 
-          {/* Rechnungen Tab */}
-          <TabsContent value="rechnungen">
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-12 text-center">
-                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Rechnungsverwaltung</h3>
-                <p className="text-gray-500 mb-4">
-                  Erstelle und verwalte deine Rechnungen
-                </p>
-                <Link to={createPageUrl("Rechnungen")}>
-                  <Button>Zu den Rechnungen</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Ausgaben Tab */}
-          <TabsContent value="ausgaben">
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-12 text-center">
-                <Receipt className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Ausgabenverwaltung</h3>
-                <p className="text-gray-500 mb-4">
-                  Verfolge alle deine Ausgaben und Kosten
-                </p>
-                <Link to={createPageUrl("Ausgaben")}>
-                  <Button>Zu den Ausgaben</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Berichte Tab */}
-          <TabsContent value="berichte">
+          <TabsContent value="berichte" className="space-y-6">
+            {/* Monatsvergleich */}
             <Card className="border-none shadow-lg">
-              <CardContent className="p-12 text-center">
-                <PieChart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold mb-2">Finanzberichte</h3>
-                <p className="text-gray-500 mb-4">
-                  Detaillierte Berichte und Analysen werden hier verfügbar sein
-                </p>
-                <Button disabled>Bald verfügbar</Button>
+              <CardHeader>
+                <CardTitle>Einnahmen vs. Ausgaben (letzten 12 Monate)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={(() => {
+                      const now = new Date();
+                      const months = [];
+                      
+                      for (let i = 11; i >= 0; i--) {
+                        const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        const monthKey = format(month, 'yyyy-MM');
+                        
+                        const monthRechnungen = rechnungen.filter(r => 
+                          r.rechnungsdatum && r.rechnungsdatum.startsWith(monthKey) && r.status === 'bezahlt'
+                        );
+                        const monthAusgaben = ausgaben.filter(a => 
+                          a.datum && a.datum.startsWith(monthKey)
+                        );
+                        
+                        months.push({
+                          name: format(month, 'MMM yy', { locale: de }),
+                          Einnahmen: monthRechnungen.reduce((sum, r) => sum + (r.brutto_betrag || 0), 0),
+                          Ausgaben: monthAusgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)
+                        });
+                      }
+                      
+                      return months;
+                    })()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip 
+                        formatter={(value) => value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                      />
+                      <Legend />
+                      <Bar dataKey="Einnahmen" fill="#10b981" />
+                      <Bar dataKey="Ausgaben" fill="#ef4444" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </CardContent>
             </Card>
+
+            {/* Ausgaben nach Kategorien */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle>Ausgaben nach Kategorien</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={(() => {
+                          const kategorien = {};
+                          ausgaben.forEach(a => {
+                            const kat = a.kategorie || 'sonstiges';
+                            kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
+                          });
+                          
+                          return Object.entries(kategorien).map(([name, value]) => ({
+                            name: name.charAt(0).toUpperCase() + name.slice(1),
+                            value
+                          }));
+                        })()}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {(() => {
+                          const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
+                          const kategorien = {};
+                          ausgaben.forEach(a => {
+                            const kat = a.kategorie || 'sonstiges';
+                            kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
+                          });
+                          
+                          return Object.keys(kategorien).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ));
+                        })()}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Top Kunden */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle>Top 5 Kunden nach Umsatz</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {(() => {
+                    const kundenUmsatz = {};
+                    
+                    rechnungen.filter(r => r.status === 'bezahlt').forEach(r => {
+                      const kunde = kunden.find(k => k.id === r.kunde_id);
+                      const kundenName = kunde?.firmenname || 'Unbekannt';
+                      kundenUmsatz[kundenName] = (kundenUmsatz[kundenName] || 0) + (r.brutto_betrag || 0);
+                    });
+                    
+                    return Object.entries(kundenUmsatz)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 5)
+                      .map(([name, umsatz], index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-sm font-bold text-blue-600">{index + 1}</span>
+                            </div>
+                            <span className="font-medium">{name}</span>
+                          </div>
+                          <span className="text-lg font-bold text-gray-900">
+                            {umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </span>
+                        </div>
+                      ));
+                  })()}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Zahlungsmoral */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle>Rechnungsstatus</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Bezahlt</span>
+                      <span className="font-bold text-green-600">
+                        {rechnungen.filter(r => r.status === 'bezahlt').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Versendet</span>
+                      <span className="font-bold text-blue-600">
+                        {rechnungen.filter(r => r.status === 'versendet').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Überfällig</span>
+                      <span className="font-bold text-red-600">
+                        {ueberfaelligeRechnungen}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Entwurf</span>
+                      <span className="font-bold text-gray-600">
+                        {rechnungen.filter(r => r.status === 'entwurf').length}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle>Angebotsstatus</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Angenommen</span>
+                      <span className="font-bold text-green-600">
+                        {angebote.filter(a => a.status === 'angenommen').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Versendet</span>
+                      <span className="font-bold text-blue-600">
+                        {angebote.filter(a => a.status === 'versendet').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Abgelehnt</span>
+                      <span className="font-bold text-red-600">
+                        {angebote.filter(a => a.status === 'abgelehnt').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Entwurf</span>
+                      <span className="font-bold text-gray-600">
+                        {angebote.filter(a => a.status === 'entwurf').length}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
