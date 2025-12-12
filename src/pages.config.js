@@ -27,6 +27,7 @@ import acceptInvite from './pages/accept-invite';
 import MusikerProfil from './pages/MusikerProfil';
 import MeineAufgaben from './pages/MeineAufgaben';
 import Angebote from './pages/Angebote';
+import ArtikelVerwaltung from './pages/ArtikelVerwaltung';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +61,7 @@ export const PAGES = {
     "MusikerProfil": MusikerProfil,
     "MeineAufgaben": MeineAufgaben,
     "Angebote": Angebote,
+    "ArtikelVerwaltung": ArtikelVerwaltung,
 }
 
 export const pagesConfig = {

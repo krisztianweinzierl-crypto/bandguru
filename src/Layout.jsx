@@ -434,7 +434,8 @@ export default function Layout({ children, currentPageName }) {
     // Check for 'settings' submenu specifically
     const settingsSubmenuUrls = [
       createPageUrl("OrganisationSettings"),
-      createPageUrl("BuchungsbedingungVorlagen")
+      createPageUrl("BuchungsbedingungVorlagen"),
+      createPageUrl("ArtikelVerwaltung")
     ];
     const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
     if (isSettingsSubmenuActive && !expandedMenus['settings']) {
@@ -1206,6 +1207,34 @@ export default function Layout({ children, currentPageName }) {
                             >
                               <FileText className="w-4 h-4" />
                               <span className="font-medium">Buchungsbedingungen</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          <SidebarMenuButton
+                            asChild
+                            className="transition-colors duration-200 rounded-lg"
+                          >
+                            <Link 
+                              to={createPageUrl("ArtikelVerwaltung")} 
+                              className="flex items-center gap-3 px-3 py-2"
+                              style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
+                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                                color: '#223a5e'
+                              } : {}}
+                              onMouseEnter={(e) => {
+                                if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
+                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                                  e.currentTarget.style.color = '#223a5e';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
+                                  e.currentTarget.style.backgroundColor = 'transparent';
+                                  e.currentTarget.style.color = '';
+                                }
+                              }}
+                            >
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">Artikel & Positionen</span>
                             </Link>
                           </SidebarMenuButton>
                         </div>
