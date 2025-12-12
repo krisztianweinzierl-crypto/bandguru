@@ -52,6 +52,7 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
     setFormData(prev => ({
       ...prev,
       positionen: [...prev.positionen, { 
+        bezeichnung: artikel.bezeichnung,
         beschreibung: artikel.beschreibung || artikel.bezeichnung, 
         menge: 1, 
         einheit: artikel.einheit, 
@@ -206,6 +207,11 @@ export default function AngebotForm({ angebot, onSubmit, onCancel, kunden }) {
               {formData.positionen.map((position, index) => (
                 <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-3">
                   <div className="space-y-3">
+                    {position.bezeichnung && (
+                      <div className="pb-2 border-b">
+                        <p className="font-semibold text-gray-900">{position.bezeichnung}</p>
+                      </div>
+                    )}
                     <div>
                       <Label htmlFor={`beschreibung-${index}`} className="text-xs">Beschreibung</Label>
                       <ReactQuill

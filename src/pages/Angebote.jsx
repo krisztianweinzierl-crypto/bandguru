@@ -850,6 +850,9 @@ export default function AngebotePage() {
                     <div className="space-y-2">
                      {selectedAngebot.positionen?.map((pos, idx) => (
                        <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                         {pos.bezeichnung && (
+                           <p className="font-bold text-gray-900 mb-2 pb-2 border-b">{pos.bezeichnung}</p>
+                         )}
                          <div className="flex justify-between items-start mb-1">
                            <div 
                              className="font-medium prose prose-sm max-w-none flex-1"

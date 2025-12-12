@@ -51,6 +51,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
     setFormData(prev => ({
       ...prev,
       positionen: [...prev.positionen, { 
+        bezeichnung: artikel.bezeichnung,
         beschreibung: artikel.beschreibung || artikel.bezeichnung, 
         menge: 1, 
         einheit: artikel.einheit, 
