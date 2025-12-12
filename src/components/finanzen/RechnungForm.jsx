@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
   const [currentOrgId, setCurrentOrgId] = useState(null);
+  const [showArtikelDropdown, setShowArtikelDropdown] = useState(false);
 
   useEffect(() => {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
@@ -57,6 +58,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
         steuersatz: artikel.steuersatz 
       }]
     }));
+    setShowArtikelDropdown(false);
   };
 
   const removePosition = (index) => {
@@ -150,26 +152,39 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
               <Label className="text-base font-semibold">Rechnungspositionen</Label>
               <div className="flex gap-2">
                 {artikel.length > 0 && (
-                  <div className="relative group">
-                    <Button type="button" variant="outline" size="sm">
+                  <div className="relative">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowArtikelDropdown(!showArtikelDropdown)}
+                    >
                       <List className="w-4 h-4 mr-2" />
                       Aus Artikeln
                     </Button>
-                    <div className="hidden group-hover:block absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                      {artikel.map((art) => (
-                        <button
-                          key={art.id}
-                          type="button"
-                          onClick={() => addArtikelPosition(art)}
-                          className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
-                        >
-                          <p className="font-medium text-sm">{art.bezeichnung}</p>
-                          <p className="text-xs text-gray-500">
-                            {art.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / {art.einheit}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
+                    {showArtikelDropdown && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40" 
+                          onClick={() => setShowArtikelDropdown(false)}
+                        />
+                        <div className="absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                          {artikel.map((art) => (
+                            <button
+                              key={art.id}
+                              type="button"
+                              onClick={() => addArtikelPosition(art)}
+                              className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
+                            >
+                              <p className="font-medium text-sm">{art.bezeichnung}</p>
+                              <p className="text-xs text-gray-500">
+                                {art.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / {art.einheit}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
                 <Button type="button" variant="outline" size="sm" onClick={addPosition}>
