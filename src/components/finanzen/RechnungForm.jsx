@@ -151,25 +151,27 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <Label className="text-base font-semibold">Rechnungspositionen</Label>
               <div className="flex gap-2">
-                {artikel.length > 0 && (
-                  <div className="relative">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowArtikelDropdown(!showArtikelDropdown)}
-                    >
-                      <List className="w-4 h-4 mr-2" />
-                      Aus Artikeln
-                    </Button>
-                    {showArtikelDropdown && (
-                      <>
-                        <div 
-                          className="fixed inset-0 z-40" 
-                          onClick={() => setShowArtikelDropdown(false)}
-                        />
-                        <div className="absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
-                          {artikel.map((art) => (
+                <div className="relative">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowArtikelDropdown(!showArtikelDropdown)}
+                    style={{ backgroundColor: '#f0f9ff', borderColor: '#3b82f6', color: '#1e40af' }}
+                    className="hover:opacity-90"
+                  >
+                    <List className="w-4 h-4 mr-2" />
+                    Aus Artikeln
+                  </Button>
+                  {showArtikelDropdown && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setShowArtikelDropdown(false)}
+                      />
+                      <div className="absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                        {artikel.length > 0 ? (
+                          artikel.map((art) => (
                             <button
                               key={art.id}
                               type="button"
@@ -181,12 +183,17 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
                                 {art.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / {art.einheit}
                               </p>
                             </button>
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
+                          ))
+                        ) : (
+                          <div className="px-4 py-6 text-center text-sm text-gray-500">
+                            <p className="mb-2">Keine Artikel vorhanden</p>
+                            <p className="text-xs">Erstelle Artikel unter Einstellungen</p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
                 <Button type="button" variant="outline" size="sm" onClick={addPosition}>
                   <Plus className="w-4 h-4 mr-2" />
                   Neue Position
