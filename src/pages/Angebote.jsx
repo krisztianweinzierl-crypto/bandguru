@@ -261,7 +261,7 @@ export default function AngebotePage() {
             text-align: right;
           }
           .header-right h1 {
-            color: #2563eb;
+            color: #223a5e;
             font-size: 28pt;
             margin: 0 0 10px 0;
             font-weight: bold;
@@ -289,7 +289,7 @@ export default function AngebotePage() {
             letter-spacing: 0.5px;
           }
           .address-block .name {
-            color: #2563eb;
+            color: #223a5e;
             font-weight: bold;
             font-size: 13pt;
             margin-bottom: 5px;
@@ -310,10 +310,10 @@ export default function AngebotePage() {
             margin: 30px 0;
           }
           thead {
-            border-bottom: 3px solid #2563eb;
+            border-bottom: 3px solid #223a5e;
           }
           th { 
-            color: #2563eb;
+            color: #223a5e;
             padding: 12px 8px;
             text-align: left;
             font-size: 9pt;
@@ -351,16 +351,16 @@ export default function AngebotePage() {
             font-weight: bold;
           }
           .totals-row.tax {
-            color: #2563eb;
+            color: #223a5e;
             font-weight: bold;
           }
           .totals-row.total {
-            border-top: 3px solid #2563eb;
+            border-top: 3px solid #223a5e;
             padding-top: 12px;
             margin-top: 8px;
             font-size: 14pt;
             font-weight: bold;
-            color: #2563eb;
+            color: #223a5e;
           }
           .conditions { 
             margin-top: 80px;
@@ -368,7 +368,7 @@ export default function AngebotePage() {
             clear: both;
           }
           .conditions h3 {
-            color: #2563eb;
+            color: #223a5e;
             font-size: 11pt;
             font-weight: bold;
             text-transform: uppercase;
