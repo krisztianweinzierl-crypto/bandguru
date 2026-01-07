@@ -274,6 +274,16 @@ ${orgName} Team`;
                   </div>
                 }
 
+                {musiker.adresse &&
+                <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Adresse</p>
+                      <p className="font-medium text-gray-900">{musiker.adresse}</p>
+                    </div>
+                  </div>
+                }
+
                 {musiker.notfallkontakt &&
                 <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5" />
