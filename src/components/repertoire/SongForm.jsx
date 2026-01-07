@@ -42,15 +42,16 @@ export default function SongForm({ song, onSubmit, onCancel }) {
 
     setUploadingFile(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await base44.integrations.Core.UploadFile({ file });
       const newFile = {
         name: file.name,
-        url: file_url
+        url: result.file_url
       };
       handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
+      e.target.value = ''; // Reset file input
     } catch (error) {
       console.error('Fehler beim Hochladen:', error);
-      alert('Fehler beim Hochladen der Datei');
+      alert('Fehler beim Hochladen der Datei: ' + (error.message || 'Unbekannter Fehler'));
     } finally {
       setUploadingFile(false);
     }
