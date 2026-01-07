@@ -36,35 +36,48 @@ export default function SongForm({ song, onSubmit, onCancel }) {
       e.target.value = '';
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Die Datei darf maximal 5MB groß sein');
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Die Datei darf maximal 2MB groß sein. Bitte komprimiere die Datei oder verwende eine externe URL (z.B. Google Drive Link).');
       e.target.value = '';
       return;
     }
 
     setUploadingFile(true);
-    try {
-      // Verwende direkt die UploadFile Integration ohne Timeout
-      const uploadResult = await base44.integrations.Core.UploadFile({ file });
-      
-      if (!uploadResult?.file_url) {
-        throw new Error('Keine Upload-URL erhalten');
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    while (retryCount <= maxRetries) {
+      try {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file });
+        
+        if (!uploadResult?.file_url) {
+          throw new Error('Keine Upload-URL erhalten');
+        }
+        
+        const newFile = {
+          name: file.name,
+          url: uploadResult.file_url
+        };
+        
+        handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
+        e.target.value = '';
+        setUploadingFile(false);
+        return;
+      } catch (error) {
+        console.error(`Upload-Versuch ${retryCount + 1} fehlgeschlagen:`, error);
+        retryCount++;
+        
+        if (retryCount > maxRetries) {
+          const errorMsg = error?.message || error?.toString() || 'Unbekannter Fehler';
+          alert(`Upload nach ${maxRetries + 1} Versuchen fehlgeschlagen.\n\nAlternative: Speichere den Link zur Datei (z.B. Google Drive, Dropbox) im Feld "Lead Sheet URL".`);
+          e.target.value = '';
+          setUploadingFile(false);
+          return;
+        }
+        
+        // Kurze Pause vor dem nächsten Versuch
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-      
-      const newFile = {
-        name: file.name,
-        url: uploadResult.file_url
-      };
-      
-      handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
-      e.target.value = '';
-    } catch (error) {
-      console.error('Upload-Fehler:', error);
-      const errorMsg = error?.message || error?.toString() || 'Unbekannter Fehler';
-      alert(`Datei-Upload fehlgeschlagen: ${errorMsg}\n\nBitte versuche es mit einer kleineren Datei oder kontaktiere den Support.`);
-      e.target.value = '';
-    } finally {
-      setUploadingFile(false);
     }
   };
 
