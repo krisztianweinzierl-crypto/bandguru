@@ -33,25 +33,38 @@ export default function SongForm({ song, onSubmit, onCancel }) {
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       alert('Bitte wähle eine PDF- oder Bilddatei aus');
+      e.target.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       alert('Die Datei darf maximal 10MB groß sein');
+      e.target.value = '';
       return;
     }
 
     setUploadingFile(true);
     try {
-      const result = await base44.integrations.Core.UploadFile({ file });
+      console.log('Starte Upload für:', file.name, 'Größe:', file.size);
+      
+      const result = await Promise.race([
+        base44.integrations.Core.UploadFile({ file }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Upload-Timeout nach 30 Sekunden')), 30000)
+        )
+      ]);
+      
+      console.log('Upload erfolgreich:', result);
+      
       const newFile = {
         name: file.name,
         url: result.file_url
       };
       handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
-      e.target.value = ''; // Reset file input
+      e.target.value = '';
     } catch (error) {
-      console.error('Fehler beim Hochladen:', error);
-      alert('Fehler beim Hochladen der Datei: ' + (error.message || 'Unbekannter Fehler'));
+      console.error('Upload-Fehler:', error);
+      alert('Fehler beim Hochladen: ' + (error.message || 'Unbekannter Fehler'));
+      e.target.value = '';
     } finally {
       setUploadingFile(false);
     }
