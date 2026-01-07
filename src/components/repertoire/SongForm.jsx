@@ -29,41 +29,39 @@ export default function SongForm({ song, onSubmit, onCancel }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validierung: PDF, Bilder erlauben
+    // Validierung
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       alert('Bitte wähle eine PDF- oder Bilddatei aus');
       e.target.value = '';
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Die Datei darf maximal 10MB groß sein');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Die Datei darf maximal 5MB groß sein');
       e.target.value = '';
       return;
     }
 
     setUploadingFile(true);
     try {
-      console.log('Starte Upload für:', file.name, 'Größe:', file.size);
+      // Verwende direkt die UploadFile Integration ohne Timeout
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
       
-      const result = await Promise.race([
-        base44.integrations.Core.UploadFile({ file }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Upload-Timeout nach 30 Sekunden')), 30000)
-        )
-      ]);
-      
-      console.log('Upload erfolgreich:', result);
+      if (!uploadResult?.file_url) {
+        throw new Error('Keine Upload-URL erhalten');
+      }
       
       const newFile = {
         name: file.name,
-        url: result.file_url
+        url: uploadResult.file_url
       };
+      
       handleChange('noten_dateien', [...(formData.noten_dateien || []), newFile]);
       e.target.value = '';
     } catch (error) {
       console.error('Upload-Fehler:', error);
-      alert('Fehler beim Hochladen: ' + (error.message || 'Unbekannter Fehler'));
+      const errorMsg = error?.message || error?.toString() || 'Unbekannter Fehler';
+      alert(`Datei-Upload fehlgeschlagen: ${errorMsg}\n\nBitte versuche es mit einer kleineren Datei oder kontaktiere den Support.`);
       e.target.value = '';
     } finally {
       setUploadingFile(false);
