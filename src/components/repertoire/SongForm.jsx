@@ -18,12 +18,14 @@ export default function SongForm({ song, onSubmit, onCancel }) {
     tags: [],
     lead_sheet_url: "",
     noten_dateien: [],
+    audio_datei: null,
     audio_demo_url: "",
     notizen: ""
   });
 
   const [tagInput, setTagInput] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -76,6 +78,60 @@ export default function SongForm({ song, onSubmit, onCancel }) {
         }
         
         // Kurze Pause vor dem nächsten Versuch
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  };
+
+  const handleAudioUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validierung
+    const allowedTypes = ['audio/mpeg', 'audio/mp3'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Bitte wähle eine MP3-Datei aus');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Die Audio-Datei darf maximal 10MB groß sein.');
+      e.target.value = '';
+      return;
+    }
+
+    setUploadingAudio(true);
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    while (retryCount <= maxRetries) {
+      try {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file });
+        
+        if (!uploadResult?.file_url) {
+          throw new Error('Keine Upload-URL erhalten');
+        }
+        
+        const audioFile = {
+          name: file.name,
+          url: uploadResult.file_url
+        };
+        
+        handleChange('audio_datei', audioFile);
+        e.target.value = '';
+        setUploadingAudio(false);
+        return;
+      } catch (error) {
+        console.error(`Audio-Upload-Versuch ${retryCount + 1} fehlgeschlagen:`, error);
+        retryCount++;
+        
+        if (retryCount > maxRetries) {
+          alert(`Audio-Upload nach ${maxRetries + 1} Versuchen fehlgeschlagen.\n\nAlternative: Nutze das Feld "YouTube / Audio-Demo URL" für einen externen Link.`);
+          e.target.value = '';
+          setUploadingAudio(false);
+          return;
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -242,6 +298,62 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             </div>
           </div>
 
+          {/* Audio-Upload */}
+          <div className="space-y-3">
+            <Label>Audio-Datei (MP3)</Label>
+            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                  {uploadingAudio ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {uploadingAudio ? 'Wird hochgeladen...' : 'MP3 hochladen'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="audio/mpeg,audio/mp3"
+                    onChange={handleAudioUpload}
+                    className="hidden"
+                    disabled={uploadingAudio}
+                  />
+                </label>
+                <span className="text-sm text-gray-500">Max. 10MB</span>
+              </div>
+
+              {formData.audio_datei && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3 flex-1">
+                      <FileText className="w-5 h-5 text-green-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {formData.audio_datei.name}
+                        </p>
+                        <audio 
+                          controls 
+                          className="mt-2 w-full max-w-md h-8"
+                          src={formData.audio_datei.url}
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleChange('audio_datei', null)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* URLs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -255,7 +367,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="audio">YouTube / Audio-Demo URL</Label>
+              <Label htmlFor="audio">YouTube / Audio-Demo URL (extern)</Label>
               <Input
                 id="audio"
                 value={formData.audio_demo_url}

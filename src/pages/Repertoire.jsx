@@ -599,8 +599,8 @@ export default function RepertoirePage() {
                       <th className="text-left p-4 font-semibold text-gray-700">Tonart</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Tempo</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Noten</th>
+                      <th className="text-left p-4 font-semibold text-gray-700">Audio</th>
                       <th className="text-left p-4 font-semibold text-gray-700">YouTube</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Drive</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Dateien</th>
                       <th className="text-left p-4 font-semibold text-gray-700">Aktionen</th>
                     </tr>
@@ -628,6 +628,15 @@ export default function RepertoirePage() {
                             {song.lead_sheet_url ? '1' : '0'}
                           </td>
                           <td className="p-4">
+                            {song.audio_datei?.url ? (
+                              <audio 
+                                controls 
+                                className="h-8 w-32"
+                                src={song.audio_datei.url}
+                              />
+                            ) : '-'}
+                          </td>
+                          <td className="p-4">
                             {song.audio_demo_url ? (
                               <a 
                                 href={song.audio_demo_url} 
@@ -639,7 +648,6 @@ export default function RepertoirePage() {
                               </a>
                             ) : '-'}
                           </td>
-                          <td className="p-4 text-gray-600">-</td>
                           <td className="p-4">
                             <div className="flex items-center gap-2">
                               {song.lead_sheet_url && (
