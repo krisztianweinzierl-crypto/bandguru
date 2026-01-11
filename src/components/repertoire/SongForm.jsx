@@ -94,8 +94,8 @@ export default function SongForm({ song, onSubmit, onCancel }) {
       e.target.value = '';
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Die Audio-Datei darf maximal 10MB groß sein.');
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Die Audio-Datei darf maximal 15MB groß sein.');
       e.target.value = '';
       return;
     }
@@ -320,7 +320,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                     disabled={uploadingAudio}
                   />
                 </label>
-                <span className="text-sm text-gray-500">Max. 10MB</span>
+                <span className="text-sm text-gray-500">Max. 15MB</span>
               </div>
 
               {formData.audio_datei && (
