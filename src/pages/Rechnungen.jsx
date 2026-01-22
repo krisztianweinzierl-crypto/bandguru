@@ -319,7 +319,7 @@ export default function RechnungenPage() {
             <div className="text-right">
               <p className="text-sm text-gray-600">Betrag</p>
               <p className="text-xl font-bold text-gray-900">
-                {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             </div>
           </div>
@@ -632,12 +632,12 @@ export default function RechnungenPage() {
                       <tbody>
                         {viewRechnung.positionen?.map((pos, index) => (
                           <tr key={index} className="border-b border-gray-200">
-                            <td className="py-3">{pos.beschreibung}</td>
-                            <td className="py-3 text-right">{pos.menge} {pos.einheit}</td>
-                            <td className="py-3 text-right">{(pos.einzelpreis || 0).toFixed(2)} €</td>
-                            <td className="py-3 text-right font-semibold">
-                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toFixed(2)} €
-                            </td>
+                           <td className="py-3">{pos.beschreibung}</td>
+                           <td className="py-3 text-right">{pos.menge} {pos.einheit}</td>
+                           <td className="py-3 text-right">{(pos.einzelpreis || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
+                           <td className="py-3 text-right font-semibold">
+                             {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                           </td>
                           </tr>
                         ))}
                       </tbody>
@@ -648,16 +648,16 @@ export default function RechnungenPage() {
                   <div className="flex justify-end mb-8">
                     <div className="w-64">
                       <div className="flex justify-between py-2 border-b">
-                        <span>Nettobetrag:</span>
-                        <span className="font-semibold">{(viewRechnung.netto_betrag || 0).toFixed(2)} €</span>
+                       <span>Nettobetrag:</span>
+                       <span className="font-semibold">{(viewRechnung.netto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                       </div>
                       <div className="flex justify-between py-2 border-b">
-                        <span>zzgl. MwSt.:</span>
-                        <span className="font-semibold">{(viewRechnung.steuer_betrag || 0).toFixed(2)} €</span>
+                       <span>zzgl. MwSt.:</span>
+                       <span className="font-semibold">{(viewRechnung.steuer_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                       </div>
                       <div className="flex justify-between py-3 border-t-2 border-gray-800">
-                        <span className="text-lg font-bold">Gesamtbetrag:</span>
-                        <span className="text-lg font-bold">{(viewRechnung.brutto_betrag || 0).toFixed(2)} €</span>
+                       <span className="text-lg font-bold">Gesamtbetrag:</span>
+                       <span className="text-lg font-bold">{(viewRechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                       </div>
                     </div>
                   </div>
@@ -759,7 +759,7 @@ export default function RechnungenPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
                             <span className="text-sm font-semibold text-gray-900">
-                              €{(rechnung.brutto_betrag || 0).toFixed(2)}
+                              {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
