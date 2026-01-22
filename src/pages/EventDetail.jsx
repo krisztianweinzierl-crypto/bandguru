@@ -1674,15 +1674,25 @@ ${orgName} Team`;
                                           </div>
                                         </div>
 
-                                        {em.spesen > 0 && (
-                                          <div className="flex items-center gap-2 text-gray-600">
-                                            <Euro className="w-4 h-4" />
-                                            <div>
-                                              <p className="text-xs text-gray-500">Fahrtkosten</p>
-                                              <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
-                                            </div>
+                                        <div className="flex items-center gap-2 text-gray-600">
+                                          <Euro className="w-4 h-4" />
+                                          <div>
+                                            <p className="text-xs text-gray-500">Fahrtkosten gesamt</p>
+                                            <p className="font-medium">
+                                              €{((em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toFixed(2)}
+                                            </p>
+                                            {em.spesen > 0 && (
+                                              <p className="text-xs text-gray-400">
+                                                Distanz: €{em.spesen.toFixed(2)}
+                                              </p>
+                                            )}
+                                            {em.weitere_kosten?.length > 0 && (
+                                              <p className="text-xs text-gray-400">
+                                                Weitere: €{(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toFixed(2)}
+                                              </p>
+                                            )}
                                           </div>
-                                        )}
+                                        </div>
                                       </div>
 
                                       {em.notizen && (
