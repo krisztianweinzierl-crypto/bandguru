@@ -69,6 +69,33 @@ export default function FinanzenPage() {
     enabled: !!currentOrgId
   });
 
+  const { data: eventMusiker = [] } = useQuery({
+    queryKey: ['eventMusiker', currentOrgId],
+    queryFn: async () => {
+      const events = await base44.entities.Event.filter({ org_id: currentOrgId });
+      const eventIds = events.map(e => e.id);
+      if (eventIds.length === 0) return [];
+      
+      const allEventMusiker = await Promise.all(
+        eventIds.map(id => base44.entities.EventMusiker.filter({ event_id: id, status: 'zugesagt' }))
+      );
+      return allEventMusiker.flat();
+    },
+    enabled: !!currentOrgId,
+  });
+
+  const { data: events = [] } = useQuery({
+    queryKey: ['events', currentOrgId],
+    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
+  const { data: musiker = [] } = useQuery({
+    queryKey: ['musiker', currentOrgId],
+    queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
   // Berechnungen
   const gesamtEinnahmen = rechnungen.
   filter((r) => r.status === 'bezahlt').
@@ -78,9 +105,15 @@ export default function FinanzenPage() {
   filter((r) => ['versendet', 'teilweise_bezahlt', 'überfällig'].includes(r.status)).
   reduce((sum, r) => sum + ((r.brutto_betrag || 0) - (r.bezahlt_betrag || 0)), 0);
 
+  // Musiker-Kosten aus Events berechnen (Gagen + Fahrtkosten + weitere Kosten)
+  const musikerKosten = eventMusiker.reduce((sum, em) => {
+    const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+    return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+  }, 0);
+
   const gesamtAusgaben = ausgaben.
   filter((a) => a.status === 'bezahlt').
-  reduce((sum, a) => sum + (a.betrag || 0), 0);
+  reduce((sum, a) => sum + (a.betrag || 0), 0) + musikerKosten;
 
   const gewinn = gesamtEinnahmen - gesamtAusgaben;
 
@@ -300,6 +333,46 @@ export default function FinanzenPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
+                  {/* Musiker-Kosten pro Event */}
+                  {events
+                    .filter(event => {
+                      const kosten = eventMusiker
+                        .filter(em => em.event_id === event.id)
+                        .reduce((sum, em) => {
+                          const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                          return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                        }, 0);
+                      return kosten > 0;
+                    })
+                    .slice(0, 3)
+                    .map((event) => {
+                      const kosten = eventMusiker
+                        .filter(em => em.event_id === event.id)
+                        .reduce((sum, em) => {
+                          const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                          return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                        }, 0);
+                      
+                      return (
+                        <div key={event.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">Musiker-Kosten: {event.titel}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">gage</Badge>
+                              <span className="text-sm text-gray-500">
+                                {format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="font-semibold text-red-600">
+                            -{kosten.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                          </p>
+                        </div>
+                      );
+                    })
+                  }
+                  
+                  {/* Sonstige Ausgaben */}
                   {ausgaben.slice(0, 5).map((ausgabe) =>
                   <div key={ausgabe.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
                       <div className="flex-1">
@@ -348,10 +421,21 @@ export default function FinanzenPage() {
                           a.datum && a.datum.startsWith(monthKey)
                         );
                         
+                        // Musiker-Kosten für den Monat
+                        const monthEvents = events.filter(e => 
+                          e.datum_von && e.datum_von.startsWith(monthKey)
+                        );
+                        const monthMusikerKosten = eventMusiker
+                          .filter(em => monthEvents.some(e => e.id === em.event_id))
+                          .reduce((sum, em) => {
+                            const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                            return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                          }, 0);
+                        
                         months.push({
                           name: format(month, 'MMM yy', { locale: de }),
                           Einnahmen: monthRechnungen.reduce((sum, r) => sum + (r.brutto_betrag || 0), 0),
-                          Ausgaben: monthAusgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)
+                          Ausgaben: monthAusgaben.reduce((sum, a) => sum + (a.betrag || 0), 0) + monthMusikerKosten
                         });
                       }
                       
@@ -389,6 +473,11 @@ export default function FinanzenPage() {
                             kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
                           });
                           
+                          // Musiker-Kosten hinzufügen
+                          if (musikerKosten > 0) {
+                            kategorien['gage'] = (kategorien['gage'] || 0) + musikerKosten;
+                          }
+                          
                           return Object.entries(kategorien).map(([name, value]) => ({
                             name: name.charAt(0).toUpperCase() + name.slice(1),
                             value
@@ -409,6 +498,11 @@ export default function FinanzenPage() {
                             const kat = a.kategorie || 'sonstiges';
                             kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
                           });
+                          
+                          // Musiker-Kosten hinzufügen
+                          if (musikerKosten > 0) {
+                            kategorien['gage'] = (kategorien['gage'] || 0) + musikerKosten;
+                          }
                           
                           return Object.keys(kategorien).map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
