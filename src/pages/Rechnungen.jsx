@@ -184,11 +184,29 @@ export default function RechnungenPage() {
     alert('Rechnung wurde als versendet markiert');
   };
 
-  const handleDownloadPDF = (rechnung) => {
-    if (rechnung.pdf_url) {
-      window.open(rechnung.pdf_url, '_blank');
-    } else {
-      alert('PDF noch nicht generiert');
+  const handleDownloadPDF = async (rechnung) => {
+    try {
+      if (rechnung.pdf_url) {
+        window.open(rechnung.pdf_url, '_blank');
+        return;
+      }
+
+      // PDF generieren
+      const response = await base44.functions.invoke('generateRechnungPDF', {
+        rechnungId: rechnung.id
+      });
+
+      if (response.data.success && response.data.pdf_url) {
+        // Cache aktualisieren
+        queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
+        // PDF öffnen
+        window.open(response.data.pdf_url, '_blank');
+      } else {
+        alert('Fehler beim Generieren des PDFs');
+      }
+    } catch (error) {
+      console.error('PDF Error:', error);
+      alert('Fehler beim Generieren des PDFs: ' + error.message);
     }
   };
 
