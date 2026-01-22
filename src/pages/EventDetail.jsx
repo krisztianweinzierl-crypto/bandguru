@@ -2063,7 +2063,7 @@ ${orgName} Team`;
                       </div>
                       <Button
                         size="sm"
-                        onClick={() => navigate(createPageUrl('Rechnungen'))}
+                        onClick={() => navigate(`${createPageUrl('Rechnungen')}?event_id=${eventId}`)}
                         variant="outline"
                       >
                         <Plus className="w-4 h-4 mr-2" />

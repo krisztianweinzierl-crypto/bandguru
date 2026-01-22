@@ -56,6 +56,9 @@ import RechnungForm from "@/components/finanzen/RechnungForm";
 
 export default function RechnungenPage() {
   const navigate = useNavigate();
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedEventId = urlParams.get('event_id');
+  
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingRechnung, setEditingRechnung] = useState(null);
@@ -73,6 +76,13 @@ export default function RechnungenPage() {
     setCurrentOrgId(localStorage.getItem('currentOrgId'));
   }, []);
 
+  // Automatisch Formular öffnen wenn event_id in URL
+  useEffect(() => {
+    if (preselectedEventId && !showForm && !editingRechnung) {
+      setShowForm(true);
+    }
+  }, [preselectedEventId]);
+
   const { data: rechnungen = [] } = useQuery({
     queryKey: ['rechnungen', currentOrgId],
     queryFn: () => base44.entities.Rechnung.filter({ org_id: currentOrgId }, '-rechnungsdatum'),
@@ -82,6 +92,12 @@ export default function RechnungenPage() {
   const { data: kunden = [] } = useQuery({
     queryKey: ['kunden', currentOrgId],
     queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId
+  });
+
+  const { data: events = [] } = useQuery({
+    queryKey: ['events', currentOrgId],
+    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
     enabled: !!currentOrgId
   });
 
@@ -502,13 +518,14 @@ export default function RechnungenPage() {
         {showForm &&
           <div className="mb-6">
             <RechnungForm
-              rechnung={editingRechnung}
+              rechnung={editingRechnung || (preselectedEventId ? { event_id: preselectedEventId } : null)}
               onSubmit={handleSubmit}
               onCancel={() => {
                 setShowForm(false);
                 setEditingRechnung(null);
               }}
-              kunden={kunden} />
+              kunden={kunden}
+              events={events} />
 
           </div>
         }
