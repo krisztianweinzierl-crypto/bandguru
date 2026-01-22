@@ -42,6 +42,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import RechnungForm from "@/components/finanzen/RechnungForm";
@@ -55,6 +61,7 @@ export default function RechnungenPage() {
   const [statusFilter, setStatusFilter] = useState("alle");
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [selectedRechnung, setSelectedRechnung] = useState(null);
+  const [viewRechnung, setViewRechnung] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -184,6 +191,10 @@ export default function RechnungenPage() {
     alert('Rechnung wurde als versendet markiert');
   };
 
+  const handleView = (rechnung) => {
+    setViewRechnung(rechnung);
+  };
+
   const handleDownloadPDF = async (rechnung) => {
     try {
       if (rechnung.pdf_url) {
@@ -208,6 +219,10 @@ export default function RechnungenPage() {
       console.error('PDF Error:', error);
       alert('Fehler beim Generieren des PDFs: ' + error.message);
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const RechnungCard = ({ rechnung }) => {
@@ -290,7 +305,7 @@ export default function RechnungenPage() {
               variant="outline" 
               size="sm" 
               className="flex-1"
-              onClick={() => handleEdit(rechnung)}
+              onClick={() => handleView(rechnung)}
             >
               <Eye className="w-4 h-4 mr-2" />
               Ansehen
@@ -476,6 +491,118 @@ export default function RechnungenPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* View/Preview Dialog */}
+        <Dialog open={!!viewRechnung} onOpenChange={(open) => !open && setViewRechnung(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-full">
+            <DialogHeader className="print:hidden">
+              <DialogTitle>Rechnungsvorschau</DialogTitle>
+            </DialogHeader>
+            {viewRechnung && (() => {
+              const kunde = kunden.find((k) => k.id === viewRechnung.kunde_id);
+              return (
+                <div className="bg-white p-8 print:p-0" id="rechnung-preview">
+                  {/* Organisation Header */}
+                  <div className="mb-8 text-sm text-gray-600">
+                    {organisation?.name && <p className="font-semibold text-gray-900">{organisation.name}</p>}
+                    {organisation?.adresse && <p className="whitespace-pre-line">{organisation.adresse}</p>}
+                  </div>
+
+                  {/* Rechnung Titel */}
+                  <div className="flex justify-between items-start mb-8">
+                    <div>
+                      <h1 className="text-3xl font-bold mb-4">RECHNUNG</h1>
+                      <div className="text-sm space-y-1">
+                        <p><span className="font-semibold">Rechnungsnummer:</span> {viewRechnung.rechnungsnummer}</p>
+                        <p><span className="font-semibold">Rechnungsdatum:</span> {format(new Date(viewRechnung.rechnungsdatum), 'dd. MMMM yyyy', { locale: de })}</p>
+                        <p><span className="font-semibold">Fälligkeitsdatum:</span> {format(new Date(viewRechnung.faelligkeitsdatum), 'dd. MMMM yyyy', { locale: de })}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {kunde && (
+                        <div className="text-sm">
+                          <p className="font-semibold text-gray-900">{kunde.firmenname}</p>
+                          {kunde.ansprechpartner && <p className="text-gray-600">{kunde.ansprechpartner}</p>}
+                          {kunde.adresse && <p className="text-gray-600 whitespace-pre-line">{kunde.adresse}</p>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Positionen */}
+                  <div className="mb-8">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b-2 border-gray-300">
+                          <th className="text-left py-2 font-semibold">Beschreibung</th>
+                          <th className="text-right py-2 font-semibold w-20">Menge</th>
+                          <th className="text-right py-2 font-semibold w-24">Einzelpreis</th>
+                          <th className="text-right py-2 font-semibold w-24">Gesamt</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {viewRechnung.positionen?.map((pos, index) => (
+                          <tr key={index} className="border-b border-gray-200">
+                            <td className="py-3">{pos.beschreibung}</td>
+                            <td className="py-3 text-right">{pos.menge} {pos.einheit}</td>
+                            <td className="py-3 text-right">{(pos.einzelpreis || 0).toFixed(2)} €</td>
+                            <td className="py-3 text-right font-semibold">
+                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toFixed(2)} €
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Summen */}
+                  <div className="flex justify-end mb-8">
+                    <div className="w-64">
+                      <div className="flex justify-between py-2 border-b">
+                        <span>Nettobetrag:</span>
+                        <span className="font-semibold">{(viewRechnung.netto_betrag || 0).toFixed(2)} €</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b">
+                        <span>zzgl. MwSt.:</span>
+                        <span className="font-semibold">{(viewRechnung.steuer_betrag || 0).toFixed(2)} €</span>
+                      </div>
+                      <div className="flex justify-between py-3 border-t-2 border-gray-800">
+                        <span className="text-lg font-bold">Gesamtbetrag:</span>
+                        <span className="text-lg font-bold">{(viewRechnung.brutto_betrag || 0).toFixed(2)} €</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Zahlungsbedingungen */}
+                  {viewRechnung.zahlungsbedingungen && (
+                    <div className="mb-6 text-sm text-gray-600">
+                      <p className="font-semibold mb-2">Zahlungsbedingungen:</p>
+                      <p className="whitespace-pre-line">{viewRechnung.zahlungsbedingungen}</p>
+                    </div>
+                  )}
+
+                  {/* Kundennotizen */}
+                  {viewRechnung.kunde_notizen && (
+                    <div className="mb-6 text-sm text-gray-600">
+                      <p className="whitespace-pre-line">{viewRechnung.kunde_notizen}</p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 mt-8 print:hidden">
+                    <Button onClick={handlePrint} className="flex-1">
+                      Drucken
+                    </Button>
+                    <Button onClick={() => handleDownloadPDF(viewRechnung)} variant="outline" className="flex-1">
+                      <Download className="w-4 h-4 mr-2" />
+                      Als PDF
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
 
         {/* Rechnungen Grid */}
         {filteredRechnungen.length > 0 ?
