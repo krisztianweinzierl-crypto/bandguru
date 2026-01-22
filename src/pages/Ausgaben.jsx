@@ -12,7 +12,9 @@ import {
   Download,
   TrendingDown,
   PieChart,
-  ArrowLeft
+  ArrowLeft,
+  LayoutGrid,
+  List
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +30,7 @@ export default function AusgabenPage() {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [kategorieFilter, setKategorieFilter] = useState("alle");
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -297,6 +300,22 @@ export default function AusgabenPage() {
                 <option value="software">Software</option>
                 <option value="sonstiges">Sonstiges</option>
               </select>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -311,13 +330,54 @@ export default function AusgabenPage() {
           </div>
         }
 
-        {/* Ausgaben Grid */}
-        {filteredAusgaben.length > 0 ?
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAusgaben.map((ausgabe) =>
-          <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
-          )}
-          </div> :
+        {/* Ausgaben Grid/List */}
+        {filteredAusgaben.length > 0 ? (
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAusgaben.map((ausgabe) =>
+                <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
+              )}
+            </div>
+          ) : (
+            <Card className="border-none shadow-lg">
+              <CardContent className="p-0">
+                {filteredAusgaben.map((ausgabe, index) => (
+                  <div
+                    key={ausgabe.id}
+                    className={`flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50 transition-colors ${ausgabe.isEventKosten ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      if (ausgabe.isEventKosten && ausgabe.event) {
+                        navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
+                      }
+                    }}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900">{ausgabe.titel}</h3>
+                        {ausgabe.isEventKosten && (
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                            Event
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
+                          {ausgabe.kategorie}
+                        </Badge>
+                        <span className="text-sm text-gray-500">
+                          {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xl font-bold text-red-600">
+                      {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )
+        ) :
 
         <Card className="border-dashed">
             <CardContent className="p-12 text-center">
