@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,13 +16,32 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
-  ArrowLeft
+  ArrowLeft,
+  Edit,
+  Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import RechnungForm from "@/components/finanzen/RechnungForm";
@@ -32,8 +50,11 @@ export default function RechnungenPage() {
   const navigate = useNavigate();
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingRechnung, setEditingRechnung] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
+  const [showEditWarning, setShowEditWarning] = useState(false);
+  const [selectedRechnung, setSelectedRechnung] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -80,6 +101,30 @@ export default function RechnungenPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
       setShowForm(false);
+      setEditingRechnung(null);
+    }
+  });
+
+  const updateRechnungMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.Rechnung.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
+      setShowForm(false);
+      setEditingRechnung(null);
+    }
+  });
+
+  const versendenMutation = useMutation({
+    mutationFn: async (rechnungId) => {
+      return await base44.entities.Rechnung.update(rechnungId, {
+        status: 'versendet',
+        versandt_am: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
     }
   });
 
@@ -110,7 +155,41 @@ export default function RechnungenPage() {
   };
 
   const handleSubmit = (data) => {
-    createRechnungMutation.mutate(data);
+    if (editingRechnung) {
+      updateRechnungMutation.mutate({ id: editingRechnung.id, data });
+    } else {
+      createRechnungMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (rechnung) => {
+    if (rechnung.status !== 'entwurf') {
+      setSelectedRechnung(rechnung);
+      setShowEditWarning(true);
+    } else {
+      setEditingRechnung(rechnung);
+      setShowForm(true);
+    }
+  };
+
+  const confirmEdit = () => {
+    setEditingRechnung(selectedRechnung);
+    setShowForm(true);
+    setShowEditWarning(false);
+    setSelectedRechnung(null);
+  };
+
+  const handleVersenden = async (rechnung) => {
+    await versendenMutation.mutateAsync(rechnung.id);
+    alert('Rechnung wurde als versendet markiert');
+  };
+
+  const handleDownloadPDF = (rechnung) => {
+    if (rechnung.pdf_url) {
+      window.open(rechnung.pdf_url, '_blank');
+    } else {
+      alert('PDF noch nicht generiert');
+    }
   };
 
   const RechnungCard = ({ rechnung }) => {
@@ -137,9 +216,30 @@ export default function RechnungenPage() {
               </div>
               <p className="text-sm text-gray-600">{kunde?.firmenname || 'Kunde unbekannt'}</p>
             </div>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleEdit(rechnung)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Bearbeiten
+                </DropdownMenuItem>
+                {rechnung.status === 'entwurf' && (
+                  <DropdownMenuItem onClick={() => handleVersenden(rechnung)}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Versenden
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleDownloadPDF(rechnung)}>
+                  <Download className="w-4 h-4 mr-2" />
+                  PDF herunterladen
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -168,18 +268,32 @@ export default function RechnungenPage() {
           }
 
           <div className="flex gap-2 pt-3">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1"
+              onClick={() => handleEdit(rechnung)}
+            >
               <Eye className="w-4 h-4 mr-2" />
               Ansehen
             </Button>
             {rechnung.status === 'entwurf' &&
-              <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
+              <Button 
+                size="sm" 
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => handleVersenden(rechnung)}
+              >
                 <Send className="w-4 h-4 mr-2" />
                 Versenden
               </Button>
             }
             {rechnung.status !== 'entwurf' &&
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={() => handleDownloadPDF(rechnung)}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </Button>
@@ -300,12 +414,50 @@ export default function RechnungenPage() {
         {showForm &&
           <div className="mb-6">
             <RechnungForm
+              rechnung={editingRechnung}
               onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingRechnung(null);
+              }}
               kunden={kunden} />
 
           </div>
         }
+
+        {/* Edit Warning Dialog */}
+        <AlertDialog open={showEditWarning} onOpenChange={setShowEditWarning}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Rechnung bearbeiten</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <p>⚠️ <strong>Rechtlicher Hinweis:</strong></p>
+                <p>
+                  Das Bearbeiten einer bereits versendeten Rechnung ist rechtlich problematisch, 
+                  da Rechnungen nach Versand als Buchhaltungsbelege gelten und nicht mehr verändert werden sollten.
+                </p>
+                <p>
+                  Bei Änderungen sollte stattdessen eine Stornorechnung erstellt und eine neue, 
+                  korrigierte Rechnung ausgestellt werden.
+                </p>
+                <p className="font-medium">
+                  Möchtest du trotzdem fortfahren?
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setShowEditWarning(false);
+                setSelectedRechnung(null);
+              }}>
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={confirmEdit} className="bg-orange-600 hover:bg-orange-700">
+                Ja, bearbeiten
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Rechnungen Grid */}
         {filteredRechnungen.length > 0 ?
