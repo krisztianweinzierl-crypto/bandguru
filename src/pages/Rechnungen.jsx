@@ -62,6 +62,8 @@ export default function RechnungenPage() {
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [selectedRechnung, setSelectedRechnung] = useState(null);
   const [viewRechnung, setViewRechnung] = useState(null);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -132,6 +134,23 @@ export default function RechnungenPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
+    }
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }) => {
+      const updateData = { status };
+      if (status === 'bezahlt') {
+        updateData.bezahlt_am = new Date().toISOString();
+        updateData.bezahlt_betrag = selectedRechnung?.brutto_betrag || 0;
+      }
+      return await base44.entities.Rechnung.update(id, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
+      setShowStatusDialog(false);
+      setSelectedRechnung(null);
+      setNewStatus("");
     }
   });
 
@@ -225,6 +244,11 @@ export default function RechnungenPage() {
     window.print();
   };
 
+  const handleStatusChange = () => {
+    if (!newStatus || !selectedRechnung) return;
+    updateStatusMutation.mutate({ id: selectedRechnung.id, status: newStatus });
+  };
+
   const RechnungCard = ({ rechnung }) => {
     const kunde = kunden.find((k) => k.id === rechnung.kunde_id);
     const isUeberfaellig = new Date(rechnung.faelligkeitsdatum) < new Date() &&
@@ -266,6 +290,14 @@ export default function RechnungenPage() {
                     Versenden
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => {
+                  setSelectedRechnung(rechnung);
+                  setNewStatus(rechnung.status);
+                  setShowStatusDialog(true);
+                }}>
+                  Status ändern
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleDownloadPDF(rechnung)}>
                   <Download className="w-4 h-4 mr-2" />
@@ -490,9 +522,43 @@ export default function RechnungenPage() {
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+          </AlertDialog>
 
-        {/* View/Preview Dialog */}
+          {/* Status Change Dialog */}
+          <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
+          <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Status ändern</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Neuer Status</label>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              >
+                <option value="entwurf">Entwurf</option>
+                <option value="versendet">Versendet</option>
+                <option value="teilweise_bezahlt">Teilweise bezahlt</option>
+                <option value="bezahlt">Bezahlt</option>
+                <option value="überfällig">Überfällig</option>
+                <option value="storniert">Storniert</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setShowStatusDialog(false)}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleStatusChange}>
+              Status ändern
+            </Button>
+          </div>
+          </DialogContent>
+          </Dialog>
+
+          {/* View/Preview Dialog */}
         <Dialog open={!!viewRechnung} onOpenChange={(open) => !open && setViewRechnung(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-full">
             <DialogHeader className="print:hidden">
