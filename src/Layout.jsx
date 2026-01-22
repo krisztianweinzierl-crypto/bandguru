@@ -30,8 +30,8 @@ import {
   Guitar,
   Zap,
   Shield,
-  UserPlus
-} from "lucide-react";
+  UserPlus } from
+"lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -44,8 +44,8 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+  SidebarTrigger } from
+"@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,12 +55,12 @@ import NotificationBell from "@/components/NotificationBell";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  
+
   // Public Pages die kein Layout benötigen und KEINE Auth-Prüfung machen
-  const isPublicPage = currentPageName === 'VertragKundenansicht' || 
-                       currentPageName === 'AcceptInvite' ||
-                       location.pathname.includes('/vertragkundenansicht');
-  
+  const isPublicPage = currentPageName === 'VertragKundenansicht' ||
+  currentPageName === 'AcceptInvite' ||
+  location.pathname.includes('/vertragkundenansicht');
+
   // Für Public Pages: Sofort Children rendern ohne Auth-Check
   if (isPublicPage) {
     return <>{children}</>;
@@ -104,9 +104,9 @@ export default function Layout({ children, currentPageName }) {
   const checkAuthAndLoadData = async () => {
     try {
       console.log("🔍 Checking authentication...");
-      
+
       let userData = null;
-      
+
       try {
         userData = await base44.auth.me();
       } catch (authError) {
@@ -115,7 +115,7 @@ export default function Layout({ children, currentPageName }) {
         setInitialLoadComplete(true);
         return;
       }
-      
+
       if (!userData || !userData.id) {
         console.log("ℹ️ No user data found");
         setIsAuthenticated(false);
@@ -124,42 +124,42 @@ export default function Layout({ children, currentPageName }) {
       }
 
       console.log("✅ User authenticated:", userData.email);
-      
+
       setUser(userData);
       setIsAuthenticated(true);
 
       // 🔥 NEU: ZUERST pending invites prüfen (BEVOR aktive Mitgliedschaften)
       console.log("📨 Prüfe auf schwebende Einladungen...");
-      const allInvites = await base44.entities.Mitglied.filter({ 
+      const allInvites = await base44.entities.Mitglied.filter({
         invite_email: userData.email,
         status: "eingeladen"
       });
-      
+
       // Filtere abgelaufene Einladungen heraus
       const now = new Date();
-      const invites = allInvites.filter(invite => {
+      const invites = allInvites.filter((invite) => {
         if (!invite.invite_expires_at) return true; // Keine Ablaufzeit = immer gültig
         return new Date(invite.invite_expires_at) > now;
       });
-      
+
       console.log(`   ${invites.length} gültige Einladungen gefunden (${allInvites.length - invites.length} abgelaufen)`, invites);
-      
+
       // Wenn Einladungen vorhanden sind, IMMER Einladungsansicht zeigen
       if (invites.length > 0) {
         console.log("🎯 Zeige Einladungsansicht");
-        
+
         // Lade Organisationen für die Einladungen
-        const orgIds = [...new Set(invites.map(i => i.org_id))];
+        const orgIds = [...new Set(invites.map((i) => i.org_id))];
         const orgs = await Promise.all(
-          orgIds.map(id => base44.entities.Organisation.filter({ id }))
+          orgIds.map((id) => base44.entities.Organisation.filter({ id }))
         );
         const orgList = orgs.flat();
-        
-        const invitesWithOrgs = invites.map(invite => ({
+
+        const invitesWithOrgs = invites.map((invite) => ({
           ...invite,
-          organisation: orgList.find(o => o.id === invite.org_id)
+          organisation: orgList.find((o) => o.id === invite.org_id)
         }));
-        
+
         setPendingInvites(invitesWithOrgs);
         setShowPendingInvites(true);
         setShowOnboarding(false);
@@ -169,36 +169,36 @@ export default function Layout({ children, currentPageName }) {
 
       // Keine Einladungen -> Aktive Mitgliedschaften prüfen
       console.log("📋 Lade aktive Mitgliedschaften...");
-      const mitglieder = await base44.entities.Mitglied.filter({ 
+      const mitglieder = await base44.entities.Mitglied.filter({
         user_id: userData.id,
-        status: "aktiv" 
+        status: "aktiv"
       });
-      
+
       console.log(`📋 ${mitglieder.length} aktive Mitgliedschaften gefunden`);
       setMitgliedschaften(mitglieder);
 
       if (mitglieder.length > 0) {
-        const orgIds = [...new Set(mitglieder.map(m => m.org_id))];
+        const orgIds = [...new Set(mitglieder.map((m) => m.org_id))];
         const orgs = await Promise.all(
-          orgIds.map(id => base44.entities.Organisation.filter({ id }))
+          orgIds.map((id) => base44.entities.Organisation.filter({ id }))
         );
         const orgList = orgs.flat();
         setOrganisations(orgList);
 
         const savedOrgId = localStorage.getItem('currentOrgId');
-        const org = orgList.find(o => o.id === savedOrgId) || orgList[0];
-        
+        const org = orgList.find((o) => o.id === savedOrgId) || orgList[0];
+
         if (org) {
           console.log("✅ Organisation geladen:", org.name);
           localStorage.setItem('currentOrgId', org.id);
           setCurrentOrg(org);
-          
+
           // Lade Musiker-Profil für den aktuellen User (falls vorhanden)
-          const currentMitglied = mitglieder.find(m => m.org_id === org.id);
+          const currentMitglied = mitglieder.find((m) => m.org_id === org.id);
           if (currentMitglied?.rolle === "Musiker") {
             const alleMusiker = await base44.entities.Musiker.filter({ org_id: org.id });
-            const musikerProfil = alleMusiker.find(m => 
-              m.email?.toLowerCase().trim() === userData.email.toLowerCase().trim() && m.aktiv === true
+            const musikerProfil = alleMusiker.find((m) =>
+            m.email?.toLowerCase().trim() === userData.email.toLowerCase().trim() && m.aktiv === true
             );
             if (musikerProfil) {
               setCurrentMusiker(musikerProfil);
@@ -257,23 +257,23 @@ export default function Layout({ children, currentPageName }) {
         });
 
         console.log(`   Gefundene Manager: ${manager.length}`);
-        manager.forEach(m => console.log(`   - Manager user_id: ${m.user_id || 'NICHT GESETZT'}`));
+        manager.forEach((m) => console.log(`   - Manager user_id: ${m.user_id || 'NICHT GESETZT'}`));
 
         // Erstelle Benachrichtigung für jeden Manager mit user_id
-        const notificationPromises = manager
-          .filter(m => m.user_id) // Nur Manager mit user_id
-          .map(m => 
-            base44.entities.Benachrichtigung.create({
-              org_id: invite.org_id,
-              user_id: m.user_id,
-              typ: 'neuer_nutzer',
-              titel: `Neues Teammitglied: ${user.full_name || user.email}`,
-              nachricht: `${user.full_name || user.email} hat die Einladung als ${invite.rolle} angenommen und ist jetzt Teil des Teams.`,
-              link_url: createPageUrl('OrganisationSettings'),
-              icon: 'UserPlus',
-              prioritaet: 'normal'
-            })
-          );
+        const notificationPromises = manager.
+        filter((m) => m.user_id) // Nur Manager mit user_id
+        .map((m) =>
+        base44.entities.Benachrichtigung.create({
+          org_id: invite.org_id,
+          user_id: m.user_id,
+          typ: 'neuer_nutzer',
+          titel: `Neues Teammitglied: ${user.full_name || user.email}`,
+          nachricht: `${user.full_name || user.email} hat die Einladung als ${invite.rolle} angenommen und ist jetzt Teil des Teams.`,
+          link_url: createPageUrl('OrganisationSettings'),
+          icon: 'UserPlus',
+          prioritaet: 'normal'
+        })
+        );
 
         await Promise.all(notificationPromises);
         console.log(`✅ ${notificationPromises.length} Benachrichtigungen an Manager gesendet`);
@@ -309,7 +309,7 @@ export default function Layout({ children, currentPageName }) {
 
   const handleCreateOrg = async (e) => {
     e.preventDefault();
-    
+
     if (!orgData.name.trim()) {
       alert("Bitte gib einen Namen für deine Organisation ein");
       return;
@@ -317,10 +317,10 @@ export default function Layout({ children, currentPageName }) {
 
     try {
       console.log("🚀 Erstelle Organisation...");
-      
+
       const org = await base44.entities.Organisation.create(orgData);
       console.log("✅ Organisation erstellt:", org.id);
-      
+
       await base44.entities.Mitglied.create({
         org_id: org.id,
         user_id: user.id,
@@ -329,7 +329,7 @@ export default function Layout({ children, currentPageName }) {
         invite_email: user.email // E-Mail speichern für spätere Anzeige
       });
       console.log("✅ Mitgliedschaft erstellt");
-      
+
       localStorage.setItem('currentOrgId', org.id);
       window.location.reload();
     } catch (error) {
@@ -339,7 +339,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const handleOrgChange = (orgId) => {
-    const org = organisations.find(o => o.id === orgId);
+    const org = organisations.find((o) => o.id === orgId);
     setCurrentOrg(org);
     localStorage.setItem('currentOrgId', orgId);
     setShowOrgSwitcher(false);
@@ -359,13 +359,13 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const toggleMenu = (menuKey) => {
-    setExpandedMenus(prev => ({
+    setExpandedMenus((prev) => ({
       ...prev,
       [menuKey]: !prev[menuKey]
     }));
   };
 
-  const currentMitglied = mitgliedschaften.find(m => m.org_id === currentOrg?.id);
+  const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
 
   // Redirect Musiker to their dashboard if they're on wrong page
@@ -376,70 +376,70 @@ export default function Layout({ children, currentPageName }) {
   }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
 
   const managerNavItems = [
-    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-    { 
-      title: "Events", 
-      icon: Calendar,
-      submenu: [
-        { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-        { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }
-      ]
-    },
-    { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
-    { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
-    { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
-    { 
-      title: "Finanzen", 
-      icon: DollarSign,
-      url: createPageUrl("Finanzen"),
-      submenu: [
-        { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
-        { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
-        { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }
-      ]
-    },
-    { title: "Leads", url: createPageUrl("Leads"), icon: Target },
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare },
-  ];
+  { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
+
+  },
+  { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
+  { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
+  { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
+  {
+    title: "Finanzen",
+    icon: DollarSign,
+    url: createPageUrl("Finanzen"),
+    submenu: [
+    { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
+    { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
+    { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }]
+
+  },
+  { title: "Leads", url: createPageUrl("Leads"), icon: Target },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
 
   const musikerNavItems = [
-    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
-    { 
-      title: "Events", 
-      icon: Calendar,
-      submenu: [
-        { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-        { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }
-      ]
-    },
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare },
-  ];
+  { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }]
+
+  },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
 
   const navigationItems = isManager ? managerNavItems : musikerNavItems;
 
   useEffect(() => {
     navigationItems.forEach((item, index) => {
       if (item.submenu) {
-        const isActive = item.submenu.some(sub => location.pathname === sub.url);
+        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
         if (isActive && !expandedMenus[index]) {
-          setExpandedMenus(prev => ({ ...prev, [index]: true }));
+          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
         }
       }
     });
 
     // Check for 'settings' submenu specifically
     const settingsSubmenuUrls = [
-      createPageUrl("OrganisationSettings"),
-      createPageUrl("BuchungsbedingungVorlagen"),
-      createPageUrl("ArtikelVerwaltung")
-    ];
+    createPageUrl("OrganisationSettings"),
+    createPageUrl("BuchungsbedingungVorlagen"),
+    createPageUrl("ArtikelVerwaltung")];
+
     const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
     if (isSettingsSubmenuActive && !expandedMenus['settings']) {
-      setExpandedMenus(prev => ({ ...prev, ['settings']: true }));
+      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
     }
 
   }, [location.pathname]);
@@ -449,16 +449,16 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <img 
+          <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
             alt="Bandguru Logo"
-            className="w-24 h-24 mx-auto mb-4 animate-pulse"
-          />
+            className="w-24 h-24 mx-auto mb-4 animate-pulse" />
+
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Wird geladen...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Landing Page für nicht eingeloggte User
@@ -469,25 +469,25 @@ export default function Layout({ children, currentPageName }) {
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <img 
+              <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                 alt="Bandguru Logo"
-                className="w-12 h-12 object-contain"
-              />
+                className="w-12 h-12 object-contain" />
+
               <h1 className="text-2xl font-bold text-gray-900">Bandguru</h1>
             </div>
             <div className="flex gap-3">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => base44.auth.redirectToLogin()}
-                className="hidden sm:flex"
-              >
+                className="hidden sm:flex">
+
                 Anmelden
               </Button>
-              <Button 
+              <Button
                 onClick={() => base44.auth.redirectToLogin()}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-              >
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+
                 Kostenlos starten
               </Button>
             </div>
@@ -516,21 +516,21 @@ export default function Layout({ children, currentPageName }) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
+              <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
                 style={{ backgroundColor: '#223a5e' }}
-                className="hover:opacity-90 text-lg h-14 px-8"
-              >
+                className="hover:opacity-90 text-lg h-14 px-8">
+
                 Jetzt kostenlos starten
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button 
+              <Button
                 size="lg"
                 variant="outline"
                 onClick={() => base44.auth.redirectToLogin()}
-                className="text-lg h-14 px-8"
-              >
+                className="text-lg h-14 px-8">
+
                 Anmelden
               </Button>
             </div>
@@ -539,11 +539,11 @@ export default function Layout({ children, currentPageName }) {
           {/* Screenshot/Preview */}
           <div className="mt-20 relative">
             <div className="absolute inset-0 bg-gradient-to-t from-blue-500/20 to-transparent rounded-3xl blur-3xl" />
-            <img 
+            <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/87a1fd4b2_Bildschirmfoto2025-11-02um073357.png"
               alt="Bandguru Dashboard Preview"
-              className="relative rounded-2xl shadow-2xl border border-gray-200 w-full"
-            />
+              className="relative rounded-2xl shadow-2xl border border-gray-200 w-full" />
+
           </div>
         </section>
 
@@ -656,11 +656,11 @@ export default function Layout({ children, currentPageName }) {
             <p className="text-xl text-blue-100 mb-10">
               Erstelle dein kostenloses Konto und manage deine Band professionell
             </p>
-            <Button 
+            <Button
               size="lg"
               onClick={() => base44.auth.redirectToLogin()}
-              className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-14 px-8"
-            >
+              className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-14 px-8">
+
               Jetzt kostenlos starten
               <Zap className="w-5 h-5 ml-2" />
             </Button>
@@ -671,11 +671,11 @@ export default function Layout({ children, currentPageName }) {
         <footer className="bg-gray-900 text-gray-400 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img 
+              <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                 alt="Bandguru Logo"
-                className="w-8 h-8 object-contain opacity-80"
-              />
+                className="w-8 h-8 object-contain opacity-80" />
+
               <span className="text-lg font-semibold text-white">Bandguru</span>
             </div>
             <p className="text-sm">
@@ -683,8 +683,8 @@ export default function Layout({ children, currentPageName }) {
             </p>
           </div>
         </footer>
-      </div>
-    );
+      </div>);
+
   }
 
   // Schwebende Einladungen anzeigen
@@ -694,11 +694,11 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img 
+              <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                 alt="Bandguru Logo"
-                className="w-16 h-16 object-contain"
-              />
+                className="w-16 h-16 object-contain" />
+
               <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
             </div>
             <p className="text-xl text-gray-600">
@@ -710,14 +710,14 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           <div className="space-y-4">
-            {pendingInvites.map((invite) => (
-              <Card key={invite.id} className="border-none shadow-xl hover:shadow-2xl transition-all">
+            {pendingInvites.map((invite) =>
+            <Card key={invite.id} className="border-none shadow-xl hover:shadow-2xl transition-all">
                 <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
                   <div className="flex items-center gap-4">
-                    <div 
-                      className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
-                      style={{ backgroundColor: invite.organisation?.primary_color || '#3B82F6' }}
-                    >
+                    <div
+                    className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
+                    style={{ backgroundColor: invite.organisation?.primary_color || '#3B82F6' }}>
+
                       {invite.organisation?.name?.[0]?.toUpperCase() || 'B'}
                     </div>
                     <div className="flex-1">
@@ -744,26 +744,26 @@ export default function Layout({ children, currentPageName }) {
                       </div>
                     </div>
 
-                    {invite.invite_expires_at && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                    {invite.invite_expires_at &&
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Calendar className="w-4 h-4" />
                         <span>
                           Gültig bis: {format(new Date(invite.invite_expires_at), 'dd. MMM yyyy', { locale: de })}
                         </span>
                       </div>
-                    )}
+                  }
 
                     <Button
-                      onClick={() => handleAcceptInvite(invite)}
-                      className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 h-12"
-                    >
+                    onClick={() => handleAcceptInvite(invite)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 h-12">
+
                       <Check className="w-5 h-5 mr-2" />
                       Einladung annehmen
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
 
           <div className="mt-8 space-y-4">
@@ -777,12 +777,12 @@ export default function Layout({ children, currentPageName }) {
                   setShowPendingInvites(false);
                   setShowOnboarding(true);
                 }}
-                style={{ 
-                  borderColor: '#223a5e', 
-                  color: '#223a5e' 
+                style={{
+                  borderColor: '#223a5e',
+                  color: '#223a5e'
                 }}
-                className="hover:opacity-80"
-              >
+                className="hover:opacity-80">
+
                 <Plus className="w-4 h-4 mr-2" />
                 Eigene Organisation erstellen
               </Button>
@@ -796,16 +796,16 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
-              >
+                className="text-gray-600 hover:text-gray-900">
+
                 <LogOut className="w-4 h-4 mr-2" />
                 Abmelden
               </Button>
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Onboarding anzeigen (KEINE Organisation UND KEINE Einladungen)
@@ -815,11 +815,11 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img 
+              <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                 alt="Bandguru Logo"
-                className="w-16 h-16 object-contain"
-              />
+                className="w-16 h-16 object-contain" />
+
               <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
             </div>
             <p className="text-xl text-gray-600">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
@@ -838,11 +838,11 @@ export default function Layout({ children, currentPageName }) {
                   <Input
                     id="name"
                     value={orgData.name}
-                    onChange={(e) => setOrgData({...orgData, name: e.target.value})}
+                    onChange={(e) => setOrgData({ ...orgData, name: e.target.value })}
                     placeholder="z.B. Die Fantastischen Vier"
                     required
-                    autoFocus
-                  />
+                    autoFocus />
+
                 </div>
 
                 <div className="space-y-2">
@@ -850,9 +850,9 @@ export default function Layout({ children, currentPageName }) {
                   <Input
                     id="adresse"
                     value={orgData.adresse}
-                    onChange={(e) => setOrgData({...orgData, adresse: e.target.value})}
-                    placeholder="z.zB. Musterstraße 123, 12345 Berlin"
-                  />
+                    onChange={(e) => setOrgData({ ...orgData, adresse: e.target.value })}
+                    placeholder="z.zB. Musterstraße 123, 12345 Berlin" />
+
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -861,9 +861,9 @@ export default function Layout({ children, currentPageName }) {
                     <select
                       id="waehrung"
                       value={orgData.waehrung}
-                      onChange={(e) => setOrgData({...orgData, waehrung: e.target.value})}
-                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
-                    >
+                      onChange={(e) => setOrgData({ ...orgData, waehrung: e.target.value })}
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm">
+
                       <option value="EUR">EUR (€)</option>
                       <option value="USD">USD ($)</option>
                       <option value="CHF">CHF (Fr.)</option>
@@ -877,17 +877,17 @@ export default function Layout({ children, currentPageName }) {
                       id="color"
                       type="color"
                       value={orgData.primary_color}
-                      onChange={(e) => setOrgData({...orgData, primary_color: e.target.value})}
-                      className="h-10 cursor-pointer"
-                    />
+                      onChange={(e) => setOrgData({ ...orgData, primary_color: e.target.value })}
+                      className="h-10 cursor-pointer" />
+
                   </div>
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full h-12 text-lg"
-                  style={{ backgroundColor: '#223a5e' }}
-                >
+                  style={{ backgroundColor: '#223a5e' }}>
+
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
@@ -895,8 +895,8 @@ export default function Layout({ children, currentPageName }) {
             </CardContent>
           </Card>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Warte auf Organisation
@@ -904,16 +904,16 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
-          <img 
+          <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
             alt="Bandguru Logo"
-            className="w-24 h-24 mx-auto mb-4 animate-pulse"
-          />
+            className="w-24 h-24 mx-auto mb-4 animate-pulse" />
+
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
           <p className="text-gray-600">Lade Organisation...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Normale App mit Sidebar
@@ -924,11 +924,11 @@ export default function Layout({ children, currentPageName }) {
           <SidebarHeader className="border-b border-gray-200 p-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <img 
+                <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                   alt="Bandguru Logo"
-                  className="w-12 h-12 object-contain"
-                />
+                  className="w-12 h-12 object-contain" />
+
                 <div className="flex-1 min-w-0">
                   <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
                   <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
@@ -938,65 +938,65 @@ export default function Layout({ children, currentPageName }) {
               </div>
 
               <div className="relative">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
                   className="w-full justify-between h-auto py-3 px-3 transition-colors"
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <div 
+                    <div
                       className="w-5 h-5 rounded flex-shrink-0"
-                      style={{ backgroundColor: currentOrg.primary_color }}
-                    />
+                      style={{ backgroundColor: currentOrg.primary_color }} />
+
                     <span className="truncate font-medium text-sm">{currentOrg.name}</span>
                   </div>
                   <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
                 </Button>
 
-                {showOrgSwitcher && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={() => setShowOrgSwitcher(false)}
-                    />
+                {showOrgSwitcher &&
+                <>
+                    <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowOrgSwitcher(false)} />
+
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                       <div className="p-2 text-xs text-gray-500 font-medium border-b">
                         Organisation wechseln
                       </div>
                       {organisations.map((org) => {
-                        const mitglied = mitgliedschaften.find(m => m.org_id === org.id);
-                        const isCurrentOrg = org.id === currentOrg.id;
-                        
-                        return (
-                          <button
-                            key={org.id}
-                            onClick={() => handleOrgChange(org.id)}
-                            className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
-                              isCurrentOrg ? 'border-l-4' : ''
-                            }`}
-                            style={isCurrentOrg ? { borderLeftColor: '#223a5e' } : {}}
-                          >
-                            <div 
-                              className="w-6 h-6 rounded flex-shrink-0"
-                              style={{ backgroundColor: org.primary_color }}
-                            />
+                      const mitglied = mitgliedschaften.find((m) => m.org_id === org.id);
+                      const isCurrentOrg = org.id === currentOrg.id;
+
+                      return (
+                        <button
+                          key={org.id}
+                          onClick={() => handleOrgChange(org.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
+                          isCurrentOrg ? 'border-l-4' : ''}`
+                          }
+                          style={isCurrentOrg ? { borderLeftColor: '#223a5e' } : {}}>
+
+                            <div
+                            className="w-6 h-6 rounded flex-shrink-0"
+                            style={{ backgroundColor: org.primary_color }} />
+
                             <div className="flex-1 min-w-0 text-left">
                               <p className="font-medium text-sm truncate">{org.name}</p>
                               <p className="text-xs text-gray-500 truncate">
                                 {mitglied?.rolle}
                               </p>
                             </div>
-                            {isCurrentOrg && (
-                              <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
-                            )}
-                          </button>
-                        );
-                      })}
+                            {isCurrentOrg &&
+                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
+                          }
+                          </button>);
+
+                    })}
                     </div>
                   </>
-                )}
+                }
               </div>
             </div>
           </SidebarHeader>
@@ -1008,34 +1008,34 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {navigationItems.map((item, index) => (
-                    <SidebarMenuItem key={item.title}>
-                      {item.submenu ? (
-                        <>
+                  {navigationItems.map((item, index) =>
+                  <SidebarMenuItem key={item.title}>
+                      {item.submenu ?
+                    <>
                           <Link
-                            to={item.url || '#'}
-                            onClick={(e) => {
-                              if (!item.url) e.preventDefault();
-                              toggleMenu(index);
-                            }}
-                            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
-                            style={(item.url && location.pathname === item.url) || item.submenu.some(sub => location.pathname === sub.url) ? {
-                              backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                              color: '#223a5e'
-                            } : {}}
-                            onMouseEnter={(e) => {
-                              if (!(item.url && location.pathname === item.url) && !item.submenu.some(sub => location.pathname === sub.url)) {
-                                e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                e.currentTarget.style.color = '#223a5e';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!(item.url && location.pathname === item.url) && !item.submenu.some(sub => location.pathname === sub.url)) {
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '';
-                              }
-                            }}
-                          >
+                        to={item.url || '#'}
+                        onClick={(e) => {
+                          if (!item.url) e.preventDefault();
+                          toggleMenu(index);
+                        }}
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
+                        style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
+                          backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                          color: '#223a5e'
+                        } : {}}
+                        onMouseEnter={(e) => {
+                          if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
+                            e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                            e.currentTarget.style.color = '#223a5e';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '';
+                          }
+                        }}>
+
                             <div className="flex items-center gap-3">
                               <item.icon className="w-4 h-4" />
                               <span className="font-medium">{item.title}</span>
@@ -1043,81 +1043,81 @@ export default function Layout({ children, currentPageName }) {
                             <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
                           </Link>
 
-                          {expandedMenus[index] && (
-                            <div className="ml-4 mb-1 space-y-1">
-                              {item.submenu.map((subItem) => (
-                                <SidebarMenuButton
-                                  key={subItem.title}
-                                  asChild
-                                  className="transition-colors duration-200 rounded-lg"
-                                >
-                                  <Link 
-                                    to={subItem.url} 
-                                    className="flex items-center gap-3 px-3 py-2"
-                                    style={location.pathname === subItem.url ? {
-                                      backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                                      color: '#223a5e'
-                                    } : {}}
-                                    onMouseEnter={(e) => {
-                                      if (location.pathname !== subItem.url) {
-                                        e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                        e.currentTarget.style.color = '#223a5e';
-                                      }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      if (location.pathname !== subItem.url) {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '';
-                                      }
-                                    }}
-                                  >
-                                    <subItem.icon className="w-4 h-4" />
-                                    <span className="font-medium">{subItem.title}</span>
-                                  </Link>
+                          {expandedMenus[index] &&
+                      <div className="ml-4 mb-1 space-y-1">
+                              {item.submenu.map((subItem) =>
+                        <SidebarMenuButton
+                          key={subItem.title}
+                          asChild
+                          className="transition-colors duration-200 rounded-lg">
 
-                                </SidebarMenuButton>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <SidebarMenuButton 
-                          asChild 
-                          className="transition-colors duration-200 rounded-lg mb-1"
-                        >
-                          <Link 
-                            to={item.url} 
+                                  <Link
+                            to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
-                            style={location.pathname === item.url ? {
+                            style={location.pathname === subItem.url ? {
                               backgroundColor: 'rgba(34, 58, 94, 0.15)',
                               color: '#223a5e'
                             } : {}}
                             onMouseEnter={(e) => {
-                              if (location.pathname !== item.url) {
+                              if (location.pathname !== subItem.url) {
                                 e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
                                 e.currentTarget.style.color = '#223a5e';
                               }
                             }}
                             onMouseLeave={(e) => {
-                              if (location.pathname !== item.url) {
+                              if (location.pathname !== subItem.url) {
                                 e.currentTarget.style.backgroundColor = 'transparent';
                                 e.currentTarget.style.color = '';
                               }
-                            }}
-                          >
+                            }}>
+
+                                    <subItem.icon className="w-4 h-4" />
+                                    <span className="font-medium">{subItem.title}</span>
+                                  </Link>
+
+                                </SidebarMenuButton>
+                        )}
+                            </div>
+                      }
+                        </> :
+
+                    <SidebarMenuButton
+                      asChild
+                      className="transition-colors duration-200 rounded-lg mb-1">
+
+                          <Link
+                        to={item.url}
+                        className="flex items-center gap-3 px-3 py-2"
+                        style={location.pathname === item.url ? {
+                          backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                          color: '#223a5e'
+                        } : {}}
+                        onMouseEnter={(e) => {
+                          if (location.pathname !== item.url) {
+                            e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                            e.currentTarget.style.color = '#223a5e';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (location.pathname !== item.url) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = '';
+                          }
+                        }}>
+
                             <item.icon className="w-4 h-4" />
                             <span className="font-medium">{item.title}</span>
                           </Link>
                         </SidebarMenuButton>
-                      )}
+                    }
                     </SidebarMenuItem>
-                  ))}
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {isManager && (
-              <SidebarGroup className="mt-4">
+            {isManager &&
+            <SidebarGroup className="mt-4">
                 <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                   Verwaltung
                 </SidebarGroupLabel>
@@ -1125,25 +1125,25 @@ export default function Layout({ children, currentPageName }) {
                   <SidebarMenu>
                     <SidebarMenuItem>
                       <button
-                        onClick={() => toggleMenu('settings')}
-                        className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
-                        style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
-                          backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                          color: '#223a5e'
-                        } : {}}
-                        onMouseEnter={(e) => {
-                          if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
-                            e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                            e.currentTarget.style.color = '#223a5e';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = '';
-                          }
-                        }}
-                      >
+                      onClick={() => toggleMenu('settings')}
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
+                      style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
+                        backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                        color: '#223a5e'
+                      } : {}}
+                      onMouseEnter={(e) => {
+                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                          e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                          e.currentTarget.style.color = '#223a5e';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}>
+
                         <div className="flex items-center gap-3">
                           <Settings className="w-4 h-4" />
                           <span className="font-medium">Einstellungen</span>
@@ -1151,120 +1151,120 @@ export default function Layout({ children, currentPageName }) {
                         <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
                       </button>
                       
-                      {expandedMenus['settings'] && (
-                        <div className="ml-4 mb-1 space-y-1">
+                      {expandedMenus['settings'] &&
+                    <div className="ml-4 mb-1 space-y-1">
                           <SidebarMenuButton
-                            asChild
-                            className="transition-colors duration-200 rounded-lg"
-                          >
-                            <Link 
-                              to={createPageUrl("OrganisationSettings")} 
-                              className="flex items-center gap-3 px-3 py-2"
-                              style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                                color: '#223a5e'
-                              } : {}}
-                              onMouseEnter={(e) => {
-                                if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                  e.currentTarget.style.color = '#223a5e';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                  e.currentTarget.style.color = '';
-                                }
-                              }}
-                            >
+                        asChild
+                        className="transition-colors duration-200 rounded-lg">
+
+                            <Link
+                          to={createPageUrl("OrganisationSettings")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("OrganisationSettings") ? {
+                            backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                            color: '#223a5e'
+                          } : {}}
+                          onMouseEnter={(e) => {
+                            if (location.pathname !== createPageUrl("OrganisationSettings")) {
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (location.pathname !== createPageUrl("OrganisationSettings")) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
+                            }
+                          }}>
+
                               <Building2 className="w-4 h-4" />
                               <span className="font-medium">Organisation</span>
                             </Link>
                           </SidebarMenuButton>
                           <SidebarMenuButton
-                            asChild
-                            className="transition-colors duration-200 rounded-lg"
-                          >
-                            <Link 
-                              to={createPageUrl("BuchungsbedingungVorlagen")} 
-                              className="flex items-center gap-3 px-3 py-2"
-                              style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                                color: '#223a5e'
-                              } : {}}
-                              onMouseEnter={(e) => {
-                                if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                  e.currentTarget.style.color = '#223a5e';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                  e.currentTarget.style.color = '';
-                                }
-                              }}
-                            >
+                        asChild
+                        className="transition-colors duration-200 rounded-lg">
+
+                            <Link
+                          to={createPageUrl("BuchungsbedingungVorlagen")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
+                            backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                            color: '#223a5e'
+                          } : {}}
+                          onMouseEnter={(e) => {
+                            if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
+                            }
+                          }}>
+
                               <FileText className="w-4 h-4" />
                               <span className="font-medium">Buchungsbedingungen</span>
                             </Link>
                           </SidebarMenuButton>
                           <SidebarMenuButton
-                            asChild
-                            className="transition-colors duration-200 rounded-lg"
-                          >
-                            <Link 
-                              to={createPageUrl("ArtikelVerwaltung")} 
-                              className="flex items-center gap-3 px-3 py-2"
-                              style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
-                                backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                                color: '#223a5e'
-                              } : {}}
-                              onMouseEnter={(e) => {
-                                if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                  e.currentTarget.style.color = '#223a5e';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                                  e.currentTarget.style.backgroundColor = 'transparent';
-                                  e.currentTarget.style.color = '';
-                                }
-                              }}
-                            >
+                        asChild
+                        className="transition-colors duration-200 rounded-lg">
+
+                            <Link
+                          to={createPageUrl("ArtikelVerwaltung")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
+                            backgroundColor: 'rgba(34, 58, 94, 0.15)',
+                            color: '#223a5e'
+                          } : {}}
+                          onMouseEnter={(e) => {
+                            if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
+                            }
+                          }}>
+
                               <FileText className="w-4 h-4" />
                               <span className="font-medium">Artikel & Positionen</span>
                             </Link>
                           </SidebarMenuButton>
                         </div>
-                      )}
+                    }
                     </SidebarMenuItem>
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
-            )}
+            }
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.1.3</p>
+                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.1.5</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors"
-              >
+                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
                   <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
                     {(() => {
                       if (currentMusiker?.name) {
                         // Musiker name: Nimm erste Buchstaben von jedem Wort
-                        const parts = currentMusiker.name.split(' ').filter(p => p.length > 0);
+                        const parts = currentMusiker.name.split(' ').filter((p) => p.length > 0);
                         if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
                         return parts[0][0].toUpperCase();
                       }
                       if (user?.full_name) {
-                        const parts = user.full_name.split(' ').filter(p => p.length > 0);
+                        const parts = user.full_name.split(' ').filter((p) => p.length > 0);
                         if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
                         return parts[0][0].toUpperCase();
                       }
@@ -1284,36 +1284,36 @@ export default function Layout({ children, currentPageName }) {
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
-              {showUserMenu && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowUserMenu(false)}
-                  />
+              {showUserMenu &&
+              <>
+                  <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowUserMenu(false)} />
+
                   <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                    {!isManager && (
-                      <Link 
-                        to={createPageUrl('MusikerProfil')}
-                        onClick={() => setShowUserMenu(false)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      >
+                    {!isManager &&
+                  <Link
+                    to={createPageUrl('MusikerProfil')}
+                    onClick={() => setShowUserMenu(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+
                         <UserCircle className="w-4 h-4" />
                         Mein Profil
                       </Link>
-                    )}
+                  }
                     <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        handleLogout();
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100"
-                    >
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+
                       <LogOut className="w-4 h-4" />
                       Abmelden
                     </button>
                   </div>
                 </>
-              )}
+              }
             </div>
           </SidebarFooter>
         </Sidebar>
@@ -1324,11 +1324,11 @@ export default function Layout({ children, currentPageName }) {
               <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
-              <img 
+              <img
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                 alt="Bandguru Logo"
-                className="w-8 h-8 object-contain"
-              />
+                className="w-8 h-8 object-contain" />
+
               <h1 className="text-xl font-semibold flex-1">Bandguru</h1>
               {/* Notification Bell für Mobile */}
               <NotificationBell user={user} currentOrgId={currentOrg?.id} />
@@ -1345,11 +1345,11 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                  location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")
-                    ? 'text-[#223a5e]'
-                    : 'text-gray-500'
-                }`}
-              >
+                location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
+
                 <LayoutDashboard className="w-6 h-6" />
                 <span className="text-xs font-medium">Dashboard</span>
                 </Link>
@@ -1357,12 +1357,12 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 to={createPageUrl(isManager ? "Events" : "MeineEvents")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                  location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
-                  location.pathname === createPageUrl("Kalender")
-                    ? 'text-[#223a5e]'
-                    : 'text-gray-500'
-                }`}
-              >
+                location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
+                location.pathname === createPageUrl("Kalender") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
+
                 <Calendar className="w-6 h-6" />
                 <span className="text-xs font-medium">Events</span>
               </Link>
@@ -1370,11 +1370,11 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 to={createPageUrl("Nachrichten")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                  location.pathname === createPageUrl("Nachrichten")
-                    ? 'text-[#223a5e]'
-                    : 'text-gray-500'
-                }`}
-              >
+                location.pathname === createPageUrl("Nachrichten") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
+
                 <MessageSquare className="w-6 h-6" />
                 <span className="text-xs font-medium">Chats</span>
               </Link>
@@ -1382,11 +1382,11 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                  location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")
-                    ? 'text-[#223a5e]'
-                    : 'text-gray-500'
-                }`}
-              >
+                location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
+
                 <CheckSquare className="w-6 h-6" />
                 <span className="text-xs font-medium">Aufgaben</span>
               </Link>
@@ -1394,6 +1394,6 @@ export default function Layout({ children, currentPageName }) {
           </nav>
         </main>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>);
+
 }
