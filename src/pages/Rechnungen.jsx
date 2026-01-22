@@ -64,6 +64,7 @@ export default function RechnungenPage() {
   const [viewRechnung, setViewRechnung] = useState(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [newStatus, setNewStatus] = useState("");
+  const [viewMode, setViewMode] = useState("list");
   const queryClient = useQueryClient();
 
   useEffect(() => {
