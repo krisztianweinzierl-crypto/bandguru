@@ -23,6 +23,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
   });
   const [formData, setFormData] = useState(rechnung || {
     kunde_id: "",
+    event_id: "",
     rechnungsdatum: new Date().toISOString().split('T')[0],
     faelligkeitsdatum: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     positionen: [{ beschreibung: "", menge: 1, einheit: "Stk", einzelpreis: 0, steuersatz: 19 }],
@@ -104,46 +105,68 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Kunde & Datum */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="kunde">Kunde *</Label>
-              <select
-                id="kunde"
-                value={formData.kunde_id}
-                onChange={(e) => handleChange('kunde_id', e.target.value)}
-                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
-                required
-              >
-                <option value="">Kunde wählen</option>
-                {kunden.map((kunde) => (
-                  <option key={kunde.id} value={kunde.id}>
-                    {kunde.firmenname}
-                  </option>
-                ))}
-              </select>
+          {/* Kunde & Event & Datum */}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kunde">Kunde *</Label>
+                <select
+                  id="kunde"
+                  value={formData.kunde_id}
+                  onChange={(e) => handleChange('kunde_id', e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                  required
+                >
+                  <option value="">Kunde wählen</option>
+                  {kunden.map((kunde) => (
+                    <option key={kunde.id} value={kunde.id}>
+                      {kunde.firmenname}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="event">Event (optional)</Label>
+                <select
+                  id="event"
+                  value={formData.event_id || ""}
+                  onChange={(e) => handleChange('event_id', e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                >
+                  <option value="">Kein Event</option>
+                  {events.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.titel} ({format(new Date(event.datum_von), 'dd.MM.yyyy', { locale: de })})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="rechnungsdatum">Rechnungsdatum *</Label>
-              <Input
-                id="rechnungsdatum"
-                type="date"
-                value={formData.rechnungsdatum}
-                onChange={(e) => handleChange('rechnungsdatum', e.target.value)}
-                required
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <div className="space-y-2">
-              <Label htmlFor="faelligkeitsdatum">Fälligkeitsdatum *</Label>
-              <Input
-                id="faelligkeitsdatum"
-                type="date"
-                value={formData.faelligkeitsdatum}
-                onChange={(e) => handleChange('faelligkeitsdatum', e.target.value)}
-                required
-              />
+              <div className="space-y-2">
+                <Label htmlFor="rechnungsdatum">Rechnungsdatum *</Label>
+                <Input
+                  id="rechnungsdatum"
+                  type="date"
+                  value={formData.rechnungsdatum}
+                  onChange={(e) => handleChange('rechnungsdatum', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="faelligkeitsdatum">Fälligkeitsdatum *</Label>
+                <Input
+                  id="faelligkeitsdatum"
+                  type="date"
+                  value={formData.faelligkeitsdatum}
+                  onChange={(e) => handleChange('faelligkeitsdatum', e.target.value)}
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -181,7 +204,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
                             >
                               <p className="font-medium text-sm">{art.bezeichnung}</p>
                               <p className="text-xs text-gray-500">
-                                {art.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} / {art.einheit}
+                                {art.einzelpreis.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € / {art.einheit}
                               </p>
                             </button>
                           ))
@@ -281,7 +304,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
                   </div>
 
                   <div className="text-right text-sm text-gray-600">
-                    Summe: {((position.menge || 0) * (position.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                    Summe: {((position.menge || 0) * (position.einzelpreis || 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                   </div>
                 </div>
               ))}
@@ -292,15 +315,15 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Netto:</span>
-              <span className="font-medium">{totals.netto_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+              <span className="font-medium">{totals.netto_betrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">MwSt.:</span>
-              <span className="font-medium">{totals.steuer_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+              <span className="font-medium">{totals.steuer_betrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">
               <span>Gesamt (Brutto):</span>
-              <span>{totals.brutto_betrag.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+              <span>{totals.brutto_betrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
             </div>
           </div>
 
