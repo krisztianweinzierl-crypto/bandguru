@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +40,33 @@ export default function AusgabenPage() {
     enabled: !!currentOrgId
   });
 
+  const { data: eventMusiker = [] } = useQuery({
+    queryKey: ['eventMusiker', currentOrgId],
+    queryFn: async () => {
+      const events = await base44.entities.Event.filter({ org_id: currentOrgId });
+      const eventIds = events.map(e => e.id);
+      if (eventIds.length === 0) return [];
+      
+      const allEventMusiker = await Promise.all(
+        eventIds.map(id => base44.entities.EventMusiker.filter({ event_id: id, status: 'zugesagt' }))
+      );
+      return allEventMusiker.flat();
+    },
+    enabled: !!currentOrgId,
+  });
+
+  const { data: events = [] } = useQuery({
+    queryKey: ['events', currentOrgId],
+    queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
+  const { data: musiker = [] } = useQuery({
+    queryKey: ['musiker', currentOrgId],
+    queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
+    enabled: !!currentOrgId,
+  });
+
   const createAusgabeMutation = useMutation({
     mutationFn: (data) => base44.entities.Ausgabe.create({ ...data, org_id: currentOrgId }),
     onSuccess: () => {
@@ -49,11 +75,35 @@ export default function AusgabenPage() {
     }
   });
 
-  const filteredAusgaben = ausgaben.filter((a) => {
+  // Musiker-Kosten aus Events als virtuelle Ausgaben erstellen
+  const musikerAusgaben = events.map(event => {
+    const kosten = eventMusiker
+      .filter(em => em.event_id === event.id)
+      .reduce((sum, em) => {
+        const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+        return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+      }, 0);
+    
+    if (kosten === 0) return null;
+    
+    return {
+      id: `event-${event.id}`,
+      titel: `Musiker-Kosten: ${event.titel}`,
+      kategorie: 'gage',
+      betrag: kosten,
+      datum: event.datum_von,
+      isEventKosten: true,
+      event: event
+    };
+  }).filter(Boolean);
+
+  const alleAusgaben = [...ausgaben, ...musikerAusgaben];
+
+  const filteredAusgaben = alleAusgaben.filter((a) => {
     const matchesSearch = a.titel?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesKategorie = kategorieFilter === "alle" || a.kategorie === kategorieFilter;
     return matchesSearch && matchesKategorie;
-  });
+  }).sort((a, b) => new Date(b.datum) - new Date(a.datum));
 
   // Statistiken
   const gesamtAusgaben = filteredAusgaben.reduce((sum, a) => sum + (a.betrag || 0), 0);
@@ -82,7 +132,7 @@ export default function AusgabenPage() {
 
   const AusgabeCard = ({ ausgabe }) => {
     return (
-      <Card className="hover:shadow-lg transition-all duration-200">
+      <Card className={`hover:shadow-lg transition-all duration-200 ${ausgabe.isEventKosten ? 'border-l-4 border-l-purple-500' : ''}`}>
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
@@ -91,6 +141,11 @@ export default function AusgabenPage() {
                 <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
                   {ausgabe.kategorie}
                 </Badge>
+                {ausgabe.isEventKosten && (
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                    Event
+                  </Badge>
+                )}
                 <span className="text-sm text-gray-500">
                   {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                 </span>
@@ -103,7 +158,13 @@ export default function AusgabenPage() {
             </div>
           </div>
 
-          {ausgabe.notizen &&
+          {ausgabe.isEventKosten && (
+            <p className="text-sm text-gray-600 mt-2">
+              Gesamtkosten für Musiker bei diesem Event (inkl. Gagen, Fahrtkosten und weitere Kosten)
+            </p>
+          )}
+
+          {ausgabe.notizen && !ausgabe.isEventKosten &&
           <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ausgabe.notizen}</p>
           }
 
