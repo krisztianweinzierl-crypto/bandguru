@@ -78,6 +78,7 @@ export default function EventDetailPage() {
     gage_netto: "",
     distanz_km: "",
     fahrtkosten_pro_km: "0.30",
+    weitere_kosten: [],
     notizen: "",
     buchungsbedingungen: ""
   });
@@ -785,6 +786,7 @@ ${orgName} Team`;
       gage_netto: em.gage_netto?.toString() || "",
       distanz_km: em.distanz_km?.toString() || "",
       fahrtkosten_pro_km: em.fahrtkosten_pro_km?.toString() || "0.30",
+      weitere_kosten: em.weitere_kosten || [],
       notizen: em.notizen || "",
       buchungsbedingungen: em.buchungsbedingungen || ""
     });
@@ -807,6 +809,7 @@ ${orgName} Team`;
         distanz_km: distanz,
         fahrtkosten_pro_km: fahrtkostenProKm,
         spesen: berechneteSpesen,
+        weitere_kosten: editMusikerData.weitere_kosten,
         notizen: editMusikerData.notizen,
         buchungsbedingungen: editMusikerData.buchungsbedingungen
       }
@@ -1904,9 +1907,12 @@ ${orgName} Team`;
                           <UsersIcon className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500">Musiker-Gagen + Fahrtkosten</p>
+                          <p className="text-xs text-gray-500">Musiker-Kosten gesamt</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
+                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                              const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                              return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                            }, 0).toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -1958,12 +1964,18 @@ ${orgName} Team`;
                           <p className="text-xs text-gray-500">Gewinn (netto)</p>
                           <p className={`text-lg font-bold ${
                             (rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
+                             eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                               const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                               return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                             }, 0) - 
                              ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)) >= 0 
                               ? 'text-green-600' : 'text-red-600'
                           }`}>
                             €{(rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
-                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0) - 
+                               eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                                 const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                                 return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                               }, 0) - 
                                ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)).toFixed(2)}
                           </p>
                         </div>
@@ -1999,12 +2011,18 @@ ${orgName} Team`;
                                 </div>
                               </div>
                               <div className="text-right">
-                                  <p className="font-semibold">€{((em.gage_netto || 0) + (em.spesen || 0)).toFixed(2)}</p>
-                                  {em.spesen > 0 && (
-                                    <p className="text-xs text-gray-500">
-                                      (Gage: €{em.gage_netto?.toFixed(2)} + Fahrt: €{em.spesen?.toFixed(2)})
-                                    </p>
-                                  )}
+                                  <p className="font-semibold">
+                                    €{((em.gage_netto || 0) + (em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toFixed(2)}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {em.spesen > 0 && `Fahrt: €${em.spesen?.toFixed(2)}`}
+                                    {em.weitere_kosten?.length > 0 && (
+                                      <>
+                                        {em.spesen > 0 && ' + '}
+                                        Weitere: €{(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toFixed(2)}
+                                      </>
+                                    )}
+                                  </p>
                                 </div>
                               </div>
                               );
@@ -2012,7 +2030,10 @@ ${orgName} Team`;
                               <div className="flex justify-between pt-3 border-t mt-3">
                               <p className="font-semibold">Gesamt Musiker-Kosten</p>
                               <p className="font-bold text-lg">
-                              €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => sum + (em.gage_netto || 0) + (em.spesen || 0), 0).toFixed(2)}
+                              €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                                const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+                                return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+                              }, 0).toFixed(2)}
                               </p>
                               </div>
                       </div>
@@ -2280,6 +2301,69 @@ ${orgName} Team`;
                     €{((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toFixed(2)}
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Weitere Kosten</Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditMusikerData({
+                      ...editMusikerData,
+                      weitere_kosten: [...(editMusikerData.weitere_kosten || []), { beschreibung: "", betrag: 0 }]
+                    })}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Kosten hinzufügen
+                  </Button>
+                </div>
+                {editMusikerData.weitere_kosten?.length > 0 && (
+                  <div className="space-y-2">
+                    {editMusikerData.weitere_kosten.map((kosten, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          placeholder="Beschreibung (z.B. Unterkunft)"
+                          value={kosten.beschreibung}
+                          onChange={(e) => {
+                            const updated = [...editMusikerData.weitere_kosten];
+                            updated[index].beschreibung = e.target.value;
+                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
+                          }}
+                          className="flex-1"
+                        />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Betrag"
+                          value={kosten.betrag}
+                          onChange={(e) => {
+                            const updated = [...editMusikerData.weitere_kosten];
+                            updated[index].betrag = parseFloat(e.target.value) || 0;
+                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
+                          }}
+                          className="w-28"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            const updated = editMusikerData.weitere_kosten.filter((_, i) => i !== index);
+                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="text-sm text-gray-600 pt-2 border-t">
+                      Summe weitere Kosten: €{(editMusikerData.weitere_kosten.reduce((sum, k) => sum + (k.betrag || 0), 0)).toFixed(2)}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
