@@ -155,17 +155,16 @@ Deno.serve(async (req) => {
       doc.text(notizen, 20, yPos);
     }
 
-    // PDF als ArrayBuffer generieren
+    // PDF als ArrayBuffer generieren und zu File konvertieren
     const pdfBytes = doc.output('arraybuffer');
-    const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-
-    // PDF hochladen
     const fileName = `Rechnung_${rechnung.rechnungsnummer.replace(/\//g, '_')}.pdf`;
-    const formData = new FormData();
-    formData.append('file', pdfBlob, fileName);
+    
+    // File-Objekt erstellen für Upload
+    const pdfFile = new File([pdfBytes], fileName, { type: 'application/pdf' });
 
-    const uploadResponse = await base44.integrations.Core.UploadFile({
-      file: pdfBlob
+    // PDF hochladen mit asServiceRole
+    const uploadResponse = await base44.asServiceRole.integrations.Core.UploadFile({
+      file: pdfFile
     });
 
     // Rechnung mit PDF URL aktualisieren
