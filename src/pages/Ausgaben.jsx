@@ -131,8 +131,17 @@ export default function AusgabenPage() {
   };
 
   const AusgabeCard = ({ ausgabe }) => {
+    const handleClick = () => {
+      if (ausgabe.isEventKosten && ausgabe.event) {
+        navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
+      }
+    };
+
     return (
-      <Card className={`hover:shadow-lg transition-all duration-200 ${ausgabe.isEventKosten ? 'border-l-4 border-l-purple-500' : ''}`}>
+      <Card 
+        className={`hover:shadow-lg transition-all duration-200 ${ausgabe.isEventKosten ? 'border-l-4 border-l-purple-500 cursor-pointer hover:scale-[1.02]' : ''}`}
+        onClick={handleClick}
+      >
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
