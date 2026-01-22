@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Save, List } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
-export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden }) {
+export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, events = [] }) {
   const [currentOrgId, setCurrentOrgId] = useState(null);
   const [showArtikelDropdown, setShowArtikelDropdown] = useState(false);
 
