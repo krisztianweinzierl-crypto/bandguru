@@ -18,7 +18,9 @@ import {
   CheckCircle,
   ArrowLeft,
   Edit,
-  Mail
+  Mail,
+  Grid,
+  List
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -472,6 +474,26 @@ export default function RechnungenPage() {
                 <option value="überfällig">Überfällig</option>
                 <option value="storniert">Storniert</option>
               </select>
+              <div className="flex gap-2 border rounded-lg p-1 bg-gray-50">
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="gap-2">
+
+                  <List className="w-4 h-4" />
+                  Liste
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="gap-2">
+
+                  <Grid className="w-4 h-4" />
+                  Karten
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -671,13 +693,136 @@ export default function RechnungenPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Rechnungen Grid */}
-        {filteredRechnungen.length > 0 ?
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredRechnungen.map((rechnung) =>
-              <RechnungCard key={rechnung.id} rechnung={rechnung} />
-            )}
-          </div> :
+        {/* Rechnungen Grid/List */}
+        {filteredRechnungen.length > 0 ? (
+          viewMode === "list" ? (
+            /* List View */
+            <Card className="border-none shadow-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Rechnungsnummer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Kunde
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Datum
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fällig
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Betrag
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Aktionen
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredRechnungen.map((rechnung) => {
+                      const kunde = kunden.find((k) => k.id === rechnung.kunde_id);
+                      const isUeberfaellig = new Date(rechnung.faelligkeitsdatum) < new Date() && rechnung.status === 'versendet';
+                      return (
+                        <tr key={rechnung.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900">
+                                {rechnung.rechnungsnummer}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-sm text-gray-900">
+                              {kunde?.firmenname || "-"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {format(new Date(rechnung.rechnungsdatum), "dd.MM.yyyy", { locale: de })}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`text-sm ${isUeberfaellig ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                              {format(new Date(rechnung.faelligkeitsdatum), "dd.MM.yyyy", { locale: de })}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Badge className={statusColors[rechnung.status]}>
+                              {rechnung.status}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <span className="text-sm font-semibold text-gray-900">
+                              €{(rechnung.brutto_betrag || 0).toFixed(2)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleView(rechnung)}>
+
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEdit(rechnung)}>
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Bearbeiten
+                                  </DropdownMenuItem>
+                                  {rechnung.status === "entwurf" && (
+                                    <DropdownMenuItem onClick={() => handleVersenden(rechnung)}>
+                                      <Mail className="w-4 h-4 mr-2" />
+                                      Versenden
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedRechnung(rechnung);
+                                      setNewStatus(rechnung.status);
+                                      setShowStatusDialog(true);
+                                    }}>
+
+                                    Status ändern
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => handleDownloadPDF(rechnung)}>
+                                    <Download className="w-4 h-4 mr-2" />
+                                    PDF herunterladen
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          ) : (
+            /* Grid View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredRechnungen.map((rechnung) =>
+                <RechnungCard key={rechnung.id} rechnung={rechnung} />
+              )}
+            </div>
+          )
+        ) :
 
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
