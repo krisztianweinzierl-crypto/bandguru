@@ -30,7 +30,7 @@ export default function AusgabenPage() {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [kategorieFilter, setKategorieFilter] = useState("alle");
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("list"); // grid or list
   const queryClient = useQueryClient();
 
   useEffect(() => {
