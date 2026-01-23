@@ -2075,30 +2075,34 @@ ${orgName} Team`;
                     {rechnungen.length > 0 ? (
                       <div className="space-y-3">
                         {rechnungen.map((rechnung) => {
-                          const statusColors = {
-                            entwurf: 'bg-gray-100 text-gray-700',
-                            versendet: 'bg-blue-100 text-blue-700',
-                            teilweise_bezahlt: 'bg-yellow-100 text-yellow-700',
-                            bezahlt: 'bg-green-100 text-green-700',
-                            überfällig: 'bg-red-100 text-red-700',
-                            storniert: 'bg-gray-100 text-gray-500'
-                          };
-                          return (
-                            <div key={rechnung.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                              <div>
-                                <p className="font-medium">{rechnung.rechnungsnummer}</p>
-                                <p className="text-sm text-gray-500">
-                                  {rechnung.rechnungsdatum && format(new Date(rechnung.rechnungsdatum), 'dd.MM.yyyy', { locale: de })}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <Badge className={statusColors[rechnung.status] || 'bg-gray-100'}>
-                                  {rechnung.status}
-                                </Badge>
-                                <p className="font-semibold">{(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
-                              </div>
-                            </div>
-                          );
+                         const statusColors = {
+                           entwurf: 'bg-gray-100 text-gray-700',
+                           versendet: 'bg-blue-100 text-blue-700',
+                           teilweise_bezahlt: 'bg-yellow-100 text-yellow-700',
+                           bezahlt: 'bg-green-100 text-green-700',
+                           überfällig: 'bg-red-100 text-red-700',
+                           storniert: 'bg-gray-100 text-gray-500'
+                         };
+                         return (
+                           <div 
+                             key={rechnung.id} 
+                             onClick={() => navigate(createPageUrl('Rechnungen'))}
+                             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                           >
+                             <div>
+                               <p className="font-medium">{rechnung.rechnungsnummer}</p>
+                               <p className="text-sm text-gray-500">
+                                 {rechnung.rechnungsdatum && format(new Date(rechnung.rechnungsdatum), 'dd.MM.yyyy', { locale: de })}
+                               </p>
+                             </div>
+                             <div className="flex items-center gap-4">
+                               <Badge className={statusColors[rechnung.status] || 'bg-gray-100'}>
+                                 {rechnung.status}
+                               </Badge>
+                               <p className="font-semibold">{(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
+                             </div>
+                           </div>
+                         );
                         })}
                       </div>
                     ) : (
