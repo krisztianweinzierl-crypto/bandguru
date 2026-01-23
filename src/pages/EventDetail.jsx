@@ -1441,7 +1441,7 @@ ${orgName} Team`;
                             <div>
                               <Label>Fahrtkosten (berechnet)</Label>
                               <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
-                                €{((parseFloat(musikerDistanz) || 0) * 2 * (parseFloat(musikerFahrtkostenProKm) || 0.30)).toFixed(2)}
+                                {((parseFloat(musikerDistanz) || 0) * 2 * (parseFloat(musikerFahrtkostenProKm) || 0.30)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                               </div>
                               <p className="text-xs text-gray-500 mt-1">= {musikerDistanz || 0} km × 2 × {musikerFahrtkostenProKm || 0.30} €/km</p>
                             </div>
@@ -1670,7 +1670,7 @@ ${orgName} Team`;
                                           <Euro className="w-4 h-4" />
                                           <div>
                                             <p className="text-xs text-gray-500">Gage (netto)</p>
-                                            <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                            <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                                           </div>
                                         </div>
 
@@ -1679,16 +1679,16 @@ ${orgName} Team`;
                                           <div>
                                             <p className="text-xs text-gray-500">Fahrtkosten gesamt</p>
                                             <p className="font-medium">
-                                              €{((em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toFixed(2)}
+                                              {((em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                             </p>
                                             {em.spesen > 0 && (
                                               <p className="text-xs text-gray-400">
-                                                Distanz: €{em.spesen.toFixed(2)}
+                                                Distanz: {em.spesen.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                               </p>
                                             )}
                                             {em.weitere_kosten?.length > 0 && (
                                               <p className="text-xs text-gray-400">
-                                                Weitere: €{(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toFixed(2)}
+                                                Weitere: {(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                               </p>
                                             )}
                                           </div>
@@ -1726,7 +1726,7 @@ ${orgName} Team`;
                                           <Euro className="w-4 h-4" />
                                           <div>
                                             <p className="text-xs text-gray-500">Deine Gage (netto)</p>
-                                            <p className="font-medium">€{em.gage_netto?.toFixed(2) || '0.00'}</p>
+                                            <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                                           </div>
                                         </div>
                                         {em.spesen > 0 && (
@@ -1734,7 +1734,7 @@ ${orgName} Team`;
                                             <Euro className="w-4 h-4" />
                                             <div>
                                               <p className="text-xs text-gray-500">Fahrtkosten</p>
-                                              <p className="font-medium">€{em.spesen?.toFixed(2) || '0.00'}</p>
+                                              <p className="font-medium">{(em.spesen || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                                               {em.distanz_km > 0 && (
                                                 <p className="text-xs text-gray-400">
                                                   ({em.distanz_km} km × 2 × {em.fahrtkosten_pro_km?.toFixed(2) || '0.30'} €/km)
@@ -1919,10 +1919,10 @@ ${orgName} Team`;
                         <div>
                           <p className="text-xs text-gray-500">Musiker-Kosten gesamt</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                            {eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
                               const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
                               return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
-                            }, 0).toFixed(2)}
+                            }, 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
@@ -1939,7 +1939,7 @@ ${orgName} Team`;
                         <div>
                           <p className="text-xs text-gray-500">Sonstige Ausgaben</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0).toFixed(2)}
+                            {ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
@@ -1956,7 +1956,7 @@ ${orgName} Team`;
                         <div>
                           <p className="text-xs text-gray-500">Rechnungen (brutto)</p>
                           <p className="text-lg font-bold text-gray-900">
-                            €{rechnungen.reduce((sum, r) => sum + (r.brutto_betrag || 0), 0).toFixed(2)}
+                            {rechnungen.reduce((sum, r) => sum + (r.brutto_betrag || 0), 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
@@ -1981,12 +1981,12 @@ ${orgName} Team`;
                              ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)) >= 0 
                               ? 'text-green-600' : 'text-red-600'
                           }`}>
-                            €{(rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
+                            {(rechnungen.reduce((sum, r) => sum + (r.netto_betrag || 0), 0) - 
                                eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
                                  const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
                                  return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
                                }, 0) - 
-                               ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)).toFixed(2)}
+                               ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
@@ -2022,14 +2022,14 @@ ${orgName} Team`;
                               </div>
                               <div className="text-right">
                                   <p className="font-semibold">
-                                    €{((em.gage_netto || 0) + (em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toFixed(2)}
+                                    {((em.gage_netto || 0) + (em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    {em.spesen > 0 && `Fahrt: €${em.spesen?.toFixed(2)}`}
+                                    {em.spesen > 0 && `Fahrt: ${em.spesen?.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`}
                                     {em.weitere_kosten?.length > 0 && (
                                       <>
                                         {em.spesen > 0 && ' + '}
-                                        Weitere: €{(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toFixed(2)}
+                                        Weitere: {(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                                       </>
                                     )}
                                   </p>
@@ -2040,10 +2040,10 @@ ${orgName} Team`;
                               <div className="flex justify-between pt-3 border-t mt-3">
                               <p className="font-semibold">Gesamt Musiker-Kosten</p>
                               <p className="font-bold text-lg">
-                              €{eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
+                              {eventMusiker.filter(em => em.status === 'zugesagt').reduce((sum, em) => {
                                 const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
                                 return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
-                              }, 0).toFixed(2)}
+                              }, 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                               </p>
                               </div>
                       </div>
@@ -2095,7 +2095,7 @@ ${orgName} Team`;
                                 <Badge className={statusColors[rechnung.status] || 'bg-gray-100'}>
                                   {rechnung.status}
                                 </Badge>
-                                <p className="font-semibold">€{rechnung.brutto_betrag?.toFixed(2) || '0.00'}</p>
+                                <p className="font-semibold">{(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                               </div>
                             </div>
                           );
@@ -2150,13 +2150,13 @@ ${orgName} Team`;
                                 <span>{ausgabe.datum && format(new Date(ausgabe.datum), 'dd.MM.yyyy', { locale: de })}</span>
                               </div>
                             </div>
-                            <p className="font-semibold text-orange-600">-€{ausgabe.betrag?.toFixed(2) || '0.00'}</p>
+                            <p className="font-semibold text-orange-600">-{(ausgabe.betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                           </div>
                         ))}
                         <div className="flex justify-between pt-3 border-t mt-3">
                           <p className="font-semibold">Gesamt Ausgaben</p>
                           <p className="font-bold text-lg text-orange-600">
-                            -€{ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0).toFixed(2)}
+                            -{ausgaben.reduce((sum, a) => sum + (a.betrag || 0), 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
@@ -2308,7 +2308,7 @@ ${orgName} Team`;
                 <div>
                   <Label>Fahrtkosten</Label>
                   <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
-                    €{((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toFixed(2)}
+                    {((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                   </div>
                 </div>
               </div>
@@ -2370,7 +2370,7 @@ ${orgName} Team`;
                       </div>
                     ))}
                     <div className="text-sm text-gray-600 pt-2 border-t">
-                      Summe weitere Kosten: €{(editMusikerData.weitere_kosten.reduce((sum, k) => sum + (k.betrag || 0), 0)).toFixed(2)}
+                      Summe weitere Kosten: {(editMusikerData.weitere_kosten.reduce((sum, k) => sum + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                     </div>
                   </div>
                 )}
