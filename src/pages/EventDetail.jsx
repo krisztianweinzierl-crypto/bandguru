@@ -76,6 +76,7 @@ export default function EventDetailPage() {
   const [editMusikerData, setEditMusikerData] = useState({
     rolle: "",
     gage_netto: "",
+    mwst_satz: "19",
     distanz_km: "",
     fahrtkosten_pro_km: "0.30",
     weitere_kosten: [],
@@ -784,6 +785,7 @@ ${orgName} Team`;
     setEditMusikerData({
       rolle: em.rolle || "",
       gage_netto: em.gage_netto?.toString() || "",
+      mwst_satz: em.mwst_satz?.toString() || "19",
       distanz_km: em.distanz_km?.toString() || "",
       fahrtkosten_pro_km: em.fahrtkosten_pro_km?.toString() || "0.30",
       weitere_kosten: em.weitere_kosten || [],
@@ -806,6 +808,7 @@ ${orgName} Team`;
       data: {
         rolle: editMusikerData.rolle,
         gage_netto: parseFloat(editMusikerData.gage_netto) || 0,
+        mwst_satz: parseFloat(editMusikerData.mwst_satz) || 19,
         distanz_km: distanz,
         fahrtkosten_pro_km: fahrtkostenProKm,
         spesen: berechneteSpesen,
@@ -2279,14 +2282,40 @@ ${orgName} Team`;
                 />
               </div>
               
-              <div>
-                <Label>Gage (netto)</Label>
-                <Input
-                  type="number"
-                  value={editMusikerData.gage_netto}
-                  onChange={(e) => setEditMusikerData({...editMusikerData, gage_netto: e.target.value})}
-                  placeholder="0.00"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Gage (netto)</Label>
+                  <Input
+                    type="number"
+                    value={editMusikerData.gage_netto}
+                    onChange={(e) => setEditMusikerData({...editMusikerData, gage_netto: e.target.value})}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <Label>MwSt.-Satz (%)</Label>
+                  <Input
+                    type="number"
+                    value={editMusikerData.mwst_satz}
+                    onChange={(e) => setEditMusikerData({...editMusikerData, mwst_satz: e.target.value})}
+                    placeholder="19"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Gage (netto):</span>
+                  <span className="font-medium">{(parseFloat(editMusikerData.gage_netto) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">MwSt. ({editMusikerData.mwst_satz}%):</span>
+                  <span className="font-medium">{((parseFloat(editMusikerData.gage_netto) || 0) * (parseFloat(editMusikerData.mwst_satz) || 0) / 100).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                </div>
+                <div className="flex justify-between text-base font-bold border-t pt-2">
+                  <span>Gage (brutto):</span>
+                  <span>{((parseFloat(editMusikerData.gage_netto) || 0) * (1 + (parseFloat(editMusikerData.mwst_satz) || 0) / 100)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">
