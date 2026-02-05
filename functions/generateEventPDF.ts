@@ -83,13 +83,12 @@ Deno.serve(async (req) => {
     const statusLabels = {
       entwurf: 'Entwurf',
       angefragt: 'Angefragt',
-      'bestätigt': 'Bestaetigt',
-      'durchgeführt': 'Durchgefuehrt',
+      bestätigt: 'Bestätigt',
+      durchgeführt: 'Durchgeführt',
       abgerechnet: 'Abgerechnet',
       storniert: 'Storniert'
     };
-    const statusText = statusLabels[event.status] || event.status;
-    doc.text(`Status: ${statusText}`, 15, y);
+    doc.text(fixGermanChars(`Status: ${statusLabels[event.status] || event.status}`), 15, y);
     y += 15;
 
     // Details Section
