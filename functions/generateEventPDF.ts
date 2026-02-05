@@ -1,6 +1,20 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { jsPDF } from 'npm:jspdf@2.5.2';
 
+// Hilfsfunktion für korrekte Darstellung deutscher Sonderzeichen
+const fixGermanChars = (text) => {
+  if (!text) return text;
+  return String(text)
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/Ä/g, 'Ae')
+    .replace(/Ö/g, 'Oe')
+    .replace(/Ü/g, 'Ue')
+    .replace(/ß/g, 'ss')
+    .replace(/€/g, 'EUR');
+};
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -60,7 +74,7 @@ Deno.serve(async (req) => {
 
     doc.setFontSize(24);
     doc.setFont(undefined, 'bold');
-    doc.text(event.titel, 15, y);
+    doc.text(fixGermanChars(event.titel), 15, y);
     y += 10;
 
     // Event-Status
@@ -74,7 +88,7 @@ Deno.serve(async (req) => {
       abgerechnet: 'Abgerechnet',
       storniert: 'Storniert'
     };
-    doc.text(`Status: ${statusLabels[event.status] || event.status}`, 15, y);
+    doc.text(fixGermanChars(`Status: ${statusLabels[event.status] || event.status}`), 15, y);
     y += 15;
 
     // Details Section
@@ -88,7 +102,7 @@ Deno.serve(async (req) => {
 
     // Datum
     const datum = new Date(event.datum_von);
-    doc.text(`Datum: ${datum.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 15, y);
+    doc.text(fixGermanChars(`Datum: ${datum.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`), 15, y);
     y += 6;
 
     // Uhrzeit
@@ -99,10 +113,10 @@ Deno.serve(async (req) => {
 
     // Veranstaltungsort
     if (event.ort_name || event.ort_adresse) {
-      doc.text(`Ort: ${event.ort_name || ''}`, 15, y);
+      doc.text(fixGermanChars(`Ort: ${event.ort_name || ''}`), 15, y);
       y += 6;
       if (event.ort_adresse) {
-        doc.text(`     ${event.ort_adresse}`, 15, y);
+        doc.text(fixGermanChars(`     ${event.ort_adresse}`), 15, y);
         y += 6;
       }
     }
@@ -110,10 +124,10 @@ Deno.serve(async (req) => {
     // Kunde
     if (kunde) {
       y += 3;
-      doc.text(`Kunde: ${kunde.firmenname}`, 15, y);
+      doc.text(fixGermanChars(`Kunde: ${kunde.firmenname}`), 15, y);
       y += 6;
       if (kunde.ansprechpartner) {
-        doc.text(`Ansprechpartner: ${kunde.ansprechpartner}`, 15, y);
+        doc.text(fixGermanChars(`Ansprechpartner: ${kunde.ansprechpartner}`), 15, y);
         y += 6;
       }
     }
@@ -161,15 +175,15 @@ Deno.serve(async (req) => {
       doc.setFont(undefined, 'normal');
 
       if (event.event_typ) {
-        doc.text(`Event-Typ: ${event.event_typ}`, 15, y);
+        doc.text(fixGermanChars(`Event-Typ: ${event.event_typ}`), 15, y);
         y += 6;
       }
       if (event.anzahl_gaeste) {
-        doc.text(`Anzahl Gäste: ${event.anzahl_gaeste}`, 15, y);
+        doc.text(fixGermanChars(`Anzahl Gaeste: ${event.anzahl_gaeste}`), 15, y);
         y += 6;
       }
       if (event.dresscode) {
-        doc.text(`Dresscode: ${event.dresscode}`, 15, y);
+        doc.text(fixGermanChars(`Dresscode: ${event.dresscode}`), 15, y);
         y += 6;
       }
 
@@ -201,19 +215,19 @@ Deno.serve(async (req) => {
         const musikerData = musiker.find(m => m.id === em.musiker_id);
         if (musikerData) {
           doc.setFont(undefined, 'bold');
-          doc.text(`${musikerData.name}`, 15, y);
+          doc.text(fixGermanChars(`${musikerData.name}`), 15, y);
           doc.setFont(undefined, 'normal');
           y += 5;
           
           if (em.rolle) {
-            doc.text(`  Rolle: ${em.rolle}`, 15, y);
+            doc.text(fixGermanChars(`  Rolle: ${em.rolle}`), 15, y);
             y += 5;
           }
           
           if (em.gage_netto) {
             const mwstSatz = em.mwst_satz || 19;
             const gageBrutto = em.gage_netto * (1 + mwstSatz / 100);
-            doc.text(`  Gage: ${em.gage_netto.toFixed(2)} € (netto) / ${gageBrutto.toFixed(2)} € (brutto, ${mwstSatz}% MwSt.)`, 15, y);
+            doc.text(`  Gage: ${em.gage_netto.toFixed(2)} EUR (netto) / ${gageBrutto.toFixed(2)} EUR (brutto, ${mwstSatz}% MwSt.)`, 15, y);
             y += 5;
           }
 
@@ -239,11 +253,11 @@ Deno.serve(async (req) => {
       doc.setFont(undefined, 'normal');
 
       if (event.hotel_name) {
-        doc.text(event.hotel_name, 15, y);
+        doc.text(fixGermanChars(event.hotel_name), 15, y);
         y += 6;
       }
       if (event.hotel_adresse) {
-        doc.text(event.hotel_adresse, 15, y);
+        doc.text(fixGermanChars(event.hotel_adresse), 15, y);
         y += 6;
       }
 
@@ -264,7 +278,7 @@ Deno.serve(async (req) => {
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       
-      const lines = doc.splitTextToSize(event.oeffentliche_notizen, 180);
+      const lines = doc.splitTextToSize(fixGermanChars(event.oeffentliche_notizen), 180);
       lines.forEach(line => {
         if (y > 280) {
           doc.addPage();
@@ -291,7 +305,7 @@ Deno.serve(async (req) => {
       doc.setFontSize(10);
       doc.setFont(undefined, 'normal');
       
-      const lines = doc.splitTextToSize(event.interne_notizen, 180);
+      const lines = doc.splitTextToSize(fixGermanChars(event.interne_notizen), 180);
       lines.forEach(line => {
         if (y > 280) {
           doc.addPage();
@@ -311,7 +325,7 @@ Deno.serve(async (req) => {
       doc.text(`Seite ${i} von ${pageCount}`, 105, 290, { align: 'center' });
       doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')}`, 15, 290);
       if (org?.name) {
-        doc.text(org.name, 195, 290, { align: 'right' });
+        doc.text(fixGermanChars(org.name), 195, 290, { align: 'right' });
       }
     }
 
