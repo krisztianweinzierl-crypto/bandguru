@@ -97,6 +97,7 @@ export default function EventDetailPage() {
   const [isManager, setIsManager] = useState(false);
   const [hasAccess, setHasAccess] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   const modules = {
     toolbar: [
@@ -949,6 +950,35 @@ ${orgName} Team`;
     }
   };
 
+  const handleExportPDF = async () => {
+    setGeneratingPDF(true);
+    try {
+      const response = await base44.functions.invoke('generateEventPDF', {
+        event_id: eventId
+      });
+
+      // PDF als Blob erstellen
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Download starten
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Event_${event.titel.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('PDF-Export fehlgeschlagen:', error);
+      alert('Fehler beim Erstellen des PDFs: ' + (error.message || 'Unbekannter Fehler'));
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
   // Wenn im Bearbeitungsmodus, zeige das Formular
   if (isEditing) {
     return (
@@ -1012,6 +1042,25 @@ ${orgName} Team`;
               >
                 <Calendar className="w-4 h-4" />
                 Zu Kalender
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                disabled={generatingPDF}
+                className="gap-2"
+              >
+                {generatingPDF ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    PDF wird erstellt...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    Als PDF
+                  </>
+                )}
               </Button>
               {isManager && (
                 <Button
