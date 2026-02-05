@@ -44,8 +44,15 @@ Deno.serve(async (req) => {
     const orgs = await base44.asServiceRole.entities.Organisation.filter({ id: event.org_id });
     const org = orgs[0];
 
-    // PDF erstellen
-    const doc = new jsPDF();
+    // PDF erstellen mit UTF-8 Support
+    const doc = new jsPDF({
+      putOnlyUsedFonts: true,
+      compress: true
+    });
+    
+    // Helvetica als Standard-Font (unterstützt Umlaute)
+    doc.setFont('helvetica');
+    
     let y = 20;
 
     // Header mit Organisation
@@ -213,7 +220,7 @@ Deno.serve(async (req) => {
           if (em.gage_netto) {
             const mwstSatz = em.mwst_satz || 19;
             const gageBrutto = em.gage_netto * (1 + mwstSatz / 100);
-            doc.text(`  Gage: ${em.gage_netto.toFixed(2)} € (netto) / ${gageBrutto.toFixed(2)} € (brutto, ${mwstSatz}% MwSt.)`, 15, y);
+            doc.text(`  Gage: ${em.gage_netto.toFixed(2)} EUR (netto) / ${gageBrutto.toFixed(2)} EUR (brutto, ${mwstSatz}% MwSt.)`, 15, y);
             y += 5;
           }
 
