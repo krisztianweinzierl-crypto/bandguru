@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, FileText, Edit, Trash2, Copy, Eye, ArrowLeft, LayoutGrid, List } from "lucide-react";
+import { Plus, Search, FileText, Edit, Trash2, Copy, Eye, ArrowLeft, LayoutGrid, List, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
