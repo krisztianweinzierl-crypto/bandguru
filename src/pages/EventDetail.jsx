@@ -1365,7 +1365,7 @@ ${orgName} Team`;
                 {/* Technik */}
                 <div className="flex items-start gap-3">
                   <Settings className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm text-gray-500 mb-1">Technik</p>
                     <p className="font-medium text-gray-900">
                       {event.technik_hinweise || 'Nicht angegeben'}
@@ -1373,16 +1373,47 @@ ${orgName} Team`;
                   </div>
                 </div>
 
-                {/* Notizen */}
-                <div className="flex items-start gap-3">
-                  <File className="w-5 h-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500 mb-1">Notizen</p>
-                    <p className="font-medium text-gray-900">
-                      {event.interne_notizen || 'Nicht angegeben'}
-                    </p>
+                {/* Notizen für Musiker (öffentlich) */}
+                {event.oeffentliche_notizen && (
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-900 mb-1">Notizen für Musiker</p>
+                      <div className="text-gray-700 whitespace-pre-wrap">
+                        {event.oeffentliche_notizen}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {/* Interne Notizen (nur für Manager) */}
+                {isManager && event.interne_notizen && (
+                  <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <File className="w-5 h-5 text-amber-600 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-amber-900">Interne Notizen</p>
+                        <Badge variant="outline" className="text-xs bg-amber-100 border-amber-300 text-amber-800">
+                          Nur für Manager
+                        </Badge>
+                      </div>
+                      <div className="text-gray-700 whitespace-pre-wrap">
+                        {event.interne_notizen}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Keine Notizen vorhanden */}
+                {!event.oeffentliche_notizen && !event.interne_notizen && (
+                  <div className="flex items-start gap-3">
+                    <File className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">Notizen</p>
+                      <p className="font-medium text-gray-900">Nicht angegeben</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
