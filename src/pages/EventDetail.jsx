@@ -1374,13 +1374,13 @@ ${orgName} Team`;
                 </div>
 
                 {/* Notizen für Musiker (öffentlich) */}
-                {event.oeffentliche_notizen && (
+                {event.musiker_notizen && (
                   <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-blue-900 mb-1">Notizen für Musiker</p>
                       <div className="text-gray-700 whitespace-pre-wrap">
-                        {event.oeffentliche_notizen}
+                        {event.musiker_notizen}
                       </div>
                     </div>
                   </div>
