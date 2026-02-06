@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -103,7 +102,7 @@ export default function VertragDetailPage() {
       }
 
       // Neuer Link zur Backend-Funktion (öffentlich zugänglich)
-      const kundenLink = `${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`;
+      const kundenLink = `https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`;
 
       const emailBody = `Sehr geehrte Damen und Herren,
 
@@ -425,7 +424,7 @@ Ihr Team`;
 
   const copyKundenLink = () => {
     // Neuer Link zur Backend-Funktion
-    const kundenLink = `${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`;
+    const kundenLink = `https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`;
     navigator.clipboard.writeText(kundenLink);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -685,7 +684,7 @@ Ihr Team`;
                 </p>
                 <div className="flex gap-2">
                   <Input
-                    value={`${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`}
+                    value={`https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`}
                     readOnly
                     className="text-sm" />
 
@@ -701,7 +700,7 @@ Ihr Team`;
                   variant="outline"
                   size="sm"
                   className="w-full gap-2"
-                  onClick={() => window.open(`${window.location.origin}/api/functions/vertragsKundenansicht?id=${vertragId}`, '_blank')}>
+                  onClick={() => window.open(`https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`, '_blank')}>
 
                   <ExternalLink className="w-4 h-4" />
                   Kundenansicht öffnen
