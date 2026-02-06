@@ -55,20 +55,20 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
       status: formData.status || "angefragt"
     };
     
-    // Optionale Felder
-    if (formData.kunde_id) cleanData.kunde_id = formData.kunde_id;
-    if (formData.ort_name) cleanData.ort_name = formData.ort_name;
-    if (formData.ort_adresse) cleanData.ort_adresse = formData.ort_adresse;
-    if (formData.get_in_zeit) cleanData.get_in_zeit = formData.get_in_zeit;
-    if (formData.soundcheck_zeit) cleanData.soundcheck_zeit = formData.soundcheck_zeit;
-    if (formData.event_typ) cleanData.event_typ = formData.event_typ;
-    if (formData.anzahl_gaeste) cleanData.anzahl_gaeste = formData.anzahl_gaeste;
-    if (formData.dresscode) cleanData.dresscode = formData.dresscode;
-    if (formData.hotel_name) cleanData.hotel_name = formData.hotel_name;
-    if (formData.hotel_adresse) cleanData.hotel_adresse = formData.hotel_adresse;
-    if (formData.technik_hinweise) cleanData.technik_hinweise = formData.technik_hinweise;
-    if (formData.interne_notizen) cleanData.interne_notizen = formData.interne_notizen;
-    if (formData.oeffentliche_notizen) cleanData.oeffentliche_notizen = formData.oeffentliche_notizen;
+    // Optionale Felder (auch leere Strings speichern)
+    cleanData.kunde_id = formData.kunde_id || null;
+    cleanData.ort_name = formData.ort_name || null;
+    cleanData.ort_adresse = formData.ort_adresse || null;
+    cleanData.get_in_zeit = formData.get_in_zeit || null;
+    cleanData.soundcheck_zeit = formData.soundcheck_zeit || null;
+    cleanData.event_typ = formData.event_typ || null;
+    cleanData.anzahl_gaeste = formData.anzahl_gaeste || null;
+    cleanData.dresscode = formData.dresscode || null;
+    cleanData.hotel_name = formData.hotel_name || null;
+    cleanData.hotel_adresse = formData.hotel_adresse || null;
+    cleanData.technik_hinweise = formData.technik_hinweise || null;
+    cleanData.interne_notizen = formData.interne_notizen || null;
+    cleanData.oeffentliche_notizen = formData.oeffentliche_notizen || null;
     
     onSubmit(cleanData);
   };
