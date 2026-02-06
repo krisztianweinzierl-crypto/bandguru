@@ -297,8 +297,11 @@ export default function EventDetailPage() {
       if (variables.soundcheck_zeit !== event.soundcheck_zeit) {
         relevantChanges.push('Soundcheck-Zeit');
       }
-      if (variables.oeffentliche_notizen !== event.oeffentliche_notizen) {
+      if (variables.ablaufplan !== event.ablaufplan) {
         relevantChanges.push('Ablaufplan');
+      }
+      if (variables.musiker_notizen !== event.musiker_notizen) {
+        relevantChanges.push('Notizen für Musiker');
       }
       if (variables.dresscode !== event.dresscode) {
         relevantChanges.push('Dresscode');
