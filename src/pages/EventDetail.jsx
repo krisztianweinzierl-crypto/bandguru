@@ -130,12 +130,8 @@ export default function EventDetailPage() {
     const loadUserData = async () => {
       if (!event) return;
       
-      // WICHTIG: Nur Access-State zurücksetzen wenn nicht gerade gespeichert wird
-      if (!isSaving) {
-        setIsManager(false);
-        setHasAccess(false);
-        setCurrentMusiker(null);
-      }
+      // WICHTIG: Access-Check nur beim ersten Laden, nicht bei Updates
+      if (accessChecked) return;
 
       try {
         const user = await base44.auth.me();
@@ -185,10 +181,10 @@ export default function EventDetailPage() {
       }
     };
     
-    if (eventId) {
+    if (eventId && !accessChecked) {
       loadUserData();
     }
-  }, [event, eventId, isSaving]);
+  }, [event, eventId, accessChecked]);
 
   const { data: kunde } = useQuery({
     queryKey: ['kunde', event?.kunde_id],
