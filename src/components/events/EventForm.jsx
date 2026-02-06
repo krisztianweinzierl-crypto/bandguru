@@ -566,12 +566,31 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notizen">Notizen</Label>
+            <Label htmlFor="notizen_musiker" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-blue-500" />
+              Notizen für Musiker
+            </Label>
+            <p className="text-xs text-gray-500">Diese Notizen sind für alle gebuchten Musiker sichtbar</p>
             <Textarea
-              id="notizen"
+              id="notizen_musiker"
+              value={formData.oeffentliche_notizen}
+              onChange={(e) => handleChange('oeffentliche_notizen', e.target.value)}
+              placeholder="z.B. Wichtige Infos für die Musiker..."
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="interne_notizen" className="flex items-center gap-2">
+              <File className="w-4 h-4 text-amber-500" />
+              Interne Notizen
+            </Label>
+            <p className="text-xs text-gray-500">Diese Notizen sind nur für Band Manager sichtbar</p>
+            <Textarea
+              id="interne_notizen"
               value={formData.interne_notizen}
               onChange={(e) => handleChange('interne_notizen', e.target.value)}
-              placeholder="Weitere wichtige Informationen..."
+              placeholder="Interne Informationen..."
               rows={4}
             />
           </div>
