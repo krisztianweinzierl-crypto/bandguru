@@ -98,6 +98,7 @@ export default function EventDetailPage() {
   const [hasAccess, setHasAccess] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const modules = {
     toolbar: [
@@ -275,6 +276,7 @@ export default function EventDetailPage() {
   const updateEventMutation = useMutation({
     mutationFn: async (eventData) => {
       console.log("Aktualisiere Event:", eventData);
+      setIsSaving(true);
       return await base44.entities.Event.update(eventId, eventData);
     },
     onSuccess: async (data, variables) => {
@@ -330,10 +332,12 @@ export default function EventDetailPage() {
       }
       
       setIsEditing(false);
+      setIsSaving(false);
     },
     onError: (error) => {
       console.error("Fehler beim Aktualisieren:", error);
       alert("Fehler beim Aktualisieren des Events: " + (error.message || "Unbekannter Fehler"));
+      setIsSaving(false);
     }
   });
 
@@ -854,7 +858,8 @@ ${orgName} Team`;
 
   // Zugriffsprüfung - Finally, if hasAccess is false after all checks, deny access
   // Note: isManager implies hasAccess is true due to the useEffect logic, so we only need to check !hasAccess
-  if (!hasAccess) {
+  // WICHTIG: Nicht während des Speicherns anzeigen (verhindert kurzes Aufblinken)
+  if (!hasAccess && !isSaving) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">
