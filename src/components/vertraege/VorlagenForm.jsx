@@ -227,11 +227,11 @@ export default function VorlagenForm({ vorlage = null, onSubmit, onCancel }) {
             <h4 className="font-semibold text-gray-900 mb-2">💡 Beispiel-Vertragsvorlage</h4>
             <div className="text-sm text-gray-700 space-y-2">
               <p><strong>Vertrag zwischen</strong></p>
-              <p>{{organisation_name}} (im Folgenden "Auftragnehmer")</p>
+              <p>{'{{organisation_name}}'} (im Folgenden "Auftragnehmer")</p>
               <p>und</p>
-              <p>{{kunde_name}}, {{kunde_adresse}} (im Folgenden "Auftraggeber")</p>
+              <p>{'{{kunde_name}}'}, {'{{kunde_adresse}}'} (im Folgenden "Auftraggeber")</p>
               <p className="mt-4"><strong>§1 Gegenstand des Vertrags</strong></p>
-              <p>Der Auftragnehmer verpflichtet sich zur musikalischen Unterhaltung am {{event_datum}} in {{event_ort}}.</p>
+              <p>Der Auftragnehmer verpflichtet sich zur musikalischen Unterhaltung am {'{{event_datum}}'} in {'{{event_ort}}'}.</p>
             </div>
           </div>
 
