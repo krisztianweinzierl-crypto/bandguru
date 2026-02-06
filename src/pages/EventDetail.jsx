@@ -130,10 +130,12 @@ export default function EventDetailPage() {
     const loadUserData = async () => {
       if (!event) return;
       
-      // Reset access state before evaluation for new event/user
-      setIsManager(false);
-      setHasAccess(false);
-      setCurrentMusiker(null);
+      // WICHTIG: Nur Access-State zurücksetzen wenn nicht gerade gespeichert wird
+      if (!isSaving) {
+        setIsManager(false);
+        setHasAccess(false);
+        setCurrentMusiker(null);
+      }
 
       try {
         const user = await base44.auth.me();
@@ -186,7 +188,7 @@ export default function EventDetailPage() {
     if (eventId) {
       loadUserData();
     }
-  }, [event, eventId]);
+  }, [event, eventId, isSaving]);
 
   const { data: kunde } = useQuery({
     queryKey: ['kunde', event?.kunde_id],
