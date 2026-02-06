@@ -46,15 +46,17 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
       verwendungen: (vorlage.verwendungen || 0) + 1
     });
 
-    // Platzhalter ersetzen
+    // Platzhalter ersetzen - NUR wenn die Daten vorhanden sind
     let inhalt = vorlage.inhalt;
 
     // Kunde-Daten
     if (formData.kunde_id) {
       const kunde = kunden.find((k) => k.id === formData.kunde_id);
       if (kunde) {
-        inhalt = inhalt.replace(/\{\{kunde_name\}\}/g, kunde.firmenname || '');
-        inhalt = inhalt.replace(/\{\{kunde_adresse\}\}/g, kunde.adresse || '');
+        const kundeName = kunde.firmenname || '';
+        const kundeAdresse = kunde.adresse || '';
+        inhalt = inhalt.replace(/{{kunde_name}}/g, kundeName);
+        inhalt = inhalt.replace(/{{kunde_adresse}}/g, kundeAdresse);
       }
     }
 
@@ -62,7 +64,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
     if (formData.event_id) {
       const event = events.find((e) => e.id === formData.event_id);
       if (event) {
-        inhalt = inhalt.replace(/\{\{event_titel\}\}/g, event.titel || '');
+        const eventTitel = event.titel || '';
+        inhalt = inhalt.replace(/{{event_titel}}/g, eventTitel);
 
         if (event.datum_von) {
           const datum = new Date(event.datum_von);
@@ -71,10 +74,11 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
             month: 'long',
             year: 'numeric'
           });
-          inhalt = inhalt.replace(/\{\{event_datum\}\}/g, formatiertesDatum);
+          inhalt = inhalt.replace(/{{event_datum}}/g, formatiertesDatum);
         }
 
-        inhalt = inhalt.replace(/\{\{event_ort\}\}/g, event.ort_name || event.ort_adresse || '');
+        const eventOrt = event.ort_name || event.ort_adresse || '';
+        inhalt = inhalt.replace(/{{event_ort}}/g, eventOrt);
       }
     }
 
@@ -84,7 +88,8 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
       try {
         const orgs = await base44.entities.Organisation.filter({ id: orgId });
         if (orgs.length > 0) {
-          inhalt = inhalt.replace(/\{\{organisation_name\}\}/g, orgs[0].name || '');
+          const orgName = orgs[0].name || '';
+          inhalt = inhalt.replace(/{{organisation_name}}/g, orgName);
         }
       } catch (error) {
         console.error("Fehler beim Laden der Organisation:", error);
@@ -97,7 +102,7 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
       month: 'long',
       year: 'numeric'
     });
-    inhalt = inhalt.replace(/\{\{datum_heute\}\}/g, heute);
+    inhalt = inhalt.replace(/{{datum_heute}}/g, heute);
 
     handleChange('inhalt', inhalt);
     handleChange('vorlage_id', vorlageId);
