@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X, Save, MapPin, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus, Trash2 } from "lucide-react";
+import { X, Save, MapPin, Calendar, Clock, Users, Shirt, Utensils, Hotel, Settings, Plus, Trash2, MessageSquare, File } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event = null }) {
