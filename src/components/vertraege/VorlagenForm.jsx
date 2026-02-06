@@ -142,64 +142,64 @@ export default function VorlagenForm({ vorlage = null, onSubmit, onCancel }) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{kunde_name}}')}
+                    onClick={() => insertPlaceholder('{{' + 'kunde_name' + '}}')}
                     className="text-xs"
                   >
-                    {{kunde_name}}
+                    {'{{kunde_name}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{kunde_adresse}}')}
+                    onClick={() => insertPlaceholder('{{' + 'kunde_adresse' + '}}')}
                     className="text-xs"
                   >
-                    {{kunde_adresse}}
+                    {'{{kunde_adresse}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{event_titel}}')}
+                    onClick={() => insertPlaceholder('{{' + 'event_titel' + '}}')}
                     className="text-xs"
                   >
-                    {{event_titel}}
+                    {'{{event_titel}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{event_datum}}')}
+                    onClick={() => insertPlaceholder('{{' + 'event_datum' + '}}')}
                     className="text-xs"
                   >
-                    {{event_datum}}
+                    {'{{event_datum}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{event_ort}}')}
+                    onClick={() => insertPlaceholder('{{' + 'event_ort' + '}}')}
                     className="text-xs"
                   >
-                    {{event_ort}}
+                    {'{{event_ort}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{organisation_name}}')}
+                    onClick={() => insertPlaceholder('{{' + 'organisation_name' + '}}')}
                     className="text-xs"
                   >
-                    {{organisation_name}}
+                    {'{{organisation_name}}'}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => insertPlaceholder('{{datum_heute}}')}
+                    onClick={() => insertPlaceholder('{{' + 'datum_heute' + '}}')}
                     className="text-xs"
                   >
-                    {{datum_heute}}
+                    {'{{datum_heute}}'}
                   </Button>
                 </div>
               </div>
