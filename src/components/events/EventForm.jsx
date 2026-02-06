@@ -32,6 +32,8 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
     hotel_adresse: "",
     technik_hinweise: "",
     interne_notizen: "",
+    ablaufplan: "",
+    musiker_notizen: "",
     oeffentliche_notizen: ""
   });
 
