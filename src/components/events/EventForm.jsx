@@ -70,6 +70,8 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
     cleanData.hotel_adresse = formData.hotel_adresse || null;
     cleanData.technik_hinweise = formData.technik_hinweise || null;
     cleanData.interne_notizen = formData.interne_notizen || null;
+    cleanData.ablaufplan = formData.ablaufplan || null;
+    cleanData.musiker_notizen = formData.musiker_notizen || null;
     cleanData.oeffentliche_notizen = formData.oeffentliche_notizen || null;
     
     onSubmit(cleanData);
