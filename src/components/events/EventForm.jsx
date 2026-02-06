@@ -577,8 +577,8 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
             <p className="text-xs text-gray-500">Diese Notizen sind für alle gebuchten Musiker sichtbar</p>
             <Textarea
               id="notizen_musiker"
-              value={formData.oeffentliche_notizen}
-              onChange={(e) => handleChange('oeffentliche_notizen', e.target.value)}
+              value={formData.musiker_notizen}
+              onChange={(e) => handleChange('musiker_notizen', e.target.value)}
               placeholder="z.B. Wichtige Infos für die Musiker..."
               rows={4}
             />
