@@ -419,8 +419,8 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
             <Label htmlFor="ablaufplan">Ablaufplan</Label>
             <Textarea
               id="ablaufplan"
-              value={formData.oeffentliche_notizen}
-              onChange={(e) => handleChange('oeffentliche_notizen', e.target.value)}
+              value={formData.ablaufplan}
+              onChange={(e) => handleChange('ablaufplan', e.target.value)}
               placeholder="Detaillierter Ablauf des Events..."
               rows={6}
             />
