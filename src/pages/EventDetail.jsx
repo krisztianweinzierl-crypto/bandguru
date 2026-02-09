@@ -1147,7 +1147,7 @@ ${orgName} Team`;
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Veranstaltungsort</p>
                       <p className="font-medium text-gray-900">
-                        {event.ort_name || event.ort_adresse || 'Nicht angegeben'}
+                        {event.ort_adresse || event.ort_name || 'Nicht angegeben'}
                       </p>
                     </div>
                   </div>
@@ -1189,12 +1189,12 @@ ${orgName} Team`;
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-white">
-                  <p className="text-gray-700 mb-4 font-medium">{event.ort_name || event.ort_adresse}</p>
+                  <p className="text-gray-700 mb-4 font-medium">{event.ort_adresse || event.ort_name}</p>
                   
                   {/* Map Placeholder */}
                   <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200">
                     <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-600 font-medium mb-2">{event.ort_name || event.ort_adresse}</p>
+                    <p className="text-gray-600 font-medium mb-2">{event.ort_adresse || event.ort_name}</p>
                     <button
                       onClick={openInMaps}
                       className="text-cyan-500 hover:text-cyan-600 font-medium text-sm"
