@@ -52,6 +52,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
 import EventAufgabenTab from "@/components/events/EventAufgabenTab";
+import GoogleMapEmbed from "@/components/events/GoogleMapEmbed";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -1191,17 +1192,8 @@ ${orgName} Team`;
                 <CardContent className="p-6 bg-white">
                   <p className="text-gray-700 mb-4 font-medium">{event.ort_adresse || event.ort_name}</p>
                   
-                  {/* Map Placeholder */}
-                  <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200">
-                    <MapPin className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-600 font-medium mb-2">{event.ort_adresse || event.ort_name}</p>
-                    <button
-                      onClick={openInMaps}
-                      className="text-cyan-500 hover:text-cyan-600 font-medium text-sm"
-                    >
-                      View on Google Maps
-                    </button>
-                  </div>
+                  {/* Google Maps Embed */}
+                  <GoogleMapEmbed address={event.ort_adresse || event.ort_name} />
                 </CardContent>
               </Card>
             )}
