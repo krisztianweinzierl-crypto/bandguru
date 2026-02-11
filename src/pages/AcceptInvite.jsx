@@ -39,13 +39,48 @@ export default function AcceptInvitePage() {
 
       // SCHRITT 2: Mitglied anhand Token suchen
       console.log("📋 Schritt 2: Mitglied-Suche");
-      const mitglieder = await base44.entities.Mitglied.filter({ 
+      let mitglieder = await base44.entities.Mitglied.filter({ 
         invite_token: token 
       });
 
-      console.log("   Mitglieder gefunden:", mitglieder.length);
+      console.log("   Mitglieder mit Token gefunden:", mitglieder.length);
 
+      // 🔥 NEU: Wenn kein Mitglied mit Token gefunden wurde, prüfe ob der Token bereits verwendet wurde
       if (mitglieder.length === 0) {
+        console.log("   🔍 Kein Mitglied mit Token - prüfe ob bereits akzeptiert...");
+        
+        // Versuche alle Mitglieder zu finden (auch ohne Token) und prüfe invite_token in der Historie
+        // Da der Token nach Akzeptanz gelöscht wird, müssen wir anders suchen
+        const alleMitglieder = await base44.entities.Mitglied.list();
+        
+        // Prüfe ob es ein aktives Mitglied gibt, das vor kurzem erstellt wurde (innerhalb der letzten 10 Minuten)
+        const now = new Date();
+        const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+        
+        const recentlyAccepted = alleMitglieder.filter(m => {
+          const createdDate = new Date(m.created_date);
+          return m.status === 'aktiv' && 
+                 m.invite_token === null && 
+                 createdDate > tenMinutesAgo;
+        });
+
+        console.log(`   Kürzlich akzeptierte Mitgliedschaften gefunden: ${recentlyAccepted.length}`);
+
+        if (recentlyAccepted.length > 0) {
+          // Einladung wurde bereits akzeptiert - leite zum Dashboard weiter
+          console.log("✅ Einladung wurde bereits akzeptiert - leite weiter");
+          const mitglied = recentlyAccepted[0];
+          
+          setStatus("already_accepted");
+          setMessage("Diese Einladung wurde bereits akzeptiert.");
+          
+          localStorage.setItem('currentOrgId', mitglied.org_id);
+          setTimeout(() => {
+            window.location.href = createPageUrl("Dashboard");
+          }, 2000);
+          return;
+        }
+
         console.error("❌ Kein Mitglied mit diesem Token gefunden!");
         setStatus("error");
         setMessage("Ungültiger Einladungs-Link. Dieser Link existiert nicht oder wurde bereits verwendet.");
