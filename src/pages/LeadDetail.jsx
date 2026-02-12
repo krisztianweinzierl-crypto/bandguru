@@ -624,7 +624,7 @@ export default function LeadDetailPage() {
     }
     
     if (kundeId) {
-      navigate(createPageUrl('Rechnungen') + '?create=true&kunde_id=' + kundeId + '&lead_id=' + leadId);
+      navigate(createPageUrl('Angebote') + '?create=true&kunde_id=' + kundeId + '&lead_id=' + leadId);
     } else {
       await showAlert({
         title: 'Kunde fehlt',
