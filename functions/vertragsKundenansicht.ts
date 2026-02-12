@@ -527,8 +527,7 @@ function buildLoginPage(vertragId) {
     'const d=new Date(event.datum_von).toLocaleDateString("de-DE",{year:"numeric",month:"long",day:"numeric"});' +
     'const t=new Date(event.datum_von).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});' +
     'let h="<div class=info style=margin-bottom:1rem><b>Event-Details</b><p>📅 "+d+" um "+t+" Uhr</p>";' +
-    'if(event.ort_name)h+="<p>📍 "+event.ort_name+"</p>";' +
-    'if(event.ort_adresse)h+="<p>"+event.ort_adresse+"</p>";' +
+    'if(event.ort_adresse||event.ort_name)h+="<p>📍 "+(event.ort_adresse||event.ort_name)+"</p>";' +
     'h+="</div>";' +
     'document.getElementById("eventInfo").innerHTML=h;' +
     '}' +
