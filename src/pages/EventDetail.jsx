@@ -879,12 +879,16 @@ ${orgName} Team`;
   }
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", label: "Entwurf" },
+    anfrage: { bg: "bg-gray-100", text: "text-gray-800", label: "Anfrage" },
+    angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", label: "Angebot erstellt" },
+    angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", label: "Angebot angenommen" },
+    wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Wartet auf Bestätigung" },
     angefragt: { bg: "bg-orange-100", text: "text-orange-800", label: "Wartet auf Musiker" },
     bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
+    abgesagt: { bg: "bg-red-100", text: "text-red-800", label: "Abgesagt" },
+    zurückgezogen: { bg: "bg-slate-100", text: "text-slate-800", label: "Zurückgezogen" },
     durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
-    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" },
-    storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
+    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" }
   };
 
   const musikerStatusColors = {
@@ -895,7 +899,7 @@ ${orgName} Team`;
     ersetzt: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400", label: "Ersetzt" }
   };
 
-  const statusInfo = statusColors[event.status] || statusColors.entwurf;
+  const statusInfo = statusColors[event.status] || statusColors.anfrage;
 
   const handleAddToCalendar = () => {
     const startDate = new Date(event.datum_von);
