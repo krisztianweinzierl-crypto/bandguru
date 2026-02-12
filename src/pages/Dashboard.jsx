@@ -170,7 +170,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <Badge className={statusColors[event.status]?.className || "bg-gray-100 text-gray-800"}>
-                        {statusColors[event.status]?.label || event.status}
+                        {statusColors[event.status]?.label || "Entwurf"}
                       </Badge>
                     </Link>
                 )}
