@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -606,9 +605,26 @@ export default function LeadDetailPage() {
   };
 
   const handleCreateAngebot = async () => {
-    // Navigiere zur Rechnungsseite mit vorausgefüllten Daten
-    if (lead.kunde_id) {
-      navigate(createPageUrl('Rechnungen') + '?create=true&kunde_id=' + lead.kunde_id + '&lead_id=' + leadId);
+    // Prüfe ob ein Kunde mit diesem Lead verknüpft ist ODER ob ein Kunde mit passender E-Mail existiert
+    let kundeId = lead.kunde_id;
+    
+    // Falls keine direkte Verknüpfung, suche nach Kunde mit gleicher E-Mail oder Firmenname
+    if (!kundeId && lead.email) {
+      const gefundenerKunde = kunden.find(k => 
+        k.email?.toLowerCase().trim() === lead.email.toLowerCase().trim() ||
+        (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname.toLowerCase().trim())
+      );
+      
+      if (gefundenerKunde) {
+        kundeId = gefundenerKunde.id;
+        
+        // Optional: Lead mit gefundenem Kunden verknüpfen
+        await base44.entities.Lead.update(leadId, { kunde_id: kundeId });
+      }
+    }
+    
+    if (kundeId) {
+      navigate(createPageUrl('Rechnungen') + '?create=true&kunde_id=' + kundeId + '&lead_id=' + leadId);
     } else {
       await showAlert({
         title: 'Kunde fehlt',
