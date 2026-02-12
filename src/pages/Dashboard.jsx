@@ -54,6 +54,15 @@ export default function Dashboard() {
     storniert: "bg-red-100 text-red-800"
   };
 
+  const statusLabels = {
+    entwurf: "Entwurf",
+    angefragt: "Angefragt",
+    bestätigt: "Bestätigt",
+    durchgeführt: "Durchgeführt",
+    abgerechnet: "Abgerechnet",
+    storniert: "Storniert"
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -170,7 +179,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <Badge className={statusColors[event.status]}>
-                        {event.status}
+                        {statusLabels[event.status] || event.status}
                       </Badge>
                     </Link>
                 )}
