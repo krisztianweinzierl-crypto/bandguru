@@ -46,21 +46,12 @@ export default function Dashboard() {
   const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
-    entwurf: "bg-gray-100 text-gray-800",
-    angefragt: "bg-orange-100 text-orange-800",
-    bestätigt: "bg-green-100 text-green-800",
-    durchgeführt: "bg-blue-100 text-blue-800",
-    abgerechnet: "bg-purple-100 text-purple-800",
-    storniert: "bg-red-100 text-red-800"
-  };
-
-  const statusLabels = {
-    entwurf: "Entwurf",
-    angefragt: "Angefragt",
-    bestätigt: "Bestätigt",
-    durchgeführt: "Durchgeführt",
-    abgerechnet: "Abgerechnet",
-    storniert: "Storniert"
+    entwurf: { className: "bg-gray-100 text-gray-800", label: "Entwurf" },
+    angefragt: { className: "bg-orange-100 text-orange-800", label: "Wartet auf Musiker" },
+    bestätigt: { className: "bg-green-100 text-green-800", label: "Bestätigt" },
+    durchgeführt: { className: "bg-blue-100 text-blue-800", label: "Durchgeführt" },
+    abgerechnet: { className: "bg-purple-100 text-purple-800", label: "Abgerechnet" },
+    storniert: { className: "bg-red-100 text-red-800", label: "Storniert" }
   };
 
   return (
@@ -178,8 +169,8 @@ export default function Dashboard() {
                           {event.ort_name && ` • ${event.ort_name}`}
                         </div>
                       </div>
-                      <Badge className={statusColors[event.status]}>
-                        {statusLabels[event.status] || event.status}
+                      <Badge className={statusColors[event.status]?.className || "bg-gray-100 text-gray-800"}>
+                        {statusColors[event.status]?.label || event.status}
                       </Badge>
                     </Link>
                 )}
