@@ -46,12 +46,16 @@ export default function Dashboard() {
   const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
-    entwurf: { className: "bg-gray-100 text-gray-800", label: "Entwurf" },
+    anfrage: { className: "bg-gray-100 text-gray-800", label: "Anfrage" },
+    angebot_erstellt: { className: "bg-blue-100 text-blue-800", label: "Angebot erstellt" },
+    angebot_angenommen: { className: "bg-indigo-100 text-indigo-800", label: "Angebot angenommen" },
+    wartet_auf_bestaetigung: { className: "bg-yellow-100 text-yellow-800", label: "Wartet auf Bestätigung" },
     angefragt: { className: "bg-orange-100 text-orange-800", label: "Wartet auf Musiker" },
     bestätigt: { className: "bg-green-100 text-green-800", label: "Bestätigt" },
+    abgesagt: { className: "bg-red-100 text-red-800", label: "Abgesagt" },
+    zurückgezogen: { className: "bg-slate-100 text-slate-800", label: "Zurückgezogen" },
     durchgeführt: { className: "bg-blue-100 text-blue-800", label: "Durchgeführt" },
-    abgerechnet: { className: "bg-purple-100 text-purple-800", label: "Abgerechnet" },
-    storniert: { className: "bg-red-100 text-red-800", label: "Storniert" }
+    abgerechnet: { className: "bg-purple-100 text-purple-800", label: "Abgerechnet" }
   };
 
   return (

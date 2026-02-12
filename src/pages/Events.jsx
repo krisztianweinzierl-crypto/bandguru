@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -124,12 +123,16 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter((e) => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Entwurf" },
+    anfrage: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Anfrage" },
+    angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Angebot erstellt" },
+    angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400", label: "Angebot angenommen" },
+    wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400", borderClass: "border-l-yellow-400", label: "Wartet auf Bestätigung" },
     angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400", label: "Wartet auf Musiker" },
     bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500", label: "Bestätigt" },
+    abgesagt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400", label: "Abgesagt" },
+    zurückgezogen: { bg: "bg-slate-100", text: "text-slate-800", border: "border-slate-400", borderClass: "border-l-slate-400", label: "Zurückgezogen" },
     durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Durchgeführt" },
-    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400", label: "Abgerechnet" },
-    storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400", label: "Storniert" }
+    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400", label: "Abgerechnet" }
   };
 
   const handleSubmit = (data) => {
@@ -138,7 +141,7 @@ export default function EventsPage() {
 
   const EventCard = ({ event }) => {
     const kunde = kunden.find((k) => k.id === event.kunde_id);
-    const statusStyle = statusColors[event.status] || statusColors.entwurf;
+    const statusStyle = statusColors[event.status] || statusColors.anfrage;
 
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
@@ -186,7 +189,7 @@ export default function EventsPage() {
 
   const EventListItem = ({ event }) => {
     const kunde = kunden.find((k) => k.id === event.kunde_id);
-    const statusStyle = statusColors[event.status] || statusColors.entwurf;
+    const statusStyle = statusColors[event.status] || statusColors.anfrage;
 
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
@@ -287,12 +290,16 @@ export default function EventsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alle">Alle Status</SelectItem>
-                  <SelectItem value="entwurf">Entwurf</SelectItem>
+                  <SelectItem value="anfrage">Anfrage</SelectItem>
+                  <SelectItem value="angebot_erstellt">Angebot erstellt</SelectItem>
+                  <SelectItem value="angebot_angenommen">Angebot angenommen</SelectItem>
+                  <SelectItem value="wartet_auf_bestaetigung">Wartet auf Bestätigung</SelectItem>
                   <SelectItem value="angefragt">Wartet auf Musiker</SelectItem>
                   <SelectItem value="bestätigt">Bestätigt</SelectItem>
+                  <SelectItem value="abgesagt">Abgesagt</SelectItem>
+                  <SelectItem value="zurückgezogen">Zurückgezogen</SelectItem>
                   <SelectItem value="durchgeführt">Durchgeführt</SelectItem>
                   <SelectItem value="abgerechnet">Abgerechnet</SelectItem>
-                  <SelectItem value="storniert">Storniert</SelectItem>
                 </SelectContent>
               </Select>
               
