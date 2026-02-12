@@ -53,6 +53,7 @@ import ArtikelVerwaltung from './pages/ArtikelVerwaltung';
 import Aufgaben from './pages/Aufgaben';
 import Ausgaben from './pages/Ausgaben';
 import BuchungsbedingungVorlagen from './pages/BuchungsbedingungVorlagen';
+import Dashboard from './pages/Dashboard';
 import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import Finanzen from './pages/Finanzen';
@@ -79,7 +80,6 @@ import VertragDetail from './pages/VertragDetail';
 import VertragKundenansicht from './pages/VertragKundenansicht';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import acceptInvite from './pages/accept-invite';
-import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -90,6 +90,7 @@ export const PAGES = {
     "Aufgaben": Aufgaben,
     "Ausgaben": Ausgaben,
     "BuchungsbedingungVorlagen": BuchungsbedingungVorlagen,
+    "Dashboard": Dashboard,
     "EventDetail": EventDetail,
     "Events": Events,
     "Finanzen": Finanzen,
@@ -116,7 +117,6 @@ export const PAGES = {
     "VertragKundenansicht": VertragKundenansicht,
     "Vertragsvorlagen": Vertragsvorlagen,
     "accept-invite": acceptInvite,
-    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {

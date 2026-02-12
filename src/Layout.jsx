@@ -1352,7 +1352,7 @@ export default function Layout({ children, currentPageName }) {
 
                 <LayoutDashboard className="w-6 h-6" />
                 <span className="text-xs font-medium">Dashboard</span>
-                </Link>
+              </Link>
 
               <Link
                 to={createPageUrl(isManager ? "Events" : "MeineEvents")}
@@ -1367,29 +1367,59 @@ export default function Layout({ children, currentPageName }) {
                 <span className="text-xs font-medium">Events</span>
               </Link>
 
-              <Link
-                to={createPageUrl("Nachrichten")}
-                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                location.pathname === createPageUrl("Nachrichten") ?
-                'text-[#223a5e]' :
-                'text-gray-500'}`
-                }>
+              {isManager ? (
+                <>
+                  <Link
+                    to={createPageUrl("Nachrichten")}
+                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                    location.pathname === createPageUrl("Nachrichten") ?
+                    'text-[#223a5e]' :
+                    'text-gray-500'}`
+                    }>
 
-                <MessageSquare className="w-6 h-6" />
-                <span className="text-xs font-medium">Chats</span>
-              </Link>
+                    <MessageSquare className="w-6 h-6" />
+                    <span className="text-xs font-medium">Chats</span>
+                  </Link>
 
-              <Link
-                to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
-                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
-                'text-[#223a5e]' :
-                'text-gray-500'}`
-                }>
+                  <Link
+                    to={createPageUrl("Aufgaben")}
+                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                    location.pathname === createPageUrl("Aufgaben") ?
+                    'text-[#223a5e]' :
+                    'text-gray-500'}`
+                    }>
 
-                <CheckSquare className="w-6 h-6" />
-                <span className="text-xs font-medium">Aufgaben</span>
-              </Link>
+                    <CheckSquare className="w-6 h-6" />
+                    <span className="text-xs font-medium">Aufgaben</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to={createPageUrl("Repertoire")}
+                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                    location.pathname === createPageUrl("Repertoire") ?
+                    'text-[#223a5e]' :
+                    'text-gray-500'}`
+                    }>
+
+                    <Music className="w-6 h-6" />
+                    <span className="text-xs font-medium">Repertoire</span>
+                  </Link>
+
+                  <Link
+                    to={createPageUrl("MusikerProfil")}
+                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                    location.pathname === createPageUrl("MusikerProfil") ?
+                    'text-[#223a5e]' :
+                    'text-gray-500'}`
+                    }>
+
+                    <UserCircle className="w-6 h-6" />
+                    <span className="text-xs font-medium">Mein Profil</span>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </main>
