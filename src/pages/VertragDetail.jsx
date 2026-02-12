@@ -376,8 +376,7 @@ Ihr Team`;
           <div class="event-info">
             <h3>Event-Details</h3>
             <p><strong>Datum:</strong> ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</p>
-            ${event.ort_name ? `<p><strong>Ort:</strong> ${event.ort_name}</p>` : ''}
-            ${event.ort_adresse ? `<p><strong>Adresse:</strong> ${event.ort_adresse}</p>` : ''}
+            ${event.ort_adresse || event.ort_name ? `<p><strong>Ort:</strong> ${event.ort_adresse || event.ort_name}</p>` : ''}
           </div>
         ` : ''}
 
@@ -562,16 +561,10 @@ Ihr Team`;
                         <Calendar className="w-4 h-4 text-blue-600" />
                         <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</span>
                       </div>
-                      {event.ort_name &&
+                      {(event.ort_adresse || event.ort_name) &&
                     <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-blue-600" />
-                          <span>{event.ort_name}</span>
-                        </div>
-                    }
-                      {event.ort_adresse &&
-                    <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-blue-600" />
-                          <span>{event.ort_adresse}</span>
+                          <span>{event.ort_adresse || event.ort_name}</span>
                         </div>
                     }
                     </div>
