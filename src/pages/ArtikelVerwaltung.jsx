@@ -105,10 +105,12 @@ export default function ArtikelVerwaltungPage() {
     }
   };
 
-  const filteredArtikel = artikel.filter(a =>
-    a.bezeichnung?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    a.kategorie?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredArtikel = artikel
+    .filter(a => a.org_id === currentOrgId)
+    .filter(a =>
+      a.bezeichnung?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.kategorie?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
