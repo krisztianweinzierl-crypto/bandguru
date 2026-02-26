@@ -80,6 +80,7 @@ import VertragDetail from './pages/VertragDetail';
 import VertragKundenansicht from './pages/VertragKundenansicht';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import acceptInvite from './pages/accept-invite';
+import EventAIPlanner from './pages/EventAIPlanner';
 import __Layout from './Layout.jsx';
 
 
@@ -117,6 +118,7 @@ export const PAGES = {
     "VertragKundenansicht": VertragKundenansicht,
     "Vertragsvorlagen": Vertragsvorlagen,
     "accept-invite": acceptInvite,
+    "EventAIPlanner": EventAIPlanner,
 }
 
 export const pagesConfig = {
