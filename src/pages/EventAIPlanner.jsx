@@ -89,6 +89,7 @@ export default function EventAIPlanner() {
     if (!plan || !currentOrgId) return;
     setSaving(true);
 
+    const selectedLocation = plan.location_vorschlaege?.[selectedLocationIndex];
     await base44.entities.Event.create({
       org_id: currentOrgId,
       titel: plan.titel,
@@ -97,8 +98,8 @@ export default function EventAIPlanner() {
       datum_bis: plan.datum_bis,
       get_in_zeit: plan.get_in_zeit,
       soundcheck_zeit: plan.soundcheck_zeit,
-      ort_name: plan.ort_name,
-      ort_adresse: plan.ort_adresse,
+      ort_name: selectedLocation?.name || "",
+      ort_adresse: selectedLocation?.adresse || "",
       anzahl_gaeste: plan.anzahl_gaeste,
       dresscode: plan.dresscode,
       ablaufplan: plan.ablaufplan,
