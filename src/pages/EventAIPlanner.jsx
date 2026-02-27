@@ -86,14 +86,7 @@ export default function EventAIPlanner() {
           zugewiesen++;
         }
       }
-      // Falls kein passender Musiker gefunden: besten verfügbaren Musiker nehmen (Fallback)
-      if (zugewiesen < anzahl) {
-        const fallback = musiker.filter(m => !usedIds.has(m.id));
-        fallback.slice(0, anzahl - zugewiesen).forEach(m => {
-          usedIds.add(m.id);
-          matched.push({ ...m, _rolle: rolle });
-        });
-      }
+      // Kein Fallback – nur echte Instrument-Treffer verwenden
     });
 
     return matched;
