@@ -329,9 +329,16 @@ export default function MusikerPage() {
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">{musiker.name}</h3>
+        <div className="flex items-start justify-between gap-4 mb-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-gray-900 truncate">{musiker.name}</h3>
+            {musiker.prioritaet && (
+              <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[musiker.prioritaet]}`}>
+                {musiker.prioritaet}
+              </Badge>
+            )}
+          </div>
               {musiker.instrumente && musiker.instrumente.length > 0 &&
               <div className="flex flex-wrap gap-1 mt-1">
                   {musiker.instrumente.map((instrument, i) =>
