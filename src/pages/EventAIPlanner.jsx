@@ -26,9 +26,12 @@ export default function EventAIPlanner() {
   const [saving, setSaving] = useState(false);
   const [plan, setPlan] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [savedEventId, setSavedEventId] = useState(null);
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(0);
   const [allMusiker, setAllMusiker] = useState([]);
   const [suggestedMusiker, setSuggestedMusiker] = useState([]);
+  const [requestingMusiker, setRequestingMusiker] = useState(false);
+  const [requestedMusikerIds, setRequestedMusikerIds] = useState([]);
 
   const currentOrgId = localStorage.getItem("currentOrgId");
 
