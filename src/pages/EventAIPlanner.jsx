@@ -32,6 +32,8 @@ export default function EventAIPlanner() {
 
   const currentOrgId = localStorage.getItem("currentOrgId");
 
+  const prioritaetColors = { A: "bg-emerald-100 text-emerald-700", B: "bg-blue-100 text-blue-700", C: "bg-yellow-100 text-yellow-700", D: "bg-orange-100 text-orange-700", E: "bg-red-100 text-red-700" };
+
   useEffect(() => {
     if (currentOrgId) {
       base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true }).then(setAllMusiker);
