@@ -132,7 +132,9 @@ export default function EventAIPlanner() {
     setLoading(true);
     setPlan(null);
     setSaved(false);
+    setSavedEventId(null);
     setSuggestedMusiker([]);
+    setRequestedMusikerIds([]);
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Du bist ein professioneller Event-Planer für Musikbands. Erstelle einen detaillierten Eventplan basierend auf folgender Beschreibung: "${prompt}".
