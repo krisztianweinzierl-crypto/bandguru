@@ -38,11 +38,54 @@ export default function EventAIPlanner() {
     }
   }, [currentOrgId]);
 
+  const matchMusiker = (besetzungAnforderung, genreAnforderung) => {
+    if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) {
+      setSuggestedMusiker([]);
+      return;
+    }
+
+    const matched = [];
+    const usedIds = new Set();
+
+    Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
+      const rolleLower = rolle.toLowerCase();
+      // Finde passende Musiker nach Instrument/Rolle
+      let kandidaten = allMusiker.filter(m => {
+        if (usedIds.has(m.id)) return false;
+        const instrumente = (m.instrumente || []).map(i => i.toLowerCase());
+        return instrumente.some(inst =>
+          inst.includes(rolleLower) || rolleLower.includes(inst)
+        );
+      });
+
+      // Optional: Genre-Filter wenn vorhanden
+      if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
+        const genreFiltered = kandidaten.filter(m => {
+          const mGenres = (m.genre || []).map(g => g.toLowerCase());
+          return genreAnforderung.some(g =>
+            mGenres.some(mg => mg.includes(g.toLowerCase()) || g.toLowerCase().includes(mg))
+          );
+        });
+        if (genreFiltered.length > 0) kandidaten = genreFiltered;
+      }
+
+      // Nehme so viele wie benötigt
+      const selected = kandidaten.slice(0, anzahl);
+      selected.forEach(m => {
+        usedIds.add(m.id);
+        matched.push({ ...m, _rolle: rolle });
+      });
+    });
+
+    setSuggestedMusiker(matched);
+  };
+
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     setPlan(null);
     setSaved(false);
+    setSuggestedMusiker([]);
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Du bist ein professioneller Event-Planer für Musikbands. Erstelle einen detaillierten Eventplan basierend auf folgender Beschreibung: "${prompt}".
@@ -52,7 +95,10 @@ export default function EventAIPlanner() {
       Gib mir einen vollständigen Plan mit allen wichtigen Details. Wenn ein Datum oder eine Uhrzeit nicht explizit genannt wurde, schlage ein passendes vor.
       Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).
       
-      Schlage außerdem genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen).`,
+      Schlage außerdem genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen).
+      
+      Ermittle außerdem die benötigte Besetzung/Band für dieses Event. Gib diese als JSON-Objekt im Feld 'besetzung_anforderung' aus, z.B. {"Gitarre": 1, "Gesang": 1, "DJ": 1} oder {"Schlagzeug": 1, "Bass": 1, "Keyboard": 1, "Gitarre": 1, "Gesang": 1}.
+      Falls im Prompt Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -85,14 +131,24 @@ export default function EventAIPlanner() {
           technik_hinweise: { type: "string", description: "Technische Hinweise" },
           musiker_notizen: { type: "string", description: "Wichtige Hinweise für Musiker" },
           interne_notizen: { type: "string", description: "Interne Planungsnotizen" },
-          zusammenfassung: { type: "string", description: "Kurze Zusammenfassung des Events in 2-3 Sätzen" }
+          zusammenfassung: { type: "string", description: "Kurze Zusammenfassung des Events in 2-3 Sätzen" },
+          besetzung_anforderung: {
+            type: "object",
+            description: "Benötigte Besetzung als JSON-Objekt z.B. {'Gitarre': 1, 'Gesang': 1}",
+            additionalProperties: { type: "number" }
+          },
+          genre_anforderung: {
+            type: "array",
+            items: { type: "string" },
+            description: "Vorgeschlagene Musikgenres für das Event"
+          }
         },
         required: ["titel", "datum_von", "datum_bis"]
       }
     });
     setSelectedLocationIndex(0);
-
     setPlan(result);
+    matchMusiker(result.besetzung_anforderung, result.genre_anforderung);
     setLoading(false);
   };
 
