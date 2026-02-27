@@ -562,24 +562,10 @@ export default function EventAIPlanner() {
                       <p className="text-xs text-gray-500 flex items-center gap-1">
                         <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
                       </p>
-                      {saved && (
-                        <Button
-                          size="sm"
-                          onClick={handleRequestMusiker}
-                          disabled={requestingMusiker || requestedMusikerIds.length === suggestedMusiker.length}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        >
-                          {requestingMusiker ? (
-                            <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Anfragen...</>
-                          ) : requestedMusikerIds.length === suggestedMusiker.length ? (
-                            <><CheckCircle2 className="w-3 h-3 mr-1" />Alle angefragt</>
-                          ) : (
-                            <><Send className="w-3 h-3 mr-1" />Alle anfragen & zum Event hinzufügen</>
-                          )}
-                        </Button>
-                      )}
-                      {!saved && (
-                        <p className="text-xs text-amber-600 italic">Event zuerst speichern, um Musiker anzufragen</p>
+                      {requestedMusikerIds.length > 0 && (
+                        <Badge className="bg-green-100 text-green-700 border-0 text-xs">
+                          <CheckCircle2 className="w-3 h-3 mr-1" /> Alle zum Event hinzugefügt & angefragt
+                        </Badge>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
