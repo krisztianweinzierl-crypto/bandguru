@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sparkles,
   Save,
@@ -14,7 +15,9 @@ import {
   Users,
   FileText,
   CheckCircle2,
-  Lightbulb
+  Lightbulb,
+  Music,
+  Guitar
 } from "lucide-react";
 
 export default function EventAIPlanner() {
@@ -24,8 +27,16 @@ export default function EventAIPlanner() {
   const [plan, setPlan] = useState(null);
   const [saved, setSaved] = useState(false);
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(0);
+  const [allMusiker, setAllMusiker] = useState([]);
+  const [suggestedMusiker, setSuggestedMusiker] = useState([]);
 
   const currentOrgId = localStorage.getItem("currentOrgId");
+
+  useEffect(() => {
+    if (currentOrgId) {
+      base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true }).then(setAllMusiker);
+    }
+  }, [currentOrgId]);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
