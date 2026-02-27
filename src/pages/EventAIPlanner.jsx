@@ -258,36 +258,60 @@ export default function EventAIPlanner() {
               </CardContent>
             </Card>
 
-            {/* Location */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-purple-500" /> Location
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Ort</span>
-                  <span className="font-medium text-right">{plan.ort_name || "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Adresse</span>
-                  <span className="font-medium text-right">{plan.ort_adresse || "—"}</span>
-                </div>
-                {plan.anzahl_gaeste && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Gäste</span>
-                    <span className="font-medium">{plan.anzahl_gaeste}</span>
+            {/* Location Vorschläge */}
+            {plan.location_vorschlaege?.length > 0 && (
+              <Card className="border-0 shadow-sm md:col-span-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-purple-500" /> Location-Vorschläge
+                    <span className="text-xs text-gray-400 font-normal ml-1">– wähle eine aus</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {plan.location_vorschlaege.map((loc, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedLocationIndex(i)}
+                        className={`text-left rounded-xl border-2 p-4 transition-all space-y-2 ${
+                          selectedLocationIndex === i
+                            ? "border-purple-500 bg-purple-50"
+                            : "border-gray-200 hover:border-purple-300 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-semibold text-sm text-gray-900">{loc.name}</span>
+                          <Badge className={`text-xs shrink-0 border-0 ${
+                            selectedLocationIndex === i ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600"
+                          }`}>
+                            {loc.preisklasse}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-500">{loc.adresse}</p>
+                        <p className="text-xs text-gray-600">{loc.beschreibung}</p>
+                        {loc.kapazitaet && (
+                          <p className="text-xs text-gray-400 flex items-center gap-1">
+                            <Users className="w-3 h-3" /> {loc.kapazitaet}
+                          </p>
+                        )}
+                      </button>
+                    ))}
                   </div>
-                )}
-                {plan.dresscode && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Dresscode</span>
-                    <span className="font-medium">{plan.dresscode}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  {plan.anzahl_gaeste && (
+                    <div className="flex justify-between text-sm pt-1 border-t">
+                      <span className="text-gray-500">Erwartete Gäste</span>
+                      <span className="font-medium">{plan.anzahl_gaeste}</span>
+                    </div>
+                  )}
+                  {plan.dresscode && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Dresscode</span>
+                      <span className="font-medium">{plan.dresscode}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Ablaufplan */}
             {plan.ablaufplan && (
