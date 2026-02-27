@@ -560,35 +560,69 @@ export default function EventAIPlanner() {
 
                 {/* Passende Musiker aus dem Pool */}
                 {suggestedMusiker.length > 0 ? (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                      <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
-                    </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
+                      </p>
+                      {saved && (
+                        <Button
+                          size="sm"
+                          onClick={handleRequestMusiker}
+                          disabled={requestingMusiker || requestedMusikerIds.length === suggestedMusiker.length}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                          {requestingMusiker ? (
+                            <><Loader2 className="w-3 h-3 mr-1 animate-spin" />Anfragen...</>
+                          ) : requestedMusikerIds.length === suggestedMusiker.length ? (
+                            <><CheckCircle2 className="w-3 h-3 mr-1" />Alle angefragt</>
+                          ) : (
+                            <><Send className="w-3 h-3 mr-1" />Alle anfragen & zum Event hinzufügen</>
+                          )}
+                        </Button>
+                      )}
+                      {!saved && (
+                        <p className="text-xs text-amber-600 italic">Event zuerst speichern, um Musiker anzufragen</p>
+                      )}
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {suggestedMusiker.map((m) => (
-                        <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-purple-50 hover:border-purple-200 transition-colors">
-                          <Avatar className="w-10 h-10 shrink-0">
-                            <AvatarImage src={m.profilbild_url} alt={m.name} />
-                            <AvatarFallback className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xs font-bold">
-                              {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                           <div className="flex items-center gap-2">
-                             <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
-                             {m.prioritaet && (
-                               <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
-                                 {m.prioritaet}
-                               </Badge>
-                             )}
-                           </div>
-                           <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
-                           {m.instrumente?.length > 0 && (
-                             <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
-                           )}
+                      {suggestedMusiker.map((m) => {
+                        const isRequested = requestedMusikerIds.includes(m.id);
+                        return (
+                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-gray-100 bg-gray-50 hover:bg-purple-50 hover:border-purple-200"}`}>
+                            <Avatar className="w-10 h-10 shrink-0">
+                              <AvatarImage src={m.profilbild_url} alt={m.name} />
+                              <AvatarFallback className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xs font-bold">
+                                {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
+                                {m.prioritaet && (
+                                  <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
+                                    {m.prioritaet}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
+                              {m.instrumente?.length > 0 && (
+                                <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
+                              )}
+                              {isRequested && (
+                                <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
+                                  <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail gesendet" : ""}
+                                </p>
+                              )}
+                              {!isRequested && m.email && (
+                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                  <Mail className="w-3 h-3" /> {m.email}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ) : (
