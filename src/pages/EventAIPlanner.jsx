@@ -434,10 +434,70 @@ export default function EventAIPlanner() {
             )}
           </div>
 
+          {/* Besetzungsvorschlag */}
+          {plan.besetzung_anforderung && Object.keys(plan.besetzung_anforderung).length > 0 && (
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <Guitar className="w-4 h-4 text-purple-500" /> Empfohlene Besetzung
+                  {plan.genre_anforderung?.length > 0 && (
+                    <div className="flex gap-1 ml-auto">
+                      {plan.genre_anforderung.map((g, i) => (
+                        <Badge key={i} className="text-xs bg-indigo-100 text-indigo-700 border-0">{g}</Badge>
+                      ))}
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Benötigte Rollen */}
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(plan.besetzung_anforderung).map(([rolle, anzahl]) => (
+                    <Badge key={rolle} className="bg-purple-100 text-purple-700 border-0 text-sm px-3 py-1">
+                      {anzahl}x {rolle}
+                    </Badge>
+                  ))}
+                </div>
+
+                {/* Passende Musiker aus dem Pool */}
+                {suggestedMusiker.length > 0 ? (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                      <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {suggestedMusiker.map((m) => (
+                        <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-purple-50 hover:border-purple-200 transition-colors">
+                          <Avatar className="w-10 h-10 shrink-0">
+                            <AvatarImage src={m.profilbild_url} alt={m.name} />
+                            <AvatarFallback className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xs font-bold">
+                              {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
+                            <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
+                            {m.instrumente?.length > 0 && (
+                              <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    Keine passenden Musiker im Pool gefunden für diese Besetzung.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* New Plan Button */}
           <Button
             variant="outline"
-            onClick={() => { setPlan(null); setPrompt(""); setSaved(false); }}
+            onClick={() => { setPlan(null); setPrompt(""); setSaved(false); setSuggestedMusiker([]); }}
             className="w-full"
           >
             Neuen Plan erstellen
