@@ -151,11 +151,11 @@ export default function EventAIPlanner() {
       
       Ermittle außerdem die benötigte Besetzung/Band für dieses Event. Gib diese als JSON-Objekt im Feld 'besetzung_anforderung' aus.
       WICHTIGE REGELN für die Besetzung:
-      1. Die Summe aller Werte im JSON muss EXAKT der angefragten Bandgröße entsprechen (z.B. bei "6er Band" muss die Summe genau 6 ergeben).
-      2. Eine Standard Live-Band hat immer mindestens: Schlagzeug (1x), Bass (1x), Keyboard (1x), Gitarre (1x) als Basis-Besetzung. Weitere Slots werden dann mit Gesang, weiteren Instrumenten etc. aufgefüllt.
-      3. Wenn keine explizite Bandgröße genannt wird, schlage eine sinnvolle Größe vor (4-7 Personen typisch).
-      4. Beispiel 6er Band: {"Schlagzeug": 1, "Bass": 1, "Keyboard": 1, "Gitarre": 1, "Gesang": 1, "Trompete": 1} – Summe = 6.
-      5. Doppelte Instrumenten-Einträge (z.B. "Gitarre": 2) zählen als 2 Personen.
+      1. HÖCHSTE PRIORITÄT: Wenn im Prompt explizit bestimmte Instrumente, Rollen oder ein Format genannt werden (z.B. "DJ", "DJ & Vocals", "Quartett", "Trio"), dann übernimm diese EXAKT – füge KEINE zusätzlichen Instrumente hinzu.
+      2. Nur wenn KEINE explizite Besetzung genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
+      3. Wenn eine Bandgröße genannt wird (z.B. "6er Band"), muss die Summe aller Werte im JSON EXAKT dieser Größe entsprechen.
+      4. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
+      5. Beispiel 6er Band ohne weiteren Hinweis: {"Schlagzeug": 1, "Bass": 1, "Keyboard": 1, "Gitarre": 1, "Gesang": 1, "Trompete": 1} – Summe = 6.
       Falls im Prompt Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
       response_json_schema: {
         type: "object",
