@@ -576,8 +576,9 @@ export default function EventAIPlanner() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {suggestedMusiker.map((m) => {
                         const isRequested = requestedMusikerIds.includes(m.id);
+                        const isLoading = requestingMusiker[m.id];
                         return (
-                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-gray-100 bg-gray-50 hover:bg-purple-50 hover:border-purple-200"}`}>
+                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-gray-100 bg-gray-50"}`}>
                             <Avatar className="w-10 h-10 shrink-0">
                               <AvatarImage src={m.profilbild_url} alt={m.name} />
                               <AvatarFallback className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xs font-bold">
@@ -597,17 +598,27 @@ export default function EventAIPlanner() {
                               {m.instrumente?.length > 0 && (
                                 <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
                               )}
-                              {isRequested && (
+                              {isRequested ? (
                                 <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
-                                  <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail gesendet" : ""}
+                                  <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
                                 </p>
-                              )}
-                              {!isRequested && m.email && (
+                              ) : m.email ? (
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                                   <Mail className="w-3 h-3" /> {m.email}
                                 </p>
-                              )}
+                              ) : null}
                             </div>
+                            {saved && !isRequested && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRequestSingleMusiker(m)}
+                                disabled={isLoading}
+                                className="shrink-0 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs px-2 py-1 h-auto"
+                              >
+                                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                              </Button>
+                            )}
                           </div>
                         );
                       })}
