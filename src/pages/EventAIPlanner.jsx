@@ -625,7 +625,7 @@ export default function EventAIPlanner() {
           {/* New Plan Button */}
           <Button
             variant="outline"
-            onClick={() => { setPlan(null); setPrompt(""); setSaved(false); setSuggestedMusiker([]); }}
+            onClick={() => { setPlan(null); setPrompt(""); setSaved(false); setSuggestedMusiker([]); setSavedEventId(null); setRequestedMusikerIds([]); setEventMusikerMap({}); setRequestingMusiker({}); }}
             className="w-full"
           >
             Neuen Plan erstellen
