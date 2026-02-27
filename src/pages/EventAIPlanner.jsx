@@ -80,6 +80,9 @@ export default function EventAIPlanner() {
           let score = 0;
           if (primaerMatch) score = 2;
           else if (sekundaerMatch) score = 1;
+          // Priorität als Tie-Breaker: A=5, B=4, C=3, D=2, E=1, keine=0 (als Dezimalanteil)
+          const prioritaetBonus = { A: 0.5, B: 0.4, C: 0.3, D: 0.2, E: 0.1 };
+          if (score > 0) score += (prioritaetBonus[m.prioritaet] || 0);
           return { ...m, _matchScore: score };
         })
         .filter(m => m._matchScore > 0)
