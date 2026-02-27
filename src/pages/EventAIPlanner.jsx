@@ -524,11 +524,18 @@ export default function EventAIPlanner() {
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
-                            <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
-                            <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
-                            {m.instrumente?.length > 0 && (
-                              <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
-                            )}
+                           <div className="flex items-center gap-2">
+                             <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
+                             {m.prioritaet && (
+                               <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
+                                 {m.prioritaet}
+                               </Badge>
+                             )}
+                           </div>
+                           <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
+                           {m.instrumente?.length > 0 && (
+                             <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
+                           )}
                           </div>
                         </div>
                       ))}
