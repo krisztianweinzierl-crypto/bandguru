@@ -17,7 +17,9 @@ import {
   CheckCircle2,
   Lightbulb,
   Music,
-  Guitar
+  Guitar,
+  Send,
+  Mail
 } from "lucide-react";
 
 export default function EventAIPlanner() {
