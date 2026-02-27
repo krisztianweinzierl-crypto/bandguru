@@ -25,6 +25,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
     steuernummer: musiker?.steuernummer || "",
     notfallkontakt: musiker?.notfallkontakt || "",
     notizen: musiker?.notizen || "",
+    prioritaet: musiker?.prioritaet || "",
     aktiv: musiker?.aktiv !== undefined ? musiker.aktiv : true
   });
 
