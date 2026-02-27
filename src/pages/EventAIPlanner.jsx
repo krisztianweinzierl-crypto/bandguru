@@ -211,10 +211,11 @@ export default function EventAIPlanner() {
     setLoading(false);
   };
 
-  const handleSave = async () => {
+  const handleSaveAndRequest = async () => {
     if (!plan || !currentOrgId) return;
     setSaving(true);
 
+    // 1. Event speichern
     const selectedLocation = plan.location_vorschlaege?.[selectedLocationIndex];
     const createdEvent = await base44.entities.Event.create({
       org_id: currentOrgId,
@@ -237,47 +238,43 @@ export default function EventAIPlanner() {
       finanz_status: "offen"
     });
 
-    setSaving(false);
     setSaved(true);
     setSavedEventId(createdEvent.id);
-  };
 
-  const handleRequestMusiker = async () => {
-    if (!savedEventId || suggestedMusiker.length === 0) return;
-    setRequestingMusiker(true);
+    // 2. Musiker zum Event hinzufügen & anfragen
+    if (suggestedMusiker.length > 0) {
+      setRequestingMusiker(true);
+      const newlyRequested = [];
 
-    const newlyRequested = [];
-
-    for (const m of suggestedMusiker) {
-      if (requestedMusikerIds.includes(m.id)) continue;
-
-      // EventMusiker-Eintrag erstellen
-      await base44.entities.EventMusiker.create({
-        event_id: savedEventId,
-        musiker_id: m.id,
-        rolle: m._rolle,
-        gage_netto: m.tagessatz_netto || 0,
-        status: "angefragt"
-      });
-
-      // E-Mail senden falls Adresse vorhanden
-      if (m.email) {
-        const eventDatum = plan.datum_von
-          ? new Date(plan.datum_von).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
-          : "–";
-
-        await base44.functions.invoke("sendEmail", {
-          to: m.email,
-          subject: `Anfrage: ${plan.titel}`,
-          body: `Hallo ${m.name},\n\nwir würden dich gerne für folgendes Event anfragen:\n\nEvent: ${plan.titel}\nDatum: ${eventDatum}\nOrt: ${plan.location_vorschlaege?.[selectedLocationIndex]?.name || "–"}\nRolle: ${m._rolle}\n\n${plan.musiker_notizen ? `Hinweise:\n${plan.musiker_notizen}\n\n` : ""}Bitte melde dich bei uns, um die Anfrage zu bestätigen.\n\nViele Grüße`
+      for (const m of suggestedMusiker) {
+        await base44.entities.EventMusiker.create({
+          event_id: createdEvent.id,
+          musiker_id: m.id,
+          rolle: m._rolle,
+          gage_netto: m.tagessatz_netto || 0,
+          status: "angefragt"
         });
+
+        if (m.email) {
+          const eventDatum = plan.datum_von
+            ? new Date(plan.datum_von).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+            : "–";
+
+          await base44.functions.invoke("sendEmail", {
+            to: m.email,
+            subject: `Anfrage: ${plan.titel}`,
+            body: `Hallo ${m.name},\n\nwir würden dich gerne für folgendes Event anfragen:\n\nEvent: ${plan.titel}\nDatum: ${eventDatum}\nOrt: ${selectedLocation?.name || "–"}\nRolle: ${m._rolle}\n\n${plan.musiker_notizen ? `Hinweise:\n${plan.musiker_notizen}\n\n` : ""}Bitte melde dich bei uns, um die Anfrage zu bestätigen.\n\nViele Grüße`
+          });
+        }
+
+        newlyRequested.push(m.id);
       }
 
-      newlyRequested.push(m.id);
+      setRequestedMusikerIds(newlyRequested);
+      setRequestingMusiker(false);
     }
 
-    setRequestedMusikerIds(prev => [...prev, ...newlyRequested]);
-    setRequestingMusiker(false);
+    setSaving(false);
   };
 
   const formatDateTime = (iso) => {
