@@ -141,7 +141,11 @@ export default function EventAIPlanner() {
     });
     setSelectedLocationIndex(0);
     setPlan(result);
-    matchMusiker(result.besetzung_anforderung, result.genre_anforderung);
+
+    // Musiker frisch laden (falls seit Seitenaufruf neue hinzugekommen)
+    const freshMusiker = await base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true });
+    setAllMusiker(freshMusiker);
+    setSuggestedMusiker(matchMusikerFromList(freshMusiker, result.besetzung_anforderung, result.genre_anforderung));
     setLoading(false);
   };
 
