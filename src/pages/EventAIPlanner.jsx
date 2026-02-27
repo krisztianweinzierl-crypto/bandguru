@@ -372,16 +372,16 @@ export default function EventAIPlanner() {
                   )}
                 </div>
                 <Button
-                  onClick={handleSave}
+                  onClick={handleSaveAndRequest}
                   disabled={saving || saved}
                   className="bg-green-600 hover:bg-green-700 shrink-0"
                 >
                   {saving ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Speichern...</>
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{requestingMusiker ? "Musiker anfragen..." : "Speichern..."}</>
                   ) : saved ? (
-                    <><CheckCircle2 className="w-4 h-4 mr-2" />Gespeichert</>
+                    <><CheckCircle2 className="w-4 h-4 mr-2" />Gespeichert & angefragt</>
                   ) : (
-                    <><Save className="w-4 h-4 mr-2" />Als Event speichern</>
+                    <><Save className="w-4 h-4 mr-2" />{suggestedMusiker.length > 0 ? "Speichern & Musiker anfragen" : "Als Event speichern"}</>
                   )}
                 </Button>
               </div>
