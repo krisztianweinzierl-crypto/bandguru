@@ -73,48 +73,6 @@ export default function EventAIPlanner() {
     return matched;
   };
 
-  const matchMusiker = (besetzungAnforderung, genreAnforderung) => {
-    if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) {
-      setSuggestedMusiker([]);
-      return;
-    }
-
-    const matched = [];
-    const usedIds = new Set();
-
-    Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
-      const rolleLower = rolle.toLowerCase();
-      // Finde passende Musiker nach Instrument/Rolle
-      let kandidaten = allMusiker.filter(m => {
-        if (usedIds.has(m.id)) return false;
-        const instrumente = (m.instrumente || []).map(i => i.toLowerCase());
-        return instrumente.some(inst =>
-          inst.includes(rolleLower) || rolleLower.includes(inst)
-        );
-      });
-
-      // Optional: Genre-Filter wenn vorhanden
-      if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
-        const genreFiltered = kandidaten.filter(m => {
-          const mGenres = (m.genre || []).map(g => g.toLowerCase());
-          return genreAnforderung.some(g =>
-            mGenres.some(mg => mg.includes(g.toLowerCase()) || g.toLowerCase().includes(mg))
-          );
-        });
-        if (genreFiltered.length > 0) kandidaten = genreFiltered;
-      }
-
-      // Nehme so viele wie benötigt
-      const selected = kandidaten.slice(0, anzahl);
-      selected.forEach(m => {
-        usedIds.add(m.id);
-        matched.push({ ...m, _rolle: rolle });
-      });
-    });
-
-    setSuggestedMusiker(matched);
-  };
-
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
