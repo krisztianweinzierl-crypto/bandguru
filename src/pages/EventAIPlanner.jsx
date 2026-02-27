@@ -46,13 +46,23 @@ export default function EventAIPlanner() {
 
     Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
       const rolleLower = rolle.toLowerCase();
-      let kandidaten = musiker.filter(m => {
-        if (usedIds.has(m.id)) return false;
-        const instrumente = (m.instrumente || []).map(i => i.toLowerCase());
-        return instrumente.some(inst =>
-          inst.includes(rolleLower) || rolleLower.includes(inst)
-        );
-      });
+
+      // Bewerte jeden Musiker: primäres Instrument (Index 0) = Score 2, sekundär = Score 1
+      let kandidaten = musiker
+        .filter(m => !usedIds.has(m.id))
+        .map(m => {
+          const instrumente = (m.instrumente || []);
+          const primaer = instrumente[0]?.toLowerCase() || "";
+          const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
+
+          let score = 0;
+          if (primaer.includes(rolleLower) || rolleLower.includes(primaer)) score = 2;
+          else if (sekundaer.some(inst => inst.includes(rolleLower) || rolleLower.includes(inst))) score = 1;
+
+          return { ...m, _matchScore: score };
+        })
+        .filter(m => m._matchScore > 0)
+        .sort((a, b) => b._matchScore - a._matchScore); // Primärinstrument-Treffer zuerst
 
       if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
         const genreFiltered = kandidaten.filter(m => {
