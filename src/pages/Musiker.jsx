@@ -173,6 +173,8 @@ export default function MusikerPage() {
     navigate(createPageUrl(`MusikerDetail?id=${musikerId}`));
   };
 
+  const prioritaetColors = { A: "bg-emerald-100 text-emerald-700", B: "bg-blue-100 text-blue-700", C: "bg-yellow-100 text-yellow-700", D: "bg-orange-100 text-orange-700", E: "bg-red-100 text-red-700" };
+
   const MusikerCard = ({ musiker }) => {
     const initials = musiker.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'M';
     const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'];
@@ -199,7 +201,14 @@ export default function MusikerPage() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg mb-1 truncate">{musiker.name}</CardTitle>
+              <div className="flex items-center gap-2 mb-1">
+                <CardTitle className="text-lg truncate">{musiker.name}</CardTitle>
+                {musiker.prioritaet && (
+                  <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[musiker.prioritaet]}`}>
+                    {musiker.prioritaet}
+                  </Badge>
+                )}
+              </div>
               {musiker.instrumente && musiker.instrumente.length > 0 &&
               <div className="flex flex-wrap gap-1 mb-2">
                   {musiker.instrumente.slice(0, 2).map((instrument, i) =>
