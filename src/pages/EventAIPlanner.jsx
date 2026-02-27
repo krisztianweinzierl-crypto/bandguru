@@ -54,7 +54,7 @@ export default function EventAIPlanner() {
   const getAliases = (rolle) => {
     const rolleLower = rolle.toLowerCase();
     for (const [key, aliases] of Object.entries(instrumentSynonyme)) {
-      if (aliases.includes(rolleLower) || rolleLower.includes(key)) return aliases;
+      if (aliases.some(a => a === rolleLower || rolleLower.includes(a) || a.includes(rolleLower))) return aliases;
     }
     return [rolleLower];
   };
