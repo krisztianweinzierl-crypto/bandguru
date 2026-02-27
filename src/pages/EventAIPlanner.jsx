@@ -212,26 +212,6 @@ export default function EventAIPlanner() {
     setSaving(true);
 
     const selectedLocation = plan.location_vorschlaege?.[selectedLocationIndex];
-    await base44.entities.Event.create({
-      org_id: currentOrgId,
-      titel: plan.titel,
-      event_typ: plan.event_typ,
-      datum_von: plan.datum_von,
-      datum_bis: plan.datum_bis,
-      get_in_zeit: plan.get_in_zeit,
-      soundcheck_zeit: plan.soundcheck_zeit,
-      ort_name: selectedLocation?.name || "",
-      ort_adresse: selectedLocation?.adresse || "",
-      anzahl_gaeste: plan.anzahl_gaeste,
-      dresscode: plan.dresscode,
-      ablaufplan: plan.ablaufplan,
-      technik_hinweise: plan.technik_hinweise,
-      musiker_notizen: plan.musiker_notizen,
-      interne_notizen: plan.interne_notizen,
-      status: "anfrage",
-      finanz_status: "offen"
-    });
-
     const createdEvent = await base44.entities.Event.create({
       org_id: currentOrgId,
       titel: plan.titel,
