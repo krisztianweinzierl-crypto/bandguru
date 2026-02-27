@@ -151,11 +151,17 @@ export default function EventAIPlanner() {
       
       Ermittle außerdem die benötigte Besetzung/Band für dieses Event. Gib diese als JSON-Objekt im Feld 'besetzung_anforderung' aus.
       WICHTIGE REGELN für die Besetzung:
-      1. HÖCHSTE PRIORITÄT: Wenn im Prompt explizit bestimmte Instrumente, Rollen oder ein Format genannt werden (z.B. "DJ", "DJ & Vocals", "Quartett", "Trio"), dann übernimm diese EXAKT – füge KEINE zusätzlichen Instrumente hinzu.
-      2. Nur wenn KEINE explizite Besetzung genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
+      1. HÖCHSTE PRIORITÄT: Wenn im Prompt explizit bestimmte Instrumente oder Rollen genannt werden (z.B. "DJ", "DJ & Vocals"), dann übernimm diese EXAKT – füge KEINE weiteren Instrumente hinzu.
+      2. ENSEMBLE-BEGRIFFE müssen IMMER in einzelne Instrumente/Rollen aufgelöst werden – niemals als Ensemble-Name ins JSON schreiben:
+         - "Jazz-Trio" → {"Bass": 1, "Piano": 1, "Gesang": 1} (3 Personen)
+         - "Jazz-Quartett" → {"Bass": 1, "Piano": 1, "Gesang": 1, "Saxophon": 1} (4 Personen)
+         - "Streichquartett" → {"Violine": 2, "Viola": 1, "Cello": 1} (4 Personen)
+         - "Duo" → 2 passende Instrumente je nach Genre
+         - "Trio" → 3 passende Instrumente je nach Genre
+         - NIEMALS: {"Jazz-Trio": 3} oder {"Quartett": 1} – das ist FALSCH
       3. Wenn eine Bandgröße genannt wird (z.B. "6er Band"), muss die Summe aller Werte im JSON EXAKT dieser Größe entsprechen.
-      4. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
-      5. Beispiel 6er Band ohne weiteren Hinweis: {"Schlagzeug": 1, "Bass": 1, "Keyboard": 1, "Gitarre": 1, "Gesang": 1, "Trompete": 1} – Summe = 6.
+      4. Nur wenn KEINE explizite Besetzung oder Ensemblegröße genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
+      5. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
       Falls im Prompt Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
       response_json_schema: {
         type: "object",
