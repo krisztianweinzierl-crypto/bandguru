@@ -567,10 +567,10 @@ export default function EventAIPlanner() {
                       <p className="text-xs text-gray-500 flex items-center gap-1">
                         <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
                       </p>
-                      {requestedMusikerIds.length > 0 && (
-                        <Badge className="bg-green-100 text-green-700 border-0 text-xs">
-                          <CheckCircle2 className="w-3 h-3 mr-1" /> Alle zum Event hinzugefügt & angefragt
-                        </Badge>
+                      {saved && (
+                        <p className="text-xs text-amber-600 flex items-center gap-1">
+                          <Send className="w-3 h-3" /> Klicke <Send className="w-3 h-3 inline" /> um einen Musiker anzufragen
+                        </p>
                       )}
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
