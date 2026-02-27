@@ -39,7 +39,9 @@ export default function EventAIPlanner() {
       Heute ist der ${new Date().toLocaleDateString("de-DE", { year: "numeric", month: "long", day: "numeric" })}.
       
       Gib mir einen vollständigen Plan mit allen wichtigen Details. Wenn ein Datum oder eine Uhrzeit nicht explizit genannt wurde, schlage ein passendes vor.
-      Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).`,
+      Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).
+      
+      Schlage außerdem genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen).`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -52,8 +54,20 @@ export default function EventAIPlanner() {
           datum_bis: { type: "string", description: "End-Datum und Zeit im ISO 8601 Format" },
           get_in_zeit: { type: "string", description: "Get-In Zeit im Format HH:mm" },
           soundcheck_zeit: { type: "string", description: "Soundcheck Zeit im Format HH:mm" },
-          ort_name: { type: "string", description: "Name des Veranstaltungsortes" },
-          ort_adresse: { type: "string", description: "Adresse des Veranstaltungsortes" },
+          location_vorschlaege: {
+            type: "array",
+            description: "Genau 3 verschiedene Location-Vorschläge",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Name der Location" },
+                adresse: { type: "string", description: "Adresse der Location" },
+                beschreibung: { type: "string", description: "Kurze Beschreibung, Stil und Besonderheiten" },
+                kapazitaet: { type: "string", description: "Kapazität z.B. bis 200 Personen" },
+                preisklasse: { type: "string", description: "Preisklasse z.B. €, €€, €€€" }
+              }
+            }
+          },
           anzahl_gaeste: { type: "number", description: "Erwartete Anzahl der Gäste" },
           dresscode: { type: "string", description: "Dresscode für Musiker" },
           ablaufplan: { type: "string", description: "Detaillierter Ablaufplan des Events" },
@@ -65,6 +79,7 @@ export default function EventAIPlanner() {
         required: ["titel", "datum_von", "datum_bis"]
       }
     });
+    setSelectedLocationIndex(0);
 
     setPlan(result);
     setLoading(false);
