@@ -206,6 +206,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
 
           <div className="space-y-2">
             <Label>Instrumente</Label>
+            <p className="text-xs text-gray-500">Das erste Instrument ist das <span className="font-semibold text-purple-600">Primärinstrument</span> und wird für die KI-Besetzungsvorschläge bevorzugt.</p>
             <div className="flex gap-2">
               <Input
                 value={instrumentInput}
@@ -223,7 +224,8 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               {formData.instrumente.map((instrument, i) =>
-              <Badge key={i} variant="secondary" className="text-sm">
+              <Badge key={i} variant="secondary" className={`text-sm ${i === 0 ? 'bg-purple-100 text-purple-700 border border-purple-300' : ''}`}>
+                  {i === 0 && <span className="mr-1 text-xs font-bold">★</span>}
                   {instrument}
                   <button
                   type="button"
