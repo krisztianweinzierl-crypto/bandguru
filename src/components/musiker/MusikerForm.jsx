@@ -340,6 +340,25 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="prioritaet">Priorität (nur für Band Manager sichtbar)</Label>
+            <Select
+              value={formData.prioritaet}
+              onValueChange={(value) => handleChange('prioritaet', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Keine Priorität" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A">A – Erste Wahl</SelectItem>
+                <SelectItem value="B">B – Zweite Wahl</SelectItem>
+                <SelectItem value="C">C – Dritte Wahl</SelectItem>
+                <SelectItem value="D">D – Vierte Wahl</SelectItem>
+                <SelectItem value="E">E – Fünfte Wahl</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="notizen">Interne Notizen</Label>
             <Textarea
               id="notizen"
