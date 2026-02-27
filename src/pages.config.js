@@ -54,6 +54,7 @@ import Aufgaben from './pages/Aufgaben';
 import Ausgaben from './pages/Ausgaben';
 import BuchungsbedingungVorlagen from './pages/BuchungsbedingungVorlagen';
 import Dashboard from './pages/Dashboard';
+import EventAIPlanner from './pages/EventAIPlanner';
 import EventDetail from './pages/EventDetail';
 import Events from './pages/Events';
 import Finanzen from './pages/Finanzen';
@@ -80,7 +81,6 @@ import VertragDetail from './pages/VertragDetail';
 import VertragKundenansicht from './pages/VertragKundenansicht';
 import Vertragsvorlagen from './pages/Vertragsvorlagen';
 import acceptInvite from './pages/accept-invite';
-import EventAIPlanner from './pages/EventAIPlanner';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +92,7 @@ export const PAGES = {
     "Ausgaben": Ausgaben,
     "BuchungsbedingungVorlagen": BuchungsbedingungVorlagen,
     "Dashboard": Dashboard,
+    "EventAIPlanner": EventAIPlanner,
     "EventDetail": EventDetail,
     "Events": Events,
     "Finanzen": Finanzen,
@@ -118,7 +119,6 @@ export const PAGES = {
     "VertragKundenansicht": VertragKundenansicht,
     "Vertragsvorlagen": Vertragsvorlagen,
     "accept-invite": acceptInvite,
-    "EventAIPlanner": EventAIPlanner,
 }
 
 export const pagesConfig = {

@@ -23,6 +23,7 @@ export default function EventAIPlanner() {
   const [saving, setSaving] = useState(false);
   const [plan, setPlan] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [selectedLocationIndex, setSelectedLocationIndex] = useState(0);
 
   const currentOrgId = localStorage.getItem("currentOrgId");
 
