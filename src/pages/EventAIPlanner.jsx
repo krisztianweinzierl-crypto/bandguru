@@ -38,21 +38,46 @@ export default function EventAIPlanner() {
     }
   }, [currentOrgId]);
 
+  // Synonyme für Instrument-Matching
+  const instrumentSynonyme = {
+    "keyboard": ["keyboard", "keys", "piano", "klavier", "synthesizer", "synth", "organ", "orgel"],
+    "gesang": ["gesang", "vocals", "vocal", "singen", "stimme", "singer", "voice"],
+    "schlagzeug": ["schlagzeug", "drums", "drum", "percussion", "beats"],
+    "bass": ["bass", "bassgitarre", "e-bass", "kontrabass"],
+    "gitarre": ["gitarre", "guitar", "e-gitarre", "akustikgitarre", "acoustic guitar"],
+    "trompete": ["trompete", "trumpet", "horn", "blechbläser"],
+    "saxophon": ["saxophon", "saxophone", "sax"],
+    "geige": ["geige", "violine", "violin", "fiddle"],
+    "dj": ["dj", "disc jockey", "turntable"],
+  };
+
+  const getAliases = (rolle) => {
+    const rolleLower = rolle.toLowerCase();
+    for (const [key, aliases] of Object.entries(instrumentSynonyme)) {
+      if (aliases.includes(rolleLower) || rolleLower.includes(key)) return aliases;
+    }
+    return [rolleLower];
+  };
+
   const matchMusikerFromList = (musiker, besetzungAnforderung, genreAnforderung) => {
     if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) return [];
 
     // Schritt 1: Für jede Rolle die besten Kandidaten ermitteln (ohne usedIds-Sperre)
     const rollenMitKandidaten = Object.entries(besetzungAnforderung).map(([rolle, anzahl]) => {
-      const rolleLower = rolle.toLowerCase();
+      const aliases = getAliases(rolle);
 
       let kandidaten = musiker
         .map(m => {
           const instrumente = (m.instrumente || []);
           const primaer = instrumente[0]?.toLowerCase() || "";
           const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
+
+          const primaerMatch = aliases.some(a => primaer.includes(a) || a.includes(primaer));
+          const sekundaerMatch = sekundaer.some(inst => aliases.some(a => inst.includes(a) || a.includes(inst)));
+
           let score = 0;
-          if (primaer.includes(rolleLower) || rolleLower.includes(primaer)) score = 2;
-          else if (sekundaer.some(inst => inst.includes(rolleLower) || rolleLower.includes(inst))) score = 1;
+          if (primaerMatch) score = 2;
+          else if (sekundaerMatch) score = 1;
           return { ...m, _matchScore: score };
         })
         .filter(m => m._matchScore > 0)
