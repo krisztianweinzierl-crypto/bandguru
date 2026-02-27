@@ -41,29 +41,24 @@ export default function EventAIPlanner() {
   const matchMusikerFromList = (musiker, besetzungAnforderung, genreAnforderung) => {
     if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) return [];
 
-    const matched = [];
-    const usedIds = new Set();
-
-    Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
+    // Schritt 1: Für jede Rolle die besten Kandidaten ermitteln (ohne usedIds-Sperre)
+    const rollenMitKandidaten = Object.entries(besetzungAnforderung).map(([rolle, anzahl]) => {
       const rolleLower = rolle.toLowerCase();
 
-      // Bewerte jeden Musiker: primäres Instrument (Index 0) = Score 2, sekundär = Score 1
       let kandidaten = musiker
-        .filter(m => !usedIds.has(m.id))
         .map(m => {
           const instrumente = (m.instrumente || []);
           const primaer = instrumente[0]?.toLowerCase() || "";
           const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
-
           let score = 0;
           if (primaer.includes(rolleLower) || rolleLower.includes(primaer)) score = 2;
           else if (sekundaer.some(inst => inst.includes(rolleLower) || rolleLower.includes(inst))) score = 1;
-
           return { ...m, _matchScore: score };
         })
         .filter(m => m._matchScore > 0)
-        .sort((a, b) => b._matchScore - a._matchScore); // Primärinstrument-Treffer zuerst
+        .sort((a, b) => b._matchScore - a._matchScore);
 
+      // Genre-Filter optional
       if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
         const genreFiltered = kandidaten.filter(m => {
           const mGenres = (m.genre || []).map(g => g.toLowerCase());
@@ -74,10 +69,31 @@ export default function EventAIPlanner() {
         if (genreFiltered.length > 0) kandidaten = genreFiltered;
       }
 
-      kandidaten.slice(0, anzahl).forEach(m => {
-        usedIds.add(m.id);
-        matched.push({ ...m, _rolle: rolle });
-      });
+      return { rolle, anzahl, kandidaten };
+    });
+
+    // Schritt 2: Greedy-Zuweisung – jede Rolle bekommt ihren besten noch nicht genutzten Musiker
+    const usedIds = new Set();
+    const matched = [];
+
+    rollenMitKandidaten.forEach(({ rolle, anzahl, kandidaten }) => {
+      let zugewiesen = 0;
+      for (const m of kandidaten) {
+        if (zugewiesen >= anzahl) break;
+        if (!usedIds.has(m.id)) {
+          usedIds.add(m.id);
+          matched.push({ ...m, _rolle: rolle });
+          zugewiesen++;
+        }
+      }
+      // Falls kein passender Musiker gefunden: besten verfügbaren Musiker nehmen (Fallback)
+      if (zugewiesen < anzahl) {
+        const fallback = musiker.filter(m => !usedIds.has(m.id));
+        fallback.slice(0, anzahl - zugewiesen).forEach(m => {
+          usedIds.add(m.id);
+          matched.push({ ...m, _rolle: rolle });
+        });
+      }
     });
 
     return matched;
