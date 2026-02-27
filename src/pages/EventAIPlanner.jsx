@@ -232,8 +232,68 @@ export default function EventAIPlanner() {
       finanz_status: "offen"
     });
 
+    const createdEvent = await base44.entities.Event.create({
+      org_id: currentOrgId,
+      titel: plan.titel,
+      event_typ: plan.event_typ,
+      datum_von: plan.datum_von,
+      datum_bis: plan.datum_bis,
+      get_in_zeit: plan.get_in_zeit,
+      soundcheck_zeit: plan.soundcheck_zeit,
+      ort_name: selectedLocation?.name || "",
+      ort_adresse: selectedLocation?.adresse || "",
+      anzahl_gaeste: plan.anzahl_gaeste,
+      dresscode: plan.dresscode,
+      ablaufplan: plan.ablaufplan,
+      technik_hinweise: plan.technik_hinweise,
+      musiker_notizen: plan.musiker_notizen,
+      interne_notizen: plan.interne_notizen,
+      besetzung_anforderung: plan.besetzung_anforderung,
+      status: "anfrage",
+      finanz_status: "offen"
+    });
+
     setSaving(false);
     setSaved(true);
+    setSavedEventId(createdEvent.id);
+  };
+
+  const handleRequestMusiker = async () => {
+    if (!savedEventId || suggestedMusiker.length === 0) return;
+    setRequestingMusiker(true);
+
+    const newlyRequested = [];
+
+    for (const m of suggestedMusiker) {
+      if (requestedMusikerIds.includes(m.id)) continue;
+
+      // EventMusiker-Eintrag erstellen
+      await base44.entities.EventMusiker.create({
+        event_id: savedEventId,
+        musiker_id: m.id,
+        rolle: m._rolle,
+        gage_netto: m.tagessatz_netto || 0,
+        status: "angefragt"
+      });
+
+      // E-Mail senden falls Adresse vorhanden
+      if (m.email) {
+        const eventDatum = plan.datum_von
+          ? new Date(plan.datum_von).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+          : "–";
+
+        await base44.functions.invoke("sendEmail", {
+          to: m.email,
+          subject: `Anfrage: ${plan.titel}`,
+          body: `Hallo ${m.name},\n\nwir würden dich gerne für folgendes Event anfragen:\n\nEvent: ${plan.titel}\nDatum: ${eventDatum}\nOrt: ${plan.location_vorschlaege?.[selectedLocationIndex]?.name || "–"}\nRolle: ${m._rolle}\n\n${plan.musiker_notizen ? `Hinweise:\n${plan.musiker_notizen}\n\n` : ""}Bitte melde dich bei uns, um die Anfrage zu bestätigen.\n\nViele Grüße`
+        });
+      }
+
+      newlyRequested.push(m.id);
+    }
+
+    setRequestedMusikerIds(prev => [...prev, ...newlyRequested]);
+    setRequestingMusiker(false);
   };
 
   const formatDateTime = (iso) => {
