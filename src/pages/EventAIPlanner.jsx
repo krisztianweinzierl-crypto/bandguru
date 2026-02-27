@@ -38,6 +38,41 @@ export default function EventAIPlanner() {
     }
   }, [currentOrgId]);
 
+  const matchMusikerFromList = (musiker, besetzungAnforderung, genreAnforderung) => {
+    if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) return [];
+
+    const matched = [];
+    const usedIds = new Set();
+
+    Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
+      const rolleLower = rolle.toLowerCase();
+      let kandidaten = musiker.filter(m => {
+        if (usedIds.has(m.id)) return false;
+        const instrumente = (m.instrumente || []).map(i => i.toLowerCase());
+        return instrumente.some(inst =>
+          inst.includes(rolleLower) || rolleLower.includes(inst)
+        );
+      });
+
+      if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
+        const genreFiltered = kandidaten.filter(m => {
+          const mGenres = (m.genre || []).map(g => g.toLowerCase());
+          return genreAnforderung.some(g =>
+            mGenres.some(mg => mg.includes(g.toLowerCase()) || g.toLowerCase().includes(mg))
+          );
+        });
+        if (genreFiltered.length > 0) kandidaten = genreFiltered;
+      }
+
+      kandidaten.slice(0, anzahl).forEach(m => {
+        usedIds.add(m.id);
+        matched.push({ ...m, _rolle: rolle });
+      });
+    });
+
+    return matched;
+  };
+
   const matchMusiker = (besetzungAnforderung, genreAnforderung) => {
     if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) {
       setSuggestedMusiker([]);
