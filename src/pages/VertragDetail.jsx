@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import VertragsForm from "@/components/vertraege/VertragsForm";
+import { safeHtml } from "@/utils/sanitize";
 
 export default function VertragDetailPage() {
   const navigate = useNavigate();

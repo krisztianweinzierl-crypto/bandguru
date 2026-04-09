@@ -61,11 +61,6 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -444,6 +439,11 @@ export default function Layout({ children, currentPageName }) {
     }
 
   }, [location.pathname]);
+
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   // Loading
   if (!initialLoadComplete) {

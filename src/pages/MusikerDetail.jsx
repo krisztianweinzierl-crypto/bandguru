@@ -214,7 +214,18 @@ ${orgName} Team`;
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {musiker.prioritaet && (
+                <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold text-white ${
+                  musiker.prioritaet === 'A' ? 'bg-green-500' :
+                  musiker.prioritaet === 'B' ? 'bg-blue-500' :
+                  musiker.prioritaet === 'C' ? 'bg-yellow-500' :
+                  musiker.prioritaet === 'D' ? 'bg-orange-500' :
+                  'bg-red-500'
+                }`} title={`Priorität ${musiker.prioritaet}`}>
+                  {musiker.prioritaet}
+                </span>
+              )}
               <Button
                 variant="default"
                 size="sm"

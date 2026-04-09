@@ -456,7 +456,7 @@ Dein Bandguru Team`
                 <Input
                   placeholder="Chats durchsuchen..."
                   value={searchQuery}
-                  onChange={(e) => setSearchKoquery(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
