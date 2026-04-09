@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
@@ -856,7 +857,7 @@ export default function AngebotePage() {
                          <div className="flex justify-between items-start mb-1">
                            <div 
                              className="font-medium prose prose-sm max-w-none flex-1"
-                             dangerouslySetInnerHTML={{ __html: pos.beschreibung }}
+                             {...safeHtml(pos.beschreibung)}
                            />
                            <p className="font-semibold ml-4">
                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
