@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -421,7 +422,7 @@ export default function VertragsvorlagenPage() {
             <CardContent className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
               <div 
                 className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: previewVorlage.inhalt }}
+                {...safeHtml(previewVorlage.inhalt)}
               />
             </CardContent>
           </Card>
