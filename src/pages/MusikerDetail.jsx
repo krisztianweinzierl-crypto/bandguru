@@ -195,35 +195,22 @@ ${orgName} Team`;
                 )}
               </Avatar>
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{musiker.name}</h1>
-                  {musiker.prioritaet && (
-                    <Badge className={{
-                      A: 'bg-emerald-100 text-emerald-700',
-                      B: 'bg-blue-100 text-blue-700',
-                      C: 'bg-yellow-100 text-yellow-700',
-                      D: 'bg-orange-100 text-orange-700',
-                      E: 'bg-red-100 text-red-700'
-                    }[musiker.prioritaet] + ' font-bold text-sm border-0'}>
-                      Priorität {musiker.prioritaet}
-                    </Badge>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{musiker.name}</h1>
+                {musiker.instrumente && musiker.instrumente.length > 0 &&
+                <div className="flex flex-wrap gap-2 mb-3">
+                    {musiker.instrumente.map((instrument, i) =>
+                  <Badge key={i} variant="secondary" className="text-sm">
+                        {instrument}
+                      </Badge>
                   )}
-                </div>
-              {musiker.instrumente && musiker.instrumente.length > 0 &&
-              <div className="flex flex-wrap gap-2 mb-3">
-                  {musiker.instrumente.map((instrument, i) =>
-                <Badge key={i} variant="secondary" className="text-sm">
-                      {instrument}
-                    </Badge>
-                )}
-                </div>
-              }
-              {musiker.genre && musiker.genre.length > 0 &&
-              <div className="flex items-center gap-2 text-gray-600">
-                  <Music className="w-4 h-4" />
-                  <span className="text-sm">{musiker.genre.join(', ')}</span>
-                </div>
-              }
+                  </div>
+                }
+                {musiker.genre && musiker.genre.length > 0 &&
+                <div className="flex items-center gap-2 text-gray-600">
+                    <Music className="w-4 h-4" />
+                    <span className="text-sm">{musiker.genre.join(', ')}</span>
+                  </div>
+                }
               </div>
             </div>
             

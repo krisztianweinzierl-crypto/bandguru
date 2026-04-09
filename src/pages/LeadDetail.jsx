@@ -542,7 +542,7 @@ export default function LeadDetailPage() {
           adresse: lead.event_ort || '',
           notizen: `Erstellt aus Lead: ${lead.titel}`
         });
-        kundeId = neuerKunde.id;
+        kundeId = neuerKuer.id;
 
         // Update Lead mit Kunden-ID
         await base44.entities.Lead.update(leadId, { kunde_id: kundeId });

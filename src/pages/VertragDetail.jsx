@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";

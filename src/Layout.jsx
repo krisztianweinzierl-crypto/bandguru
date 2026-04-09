@@ -61,6 +61,11 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
+
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -83,6 +88,7 @@ export default function Layout({ children, currentPageName }) {
     primary_color: "#223a5e"
   });
 
+  // Prüfe ob wir im iframe (Preview-Modus) sind
   const isInIframe = () => {
     try {
       return window.self !== window.top;
@@ -438,11 +444,6 @@ export default function Layout({ children, currentPageName }) {
     }
 
   }, [location.pathname]);
-
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check (nach allen Hooks!)
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
 
   // Loading
   if (!initialLoadComplete) {
