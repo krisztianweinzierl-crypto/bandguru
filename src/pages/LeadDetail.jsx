@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -1601,7 +1602,7 @@ export default function LeadDetailPage() {
 
                                     <div 
                                       className="text-sm text-gray-700 mt-3 line-clamp-3"
-                                      dangerouslySetInnerHTML={{ __html: email.inhalt }}
+                                      {...safeHtml(email.inhalt)}
                                     />
                                   </div>
                                 ))}
