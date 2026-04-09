@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
@@ -399,7 +400,7 @@ export default function VertragKundenansichtPage() {
               {/* Vertragstext */}
               <div 
                 className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: vertrag.inhalt }}
+                {...safeHtml(vertrag.inhalt)}
               />
             </CardContent>
           </Card>
