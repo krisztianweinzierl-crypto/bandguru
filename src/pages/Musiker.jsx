@@ -173,7 +173,13 @@ export default function MusikerPage() {
     navigate(createPageUrl(`MusikerDetail?id=${musikerId}`));
   };
 
-  const prioritaetColors = { A: "bg-emerald-100 text-emerald-700", B: "bg-blue-100 text-blue-700", C: "bg-yellow-100 text-yellow-700", D: "bg-orange-100 text-orange-700", E: "bg-red-100 text-red-700" };
+  const getPrioritaetStyle = (p) => ({
+    A: { backgroundColor: '#d1fae5', color: '#065f46' },
+    B: { backgroundColor: '#dbeafe', color: '#1e40af' },
+    C: { backgroundColor: '#fef9c3', color: '#854d0e' },
+    D: { backgroundColor: '#ffedd5', color: '#9a3412' },
+    E: { backgroundColor: '#fee2e2', color: '#991b1b' },
+  })[p] || {};
 
   const MusikerCard = ({ musiker }) => {
     const initials = musiker.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'M';
@@ -204,9 +210,9 @@ export default function MusikerPage() {
               <div className="flex items-center gap-2 mb-1">
                 <CardTitle className="text-lg truncate">{musiker.name}</CardTitle>
                 {musiker.prioritaet && (
-                  <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[musiker.prioritaet]}`}>
+                  <span style={{ ...getPrioritaetStyle(musiker.prioritaet), padding: '2px 8px', borderRadius: '9999px', fontSize: '12px', fontWeight: 'bold' }}>
                     {musiker.prioritaet}
-                  </Badge>
+                  </span>
                 )}
               </div>
               {musiker.instrumente && musiker.instrumente.length > 0 &&
@@ -334,9 +340,9 @@ export default function MusikerPage() {
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-lg text-gray-900 truncate">{musiker.name}</h3>
             {musiker.prioritaet && (
-              <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[musiker.prioritaet]}`}>
+              <span style={{ ...getPrioritaetStyle(musiker.prioritaet), padding: '2px 8px', borderRadius: '9999px', fontSize: '12px', fontWeight: 'bold' }}>
                 {musiker.prioritaet}
-              </Badge>
+              </span>
             )}
           </div>
               {musiker.instrumente && musiker.instrumente.length > 0 &&

@@ -413,10 +413,35 @@ ${orgName} Team`;
                   <p className="text-2xl font-bold text-gray-900">{eventMusiker.length}</p>
                 </div>
                 
+                {musiker.prioritaet && (
+                  <div className="pt-4 border-t">
+                    <p className="text-sm text-gray-500 mb-1">Priorität</p>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        color: 'white',
+                        backgroundColor:
+                          musiker.prioritaet === 'A' ? '#22c55e' :
+                          musiker.prioritaet === 'B' ? '#3b82f6' :
+                          musiker.prioritaet === 'C' ? '#eab308' :
+                          musiker.prioritaet === 'D' ? '#f97316' : '#ef4444'
+                      }}
+                    >
+                      {musiker.prioritaet}
+                    </span>
+                  </div>
+                )}
                 <div className="pt-4 border-t">
                   <p className="text-sm text-gray-500 mb-1">Status</p>
-                  <Badge className={musiker.aktiv ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
-                    {musiker.aktiv ? "Aktiv" : "Inaktiv"}
+                  <Badge style={musiker.aktiv ? { backgroundColor: '#d1fae5', color: '#065f46' } : { backgroundColor: '#f3f4f6', color: '#374151' }}>
+                    {musiker.aktiv ? 'Aktiv' : 'Inaktiv'}
                   </Badge>
                 </div>
               </CardContent>
@@ -440,7 +465,6 @@ ${orgName} Team`;
               <p><strong>Musiker:</strong> {musiker?.name}</p>
               <p><strong>E-Mail:</strong> {musiker?.email}</p>
             </div>
-            
             <div>
               <Label htmlFor="einladung-text">Persönliche Nachricht (optional)</Label>
               <Textarea
