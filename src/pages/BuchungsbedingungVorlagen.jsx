@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, FileText, Edit, Trash2, Copy, ArrowLeft } from "lucide-react";
@@ -367,7 +368,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   <CardContent className="pt-0 space-y-3">
                     <div className="p-3 bg-gray-50 rounded-lg">
                       {/* Dangerously set inner HTML for content, assuming it's sanitized HTML from ReactQuill */}
-                      <div className="text-sm text-gray-700 line-clamp-3 quill-content" dangerouslySetInnerHTML={{ __html: vorlage.inhalt }}></div>
+                      <div className="text-sm text-gray-700 line-clamp-3 quill-content" {...safeHtml(vorlage.inhalt)}></div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
