@@ -574,7 +574,7 @@ Ihr Team`;
                 {/* Vertragstext */}
                 <div
                   className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: vertrag.inhalt }} />
+                  {...safeHtml(vertrag.inhalt)} />
 
               </CardContent>
             </Card>
