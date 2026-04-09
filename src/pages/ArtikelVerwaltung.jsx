@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Edit, Trash2, Save, X } from "lucide-react";
@@ -270,7 +271,7 @@ export default function ArtikelVerwaltungPage() {
                           {artikel.beschreibung && (
                             <div 
                               className="text-sm text-gray-500 line-clamp-1" 
-                              dangerouslySetInnerHTML={{ __html: artikel.beschreibung }}
+                              {...safeHtml(artikel.beschreibung)}
                             />
                           )}
                         </td>
