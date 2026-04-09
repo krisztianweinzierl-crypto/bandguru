@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -924,7 +925,7 @@ export default function MusikerDashboard() {
                                 <p className="text-sm font-semibold text-amber-900 mb-2">Buchungsbedingungen:</p>
                                 <div 
                                   className="text-sm text-amber-700 prose prose-sm max-w-none"
-                                  dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
+                                  {...safeHtml(selectedEventMusiker.buchungsbedingungen)}
                                 />
                               </div>
                             </div>
@@ -1032,7 +1033,7 @@ export default function MusikerDashboard() {
                     <p className="font-semibold text-sm text-amber-900 mb-2">Buchungsbedingungen:</p>
                     <div 
                       className="text-sm text-amber-800 prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ __html: selectedEventMusiker.buchungsbedingungen }}
+                      {...safeHtml(selectedEventMusiker.buchungsbedingungen)}
                     />
                   </div>
 
