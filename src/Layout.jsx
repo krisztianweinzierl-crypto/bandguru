@@ -61,6 +61,11 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
+
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -377,8 +382,7 @@ export default function Layout({ children, currentPageName }) {
     icon: Calendar,
     submenu: [
     { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar },
-    { title: "AI Event-Planer", url: createPageUrl("EventAIPlanner"), icon: Sparkles }]
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
 
   },
   { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
@@ -439,11 +443,6 @@ export default function Layout({ children, currentPageName }) {
     }
 
   }, [location.pathname]);
-
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
 
   // Loading
   if (!initialLoadComplete) {
@@ -1248,73 +1247,73 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.3.5</p>
-                            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.2.0</p>
+                            <div className="text-xs text-gray-400 text-center mb-3">Beta 2.0.1
 
-                <Avatar className="w-9 h-9">
-                  <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
-                    {(() => {
-                      if (currentMusiker?.name) {
-                        // Musiker name: Nimm erste Buchstaben von jedem Wort
-                        const parts = currentMusiker.name.split(' ').filter((p) => p.length > 0);
-                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
-                        return parts[0][0].toUpperCase();
-                      }
-                      if (user?.full_name) {
-                        const parts = user.full_name.split(' ').filter((p) => p.length > 0);
-                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
-                        return parts[0][0].toUpperCase();
-                      }
-                      if (user?.email) {
-                        return user.email[0].toUpperCase();
-                      }
-                      return '?';
-                    })()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0 text-left">
-                  <p className="font-medium text-gray-900 text-sm truncate">
-                    {currentMusiker?.name || user?.full_name || user?.email}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
-                </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
-              </button>
 
-              {showUserMenu &&
-              <>
-                  <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowUserMenu(false)} />
 
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                    {!isManager &&
-                  <Link
-                    to={createPageUrl('MusikerProfil')}
-                    onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
 
-                        <UserCircle className="w-4 h-4" />
-                        Mein Profil
-                      </Link>
-                  }
-                    <button
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      handleLogout();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
 
-                      <LogOut className="w-4 h-4" />
-                      Abmelden
-                    </button>
-                  </div>
-                </>
-              }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             </div>
           </SidebarFooter>
         </Sidebar>
@@ -1353,7 +1352,7 @@ export default function Layout({ children, currentPageName }) {
 
                 <LayoutDashboard className="w-6 h-6" />
                 <span className="text-xs font-medium">Dashboard</span>
-              </Link>
+                </Link>
 
               <Link
                 to={createPageUrl(isManager ? "Events" : "MeineEvents")}
@@ -1368,59 +1367,29 @@ export default function Layout({ children, currentPageName }) {
                 <span className="text-xs font-medium">Events</span>
               </Link>
 
-              {isManager ? (
-                <>
-                  <Link
-                    to={createPageUrl("Nachrichten")}
-                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                    location.pathname === createPageUrl("Nachrichten") ?
-                    'text-[#223a5e]' :
-                    'text-gray-500'}`
-                    }>
+              <Link
+                to={createPageUrl("Nachrichten")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                location.pathname === createPageUrl("Nachrichten") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
 
-                    <MessageSquare className="w-6 h-6" />
-                    <span className="text-xs font-medium">Chats</span>
-                  </Link>
+                <MessageSquare className="w-6 h-6" />
+                <span className="text-xs font-medium">Chats</span>
+              </Link>
 
-                  <Link
-                    to={createPageUrl("Aufgaben")}
-                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                    location.pathname === createPageUrl("Aufgaben") ?
-                    'text-[#223a5e]' :
-                    'text-gray-500'}`
-                    }>
+              <Link
+                to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
+                location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
+                'text-[#223a5e]' :
+                'text-gray-500'}`
+                }>
 
-                    <CheckSquare className="w-6 h-6" />
-                    <span className="text-xs font-medium">Aufgaben</span>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to={createPageUrl("Repertoire")}
-                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                    location.pathname === createPageUrl("Repertoire") ?
-                    'text-[#223a5e]' :
-                    'text-gray-500'}`
-                    }>
-
-                    <Music className="w-6 h-6" />
-                    <span className="text-xs font-medium">Repertoire</span>
-                  </Link>
-
-                  <Link
-                    to={createPageUrl("MusikerProfil")}
-                    className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
-                    location.pathname === createPageUrl("MusikerProfil") ?
-                    'text-[#223a5e]' :
-                    'text-gray-500'}`
-                    }>
-
-                    <UserCircle className="w-6 h-6" />
-                    <span className="text-xs font-medium">Mein Profil</span>
-                  </Link>
-                </>
-              )}
+                <CheckSquare className="w-6 h-6" />
+                <span className="text-xs font-medium">Aufgaben</span>
+              </Link>
             </div>
           </nav>
         </main>
