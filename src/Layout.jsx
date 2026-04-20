@@ -1248,7 +1248,7 @@ export default function Layout({ children, currentPageName }) {
 
           <SidebarFooter className="border-t border-gray-200 p-4">
                             <p className="text-xs text-gray-400 text-center mb-3">Beta 2.0.1</p>
-                            <div className="text-xs text-gray-400 text-center mb-3 hidden">Beta 2.0.1
+                            
 
 
 
@@ -1314,7 +1314,7 @@ export default function Layout({ children, currentPageName }) {
 
 
 
-            </div>
+            
           </SidebarFooter>
         </Sidebar>
 
