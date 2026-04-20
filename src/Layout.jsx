@@ -61,11 +61,7 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
+  // ALL hooks must be declared before any conditional return
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -88,18 +84,16 @@ export default function Layout({ children, currentPageName }) {
     primary_color: "#223a5e"
   });
 
-  // Prüfe ob wir im iframe (Preview-Modus) sind
-  const isInIframe = () => {
-    try {
-      return window.self !== window.top;
-    } catch (e) {
-      return true;
-    }
-  };
-
   useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
+    if (!isPublicPage) {
+      checkAuthAndLoadData();
+    }
+  }, [isPublicPage]);
+
+  // Für Public Pages: früher Return NACH allen Hooks
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   const checkAuthAndLoadData = async () => {
     try {
