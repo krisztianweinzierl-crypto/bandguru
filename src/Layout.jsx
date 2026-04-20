@@ -382,7 +382,8 @@ export default function Layout({ children, currentPageName }) {
     icon: Calendar,
     submenu: [
     { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar },
+    { title: "AI Event-Planer", url: createPageUrl("EventAIPlanner"), icon: Sparkles }]
 
   },
   { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
