@@ -59,15 +59,15 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-3 md:p-8 overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
           <p className="text-gray-600">Willkommen zurück! Hier ist deine Übersicht.</p>
         </div>
 
         {/* Statistik-Kacheln */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
             <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#223a5e' }} />
             <CardHeader className="pb-2">
@@ -133,7 +133,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Nächste Events */}
           <Card className="lg:col-span-2 border-none shadow-lg">
             <CardHeader className="border-b">
@@ -166,14 +166,14 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{event.titel}</h3>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                          <Clock className="w-4 h-4" />
+                        <h3 className="font-semibold text-gray-900 truncate text-sm md:text-base">{event.titel}</h3>
+                        <div className="flex items-center gap-1 mt-1 text-xs md:text-sm text-gray-500 truncate">
+                          <Clock className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                           {format(new Date(event.datum_von), 'HH:mm')} Uhr
-                          {event.ort_name && ` • ${event.ort_name}`}
+                          {event.ort_name && <span className="truncate"> • {event.ort_name}</span>}
                         </div>
                       </div>
-                      <Badge className={statusColors[event.status]?.className || "bg-gray-100 text-gray-800"}>
+                      <Badge className={`text-xs flex-shrink-0 ${statusColors[event.status]?.className || "bg-gray-100 text-gray-800"}`}>
                         {statusColors[event.status]?.label || event.status}
                       </Badge>
                     </Link>
