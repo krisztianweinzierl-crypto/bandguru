@@ -119,7 +119,7 @@ export default function KundenDetailPage() {
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a]">
+              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -148,7 +148,7 @@ export default function KundenDetailPage() {
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Kunden'))}
-              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a]">
+              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
