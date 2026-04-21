@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, Mail, Phone, Euro, Edit, Trash2, MoreVertical, LayoutGrid, List, Users } from "lucide-react";
+import { Plus, Search, Music, Mail, Phone, Euro, Edit, Trash2, MoreVertical, LayoutGrid, List, Users, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ export default function MusikerPage() {
   const [instrumentFilter, setInstrumentFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
   const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const queryClient = useQueryClient();
   const { showConfirm, AlertDialog } = useAlertDialog();
 
@@ -279,32 +280,49 @@ export default function MusikerPage() {
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
-          {musiker.email &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Mail className="w-4 h-4 text-gray-400" />
-              <span className="truncate">{musiker.email}</span>
-            </div>
-          }
+          {/* Immer sichtbar: Telefon */}
           {musiker.telefon &&
           <div className="flex items-center gap-2 text-sm text-gray-600">
               <Phone className="w-4 h-4 text-gray-400" />
               <span>{musiker.telefon}</span>
             </div>
           }
-          {musiker.tagessatz_netto &&
-          <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-              <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
-            </div>
-          }
-          {musiker.genre && musiker.genre.length > 0 &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Music className="w-4 h-4" />
-              <span className="truncate">{musiker.genre.join(', ')}</span>
-            </div>
-          }
           {!musiker.aktiv &&
           <Badge variant="outline" className="mt-2 text-xs">Inaktiv</Badge>
           }
+          {/* Aufklapp-Bereich */}
+          {expandedCardId === musiker.id && (
+            <div className="space-y-2 pt-1 border-t border-gray-100 mt-2">
+              {musiker.email &&
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Mail className="w-4 h-4 text-gray-400" />
+                  <span className="truncate">{musiker.email}</span>
+                </div>
+              }
+              {musiker.tagessatz_netto &&
+              <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+                  <span>{musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+                </div>
+              }
+              {musiker.genre && musiker.genre.length > 0 &&
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Music className="w-4 h-4" />
+                  <span className="truncate">{musiker.genre.join(', ')}</span>
+                </div>
+              }
+            </div>
+          )}
+          {/* Toggle-Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpandedCardId(expandedCardId === musiker.id ? null : musiker.id);
+            }}
+            className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors pt-1"
+          >
+            <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${expandedCardId === musiker.id ? 'rotate-180' : ''}`} />
+            {expandedCardId === musiker.id ? 'Weniger' : 'Mehr'}
+          </button>
         </CardContent>
       </Card>);
 
