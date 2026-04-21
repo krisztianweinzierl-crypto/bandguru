@@ -116,10 +116,10 @@ export default function KundenDetailPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="default"
+              size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4">
+              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a]">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -145,10 +145,10 @@ export default function KundenDetailPage() {
           {/* Back Button */}
           <div className="flex items-center gap-3 mb-4">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="default"
+              size="default"
               onClick={() => navigate(createPageUrl('Kunden'))}
-              className="gap-2">
+              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a]">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
