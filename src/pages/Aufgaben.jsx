@@ -693,7 +693,7 @@ export default function AufgabenPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="alle" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-white border shadow-sm flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="alle">
               Alle ({filteredAufgaben.length})
             </TabsTrigger>
