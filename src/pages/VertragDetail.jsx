@@ -453,10 +453,10 @@ Ihr Team`;
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="default"
+              size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4">
+              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -484,10 +484,10 @@ Ihr Team`;
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex items-center gap-3 mb-4">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="default"
+              size="default"
               onClick={() => navigate(createPageUrl('Vertraege'))}
-              className="gap-2">
+              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
