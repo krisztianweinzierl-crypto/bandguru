@@ -967,10 +967,10 @@ export default function LeadDetailPage() {
   return (
     <>
       <AlertDialog />
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 overflow-x-hidden">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+          <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
             <div className="flex items-center gap-3 mb-4">
               <Button
                 variant="ghost"
@@ -1017,7 +1017,7 @@ export default function LeadDetailPage() {
         </div>
 
         {/* Content */}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
           {isEditing ? (
             <LeadForm
               lead={lead}

@@ -1021,10 +1021,10 @@ ${orgName} Team`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-x-hidden">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+        <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
           {/* Back Button & Status */}
           <div className="flex items-center gap-3 mb-4">
             <Button
@@ -1102,27 +1102,27 @@ ${orgName} Team`;
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white border-b border-gray-200 p-0 h-auto">
-            <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+          <TabsList className="bg-white border-b border-gray-200 p-0 h-auto flex-wrap overflow-x-auto">
+            <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
               Übersicht
             </TabsTrigger>
-            <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+            <TabsTrigger value="musiker" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
               Musiker ({eventMusiker.length})
             </TabsTrigger>
-            <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+            <TabsTrigger value="aufgaben" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
               Aufgaben
             </TabsTrigger>
-            <TabsTrigger value="dokumente" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Dokumente ({dateien.length})
+            <TabsTrigger value="dokumente" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
+              Dokumente
             </TabsTrigger>
-            <TabsTrigger value="finanzen" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
+            <TabsTrigger value="finanzen" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
               Finanzen
             </TabsTrigger>
-            <TabsTrigger value="verlauf" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3">
-              Verlauf ({aktivitaeten.length})
+            <TabsTrigger value="verlauf" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
+              Verlauf
             </TabsTrigger>
           </TabsList>
 

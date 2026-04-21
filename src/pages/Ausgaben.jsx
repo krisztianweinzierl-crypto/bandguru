@@ -199,8 +199,8 @@ export default function AusgabenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 p-3 md:p-8 overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Button
@@ -229,7 +229,7 @@ export default function AusgabenPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="border-none shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>

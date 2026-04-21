@@ -389,8 +389,8 @@ export default function RechnungenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-3 md:p-8 overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Button
@@ -420,7 +420,7 @@ export default function RechnungenPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
           <Card className="border-l-4 border-l-blue-500">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
