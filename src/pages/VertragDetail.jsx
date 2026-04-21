@@ -481,7 +481,7 @@ Ihr Team`;
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
+        <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
           <div className="flex items-center gap-3 mb-4">
             <Button
               variant="default"
@@ -543,7 +543,7 @@ Ihr Team`;
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
