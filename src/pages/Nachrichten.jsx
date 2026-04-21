@@ -424,7 +424,7 @@ Dein Bandguru Team`
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden w-full">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto">
@@ -435,7 +435,7 @@ Dein Bandguru Team`
 
       {/* Content - Full height with mobile bottom nav consideration */}
       <div className="flex-1 overflow-hidden pb-16 md:pb-0">
-        <div className="h-full max-w-7xl mx-auto px-2 md:px-8 py-2 md:py-6 flex gap-2 md:gap-6">
+        <div className="h-full max-w-7xl mx-auto px-2 md:px-8 py-2 md:py-6 flex gap-2 md:gap-6 min-w-0 w-full">
           {/* Sidebar - Hidden on mobile when chat selected */}
           <Card className={`${selectedKonversation ? 'hidden md:flex' : 'flex'} w-full md:w-96 flex-shrink-0 border-none shadow-lg flex-col overflow-hidden`}>
             <CardHeader className="border-b pb-4 flex-shrink-0">
@@ -505,7 +505,7 @@ Dein Bandguru Team`
           </Card>
 
           {/* Chat Area */}
-          <Card className={`${selectedKonversation ? 'flex' : 'hidden md:flex'} flex-1 border-none shadow-lg flex-col overflow-hidden`}>
+          <Card className={`${selectedKonversation ? 'flex' : 'hidden md:flex'} flex-1 min-w-0 border-none shadow-lg flex-col overflow-hidden`}>
             {selectedKonversation ? (
               <>
                 {/* Chat Header */}
