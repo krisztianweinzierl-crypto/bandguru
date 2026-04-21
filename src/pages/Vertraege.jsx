@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, FileText, Edit, Trash2, Send, Calendar, User, LayoutGrid, List, Eye, Download } from "lucide-react";
+import { Plus, Search, FileText, Edit, Trash2, Send, Calendar, User, LayoutGrid, List, Eye, Download, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -128,18 +129,40 @@ export default function VertraegePage() {
     const event = events.find((e) => e.id === vertrag.event_id);
 
     return (
-      <Card className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass}`}>
+      <Card
+        className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass} cursor-pointer`}
+        onClick={() => handleView(vertrag)}
+      >
         <CardHeader className="pb-3">
-          <div className="flex justify-between items-start gap-4">
+          <div className="flex justify-between items-start gap-2">
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{vertrag.titel}</CardTitle>
               {vertrag.vertragsnummer &&
               <p className="text-sm text-gray-500">{vertrag.vertragsnummer}</p>
               }
             </div>
-            <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
-              {statusLabels[vertrag.status]}
-            </Badge>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
+                {statusLabels[vertrag.status]}
+              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(vertrag); }}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Bearbeiten
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(vertrag); }} className="text-red-600">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Löschen
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
@@ -161,19 +184,6 @@ export default function VertraegePage() {
               <span>Frist: {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</span>
             </div>
           }
-          
-          <div className="flex gap-2 pt-3">
-            <Button variant="outline" size="sm" onClick={() => handleView(vertrag)} className="flex-1">
-              <Eye className="w-4 h-4 mr-1" />
-              Ansehen
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleEdit(vertrag)}>
-              <Edit className="w-4 h-4" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleDelete(vertrag)} className="text-red-600 hover:text-red-700">
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
         </CardContent>
       </Card>);
 
@@ -185,8 +195,11 @@ export default function VertraegePage() {
     const event = events.find((e) => e.id === vertrag.event_id);
 
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
-        <div className="bg-[#223a5e] text-white font-bold rounded-lg w-12 h-12 from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0">
+      <div
+        className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass} cursor-pointer`}
+        onClick={() => handleView(vertrag)}
+      >
+        <div className="bg-[#223a5e] text-white font-bold rounded-lg w-12 h-12 flex items-center justify-center flex-shrink-0">
           <FileText className="w-6 h-6" />
         </div>
         
@@ -225,17 +238,23 @@ export default function VertraegePage() {
           </div>
         </div>
 
-        <div className="flex gap-2 flex-shrink-0">
-          <Button variant="outline" size="sm" onClick={() => handleView(vertrag)}>
-            <Eye className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleEdit(vertrag)}>
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => handleDelete(vertrag)} className="text-red-600 hover:text-red-700">
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEdit(vertrag); }}>
+              <Edit className="w-4 h-4 mr-2" />
+              Bearbeiten
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(vertrag); }} className="text-red-600">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Löschen
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>);
 
   };
