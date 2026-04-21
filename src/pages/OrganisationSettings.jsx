@@ -14,7 +14,9 @@ import {
   Save,
   Send,
   Clock,
-  CalendarCheck
+  CalendarCheck,
+  Sparkles,
+  AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -36,6 +38,8 @@ export default function OrganisationSettingsPage() {
   const [copied, setCopied] = useState(false);
   const [orgFormData, setOrgFormData] = useState(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoResult, setDemoResult] = useState(null);
   const queryClient = useQueryClient();
   const { showAlert, AlertDialog } = useAlertDialog();
 
@@ -259,6 +263,21 @@ Das ${organisation.name} Team 🎵`;
   const currentMitglied = mitglieder.find(m => m.user_id === user?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
 
+  const handleGenerateDemoData = async () => {
+    if (!confirm("Achtung: Es werden Demo-Daten (Musiker, Kunden, Events, Songs, Rechnungen, Aufgaben, Leads) zu deiner Organisation hinzugefügt. Bestehende Daten werden NICHT gelöscht. Fortfahren?")) return;
+    setDemoLoading(true);
+    setDemoResult(null);
+    try {
+      const response = await base44.functions.invoke('generateDemoData', { org_id: currentOrgId });
+      setDemoResult({ success: true, data: response.data });
+      queryClient.invalidateQueries();
+    } catch (error) {
+      setDemoResult({ success: false, error: error.message });
+    } finally {
+      setDemoLoading(false);
+    }
+  };
+
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -382,6 +401,7 @@ Das ${organisation.name} Team 🎵`;
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="general">Allgemein</TabsTrigger>
             <TabsTrigger value="members">Mitglieder</TabsTrigger>
+            {isManager && <TabsTrigger value="demo">Demo-Daten</TabsTrigger>}
           </TabsList>
 
           {/* Allgemein Tab */}
@@ -677,6 +697,78 @@ Das ${organisation.name} Team 🎵`;
               </CardContent>
             </Card>
           </TabsContent>
+          {/* Demo-Daten Tab */}
+          {isManager && (
+            <TabsContent value="demo" className="space-y-6">
+              <Card className="border-none shadow-lg">
+                <CardHeader className="border-b">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    <CardTitle>Demo-Daten generieren</CardTitle>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Fülle deine Organisation mit realistischen Beispieldaten für Demo-Videos oder Tests
+                  </p>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-amber-800">
+                      <p className="font-semibold mb-1">Hinweis</p>
+                      <p>Bestehende Daten werden <strong>nicht gelöscht</strong>. Die Demo-Daten werden zusätzlich hinzugefügt.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {[
+                      { label: "6 Musiker", icon: "🎸" },
+                      { label: "4 Kunden", icon: "🏢" },
+                      { label: "5 Events", icon: "📅" },
+                      { label: "10 Songs", icon: "🎵" },
+                      { label: "2 Setlisten", icon: "📋" },
+                      { label: "2 Rechnungen", icon: "💶" },
+                      { label: "6 Aufgaben", icon: "✅" },
+                      { label: "4 Leads", icon: "🎯" },
+                    ].map((item) => (
+                      <div key={item.label} className="bg-gray-50 rounded-lg p-3 text-center">
+                        <div className="text-2xl mb-1">{item.icon}</div>
+                        <p className="text-sm font-medium text-gray-700">{item.label}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    onClick={handleGenerateDemoData}
+                    disabled={demoLoading}
+                    className="w-full h-12 text-base"
+                    style={{ backgroundColor: '#223a5e' }}
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    {demoLoading ? "Erstelle Demo-Daten..." : "Demo-Daten jetzt erstellen"}
+                  </Button>
+
+                  {demoResult && demoResult.success && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <p className="text-green-800 font-semibold mb-2">✅ Demo-Daten erfolgreich erstellt!</p>
+                      <div className="grid grid-cols-2 gap-1 text-sm text-green-700">
+                        {Object.entries(demoResult.data.created || {}).map(([key, val]) => (
+                          <span key={key}>• {val} {key}</span>
+                        ))}
+                      </div>
+                      <p className="text-xs text-green-600 mt-3">Navigiere zu Events, Musiker oder Leads um die Daten zu sehen.</p>
+                    </div>
+                  )}
+
+                  {demoResult && !demoResult.success && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <p className="text-red-800 font-semibold">❌ Fehler</p>
+                      <p className="text-sm text-red-700 mt-1">{demoResult.error}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
