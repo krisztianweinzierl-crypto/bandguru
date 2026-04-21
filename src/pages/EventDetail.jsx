@@ -47,14 +47,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import MusikerHinzufuegenForm from "@/components/events/MusikerHinzufuegenForm";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EventForm from "@/components/events/EventForm";
 import EventAufgabenTab from "@/components/events/EventAufgabenTab";
 import GoogleMapEmbed from "@/components/events/GoogleMapEmbed";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import EventMusikerCard from "@/components/events/EventMusikerCard";
+import { EditMusikerDialog, EinladungDialog, KontaktDialog } from "@/components/events/EventMusikerDialogs";
 
 export default function EventDetailPage() {
   const navigate = useNavigate();
@@ -1443,186 +1443,21 @@ ${orgName} Team`;
               </CardHeader>
                 <CardContent className="p-6">
                   {isManager && showMusikerForm && (
-                    <Card className="mb-6 bg-blue-50 border-blue-200">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="font-semibold text-lg">Musiker hinzufügen</h3>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setShowMusikerForm(false);
-                              resetMusikerForm();
-                            }}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div>
-                            <Label>Musiker auswählen <span className="text-red-500">*</span></Label>
-                            <Select value={selectedMusikerId} onValueChange={(value) => {
-                              setSelectedMusikerId(value);
-                              const m = musiker.find(mus => mus.id === value);
-                              if (m) {
-                                setMusikerRolle(m.instrumente?.[0] || "");
-                                setMusikerGage(m.tagessatz_netto?.toString() || "");
-                              }
-                            }}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Musiker wählen..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {musiker.map((m) => (
-                                  <SelectItem key={m.id} value={m.id}>
-                                    {m.name} {m.instrumente?.length > 0 && `(${m.instrumente.join(', ')})`}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label>Rolle/Instrument <span className="text-red-500">*</span></Label>
-                              <Input
-                                value={musikerRolle}
-                                onChange={(e) => setMusikerRolle(e.target.value)}
-                                placeholder="z.B. Gitarre, Gesang"
-                              />
-                            </div>
-                            <div>
-                              <Label>Gage (netto)</Label>
-                              <Input
-                                type="number"
-                                value={musikerGage}
-                                onChange={(e) => setMusikerGage(e.target.value)}
-                                placeholder="0.00"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <Label>Entfernung (km, einfach)</Label>
-                              <Input
-                                type="number"
-                                value={musikerDistanz}
-                                onChange={(e) => setMusikerDistanz(e.target.value)}
-                                placeholder="z.B. 50"
-                              />
-                            </div>
-                            <div>
-                              <Label>€/km</Label>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                value={musikerFahrtkostenProKm}
-                                onChange={(e) => setMusikerFahrtkostenProKm(e.target.value)}
-                                placeholder="0.30"
-                              />
-                            </div>
-                            <div>
-                              <Label>Fahrtkosten (berechnet)</Label>
-                              <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
-                                {((parseFloat(musikerDistanz) || 0) * 2 * (parseFloat(musikerFahrtkostenProKm) || 0.30)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                              </div>
-                              <p className="text-xs text-gray-500 mt-1">= {musikerDistanz || 0} km × 2 × {musikerFahrtkostenProKm || 0.30} €/km</p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label>Notizen</Label>
-                            <Textarea
-                              value={musikerNotizen}
-                              onChange={(e) => setMusikerNotizen(e.target.value)}
-                              placeholder="Zusätzliche Informationen..."
-                              rows={2}
-                            />
-                          </div>
-
-                          <div className="space-y-3">
-                            <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="vorlage" className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
-                              <Select
-                                value={selectedVorlageId}
-                                onValueChange={(value) => {
-                                  setSelectedVorlageId(value);
-                                  if (value === "keine") {
-                                    setBuchungsbedingungen("");
-                                  } else {
-                                    const vorlage = vorlagen.find(v => v.id === value);
-                                    if (vorlage) {
-                                      setBuchungsbedingungen(vorlage.inhalt);
-                                    }
-                                  }
-                                }}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Vorlage wählen..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="keine">-- Keine Vorlage --</SelectItem>
-                                  {vorlagen.map((v) => (
-                                    <SelectItem key={v.id} value={v.id}>
-                                      {v.name} ({v.kategorie})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              {vorlagen.length === 0 && (
-                                <p className="text-xs text-amber-600">
-                                  Noch keine Vorlagen vorhanden. Erstelle Vorlagen unter Einstellungen → Buchungsbedingungen
-                                </p>
-                              )}
-                              {vorlagen.length > 0 && (
-                                <p className="text-xs text-gray-500">
-                                  Wähle eine gespeicherte Vorlage oder schreibe eigene Bedingungen
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="border border-gray-200 rounded-lg">
-                              <ReactQuill
-                                theme="snow"
-                                value={buchungsbedingungen}
-                                onChange={(value) => setBuchungsbedingungen(value)}
-                                modules={modules}
-                                formats={formats}
-                                placeholder="z.B. Bitte Smoking mitbringen, Soundcheck um 18:00 Uhr..."
-                                className="min-h-[150px]"
-                              />
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              Diese Bedingungen muss der Musiker bei Zusage akzeptieren
-                            </p>
-                          </div>
-
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setShowMusikerForm(false);
-                                resetMusikerForm();
-                              }}
-                            >
-                              Abbrechen
-                            </Button>
-                            <Button
-                              onClick={handleAddMusiker}
-                              disabled={!selectedMusikerId || addMusikerMutation.isPending}
-                              className="text-white"
-                              style={{ backgroundColor: '#223a5e' }}
-                            >
-                              Musiker hinzufügen
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <MusikerHinzufuegenForm
+                      musiker={musiker}
+                      vorlagen={vorlagen}
+                      selectedMusikerId={selectedMusikerId} setSelectedMusikerId={setSelectedMusikerId}
+                      musikerRolle={musikerRolle} setMusikerRolle={setMusikerRolle}
+                      musikerGage={musikerGage} setMusikerGage={setMusikerGage}
+                      musikerDistanz={musikerDistanz} setMusikerDistanz={setMusikerDistanz}
+                      musikerFahrtkostenProKm={musikerFahrtkostenProKm} setMusikerFahrtkostenProKm={setMusikerFahrtkostenProKm}
+                      musikerNotizen={musikerNotizen} setMusikerNotizen={setMusikerNotizen}
+                      buchungsbedingungen={buchungsbedingungen} setBuchungsbedingungen={setBuchungsbedingungen}
+                      selectedVorlageId={selectedVorlageId} setSelectedVorlageId={setSelectedVorlageId}
+                      onAdd={handleAddMusiker}
+                      onCancel={() => { setShowMusikerForm(false); resetMusikerForm(); }}
+                      isPending={addMusikerMutation.isPending}
+                    />
                   )}
 
                   <div className="space-y-4">
@@ -1634,208 +1469,21 @@ ${orgName} Team`;
                         const isCurrentUserMusiker = currentMusiker?.id === em.musiker_id;
                         
                         return (
-                          <Card key={em.id} className={`border-l-4 ${statusStyle.border} ${isCurrentUserMusiker && !isManager ? 'ring-2 ring-blue-300' : ''}`}>
-                            <CardContent className="p-4">
-                              <div className="flex items-start gap-4">
-                                <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
-                                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold">
-                                    {initials}
-                                  </AvatarFallback>
-                                </Avatar>
-
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-4 mb-2">
-                                    <div>
-                                      <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold text-lg">{musikerData?.name || 'Unbekannt'}</h3>
-                                        {isCurrentUserMusiker && !isManager && (
-                                          <Badge variant="outline" className="text-xs">Du</Badge>
-                                        )}
-                                      </div>
-                                      {isManager && (
-                                        <Badge className={`${statusStyle.bg} ${statusStyle.text} mt-1`}>
-                                          {statusStyle.label}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    {isManager && (
-                                      <div className="relative">
-                                        <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={() => setShowDropdownId(showDropdownId === em.id ? null : em.id)}
-                                        >
-                                          <MoreVertical className="w-4 h-4" />
-                                        </Button>
-
-                                        {showDropdownId === em.id && (
-                                          <>
-                                            <div 
-                                              className="fixed inset-0 z-40" 
-                                              onClick={() => setShowDropdownId(null)}
-                                            />
-                                            <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
-                                              {em.status === 'angefragt' && (
-                                                <>
-                                                  <button
-                                                    onClick={() => handleUpdateStatus(em.id, 'zugesagt')}
-                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
-                                                  >
-                                                    Als zugesagt markieren
-                                                  </button>
-                                                  <button
-                                                    onClick={() => handleUpdateStatus(em.id, 'optional')}
-                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                                  >
-                                                    Als optional markieren
-                                                  </button>
-                                                  <button
-                                                    onClick={() => handleUpdateStatus(em.id, 'abgelehnt')}
-                                                    className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                                  >
-                                                    Als abgelehnt markieren
-                                                  </button>
-                                                </>
-                                              )}
-                                              <button
-                                                onClick={() => handleOpenEditMusikerDialog(em)}
-                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                              >
-                                                <Edit className="w-4 h-4" />
-                                                Bearbeiten
-                                              </button>
-                                              {musikerData?.email && (
-                                                <button
-                                                  onClick={() => handleOpenEinladungDialog(em.id, em.musiker_id)}
-                                                  className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
-                                                >
-                                                  <Send className="w-4 h-4" />
-                                                  Einladung senden
-                                                </button>
-                                              )}
-                                              <button
-                                                onClick={() => handleRemoveMusiker(em.id)}
-                                                className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
-                                              >
-                                                <Trash2 className="w-4 h-4" />
-                                                Entfernen
-                                              </button>
-                                            </div>
-                                          </>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <p className="text-sm text-gray-600 mb-3">{em.rolle}</p>
-
-                                  {/* Manager sieht alle Details, Musiker nur Rolle und Instrument */}
-                                  {isManager ? (
-                                    <>
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                        <div className="flex items-center gap-2 text-gray-600">
-                                          <Calendar className="w-4 h-4" />
-                                          <div>
-                                            <p className="text-xs text-gray-500">Eingeladen am</p>
-                                            <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
-                                          </div>
-                                        </div>
-
-                                        {em.status === 'zugesagt' && (
-                                          <div className="flex items-center gap-2 text-gray-600">
-                                            <Calendar className="w-4 h-4 text-green-600" />
-                                            <div>
-                                              <p className="text-xs text-gray-500">Zugesagt am</p>
-                                              <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy HH:mm', { locale: de })}</p>
-                                            </div>
-                                          </div>
-                                        )}
-
-                                        <div className="flex items-center gap-2 text-gray-600">
-                                          <Euro className="w-4 h-4" />
-                                          <div>
-                                            <p className="text-xs text-gray-500">Gage (netto)</p>
-                                            <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 text-gray-600">
-                                          <Euro className="w-4 h-4" />
-                                          <div>
-                                            <p className="text-xs text-gray-500">Fahrtkosten gesamt</p>
-                                            <p className="font-medium">
-                                              {((em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                                            </p>
-                                            {em.spesen > 0 && (
-                                              <p className="text-xs text-gray-400">
-                                                Distanz: {em.spesen.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                                              </p>
-                                            )}
-                                            {em.weitere_kosten?.length > 0 && (
-                                              <p className="text-xs text-gray-400">
-                                                Weitere: {(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                                              </p>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      {em.notizen && (
-                                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                                          <div className="flex items-start gap-2 text-sm">
-                                            <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5" />
-                                            <div>
-                                              <p className="text-xs text-gray-500 mb-1">Notizen für Musiker</p>
-                                              <p className="text-gray-700">{em.notizen}</p>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-                                      {em.buchungsbedingungen && (
-                                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                          <div className="flex items-start gap-2 text-sm">
-                                            <FileText className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                                            <div className="flex-1">
-                                              <p className="text-xs text-gray-500 mb-1">Buchungsbedingungen</p>
-                                              <p className="font-medium text-blue-700">Buchungsbedingungen hinterlegt</p>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    /* Musiker sieht nur eigene Gage-Details */
-                                    isCurrentUserMusiker && (
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-2">
-                                        <div className="flex items-center gap-2 text-gray-600">
-                                          <Euro className="w-4 h-4" />
-                                          <div>
-                                            <p className="text-xs text-gray-500">Deine Gage (netto)</p>
-                                            <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
-                                          </div>
-                                        </div>
-                                        {em.spesen > 0 && (
-                                          <div className="flex items-center gap-2 text-gray-600">
-                                            <Euro className="w-4 h-4" />
-                                            <div>
-                                              <p className="text-xs text-gray-500">Fahrtkosten</p>
-                                              <p className="font-medium">{(em.spesen || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
-                                              {em.distanz_km > 0 && (
-                                                <p className="text-xs text-gray-400">
-                                                  ({em.distanz_km} km × 2 × {em.fahrtkosten_pro_km?.toFixed(2) || '0.30'} €/km)
-                                                </p>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    )
-                                  )}
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
+                          <EventMusikerCard
+                            key={em.id}
+                            em={em}
+                            musikerData={musikerData}
+                            statusStyle={statusStyle}
+                            isCurrentUserMusiker={isCurrentUserMusiker}
+                            isManager={isManager}
+                            showDropdownId={showDropdownId}
+                            setShowDropdownId={setShowDropdownId}
+                            handleUpdateStatus={handleUpdateStatus}
+                            handleOpenEditMusikerDialog={handleOpenEditMusikerDialog}
+                            handleOpenEinladungDialog={handleOpenEinladungDialog}
+                            handleRemoveMusiker={handleRemoveMusiker}
+                          />
+                         );
                       })
                     ) : (
                       isManager ? (
@@ -2345,291 +1993,37 @@ ${orgName} Team`;
           </TabsContent>
         </Tabs>
 
-        {/* Musiker bearbeiten Dialog */}
-        <Dialog open={showEditMusikerDialog} onOpenChange={setShowEditMusikerDialog}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Musiker bearbeiten</DialogTitle>
-              <DialogDescription>
-                {musiker.find(m => m.id === editingEventMusiker?.musiker_id)?.name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Rolle/Instrument</Label>
-                <Input
-                  value={editMusikerData.rolle}
-                  onChange={(e) => setEditMusikerData({...editMusikerData, rolle: e.target.value})}
-                  placeholder="z.B. Gitarre, Gesang"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Gage (netto)</Label>
-                  <Input
-                    type="number"
-                    value={editMusikerData.gage_netto}
-                    onChange={(e) => setEditMusikerData({...editMusikerData, gage_netto: e.target.value})}
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <Label>MwSt.-Satz (%)</Label>
-                  <Input
-                    type="number"
-                    value={editMusikerData.mwst_satz}
-                    onChange={(e) => setEditMusikerData({...editMusikerData, mwst_satz: e.target.value})}
-                    placeholder="19"
-                  />
-                </div>
-              </div>
-
-              <div className="p-3 bg-gray-50 rounded-lg space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Gage (netto):</span>
-                  <span className="font-medium">{(parseFloat(editMusikerData.gage_netto) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">MwSt. ({editMusikerData.mwst_satz}%):</span>
-                  <span className="font-medium">{((parseFloat(editMusikerData.gage_netto) || 0) * (parseFloat(editMusikerData.mwst_satz) || 0) / 100).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
-                </div>
-                <div className="flex justify-between text-base font-bold border-t pt-2">
-                  <span>Gage (brutto):</span>
-                  <span>{((parseFloat(editMusikerData.gage_netto) || 0) * (1 + (parseFloat(editMusikerData.mwst_satz) || 0) / 100)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label>Entfernung (km)</Label>
-                  <Input
-                    type="number"
-                    value={editMusikerData.distanz_km}
-                    onChange={(e) => setEditMusikerData({...editMusikerData, distanz_km: e.target.value})}
-                    placeholder="z.B. 50"
-                  />
-                </div>
-                <div>
-                  <Label>€/km</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={editMusikerData.fahrtkosten_pro_km}
-                    onChange={(e) => setEditMusikerData({...editMusikerData, fahrtkosten_pro_km: e.target.value})}
-                    placeholder="0.30"
-                  />
-                </div>
-                <div>
-                  <Label>Fahrtkosten</Label>
-                  <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
-                    {((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Weitere Kosten</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditMusikerData({
-                      ...editMusikerData,
-                      weitere_kosten: [...(editMusikerData.weitere_kosten || []), { beschreibung: "", betrag: 0 }]
-                    })}
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Kosten hinzufügen
-                  </Button>
-                </div>
-                {editMusikerData.weitere_kosten?.length > 0 && (
-                  <div className="space-y-2">
-                    {editMusikerData.weitere_kosten.map((kosten, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          placeholder="Beschreibung (z.B. Unterkunft)"
-                          value={kosten.beschreibung}
-                          onChange={(e) => {
-                            const updated = [...editMusikerData.weitere_kosten];
-                            updated[index].beschreibung = e.target.value;
-                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
-                          }}
-                          className="flex-1"
-                        />
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder="Betrag"
-                          value={kosten.betrag}
-                          onChange={(e) => {
-                            const updated = [...editMusikerData.weitere_kosten];
-                            updated[index].betrag = parseFloat(e.target.value) || 0;
-                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
-                          }}
-                          className="w-28"
-                        />
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => {
-                            const updated = editMusikerData.weitere_kosten.filter((_, i) => i !== index);
-                            setEditMusikerData({...editMusikerData, weitere_kosten: updated});
-                          }}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    <div className="text-sm text-gray-600 pt-2 border-t">
-                      Summe weitere Kosten: {(editMusikerData.weitere_kosten.reduce((sum, k) => sum + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <Label>Notizen</Label>
-                <Textarea
-                  value={editMusikerData.notizen}
-                  onChange={(e) => setEditMusikerData({...editMusikerData, notizen: e.target.value})}
-                  placeholder="Zusätzliche Informationen..."
-                  rows={2}
-                />
-              </div>
-
-              <Collapsible>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="font-medium text-sm">Buchungsbedingungen</span>
-                  <ChevronDown className="w-4 h-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pt-3">
-                  <div className="border border-gray-200 rounded-lg">
-                    <ReactQuill
-                      theme="snow"
-                      value={editMusikerData.buchungsbedingungen}
-                      onChange={(value) => setEditMusikerData({...editMusikerData, buchungsbedingungen: value})}
-                      modules={modules}
-                      formats={formats}
-                      placeholder="Buchungsbedingungen..."
-                      className="min-h-[150px]"
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEditMusikerDialog(false)}>
-                Abbrechen
-              </Button>
-              <Button
-                onClick={handleSaveEditMusiker}
-                disabled={updateEventMusikerMutation.isPending}
-                className="text-white"
-                style={{ backgroundColor: '#223a5e' }}
-              >
-                {updateEventMusikerMutation.isPending ? 'Wird gespeichert...' : 'Speichern'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Einladung an Musiker Dialog */}
-        <Dialog open={showEinladungDialog} onOpenChange={setShowEinladungDialog}>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Einladung an {einladungMusiker?.name}</DialogTitle>
-              <DialogDescription>
-                Sende eine Event-Einladung an {einladungMusiker?.email}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="p-4 bg-blue-50 rounded-lg text-sm space-y-2">
-                <p><strong>Event:</strong> {event?.titel}</p>
-                <p><strong>Datum:</strong> {event?.datum_von && format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</p>
-                <p><strong>Ort:</strong> {event?.ort_name || event?.ort_adresse || 'Nicht angegeben'}</p>
-              </div>
-              
-              <div>
-                <Label htmlFor="einladung-text">Persönliche Nachricht (optional)</Label>
-                <Textarea
-                  id="einladung-text"
-                  value={einladungText}
-                  onChange={(e) => setEinladungText(e.target.value)}
-                  placeholder="z.B. Freue mich auf dich! Wäre toll, wenn du dabei bist..."
-                  rows={4}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Diese Nachricht wird in der E-Mail angezeigt
-                </p>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEinladungDialog(false)}>
-                Abbrechen
-              </Button>
-              <Button
-                onClick={handleSendEinladung}
-                disabled={sendEinladungMutation.isPending}
-                className="text-white"
-                style={{ backgroundColor: '#223a5e' }}
-              >
-                <Send className="w-4 h-4 mr-2" />
-                {sendEinladungMutation.isPending ? 'Wird gesendet...' : 'Einladung senden'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Contact Customer Dialog */}
-        <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Kunde kontaktieren</DialogTitle>
-              <DialogDescription>
-                E-Mail an {kunde?.firmenname} ({kunde?.email}) senden
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="email-subject">Betreff</Label>
-                <Input
-                  id="email-subject"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  placeholder="Betreff der E-Mail"
-                />
-              </div>
-              <div>
-                <Label htmlFor="email-body">Nachricht</Label>
-                <Textarea
-                  id="email-body"
-                  value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
-                  placeholder="Ihre Nachricht..."
-                  rows={10}
-                  className="font-mono text-sm"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowContactDialog(false)}>
-                Abbrechen
-              </Button>
-              <Button
-                onClick={handleSendEmail}
-                disabled={sendingEmail || !emailSubject || !emailBody}
-                className="text-white"
-                style={{ backgroundColor: '#223a5e' }}
-              >
-                {sendingEmail ? 'Wird gesendet...' : 'E-Mail senden'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <EditMusikerDialog
+          open={showEditMusikerDialog}
+          onOpenChange={setShowEditMusikerDialog}
+          editMusikerData={editMusikerData}
+          setEditMusikerData={setEditMusikerData}
+          musiker={musiker}
+          editingEventMusiker={editingEventMusiker}
+          onSave={handleSaveEditMusiker}
+          isSaving={updateEventMusikerMutation.isPending}
+        />
+        <EinladungDialog
+          open={showEinladungDialog}
+          onOpenChange={setShowEinladungDialog}
+          einladungMusiker={einladungMusiker}
+          einladungText={einladungText}
+          setEinladungText={setEinladungText}
+          event={event}
+          onSend={handleSendEinladung}
+          isSending={sendEinladungMutation.isPending}
+        />
+        <KontaktDialog
+          open={showContactDialog}
+          onOpenChange={setShowContactDialog}
+          kunde={kunde}
+          emailSubject={emailSubject}
+          setEmailSubject={setEmailSubject}
+          emailBody={emailBody}
+          setEmailBody={setEmailBody}
+          onSend={handleSendEmail}
+          isSending={sendingEmail}
+        />
         </div>
         </div>
         );
