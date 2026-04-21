@@ -432,7 +432,7 @@ Ihr Team`;
 
   if (isLoading || !vertrag) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
         <p className="text-gray-600">Lade Vertrag...</p>
       </div>);
 
