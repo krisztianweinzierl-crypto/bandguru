@@ -544,7 +544,7 @@ Ihr Team`;
 
       {/* Content */}
       <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="w-full grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Vertragsinhalt */}
