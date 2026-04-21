@@ -161,13 +161,13 @@ export default function KundenDetailPage() {
               <div className="bg-[#223a5e] text-white text-3xl font-bold rounded-lg w-24 h-24 from-green-500 to-emerald-600 flex items-center justify-center">
                 {kunde.firmenname?.[0]?.toUpperCase() || 'K'}
               </div>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{kunde.firmenname}</h1>
                 {kunde.ansprechpartner &&
                 <p className="text-lg text-gray-600 mb-3">{kunde.ansprechpartner}</p>
                 }
                 {kunde.tags && kunde.tags.length > 0 &&
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-4">
                     {kunde.tags.map((tag, i) =>
                   <Badge key={i} variant="secondary" className="text-sm">
                         <Tag className="w-3 h-3 mr-1" />
@@ -176,31 +176,27 @@ export default function KundenDetailPage() {
                   )}
                   </div>
                 }
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setIsEditing(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-green-700">
+                    <Edit className="w-4 h-4" />
+                    Bearbeiten
+                  </Button>
+                  {kunde.email &&
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => sendMessageMutation.mutate()}
+                    disabled={sendMessageMutation.isPending}
+                    className="gap-2">
+                    <Send className="w-4 h-4" />
+                    {sendMessageMutation.isPending ? "Wird versendet..." : "Nachricht senden"}
+                  </Button>
+                  }
+                </div>
               </div>
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setIsEditing(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-green-700">
-
-
-                <Edit className="w-4 h-4" />
-                Bearbeiten
-              </Button>
-              {kunde.email &&
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => sendMessageMutation.mutate()}
-                disabled={sendMessageMutation.isPending}
-                className="gap-2">
-
-                  <Send className="w-4 h-4" />
-                  {sendMessageMutation.isPending ? "Wird versendet..." : "Nachricht senden"}
-                </Button>
-              }
             </div>
           </div>
         </div>
