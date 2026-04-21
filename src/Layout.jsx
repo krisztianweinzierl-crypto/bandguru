@@ -44,7 +44,8 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarProvider,
-  SidebarTrigger } from
+  SidebarTrigger,
+  useSidebar } from
 "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -358,6 +359,20 @@ export default function Layout({ children, currentPageName }) {
       [menuKey]: !prev[menuKey]
     }));
   };
+
+  // Inner component that can use useSidebar
+  function NavLink({ to, children, className, style, onMouseEnter, onMouseLeave, onClick }) {
+    const { setOpenMobile, isMobile } = useSidebar();
+    const handleClick = (e) => {
+      if (isMobile) setOpenMobile(false);
+      if (onClick) onClick(e);
+    };
+    return (
+      <Link to={to} className={className} style={style} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={handleClick}>
+        {children}
+      </Link>
+    );
+  }
 
   const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
@@ -964,7 +979,7 @@ export default function Layout({ children, currentPageName }) {
                   <SidebarMenuItem key={item.title}>
                       {item.submenu ?
                     <>
-                          <Link
+                          <NavLink
                         to={item.url || '#'}
                         onClick={(e) => {
                           if (!item.url) e.preventDefault();
@@ -993,7 +1008,7 @@ export default function Layout({ children, currentPageName }) {
                               <span className="font-medium">{item.title}</span>
                             </div>
                             <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
-                          </Link>
+                          </NavLink>
 
                           {expandedMenus[index] &&
                       <div className="ml-4 mb-1 space-y-1">
@@ -1003,7 +1018,7 @@ export default function Layout({ children, currentPageName }) {
                           asChild
                           className="transition-colors duration-200 rounded-lg">
 
-                                  <Link
+                                  <NavLink
                             to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
@@ -1025,7 +1040,7 @@ export default function Layout({ children, currentPageName }) {
 
                                     <subItem.icon className="w-4 h-4" />
                                     <span className="font-medium">{subItem.title}</span>
-                                  </Link>
+                                  </NavLink>
 
                                 </SidebarMenuButton>
                         )}
@@ -1037,7 +1052,7 @@ export default function Layout({ children, currentPageName }) {
                       asChild
                       className="transition-colors duration-200 rounded-lg mb-1">
 
-                          <Link
+                          <NavLink
                         to={item.url}
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
@@ -1059,7 +1074,7 @@ export default function Layout({ children, currentPageName }) {
 
                             <item.icon className="w-4 h-4" />
                             <span className="font-medium">{item.title}</span>
-                          </Link>
+                          </NavLink>
                         </SidebarMenuButton>
                     }
                     </SidebarMenuItem>
@@ -1109,85 +1124,85 @@ export default function Layout({ children, currentPageName }) {
                         asChild
                         className="transition-colors duration-200 rounded-lg">
 
-                            <Link
-                          to={createPageUrl("OrganisationSettings")}
-                          className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("OrganisationSettings") ? {
+                            <NavLink
+                            to={createPageUrl("OrganisationSettings")}
+                            className="flex items-center gap-3 px-3 py-2"
+                            style={location.pathname === createPageUrl("OrganisationSettings") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                          } : {}}
-                          onMouseEnter={(e) => {
+                            } : {}}
+                            onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                             e.currentTarget.style.color = '#223a5e';
                             }
-                          }}
-                          onMouseLeave={(e) => {
+                            }}
+                            onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
+                             e.currentTarget.style.backgroundColor = 'transparent';
+                             e.currentTarget.style.color = '';
                             }
-                          }}>
+                            }}>
 
-                              <Building2 className="w-4 h-4" />
-                              <span className="font-medium">Organisation</span>
-                            </Link>
-                          </SidebarMenuButton>
-                          <SidebarMenuButton
-                        asChild
-                        className="transition-colors duration-200 rounded-lg">
+                             <Building2 className="w-4 h-4" />
+                             <span className="font-medium">Organisation</span>
+                            </NavLink>
+                            </SidebarMenuButton>
+                            <SidebarMenuButton
+                            asChild
+                            className="transition-colors duration-200 rounded-lg">
 
-                            <Link
-                          to={createPageUrl("BuchungsbedingungVorlagen")}
-                          className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
+                            <NavLink
+                            to={createPageUrl("BuchungsbedingungVorlagen")}
+                            className="flex items-center gap-3 px-3 py-2"
+                            style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                          } : {}}
-                          onMouseEnter={(e) => {
+                            } : {}}
+                            onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                             e.currentTarget.style.color = '#223a5e';
                             }
-                          }}
-                          onMouseLeave={(e) => {
+                            }}
+                            onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
+                             e.currentTarget.style.backgroundColor = 'transparent';
+                             e.currentTarget.style.color = '';
                             }
-                          }}>
+                            }}>
 
-                              <FileText className="w-4 h-4" />
-                              <span className="font-medium">Buchungsbedingungen</span>
-                            </Link>
-                          </SidebarMenuButton>
-                          <SidebarMenuButton
-                        asChild
-                        className="transition-colors duration-200 rounded-lg">
+                             <FileText className="w-4 h-4" />
+                             <span className="font-medium">Buchungsbedingungen</span>
+                            </NavLink>
+                            </SidebarMenuButton>
+                            <SidebarMenuButton
+                            asChild
+                            className="transition-colors duration-200 rounded-lg">
 
-                            <Link
-                          to={createPageUrl("ArtikelVerwaltung")}
-                          className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
+                            <NavLink
+                            to={createPageUrl("ArtikelVerwaltung")}
+                            className="flex items-center gap-3 px-3 py-2"
+                            style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                          } : {}}
-                          onMouseEnter={(e) => {
+                            } : {}}
+                            onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                             e.currentTarget.style.color = '#223a5e';
                             }
-                          }}
-                          onMouseLeave={(e) => {
+                            }}
+                            onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
+                             e.currentTarget.style.backgroundColor = 'transparent';
+                             e.currentTarget.style.color = '';
                             }
-                          }}>
+                            }}>
 
-                              <FileText className="w-4 h-4" />
-                              <span className="font-medium">Artikel & Positionen</span>
-                            </Link>
+                             <FileText className="w-4 h-4" />
+                             <span className="font-medium">Artikel & Positionen</span>
+                            </NavLink>
                           </SidebarMenuButton>
                         </div>
                     }
