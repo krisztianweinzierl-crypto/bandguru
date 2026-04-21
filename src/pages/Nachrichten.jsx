@@ -424,7 +424,7 @@ Dein Bandguru Team`
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden w-full">
+    <div className="flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden w-full" style={{ height: 'calc(100vh - 0px)' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto">
