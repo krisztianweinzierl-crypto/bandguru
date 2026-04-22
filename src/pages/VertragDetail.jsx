@@ -542,8 +542,146 @@ Ihr Team`;
         </div>
       </div>
 
-      {/* Content */}
-      <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
+      {/* Mobile Tabs für Sidebar-Inhalt */}
+      <div className="lg:hidden w-full max-w-7xl mx-auto px-3 py-4">
+        <Tabs defaultValue="inhalt">
+          <TabsList className="w-full grid grid-cols-4 mb-4">
+            <TabsTrigger value="inhalt">Inhalt</TabsTrigger>
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="link">Link</TabsTrigger>
+            <TabsTrigger value="optionen">Optionen</TabsTrigger>
+          </TabsList>
+
+          {/* Tab: Inhalt (Vertragstext + Unterschriften) */}
+          <TabsContent value="inhalt" className="space-y-4">
+            {/* Event-Informationen */}
+            {vertrag.eventinformationen_anzeigen && event &&
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-lg mb-3">Event-Details</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                    <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr</span>
+                  </div>
+                  {(event.ort_adresse || event.ort_name) &&
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <span>{event.ort_adresse || event.ort_name}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-xl font-bold">Vertragsinhalt</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="prose max-w-full overflow-hidden break-words" {...safeHtml(vertrag.inhalt)} />
+              </CardContent>
+            </Card>
+            {/* Unterschriften mobil */}
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-xl font-bold">Unterschriften</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {['kunde', 'organisation'].map((typ) => {
+                  const unterschrift = typ === 'kunde' ? vertrag.unterschrift_kunde : vertrag.unterschrift_organisation;
+                  const name = typ === 'kunde' ? vertrag.unterschrift_kunde_name : vertrag.unterschrift_organisation_name;
+                  const datum = typ === 'kunde' ? vertrag.unterschrift_kunde_datum : vertrag.unterschrift_organisation_datum;
+                  return (
+                    <div key={typ} className="space-y-2">
+                      <h3 className="font-semibold capitalize">{typ === 'kunde' ? 'Kunde' : 'Organisation'}</h3>
+                      {unterschrift ? (
+                        <div className="border-2 border-green-200 rounded-lg p-3 bg-green-50">
+                          <img src={unterschrift} alt={`Unterschrift ${typ}`} className="w-full h-24 object-contain" />
+                          <div className="mt-2 text-sm text-gray-600">
+                            <p className="font-medium">{name}</p>
+                            <p>{format(new Date(datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2 text-green-600">
+                            <Check className="w-4 h-4" /><span className="text-sm font-medium">Unterzeichnet</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                          <PenTool className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                          <p className="text-gray-600 mb-3 text-sm">Noch nicht unterzeichnet</p>
+                          {vertrag.status !== 'storniert' &&
+                            <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-gradient-to-r from-purple-500 to-pink-600">
+                              <PenTool className="w-4 h-4 mr-2" />Unterschreiben
+                            </Button>
+                          }
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab: Details */}
+          <TabsContent value="details">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-lg font-bold">Details</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {kunde && <div><p className="text-sm text-gray-500 mb-1">Kunde</p><div className="flex items-center gap-2"><User className="w-4 h-4 text-gray-400" /><p className="font-medium">{kunde.firmenname}</p></div></div>}
+                {event && <div><p className="text-sm text-gray-500 mb-1">Event</p><div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-400" /><p className="font-medium">{event.titel}</p></div></div>}
+                {vertrag.unterzeichnen_bis && <div><p className="text-sm text-gray-500 mb-1">Unterzeichnen bis</p><div className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400" /><p className="font-medium">{format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</p></div></div>}
+                {vertrag.versendet_am && <div><p className="text-sm text-gray-500 mb-1">Versendet am</p><p className="font-medium">{format(new Date(vertrag.versendet_am), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>}
+                <div><p className="text-sm text-gray-500 mb-1">Erstellt am</p><p className="font-medium">{format(new Date(vertrag.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab: Kundenportal-Link */}
+          <TabsContent value="link">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-lg font-bold">Kundenportal-Link</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <p className="text-sm text-gray-600">Teile diesen Link mit dem Kunden zum Unterschreiben:</p>
+                <div className="flex gap-2">
+                  <Input value={`https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`} readOnly className="text-xs" />
+                  <Button variant="outline" size="icon" onClick={copyKundenLink}>
+                    {copiedLink ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => window.open(`https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`, '_blank')}>
+                  <ExternalLink className="w-4 h-4" />Kundenansicht öffnen
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab: Optionen */}
+          <TabsContent value="optionen">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="border-b">
+                <CardTitle className="text-lg font-bold">Optionen</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  {vertrag.eventinformationen_anzeigen ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-gray-400" />}
+                  <span>Eventinformationen anzeigen</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  {vertrag.im_kundenportal_sichtbar ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-gray-400" />}
+                  <span>Im Kundenportal sichtbar</span>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Desktop Content */}
+      <div className="hidden lg:block w-full max-w-7xl mx-auto px-8 py-8">
         <div className="w-full grid lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -665,7 +803,7 @@ Ihr Team`;
             </Card>
           </div>
 
-          {/* Sidebar */}
+          {/* Desktop Sidebar */}
           <div className="space-y-6">
             {/* Kundenportal-Link */}
             <Card className="border-none shadow-lg">
@@ -784,6 +922,7 @@ Ihr Team`;
             </Card>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Unterschrift Modal */}
