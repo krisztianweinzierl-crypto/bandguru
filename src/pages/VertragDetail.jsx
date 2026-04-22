@@ -19,6 +19,7 @@ import {
   Trash2,
   ExternalLink,
   Copy,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +44,9 @@ export default function VertragDetailPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [unterschriftModus, setUnterschriftModus] = useState('zeichnen'); // 'zeichnen' oder 'hochladen'
+  const [uploadedSignature, setUploadedSignature] = useState(null);
+  const fileInputRef = useRef(null);
 
   const { data: vertrag, isLoading } = useQuery({
     queryKey: ['vertrag', vertragId],
@@ -287,8 +291,17 @@ Ihr Team`;
       return;
     }
 
-    const canvas = canvasRef.current;
-    const unterschriftData = canvas.toDataURL('image/png');
+    let unterschriftData;
+    if (unterschriftModus === 'hochladen') {
+      if (!uploadedSignature) {
+        alert("Bitte lade eine Signaturdatei hoch");
+        return;
+      }
+      unterschriftData = uploadedSignature;
+    } else {
+      const canvas = canvasRef.current;
+      unterschriftData = canvas.toDataURL('image/png');
+    }
 
     saveUnterschriftMutation.mutate({
       unterschriftData,
@@ -300,6 +313,16 @@ Ihr Team`;
   const openUnterschriftModal = (typ) => {
     setUnterschriftTyp(typ);
     setShowUnterschriftModal(true);
+    setUnterschriftModus('zeichnen');
+    setUploadedSignature(null);
+  };
+
+  const handleSignatureUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setUploadedSignature(ev.target.result);
+    reader.readAsDataURL(file);
   };
 
   const handleUpdateSubmit = (data) => {
@@ -955,33 +978,71 @@ Ihr Team`;
 
               </div>
 
-              <div className="space-y-2">
-                <Label>Unterschrift zeichnen</Label>
-                <div className="border-2 border-gray-300 rounded-lg bg-white">
-                  <canvas
-                  ref={canvasRef}
-                  width={600}
-                  height={200}
-                  className="w-full cursor-crosshair"
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing} />
-
-                </div>
-                <p className="text-xs text-gray-500">
-                  Zeichne deine Unterschrift mit der Maus
-                </p>
+              {/* Modus-Auswahl */}
+              <div className="flex gap-2 border rounded-lg p-1 bg-gray-50">
+                <button
+                  onClick={() => setUnterschriftModus('zeichnen')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'zeichnen' ? 'bg-white shadow text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+                  <PenTool className="w-4 h-4" /> Zeichnen
+                </button>
+                <button
+                  onClick={() => setUnterschriftModus('hochladen')}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'hochladen' ? 'bg-white shadow text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+                  <Upload className="w-4 h-4" /> Hochladen
+                </button>
               </div>
 
-              <div className="flex justify-between pt-4">
-                <Button
-                variant="outline"
-                onClick={clearCanvas}>
+              {unterschriftModus === 'zeichnen' ? (
+                <div className="space-y-2">
+                  <Label>Unterschrift zeichnen</Label>
+                  <div className="border-2 border-gray-300 rounded-lg bg-white">
+                    <canvas
+                    ref={canvasRef}
+                    width={600}
+                    height={200}
+                    className="w-full cursor-crosshair"
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing} />
+                  </div>
+                  <p className="text-xs text-gray-500">Zeichne deine Unterschrift mit der Maus</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Signaturbild hochladen</Label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleSignatureUpload} />
+                  {uploadedSignature ? (
+                    <div className="border-2 border-purple-200 rounded-lg p-3 bg-purple-50 text-center">
+                      <img src={uploadedSignature} alt="Hochgeladene Signatur" className="max-h-32 mx-auto object-contain mb-2" />
+                      <button onClick={() => setUploadedSignature(null)} className="text-xs text-red-500 hover:underline">Entfernen</button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 hover:bg-purple-50 transition-colors">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                      <p className="text-sm text-gray-600">Klicken zum Hochladen</p>
+                      <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF unterstützt</p>
+                    </button>
+                  )}
+                </div>
+              )}
 
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Löschen
-                </Button>
+              <div className="flex justify-between pt-4">
+                {unterschriftModus === 'zeichnen' ? (
+                  <Button variant="outline" onClick={clearCanvas}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Löschen
+                  </Button>
+                ) : (
+                  <div />
+                )}
                 <div className="flex gap-2">
                   <Button
                   variant="outline"
