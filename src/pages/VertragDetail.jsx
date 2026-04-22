@@ -1034,34 +1034,32 @@ Ihr Team`;
                 </div>
               )}
 
-              <div className="flex justify-between items-center pt-4">
-                {unterschriftModus === 'zeichnen' ? (
-                  <Button variant="outline" onClick={clearCanvas}>
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Löschen
-                  </Button>
-                ) : (
-                  <span />
-                )}
-                <div className="flex gap-2 ml-auto">
+              <div className="flex flex-col gap-3 pt-4">
+                <div className="flex justify-between items-center">
+                  {unterschriftModus === 'zeichnen' ? (
+                    <Button variant="outline" onClick={clearCanvas}>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Löschen
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
                   <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowUnterschriftModal(false);
-                    setUnterschriftName("");
-                  }}>
-
+                    variant="outline"
+                    onClick={() => {
+                      setShowUnterschriftModal(false);
+                      setUnterschriftName("");
+                    }}>
                     Abbrechen
                   </Button>
-                  <Button
+                </div>
+                <Button
                   onClick={saveUnterschrift}
                   disabled={saveUnterschriftMutation.isPending}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600">
-
-                    <Check className="w-4 h-4 mr-2" />
-                    {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}
-                  </Button>
-                </div>
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-600">
+                  <Check className="w-4 h-4 mr-2" />
+                  {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}
+                </Button>
               </div>
             </CardContent>
           </Card>
