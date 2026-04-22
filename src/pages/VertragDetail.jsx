@@ -923,7 +923,6 @@ Ihr Team`;
           </div>
         </div>
       </div>
-      </div>
 
       {/* Unterschrift Modal */}
       {showUnterschriftModal &&
