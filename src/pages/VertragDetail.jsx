@@ -574,7 +574,7 @@ Ihr Team`;
 
                 {/* Vertragstext */}
                 <div
-                  className="prose max-w-none"
+                  className="prose max-w-full overflow-hidden break-words"
                   {...safeHtml(vertrag.inhalt)} />
 
               </CardContent>
