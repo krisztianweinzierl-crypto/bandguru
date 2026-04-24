@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3, ChevronRight } from "lucide-react";
+import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,7 @@ export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
   const [showDropdownId, setShowDropdownId] = useState(null);
-  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "list" : "list");
   const [showStageManager, setShowStageManager] = useState(false);
   const queryClient = useQueryClient();
   const { showConfirm, AlertDialog } = useAlertDialog();
@@ -225,7 +225,6 @@ export default function LeadsPage() {
   const LeadCard = ({ lead }) => {
     const statusStyle = statusColors[lead.status] || statusColors.neu;
     const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
-    const [expanded, setExpanded] = useState(false);
 
     return (
       <Card
@@ -330,20 +329,6 @@ export default function LeadsPage() {
           {assignedMitglied &&
           <div className="text-xs text-gray-500 mt-2">
               Zugewiesen an: {assignedMitglied.rolle}
-            </div>
-          }
-          {lead.beschreibung &&
-          <div className="pt-1">
-              <button
-              onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors">
-
-                <ChevronRight className={`w-3 h-3 transition-transform ${expanded ? 'rotate-90' : ''}`} />
-                {expanded ? 'Beschreibung ausblenden' : 'Beschreibung anzeigen'}
-              </button>
-              {expanded &&
-            <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">{lead.beschreibung}</p>
-            }
             </div>
           }
         </CardContent>
@@ -526,15 +511,14 @@ export default function LeadsPage() {
             </Card>
 
             <Card className="border-none shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-100 rounded-lg">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-100 rounded-lg flex-shrink-0">
                     <Euro className="w-6 h-6 text-purple-600" />
                   </div>
-                  <div>
-                    <p className="text-gray-500 text-xs text-left normal-case">möglicher
-Umsatz</p>
-                    <p className="text-sm font-bold">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm text-gray-500">Umsatzpotenzial</p>
+                    <p className="text-base font-bold truncate">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
                   </div>
                 </div>
               </CardContent>
@@ -546,10 +530,11 @@ Umsatz</p>
               <div className="flex gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input placeholder="Leads durchsuchen..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10" />
+                  <Input
+                    placeholder="Leads durchsuchen..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10" />
 
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
