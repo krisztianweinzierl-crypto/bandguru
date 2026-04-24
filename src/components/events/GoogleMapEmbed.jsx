@@ -36,7 +36,7 @@ export default function GoogleMapEmbed({ address }) {
   const encodedAddress = encodeURIComponent(address);
 
   return (
-    <div className="w-full h-[400px] rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+    <div className="w-full h-[250px] md:h-[400px] rounded-lg overflow-hidden border border-gray-200 shadow-sm">
       <iframe
         width="100%"
         height="100%"
