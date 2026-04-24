@@ -148,7 +148,7 @@ export default function AusgabenPage() {
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1">{ausgabe.titel}</h3>
+              <h3 className="font-semibold text-sm md:text-lg text-gray-900 mb-1">{ausgabe.titel}</h3>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
                   {ausgabe.kategorie}
@@ -164,7 +164,7 @@ export default function AusgabenPage() {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-lg md:text-2xl font-bold text-red-600 flex-shrink-0">
                 {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
             </div>
@@ -231,40 +231,40 @@ export default function AusgabenPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-red-600">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-red-600 truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
+              <p className="text-xs md:text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Häufigste Kategorie</CardTitle>
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Häufigste Kategorie</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-gray-900">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-sm md:text-2xl font-bold text-gray-900 truncate">
                 {Object.keys(ausgabenNachKategorie).sort((a, b) => ausgabenNachKategorie[b] - ausgabenNachKategorie[a])[0] || '-'}
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-xs md:text-sm text-gray-500 mt-1">
                 {Object.keys(ausgabenNachKategorie).length} Kategorien
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
                 {(gesamtAusgaben / filteredAusgaben.length || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Pro Ausgabe</p>
+              <p className="text-xs md:text-sm text-gray-500 mt-1">Pro Ausgabe</p>
             </CardContent>
           </Card>
         </div>
@@ -353,7 +353,7 @@ export default function AusgabenPage() {
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900">{ausgabe.titel}</h3>
+                        <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">{ausgabe.titel}</h3>
                         {ausgabe.isEventKosten && (
                           <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                             Event
@@ -369,7 +369,7 @@ export default function AusgabenPage() {
                         </span>
                       </div>
                     </div>
-                    <p className="text-xl font-bold text-red-600">
+                    <p className="text-sm md:text-xl font-bold text-red-600 flex-shrink-0 ml-2">
                       {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
