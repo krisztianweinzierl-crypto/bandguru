@@ -577,11 +577,11 @@ export default function AngebotePage() {
             </div>
           </div>
 
-          <div className="flex gap-2 pt-3">
+          <div className="flex flex-wrap gap-2 pt-3">
             <Button 
               variant="outline" 
               size="sm" 
-              className="flex-1"
+              className="flex-1 min-w-[80px]"
               onClick={() => handleView(angebot)}
             >
               <Eye className="w-4 h-4 mr-2" />
@@ -591,7 +591,7 @@ export default function AngebotePage() {
               variant="outline" 
               size="sm" 
               onClick={() => handleExportPDF(angebot)}
-              className="flex-1"
+              className="flex-1 min-w-[60px]"
             >
               <Download className="w-4 h-4 mr-2" />
               PDF
@@ -599,7 +599,7 @@ export default function AngebotePage() {
             {angebot.status === 'entwurf' && (
               <Button 
                 size="sm" 
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 min-w-[100px] bg-blue-600 hover:bg-blue-700"
                 onClick={() => handleSend(angebot)}
               >
                 <Send className="w-4 h-4 mr-2" />
