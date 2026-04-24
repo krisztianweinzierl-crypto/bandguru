@@ -35,8 +35,8 @@ import {
   TrendingUp,
   TrendingDown,
   Receipt,
-  ChevronDown
-} from "lucide-react";
+  ChevronDown } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -104,18 +104,18 @@ export default function EventDetailPage() {
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['clean']
-    ],
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    ['clean']]
+
   };
 
   const formats = [
-    'header',
-    'bold', 'italic', 'underline',
-    'list', 'bullet'
-  ];
+  'header',
+  'bold', 'italic', 'underline',
+  'list', 'bullet'];
+
 
   // 1. Erst Event laden
   const { data: event, isLoading: eventLoading } = useQuery({
@@ -124,14 +124,14 @@ export default function EventDetailPage() {
       const events = await base44.entities.Event.filter({ id: eventId });
       return events[0];
     },
-    enabled: !!eventId,
+    enabled: !!eventId
   });
 
   // 2. Dann User-Daten und Berechtigungen laden (abhängig von event)
   useEffect(() => {
     const loadUserData = async () => {
       if (!event) return;
-      
+
       // WICHTIG: Access-Check nur beim ersten Laden, nicht bei Updates
       if (accessChecked) return;
 
@@ -140,49 +140,49 @@ export default function EventDetailPage() {
         setCurrentUser(user);
 
         // Prüfe Rolle
-        const mitgliedschaften = await base44.entities.Mitglied.filter({ 
+        const mitgliedschaften = await base44.entities.Mitglied.filter({
           user_id: user.id,
           org_id: event.org_id,
-          status: "aktiv" 
+          status: "aktiv"
         });
         const mitglied = mitgliedschaften[0];
-        
+
         if (mitglied?.rolle === "Band Manager") {
           setIsManager(true);
           setHasAccess(true);
           setAccessChecked(true);
-          } else if (mitglied?.rolle === "Musiker") {
+        } else if (mitglied?.rolle === "Musiker") {
           // Wenn Musiker, lade Musiker-Profil
           const alleMusiker = await base44.entities.Musiker.filter({ org_id: event.org_id });
-          const musikerProfil = alleMusiker.find(m => 
-            m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
+          const musikerProfil = alleMusiker.find((m) =>
+          m.email?.toLowerCase().trim() === user.email.toLowerCase().trim() && m.aktiv === true
           );
           setCurrentMusiker(musikerProfil);
 
           if (musikerProfil) {
             // Prüfe ob Musiker am Event teilnimmt und zugesagt hat
-            const eventMusikerList = await base44.entities.EventMusiker.filter({ 
+            const eventMusikerList = await base44.entities.EventMusiker.filter({
               event_id: eventId,
               musiker_id: musikerProfil.id,
               status: 'zugesagt'
             });
             setHasAccess(eventMusikerList.length > 0);
             setAccessChecked(true);
-            } else {
+          } else {
             setHasAccess(false);
             setAccessChecked(true);
-            }
-            } else {
-            setHasAccess(false);
-            setAccessChecked(true);
-            }
+          }
+        } else {
+          setHasAccess(false);
+          setAccessChecked(true);
+        }
       } catch (error) {
         console.error("Fehler beim Laden der User-Daten:", error);
         setHasAccess(false);
         setAccessChecked(true);
       }
     };
-    
+
     if (eventId && !accessChecked) {
       loadUserData();
     }
@@ -195,13 +195,13 @@ export default function EventDetailPage() {
       const kunden = await base44.entities.Kunde.filter({ id: event.kunde_id });
       return kunden[0];
     },
-    enabled: !!event?.kunde_id,
+    enabled: !!event?.kunde_id
   });
 
   const { data: kunden = [] } = useQuery({
     queryKey: ['kunden', event?.org_id],
     queryFn: () => base44.entities.Kunde.filter({ org_id: event.org_id }),
-    enabled: !!event?.org_id && isManager,
+    enabled: !!event?.org_id && isManager
   });
 
   const { data: eventMusiker = [] } = useQuery({
@@ -213,64 +213,64 @@ export default function EventDetailPage() {
         return allEventMusiker;
       } else {
         // Musiker sehen zugesagte und optionale Kollegen
-        return allEventMusiker.filter(em => em.status === 'zugesagt' || em.status === 'optional');
+        return allEventMusiker.filter((em) => em.status === 'zugesagt' || em.status === 'optional');
       }
     },
-    enabled: !!eventId && (isManager || !!currentMusiker?.id),
+    enabled: !!eventId && (isManager || !!currentMusiker?.id)
   });
 
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', event?.org_id],
     queryFn: () => base44.entities.Musiker.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id
   });
 
   const { data: vorlagen = [] } = useQuery({
     queryKey: ['buchungsbedingungVorlagen', event?.org_id],
     queryFn: () => base44.entities.BuchungsbedingungVorlage.filter({ org_id: event.org_id, aktiv: true }),
-    enabled: !!event?.org_id && isManager,
+    enabled: !!event?.org_id && isManager
   });
 
   const { data: aufgaben = [] } = useQuery({
     queryKey: ['aufgaben', eventId],
     queryFn: () => base44.entities.Aufgabe.filter({ bezug_typ: 'event', bezug_id: eventId }),
-    enabled: !!eventId,
+    enabled: !!eventId
   });
 
   const { data: dateien = [] } = useQuery({
     queryKey: ['dateien', eventId],
     queryFn: () => base44.entities.Datei.filter({ bezug_typ: 'event', bezug_id: eventId }),
-    enabled: !!eventId,
+    enabled: !!eventId
   });
 
   const { data: rechnungen = [] } = useQuery({
     queryKey: ['rechnungen', eventId],
     queryFn: () => base44.entities.Rechnung.filter({ event_id: eventId }),
-    enabled: !!eventId && isManager,
+    enabled: !!eventId && isManager
   });
 
   const { data: ausgaben = [] } = useQuery({
     queryKey: ['ausgaben', eventId],
     queryFn: () => base44.entities.Ausgabe.filter({ event_id: eventId }),
-    enabled: !!eventId && isManager,
+    enabled: !!eventId && isManager
   });
 
   const { data: mitglieder = [] } = useQuery({
     queryKey: ['mitglieder', event?.org_id],
     queryFn: () => base44.entities.Mitglied.filter({ org_id: event.org_id, status: 'aktiv' }),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id
   });
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
-    enabled: !!event?.org_id,
+    enabled: !!event?.org_id
   });
 
   const { data: aktivitaeten = [] } = useQuery({
     queryKey: ['eventAktivitaeten', eventId],
     queryFn: () => base44.entities.EventAktivitaet.filter({ event_id: eventId }, '-created_date'),
-    enabled: !!eventId,
+    enabled: !!eventId
   });
 
   const updateEventMutation = useMutation({
@@ -283,10 +283,10 @@ export default function EventDetailPage() {
       console.log("Event erfolgreich aktualisiert:", data);
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      
+
       // Prüfe, welche relevanten Felder sich geändert haben
       const relevantChanges = [];
-      
+
       if (variables.datum_von !== event.datum_von || variables.datum_bis !== event.datum_bis) {
         relevantChanges.push('Datum/Uhrzeit');
       }
@@ -314,7 +314,7 @@ export default function EventDetailPage() {
       if (variables.technik_hinweise !== event.technik_hinweise) {
         relevantChanges.push('Technik-Hinweise');
       }
-      
+
       // Nur benachrichtigen, wenn relevante Änderungen vorliegen
       if (relevantChanges.length > 0) {
         await notifyEventMusicians(
@@ -322,7 +322,7 @@ export default function EventDetailPage() {
           `Folgende Details wurden geändert: ${relevantChanges.join(', ')}. Bitte prüfe die aktuellen Event-Informationen.`,
           'event_update'
         );
-        
+
         // Aktivität loggen
         await logActivity(
           'event_bearbeitet',
@@ -330,7 +330,7 @@ export default function EventDetailPage() {
           { changes: relevantChanges }
         );
       }
-      
+
       setIsEditing(false);
       setIsSaving(false);
     },
@@ -345,7 +345,7 @@ export default function EventDetailPage() {
     mutationFn: async () => {
       // Zuerst alle EventMusiker löschen
       const eventMusikerToDelete = await base44.entities.EventMusiker.filter({ event_id: eventId });
-      await Promise.all(eventMusikerToDelete.map(em => base44.entities.EventMusiker.delete(em.id)));
+      await Promise.all(eventMusikerToDelete.map((em) => base44.entities.EventMusiker.delete(em.id)));
       // Dann Event löschen
       return await base44.entities.Event.delete(eventId);
     },
@@ -365,23 +365,23 @@ export default function EventDetailPage() {
     },
     onSuccess: async (createdEventMusiker, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
-      
+
       try {
-        const selectedMusiker = musiker.find(m => m.id === variables.musiker_id);
-        
+        const selectedMusiker = musiker.find((m) => m.id === variables.musiker_id);
+
         // Aktivität loggen
         await logActivity(
           'musiker_hinzugefuegt',
           `${selectedMusiker?.name || 'Musiker'} wurde zum Event hinzugefügt (${variables.rolle})`,
           { musiker_name: selectedMusiker?.name, rolle: variables.rolle }
         );
-        
+
         const mitgliedschaften = await base44.entities.Mitglied.filter({
           org_id: event.org_id,
           musiker_id: selectedMusiker.id,
           status: "aktiv"
         });
-        
+
         // In-App Benachrichtigung erstellen
         if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
           await base44.entities.Benachrichtigung.create({
@@ -397,14 +397,14 @@ export default function EventDetailPage() {
             prioritaet: 'hoch'
           });
         }
-        
+
         // Automatisch E-Mail an Musiker senden über Mailgun
         if (selectedMusiker?.email) {
           // Lade Organisation für den Absendernamen
           const orgList = await base44.entities.Organisation.filter({ id: event.org_id });
           const organisation = orgList[0];
           const orgName = organisation?.name || 'Das Team';
-          
+
           const emailBody = `Hey ${selectedMusiker.name}! 👋\n\nDu wurdest für folgendes Event angefragt:\n\n🎵 Event: ${event.titel}\n\n📅 Datum: ${format(new Date(event.datum_von), 'dd. MMMM yyyy, HH:mm', { locale: de })} Uhr\n\n📍 Ort: ${event.ort_name || event.ort_adresse || 'Noch nicht festgelegt'}\n\n🎸 Rolle: ${variables.rolle || 'Nicht angegeben'}\n\n💰 Gage: €${variables.gage_netto || 0}\n\n${variables.notizen ? `Notizen: ${variables.notizen}\n\n` : ''}Bitte logge dich ein und gib uns so bald wie möglich Bescheid, ob du dabei sein kannst!\n\n👉 Hier geht's zur App: https://app.bandguru.de\n\nViele Grüße,\n${orgName} Team`;
 
           try {
@@ -422,7 +422,7 @@ export default function EventDetailPage() {
       } catch (error) {
         console.error("Fehler beim Erstellen der Benachrichtigung/E-Mail:", error);
       }
-      
+
       setShowMusikerForm(false);
       resetMusikerForm();
     },
@@ -438,11 +438,11 @@ export default function EventDetailPage() {
     },
     onSuccess: async (updatedData, variables) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
-      
+
       // Wenn Status geändert wurde, Aktivität loggen
       if (variables.data.status) {
-        const em = eventMusiker.find(m => m.id === variables.id);
-        const musikerData = musiker.find(m => m.id === em?.musiker_id);
+        const em = eventMusiker.find((m) => m.id === variables.id);
+        const musikerData = musiker.find((m) => m.id === em?.musiker_id);
         const statusLabels = {
           angefragt: 'Angefragt',
           optional: 'Optional',
@@ -450,18 +450,18 @@ export default function EventDetailPage() {
           abgelehnt: 'Abgelehnt',
           ersetzt: 'Ersetzt'
         };
-        
+
         await logActivity(
           'musiker_status_geaendert',
           `Status von ${musikerData?.name || 'Musiker'} geändert auf: ${statusLabels[variables.data.status] || variables.data.status}`,
-          { 
+          {
             musiker_name: musikerData?.name,
             alter_status: em?.status,
-            neuer_status: variables.data.status 
+            neuer_status: variables.data.status
           }
         );
       }
-      
+
       setShowDropdownId(null);
       setEditingEventMusiker(null);
     },
@@ -473,23 +473,23 @@ export default function EventDetailPage() {
 
   const deleteEventMusikerMutation = useMutation({
     mutationFn: async (id) => {
-      const em = eventMusiker.find(m => m.id === id);
-      const musikerData = musiker.find(m => m.id === em?.musiker_id);
-      
+      const em = eventMusiker.find((m) => m.id === id);
+      const musikerData = musiker.find((m) => m.id === em?.musiker_id);
+
       await base44.entities.EventMusiker.delete(id);
-      
+
       return { musikerData };
     },
     onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ['eventMusiker', eventId] });
-      
+
       // Aktivität loggen
       await logActivity(
         'musiker_entfernt',
         `${result.musikerData?.name || 'Musiker'} wurde vom Event entfernt`,
         { musiker_name: result.musikerData?.name }
       );
-      
+
       setShowDropdownId(null);
     },
     onError: (error) => {
@@ -509,7 +509,7 @@ export default function EventDetailPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
-    },
+    }
   });
 
   const updateAufgabeMutation = useMutation({
@@ -518,7 +518,7 @@ export default function EventDetailPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
-    },
+    }
   });
 
   const deleteAufgabeMutation = useMutation({
@@ -527,7 +527,7 @@ export default function EventDetailPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['aufgaben', eventId] });
-    },
+    }
   });
 
   const deleteDateiMutation = useMutation({
@@ -536,7 +536,7 @@ export default function EventDetailPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
-    },
+    }
   });
 
   // Hilfsfunktion: Aktivität loggen
@@ -560,11 +560,11 @@ export default function EventDetailPage() {
   const notifyEventMusicians = async (titel, nachricht, typ = 'event_update') => {
     try {
       // Lade alle zugesagten EventMusiker
-      const zugesagteMusiker = await base44.entities.EventMusiker.filter({ 
-        event_id: eventId, 
-        status: 'zugesagt' 
+      const zugesagteMusiker = await base44.entities.EventMusiker.filter({
+        event_id: eventId,
+        status: 'zugesagt'
       });
-      
+
       // Finde die User-IDs der Musiker
       for (const em of zugesagteMusiker) {
         const mitgliedschaften = await base44.entities.Mitglied.filter({
@@ -572,7 +572,7 @@ export default function EventDetailPage() {
           musiker_id: em.musiker_id,
           status: "aktiv"
         });
-        
+
         if (mitgliedschaften.length > 0 && mitgliedschaften[0].user_id) {
           await base44.entities.Benachrichtigung.create({
             org_id: event.org_id,
@@ -600,7 +600,7 @@ export default function EventDetailPage() {
     setUploadingFile(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
+
       await base44.entities.Datei.create({
         org_id: event.org_id,
         file_url,
@@ -613,14 +613,14 @@ export default function EventDetailPage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ['dateien', eventId] });
-      
+
       // Aktivität loggen
       await logActivity(
         'dokument_hinzugefuegt',
         `Dokument "${file.name}" hochgeladen`,
         { datei_name: file.name, datei_groesse: file.size }
       );
-      
+
       // Benachrichtigung an Musiker senden
       await notifyEventMusicians(
         `📄 Neues Dokument: ${event.titel}`,
@@ -637,10 +637,10 @@ export default function EventDetailPage() {
   };
 
   const handleDeleteDatei = async (dateiId) => {
-    const datei = dateien.find(d => d.id === dateiId);
+    const datei = dateien.find((d) => d.id === dateiId);
     if (confirm("Möchtest du diese Datei wirklich löschen?")) {
       deleteDateiMutation.mutate(dateiId);
-      
+
       // Aktivität loggen
       if (datei) {
         await logActivity(
@@ -648,7 +648,7 @@ export default function EventDetailPage() {
           `Dokument "${datei.file_name}" gelöscht`,
           { datei_name: datei.file_name }
         );
-        
+
         // Benachrichtigung an Musiker senden
         await notifyEventMusicians(
           `🗑️ Dokument entfernt: ${event.titel}`,
@@ -677,14 +677,14 @@ export default function EventDetailPage() {
     mutationFn: async ({ eventMusikerId, musikerData, customMessage }) => {
       const eventMusikerEntry = await base44.entities.EventMusiker.filter({ id: eventMusikerId });
       const em = eventMusikerEntry[0];
-      
+
       // Lade Organisation für den Absendernamen
       const orgList = await base44.entities.Organisation.filter({ id: event.org_id });
       const organisation = orgList[0];
       const orgName = organisation?.name || 'Das Team';
-      
+
       const personalMessage = customMessage ? `\n💬 Persönliche Nachricht:\n"${customMessage}"\n` : '';
-      
+
       const emailBody = `Hey ${musikerData.name}! 👋
 
 Du wurdest für folgendes Event angefragt:
@@ -742,16 +742,16 @@ ${orgName} Team`;
   const handleAddMusiker = () => {
     if (!selectedMusikerId) return;
 
-    const selectedMusiker = musiker.find(m => m.id === selectedMusikerId);
-    
+    const selectedMusiker = musiker.find((m) => m.id === selectedMusikerId);
+
     const distanz = parseFloat(musikerDistanz) || 0;
     const fahrtkostenProKm = parseFloat(musikerFahrtkostenProKm) || 0.30;
     const berechneteSpesen = distanz * 2 * fahrtkostenProKm;
-    
+
     addMusikerMutation.mutate({
       event_id: eventId,
       musiker_id: selectedMusikerId,
-      rolle: musikerRolle || (selectedMusiker?.instrumente?.[0] || ""),
+      rolle: musikerRolle || selectedMusiker?.instrumente?.[0] || "",
       gage_netto: parseFloat(musikerGage) || selectedMusiker?.tagessatz_netto || 0,
       distanz_km: distanz,
       fahrtkosten_pro_km: fahrtkostenProKm,
@@ -776,7 +776,7 @@ ${orgName} Team`;
   };
 
   const handleOpenEinladungDialog = (eventMusikerId, musikerId) => {
-    const musikerData = musiker.find(m => m.id === musikerId);
+    const musikerData = musiker.find((m) => m.id === musikerId);
     if (musikerData?.email) {
       setEinladungMusiker(musikerData);
       setEinladungEventMusikerId(eventMusikerId);
@@ -806,11 +806,11 @@ ${orgName} Team`;
 
   const handleSaveEditMusiker = () => {
     if (!editingEventMusiker) return;
-    
+
     const distanz = parseFloat(editMusikerData.distanz_km) || 0;
     const fahrtkostenProKm = parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30;
     const berechneteSpesen = distanz * 2 * fahrtkostenProKm;
-    
+
     updateEventMusikerMutation.mutate({
       id: editingEventMusiker.id,
       data: {
@@ -831,10 +831,10 @@ ${orgName} Team`;
 
   const handleSendEinladung = () => {
     if (einladungMusiker && einladungEventMusikerId) {
-      sendEinladungMutation.mutate({ 
-        eventMusikerId: einladungEventMusikerId, 
+      sendEinladungMutation.mutate({
+        eventMusikerId: einladungEventMusikerId,
         musikerData: einladungMusiker,
-        customMessage: einladungText 
+        customMessage: einladungText
       });
     }
   };
@@ -844,16 +844,16 @@ ${orgName} Team`;
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   if (currentUser === null || !accessChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
-      </div>
-    );
+      </div>);
+
   }
 
   // Zugriffsprüfung - Finally, if hasAccess is false after all checks, deny access
@@ -875,8 +875,8 @@ ${orgName} Team`;
             </Button>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   const statusColors = {
@@ -905,13 +905,13 @@ ${orgName} Team`;
   const handleAddToCalendar = () => {
     const startDate = new Date(event.datum_von);
     const endDate = new Date(event.datum_bis);
-    
+
     const formatDateForCalendar = (date) => {
       return date.toISOString().replace(/-|:|\.\d{3}/g, '');
     };
 
     const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.titel)}&dates=${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}&details=${encodeURIComponent(event.oeffentliche_notizen || '')}&location=${encodeURIComponent(event.ort_adresse || event.ort_name || '')}`;
-    
+
     window.open(calendarUrl, '_blank');
   };
 
@@ -925,7 +925,7 @@ ${orgName} Team`;
 
   const handleSendEmail = async () => {
     if (!kunde?.email || !emailSubject || !emailBody) return;
-    
+
     setSendingEmail(true);
     try {
       await base44.functions.invoke('sendMailgunEmail', {
@@ -972,14 +972,14 @@ ${orgName} Team`;
       // PDF als Blob erstellen
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      
+
       // Download starten
       const a = document.createElement('a');
       a.href = url;
       a.download = `Event_${event.titel.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
       document.body.appendChild(a);
       a.click();
-      
+
       // Cleanup
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
@@ -1001,8 +1001,8 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm"
-            >
+              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
@@ -1014,11 +1014,11 @@ ${orgName} Team`;
             onSubmit={handleUpdateSubmit}
             onCancel={() => setIsEditing(false)}
             onDelete={handleDeleteEvent}
-            kunden={kunden}
-          />
+            kunden={kunden} />
+          
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -1032,8 +1032,8 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Events'))}
-              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm"
-            >
+              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              
               <ArrowLeft className="w-4 h-4" />
               Zurück
             </Button>
@@ -1044,14 +1044,14 @@ ${orgName} Team`;
 
           {/* Title & Actions */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">{event.titel}</h1>
+            <h1 className="text-gray-900 text-2xl font-bold md:text-2xl">{event.titel}</h1>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleAddToCalendar}
-                className="gap-2"
-              >
+                className="gap-2">
+                
                 <Calendar className="w-4 h-4" />
                 Zu Kalender
               </Button>
@@ -1060,43 +1060,43 @@ ${orgName} Team`;
                 size="sm"
                 onClick={handleExportPDF}
                 disabled={generatingPDF}
-                className="gap-2"
-              >
-                {generatingPDF ? (
-                  <>
+                className="gap-2">
+                
+                {generatingPDF ?
+                <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     PDF wird erstellt...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <Download className="w-4 h-4" />
                     Als PDF
                   </>
-                )}
+                }
               </Button>
-              {isManager && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => setIsEditing(true)}
-                  className="gap-2 text-white"
-                  style={{ backgroundColor: '#223a5e' }}
-                >
+              {isManager &&
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="gap-2 text-white"
+                style={{ backgroundColor: '#223a5e' }}>
+                
                   <Edit className="w-4 h-4" />
                   Bearbeiten
                 </Button>
-              )}
-              {isManager && kunde && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleContactCustomer}
-                  className="gap-2"
-                >
+              }
+              {isManager && kunde &&
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleContactCustomer}
+                className="gap-2">
+                
                   <Mail className="w-4 h-4" />
                   Kunde kontaktieren
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -1159,32 +1159,32 @@ ${orgName} Team`;
                   </div>
 
                   {/* Kunde */}
-                  {isManager && (
-                    <div className="flex items-start gap-3">
+                  {isManager &&
+                  <div className="flex items-start gap-3">
                       <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Kunde</p>
-                        {kunde ? (
-                          <Link
-                            to={`${createPageUrl('KundenDetail')}?id=${kunde.id}`}
-                            className="font-medium text-[#223a5e] hover:underline inline-flex items-center gap-1"
-                          >
+                        {kunde ?
+                      <Link
+                        to={`${createPageUrl('KundenDetail')}?id=${kunde.id}`}
+                        className="font-medium text-[#223a5e] hover:underline inline-flex items-center gap-1">
+                        
                             {kunde.firmenname}
                             <ExternalLink className="w-3 h-3" />
-                          </Link>
-                        ) : (
-                          <p className="font-medium text-gray-900">Kein Kunde verknüpft</p>
-                        )}
+                          </Link> :
+
+                      <p className="font-medium text-gray-900">Kein Kunde verknüpft</p>
+                      }
                       </div>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
 
             {/* Event Location Card */}
-            {(event.ort_name || event.ort_adresse) && (
-              <Card className="border border-gray-200 shadow-sm">
+            {(event.ort_name || event.ort_adresse) &&
+            <Card className="border border-gray-200 shadow-sm">
                 <CardHeader className="border-b bg-white">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -1192,11 +1192,11 @@ ${orgName} Team`;
                       <CardTitle className="text-xl font-bold">Event Location</CardTitle>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={openInMaps}
-                      className="gap-2 text-sm"
-                    >
+                    variant="ghost"
+                    size="sm"
+                    onClick={openInMaps}
+                    className="gap-2 text-sm">
+                    
                       <ExternalLink className="w-4 h-4" />
                       Open in Maps
                     </Button>
@@ -1209,7 +1209,7 @@ ${orgName} Team`;
                   <GoogleMapEmbed address={event.ort_adresse || event.ort_name} />
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Zeitplan */}
             <Card className="border border-gray-200 shadow-sm">
@@ -1230,30 +1230,30 @@ ${orgName} Team`;
                   </div>
 
                   {/* Get-In Zeit */}
-                  {event.get_in_zeit && (
-                    <div className="flex items-start gap-3">
+                  {event.get_in_zeit &&
+                  <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-blue-500 mt-0.5" />
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Get-In Zeit</p>
                         <p className="font-medium text-gray-900">{event.get_in_zeit}</p>
                       </div>
                     </div>
-                  )}
+                  }
 
                   {/* Soundcheck-Zeit */}
-                  {event.soundcheck_zeit && (
-                    <div className="flex items-start gap-3">
+                  {event.soundcheck_zeit &&
+                  <div className="flex items-start gap-3">
                       <span className="text-yellow-500 text-xl mt-0.5">☀️</span>
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Soundcheck-Zeit</p>
                         <p className="font-medium text-gray-900">{event.soundcheck_zeit}</p>
                       </div>
                     </div>
-                  )}
+                  }
 
                   {/* Ablaufplan */}
-                  {event.ablaufplan && (
-                    <div className="flex items-start gap-3 pt-4 border-t">
+                  {event.ablaufplan &&
+                  <div className="flex items-start gap-3 pt-4 border-t">
                       <FileText className="w-5 h-5 text-purple-500 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm text-gray-500 mb-2">Ablaufplan</p>
@@ -1262,7 +1262,7 @@ ${orgName} Team`;
                         </div>
                       </div>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -1276,95 +1276,95 @@ ${orgName} Team`;
               <CardContent className="p-6 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Event-Typ */}
-                  {event.event_typ && (
-                    <div className="flex items-start gap-3">
+                  {event.event_typ &&
+                  <div className="flex items-start gap-3">
                       <span className="text-purple-500 text-xl mt-0.5">🎉</span>
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Event-Typ</p>
                         <p className="font-medium text-gray-900">{event.event_typ}</p>
                       </div>
                     </div>
-                  )}
+                  }
 
                   {/* Anzahl der Gäste */}
-                  {event.anzahl_gaeste && (
-                    <div className="flex items-start gap-3">
+                  {event.anzahl_gaeste &&
+                  <div className="flex items-start gap-3">
                       <UsersIcon className="w-5 h-5 text-blue-500 mt-0.5" />
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Anzahl der Gäste</p>
                         <p className="font-medium text-gray-900">{event.anzahl_gaeste}</p>
                       </div>
                     </div>
-                  )}
+                  }
 
                   {/* Dresscode */}
-                  {event.dresscode && (
-                    <div className="flex items-start gap-3">
+                  {event.dresscode &&
+                  <div className="flex items-start gap-3">
                       <Shirt className="w-5 h-5 text-gray-400 mt-0.5" />
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Dresscode</p>
                         <p className="font-medium text-gray-900">{event.dresscode}</p>
                       </div>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
 
             {/* Hotel-Informationen */}
-            {(event.hotel_name || event.hotel_adresse) && (
-              <Card className="border border-gray-200 shadow-sm">
+            {(event.hotel_name || event.hotel_adresse) &&
+            <Card className="border border-gray-200 shadow-sm">
                 <CardHeader className="border-b bg-white">
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
                       <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
                     </div>
-                    {event.hotel_adresse && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
-                        className="gap-2 text-sm"
-                      >
+                    {event.hotel_adresse &&
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                    className="gap-2 text-sm">
+                    
                         <ExternalLink className="w-4 h-4" />
                         In Maps öffnen
                       </Button>
-                    )}
+                  }
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 bg-white">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Hotel-Name */}
-                    {event.hotel_name && (
-                      <div className="flex items-start gap-3">
+                    {event.hotel_name &&
+                  <div className="flex items-start gap-3">
                         <Hotel className="w-5 h-5 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Hotel-Name</p>
                           <p className="font-medium text-gray-900">{event.hotel_name}</p>
                         </div>
                       </div>
-                    )}
+                  }
 
                     {/* Hotel-Adresse */}
-                    {event.hotel_adresse && (
-                      <div className="flex items-start gap-3">
+                    {event.hotel_adresse &&
+                  <div className="flex items-start gap-3">
                         <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                         <div>
                           <p className="text-sm text-gray-500 mb-1">Hotel-Adresse</p>
                           <button
-                            onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
-                            className="font-medium text-gray-900 hover:text-blue-600 hover:underline text-left transition-colors"
-                          >
+                        onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
+                        className="font-medium text-gray-900 hover:text-blue-600 hover:underline text-left transition-colors">
+                        
                             {event.hotel_adresse}
                           </button>
                         </div>
                       </div>
-                    )}
+                  }
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Zusätzliche Informationen */}
             <Card className="border border-gray-200 shadow-sm">
@@ -1385,8 +1385,8 @@ ${orgName} Team`;
                 </div>
 
                 {/* Notizen für Musiker (öffentlich) */}
-                {event.musiker_notizen && (
-                  <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                {event.musiker_notizen &&
+                <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-blue-900 mb-1">Notizen für Musiker</p>
@@ -1395,11 +1395,11 @@ ${orgName} Team`;
                       </div>
                     </div>
                   </div>
-                )}
+                }
 
                 {/* Interne Notizen (nur für Manager) */}
-                {isManager && event.interne_notizen && (
-                  <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                {isManager && event.interne_notizen &&
+                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <File className="w-5 h-5 text-amber-600 mt-0.5" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -1413,18 +1413,18 @@ ${orgName} Team`;
                       </div>
                     </div>
                   </div>
-                )}
+                }
 
                 {/* Keine Notizen vorhanden */}
-                {!event.musiker_notizen && !event.interne_notizen && (
-                  <div className="flex items-start gap-3">
+                {!event.musiker_notizen && !event.interne_notizen &&
+                <div className="flex items-start gap-3">
                     <File className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500 mb-1">Notizen</p>
                       <p className="font-medium text-gray-900">Nicht angegeben</p>
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -1437,86 +1437,86 @@ ${orgName} Team`;
                   <CardTitle className="text-xl font-bold">
                     {isManager ? "Gebuchte Musiker" : "Musiker bei diesem Event"}
                   </CardTitle>
-                  {isManager && (
-                    <Button
-                      onClick={() => setShowMusikerForm(true)}
-                      size="sm"
-                      className="text-white"
-                      style={{ backgroundColor: '#223a5e' }}
-                    >
+                  {isManager &&
+                  <Button
+                    onClick={() => setShowMusikerForm(true)}
+                    size="sm"
+                    className="text-white"
+                    style={{ backgroundColor: '#223a5e' }}>
+                    
                       <Plus className="w-4 h-4 mr-2" />
                       Musiker hinzufügen
                     </Button>
-                  )}
+                  }
                 </div>
               </CardHeader>
                 <CardContent className="p-6">
-                  {isManager && showMusikerForm && (
-                    <MusikerHinzufuegenForm
-                      musiker={musiker}
-                      vorlagen={vorlagen}
-                      selectedMusikerId={selectedMusikerId} setSelectedMusikerId={setSelectedMusikerId}
-                      musikerRolle={musikerRolle} setMusikerRolle={setMusikerRolle}
-                      musikerGage={musikerGage} setMusikerGage={setMusikerGage}
-                      musikerDistanz={musikerDistanz} setMusikerDistanz={setMusikerDistanz}
-                      musikerFahrtkostenProKm={musikerFahrtkostenProKm} setMusikerFahrtkostenProKm={setMusikerFahrtkostenProKm}
-                      musikerNotizen={musikerNotizen} setMusikerNotizen={setMusikerNotizen}
-                      buchungsbedingungen={buchungsbedingungen} setBuchungsbedingungen={setBuchungsbedingungen}
-                      selectedVorlageId={selectedVorlageId} setSelectedVorlageId={setSelectedVorlageId}
-                      onAdd={handleAddMusiker}
-                      onCancel={() => { setShowMusikerForm(false); resetMusikerForm(); }}
-                      isPending={addMusikerMutation.isPending}
-                    />
-                  )}
+                  {isManager && showMusikerForm &&
+                <MusikerHinzufuegenForm
+                  musiker={musiker}
+                  vorlagen={vorlagen}
+                  selectedMusikerId={selectedMusikerId} setSelectedMusikerId={setSelectedMusikerId}
+                  musikerRolle={musikerRolle} setMusikerRolle={setMusikerRolle}
+                  musikerGage={musikerGage} setMusikerGage={setMusikerGage}
+                  musikerDistanz={musikerDistanz} setMusikerDistanz={setMusikerDistanz}
+                  musikerFahrtkostenProKm={musikerFahrtkostenProKm} setMusikerFahrtkostenProKm={setMusikerFahrtkostenProKm}
+                  musikerNotizen={musikerNotizen} setMusikerNotizen={setMusikerNotizen}
+                  buchungsbedingungen={buchungsbedingungen} setBuchungsbedingungen={setBuchungsbedingungen}
+                  selectedVorlageId={selectedVorlageId} setSelectedVorlageId={setSelectedVorlageId}
+                  onAdd={handleAddMusiker}
+                  onCancel={() => {setShowMusikerForm(false);resetMusikerForm();}}
+                  isPending={addMusikerMutation.isPending} />
+
+                }
 
                   <div className="space-y-4">
-                    {eventMusiker.length > 0 ? (
-                      eventMusiker.map((em) => {
-                        const musikerData = musiker.find(m => m.id === em.musiker_id);
-                        const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
-                        const initials = musikerData?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || '?';
-                        const isCurrentUserMusiker = currentMusiker?.id === em.musiker_id;
-                        
-                        return (
-                          <EventMusikerCard
-                            key={em.id}
-                            em={em}
-                            musikerData={musikerData}
-                            statusStyle={statusStyle}
-                            isCurrentUserMusiker={isCurrentUserMusiker}
-                            isManager={isManager}
-                            showDropdownId={showDropdownId}
-                            setShowDropdownId={setShowDropdownId}
-                            handleUpdateStatus={handleUpdateStatus}
-                            handleOpenEditMusikerDialog={handleOpenEditMusikerDialog}
-                            handleOpenEinladungDialog={handleOpenEinladungDialog}
-                            handleRemoveMusiker={handleRemoveMusiker}
-                          />
-                         );
-                      })
-                    ) : (
-                      isManager ? (
-                        <div className="text-center py-12">
+                    {eventMusiker.length > 0 ?
+                  eventMusiker.map((em) => {
+                    const musikerData = musiker.find((m) => m.id === em.musiker_id);
+                    const statusStyle = musikerStatusColors[em.status] || musikerStatusColors.angefragt;
+                    const initials = musikerData?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?';
+                    const isCurrentUserMusiker = currentMusiker?.id === em.musiker_id;
+
+                    return (
+                      <EventMusikerCard
+                        key={em.id}
+                        em={em}
+                        musikerData={musikerData}
+                        statusStyle={statusStyle}
+                        isCurrentUserMusiker={isCurrentUserMusiker}
+                        isManager={isManager}
+                        showDropdownId={showDropdownId}
+                        setShowDropdownId={setShowDropdownId}
+                        handleUpdateStatus={handleUpdateStatus}
+                        handleOpenEditMusikerDialog={handleOpenEditMusikerDialog}
+                        handleOpenEinladungDialog={handleOpenEinladungDialog}
+                        handleRemoveMusiker={handleRemoveMusiker} />);
+
+
+                  }) :
+
+                  isManager ?
+                  <div className="text-center py-12">
                           <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
                           <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
                           <Button
-                            onClick={() => setShowMusikerForm(true)}
-                            className="text-white"
-                            style={{ backgroundColor: '#223a5e' }}
-                          >
+                      onClick={() => setShowMusikerForm(true)}
+                      className="text-white"
+                      style={{ backgroundColor: '#223a5e' }}>
+                      
                             <Plus className="w-4 h-4 mr-2" />
                             Ersten Musiker hinzufügen
                           </Button>
-                        </div>
-                      ) : (
-                        <div className="text-center py-12">
+                        </div> :
+
+                  <div className="text-center py-12">
                           <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Musiker</h3>
                           <p className="text-gray-500">Es sind noch keine anderen Musiker für dieses Event bestätigt.</p>
                         </div>
-                      )
-                    )}
+
+                  }
                   </div>
                 </CardContent>
               </Card>
@@ -1533,8 +1533,8 @@ ${orgName} Team`;
               updateAufgabeMutation={updateAufgabeMutation}
               deleteAufgabeMutation={deleteAufgabeMutation}
               createAufgabeMutation={createAufgabeMutation}
-              queryClient={queryClient}
-            />
+              queryClient={queryClient} />
+            
           </TabsContent>
 
           {/* Dokumente Tab */}
@@ -1546,46 +1546,46 @@ ${orgName} Team`;
                     <CardTitle className="text-xl font-bold">Dokumente</CardTitle>
                     <p className="text-sm text-gray-500 mt-1">Wegebeschreibungen, Abläufe und andere wichtige Dateien</p>
                   </div>
-                  {isManager && (
-                    <div>
+                  {isManager &&
+                  <div>
                       <input
-                        type="file"
-                        id="file-upload"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                      />
+                      type="file"
+                      id="file-upload"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" />
+                    
                       <Button
-                        onClick={() => document.getElementById('file-upload').click()}
-                        disabled={uploadingFile}
-                        size="sm"
-                        className="text-white"
-                        style={{ backgroundColor: '#223a5e' }}
-                      >
-                        {uploadingFile ? (
-                          <>
+                      onClick={() => document.getElementById('file-upload').click()}
+                      disabled={uploadingFile}
+                      size="sm"
+                      className="text-white"
+                      style={{ backgroundColor: '#223a5e' }}>
+                      
+                        {uploadingFile ?
+                      <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                             Wird hochgeladen...
-                          </>
-                        ) : (
-                          <>
+                          </> :
+
+                      <>
                             <Upload className="w-4 h-4 mr-2" />
                             Datei hochladen
                           </>
-                        )}
+                      }
                       </Button>
                     </div>
-                  )}
+                  }
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                {dateien.length > 0 ? (
-                  <div className="space-y-3">
-                    {dateien.map((datei) => (
-                      <div
-                        key={datei.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                      >
+                {dateien.length > 0 ?
+                <div className="space-y-3">
+                    {dateien.map((datei) =>
+                  <div
+                    key={datei.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    
                         <div className="flex items-center gap-4">
                           <span className="text-2xl">{getFileIcon(datei.file_type)}</span>
                           <div>
@@ -1597,51 +1597,51 @@ ${orgName} Team`;
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(datei.file_url, '_blank')}
-                            className="gap-2"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(datei.file_url, '_blank')}
+                        className="gap-2">
+                        
                             <Download className="w-4 h-4" />
                             Öffnen
                           </Button>
-                          {isManager && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteDatei(datei.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            >
+                          {isManager &&
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteDatei(datei.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                        
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
+                  )}
+                  </div> :
+
+                <div className="text-center py-12">
                     <FileIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Dokumente</h3>
                     <p className="text-gray-500 mb-4">
-                      {isManager 
-                        ? "Lade Wegebeschreibungen, Abläufe oder andere wichtige Dateien hoch"
-                        : "Es wurden noch keine Dokumente für dieses Event hochgeladen"
-                      }
+                      {isManager ?
+                    "Lade Wegebeschreibungen, Abläufe oder andere wichtige Dateien hoch" :
+                    "Es wurden noch keine Dokumente für dieses Event hochgeladen"
+                    }
                     </p>
-                    {isManager && (
-                      <Button
-                        onClick={() => document.getElementById('file-upload').click()}
-                        disabled={uploadingFile}
-                        className="text-white"
-                        style={{ backgroundColor: '#223a5e' }}
-                      >
+                    {isManager &&
+                  <Button
+                    onClick={() => document.getElementById('file-upload').click()}
+                    disabled={uploadingFile}
+                    className="text-white"
+                    style={{ backgroundColor: '#223a5e' }}>
+                    
                         <Upload className="w-4 h-4 mr-2" />
                         Erste Datei hochladen
                       </Button>
-                    )}
+                  }
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -1649,11 +1649,11 @@ ${orgName} Team`;
           <TabsContent value="finanzen" className="space-y-6">
             <EventFinanzenTab
               isManager={isManager}
-              eventMusiker={eventMusiker.map(em => ({ ...em, musiker_name: musiker.find(m => m.id === em.musiker_id)?.name }))}
+              eventMusiker={eventMusiker.map((em) => ({ ...em, musiker_name: musiker.find((m) => m.id === em.musiker_id)?.name }))}
               ausgaben={ausgaben}
               rechnungen={rechnungen}
-              eventId={eventId}
-            />
+              eventId={eventId} />
+            
           </TabsContent>
 
           {/* Verlauf Tab */}
@@ -1664,40 +1664,40 @@ ${orgName} Team`;
                 <p className="text-sm text-gray-500 mt-1">Alle Änderungen und Aktivitäten zu diesem Event</p>
               </CardHeader>
               <CardContent className="p-6">
-                {aktivitaeten.length > 0 ? (
-                  <div className="space-y-4">
+                {aktivitaeten.length > 0 ?
+                <div className="space-y-4">
                     {aktivitaeten.map((aktivitaet) => {
-                      const iconMap = {
-                        event_erstellt: '✨',
-                        event_bearbeitet: '📝',
-                        musiker_hinzugefuegt: '➕',
-                        musiker_entfernt: '➖',
-                        musiker_status_geaendert: '🔄',
-                        dokument_hinzugefuegt: '📄',
-                        dokument_geloescht: '🗑️',
-                        aufgabe_erstellt: '✅',
-                        aufgabe_geaendert: '📋',
-                        aufgabe_geloescht: '❌'
-                      };
+                    const iconMap = {
+                      event_erstellt: '✨',
+                      event_bearbeitet: '📝',
+                      musiker_hinzugefuegt: '➕',
+                      musiker_entfernt: '➖',
+                      musiker_status_geaendert: '🔄',
+                      dokument_hinzugefuegt: '📄',
+                      dokument_geloescht: '🗑️',
+                      aufgabe_erstellt: '✅',
+                      aufgabe_geaendert: '📋',
+                      aufgabe_geloescht: '❌'
+                    };
 
-                      const colorMap = {
-                        event_erstellt: 'bg-green-50 border-green-200',
-                        event_bearbeitet: 'bg-blue-50 border-blue-200',
-                        musiker_hinzugefuegt: 'bg-green-50 border-green-200',
-                        musiker_entfernt: 'bg-red-50 border-red-200',
-                        musiker_status_geaendert: 'bg-yellow-50 border-yellow-200',
-                        dokument_hinzugefuegt: 'bg-purple-50 border-purple-200',
-                        dokument_geloescht: 'bg-red-50 border-red-200',
-                        aufgabe_erstellt: 'bg-blue-50 border-blue-200',
-                        aufgabe_geaendert: 'bg-orange-50 border-orange-200',
-                        aufgabe_geloescht: 'bg-red-50 border-red-200'
-                      };
+                    const colorMap = {
+                      event_erstellt: 'bg-green-50 border-green-200',
+                      event_bearbeitet: 'bg-blue-50 border-blue-200',
+                      musiker_hinzugefuegt: 'bg-green-50 border-green-200',
+                      musiker_entfernt: 'bg-red-50 border-red-200',
+                      musiker_status_geaendert: 'bg-yellow-50 border-yellow-200',
+                      dokument_hinzugefuegt: 'bg-purple-50 border-purple-200',
+                      dokument_geloescht: 'bg-red-50 border-red-200',
+                      aufgabe_erstellt: 'bg-blue-50 border-blue-200',
+                      aufgabe_geaendert: 'bg-orange-50 border-orange-200',
+                      aufgabe_geloescht: 'bg-red-50 border-red-200'
+                    };
 
-                      return (
-                        <div 
-                          key={aktivitaet.id} 
-                          className={`flex items-start gap-4 p-4 rounded-lg border ${colorMap[aktivitaet.typ] || 'bg-gray-50 border-gray-200'}`}
-                        >
+                    return (
+                      <div
+                        key={aktivitaet.id}
+                        className={`flex items-start gap-4 p-4 rounded-lg border ${colorMap[aktivitaet.typ] || 'bg-gray-50 border-gray-200'}`}>
+                        
                           <span className="text-2xl">{iconMap[aktivitaet.typ] || '📌'}</span>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-gray-900">{aktivitaet.beschreibung}</p>
@@ -1707,17 +1707,17 @@ ${orgName} Team`;
                               <span>{format(new Date(aktivitaet.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</span>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
+                        </div>);
+
+                  })}
+                  </div> :
+
+                <div className="text-center py-12">
                     <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
                     <p className="text-gray-500">Änderungen am Event werden hier protokolliert</p>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -1731,8 +1731,8 @@ ${orgName} Team`;
           musiker={musiker}
           editingEventMusiker={editingEventMusiker}
           onSave={handleSaveEditMusiker}
-          isSaving={updateEventMusikerMutation.isPending}
-        />
+          isSaving={updateEventMusikerMutation.isPending} />
+        
         <EinladungDialog
           open={showEinladungDialog}
           onOpenChange={setShowEinladungDialog}
@@ -1741,8 +1741,8 @@ ${orgName} Team`;
           setEinladungText={setEinladungText}
           event={event}
           onSend={handleSendEinladung}
-          isSending={sendEinladungMutation.isPending}
-        />
+          isSending={sendEinladungMutation.isPending} />
+        
         <KontaktDialog
           open={showContactDialog}
           onOpenChange={setShowContactDialog}
@@ -1752,9 +1752,9 @@ ${orgName} Team`;
           emailBody={emailBody}
           setEmailBody={setEmailBody}
           onSend={handleSendEmail}
-          isSending={sendingEmail}
-        />
+          isSending={sendingEmail} />
+        
         </div>
-        </div>
-        );
-        }
+        </div>);
+
+}
