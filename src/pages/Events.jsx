@@ -28,7 +28,7 @@ export default function EventsPage() {
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("alle");
-  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "grid" : "list");
+  const [viewMode, setViewMode] = useState(() => window.innerWidth < 768 ? "list" : "list");
   const queryClient = useQueryClient();
 
   useEffect(() => {
