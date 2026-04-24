@@ -61,11 +61,6 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -88,18 +83,80 @@ export default function Layout({ children, currentPageName }) {
     primary_color: "#223a5e"
   });
 
-  // Prüfe ob wir im iframe (Preview-Modus) sind
-  const isInIframe = () => {
-    try {
-      return window.self !== window.top;
-    } catch (e) {
-      return true;
-    }
-  };
-
   useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
+    if (!isPublicPage) {
+      checkAuthAndLoadData();
+    }
+  }, [isPublicPage]);
+
+  const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
+  const isManager = currentMitglied?.rolle === "Band Manager";
+
+  const managerNavItems = [
+    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+    { title: "Events", icon: Calendar, submenu: [
+      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+      { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }
+    ]},
+    { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
+    { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
+    { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
+    { title: "Finanzen", icon: DollarSign, url: createPageUrl("Finanzen"), submenu: [
+      { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
+      { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
+      { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }
+    ]},
+    { title: "Leads", url: createPageUrl("Leads"), icon: Target },
+    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+    { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
+    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
+  ];
+
+  const musikerNavItems = [
+    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+    { title: "Events", icon: Calendar, submenu: [
+      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+      { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }
+    ]},
+    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+    { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
+    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
+  ];
+
+  const navigationItems = isManager ? managerNavItems : musikerNavItems;
+
+  // Redirect Musiker to their dashboard if they're on wrong page
+  useEffect(() => {
+    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
+      window.location.href = createPageUrl('MusikerDashboard');
+    }
+  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
+
+  // Auto-expand active submenu
+  useEffect(() => {
+    navigationItems.forEach((item, index) => {
+      if (item.submenu) {
+        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
+        if (isActive && !expandedMenus[index]) {
+          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
+        }
+      }
+    });
+    const settingsSubmenuUrls = [
+      createPageUrl("OrganisationSettings"),
+      createPageUrl("BuchungsbedingungVorlagen"),
+      createPageUrl("ArtikelVerwaltung")
+    ];
+    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
+    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
+      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
+    }
+  }, [location.pathname]);
+
+  // Für Public Pages: früher Return NACH allen Hooks
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   const checkAuthAndLoadData = async () => {
     try {
@@ -364,85 +421,6 @@ export default function Layout({ children, currentPageName }) {
       [menuKey]: !prev[menuKey]
     }));
   };
-
-  const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
-  const isManager = currentMitglied?.rolle === "Band Manager";
-
-  // Redirect Musiker to their dashboard if they're on wrong page
-  useEffect(() => {
-    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
-      window.location.href = createPageUrl('MusikerDashboard');
-    }
-  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
-
-  const managerNavItems = [
-  { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-  {
-    title: "Events",
-    icon: Calendar,
-    submenu: [
-    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
-
-  },
-  { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
-  { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
-  { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
-  {
-    title: "Finanzen",
-    icon: DollarSign,
-    url: createPageUrl("Finanzen"),
-    submenu: [
-    { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
-    { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
-    { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }]
-
-  },
-  { title: "Leads", url: createPageUrl("Leads"), icon: Target },
-  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-  { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
-  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
-
-
-  const musikerNavItems = [
-  { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
-  {
-    title: "Events",
-    icon: Calendar,
-    submenu: [
-    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-    { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }]
-
-  },
-  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-  { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
-  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
-
-
-  const navigationItems = isManager ? managerNavItems : musikerNavItems;
-
-  useEffect(() => {
-    navigationItems.forEach((item, index) => {
-      if (item.submenu) {
-        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
-        if (isActive && !expandedMenus[index]) {
-          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
-        }
-      }
-    });
-
-    // Check for 'settings' submenu specifically
-    const settingsSubmenuUrls = [
-    createPageUrl("OrganisationSettings"),
-    createPageUrl("BuchungsbedingungVorlagen"),
-    createPageUrl("ArtikelVerwaltung")];
-
-    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
-    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
-      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
-    }
-
-  }, [location.pathname]);
 
   // Loading
   if (!initialLoadComplete) {

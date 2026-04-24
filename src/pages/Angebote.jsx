@@ -482,9 +482,9 @@ export default function AngebotePage() {
       <Card className="hover:shadow-lg transition-all duration-200">
         <CardHeader className="pb-4">
           <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-semibold text-lg">{angebot.angebotsnummer}</h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h3 className="font-semibold text-base">{angebot.angebotsnummer}</h3>
                 <Badge className={statusColors[angebot.status]}>
                   {angebot.status}
                 </Badge>
@@ -495,7 +495,7 @@ export default function AngebotePage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-gray-600">{kunde?.firmenname || 'Kunde unbekannt'}</p>
+              <p className="text-sm text-gray-600 truncate">{kunde?.firmenname || 'Kunde unbekannt'}</p>
             </div>
             <div className="relative">
               <Button 
@@ -556,13 +556,13 @@ export default function AngebotePage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="text-sm text-gray-600">
               <span>Erstellt: {format(new Date(angebot.angebotsdatum), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Betrag</p>
-              <p className="text-xl font-bold text-gray-900">
+            <div className="text-right shrink-0">
+              <p className="text-xs text-gray-600">Betrag</p>
+              <p className="text-lg font-bold text-gray-900">
                 {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
             </div>
