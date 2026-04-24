@@ -200,55 +200,25 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button
-                  className="w-full justify-start text-white"
-                  style={{ backgroundColor: '#223a5e' }}>
-
+                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#223a5e' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  style={{
-                    borderColor: '#223a5e',
-                    color: '#223a5e'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-
+                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  style={{
-                    borderColor: '#223a5e',
-                    color: '#223a5e'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-
+                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  style={{
-                    borderColor: '#223a5e',
-                    color: '#223a5e'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-
+                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>
