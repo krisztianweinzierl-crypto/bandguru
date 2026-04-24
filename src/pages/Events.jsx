@@ -376,7 +376,7 @@ export default function EventsPage() {
               }}
               data-active-style="background-color: #223a5e">
 
-              Vergangen ({pastEvents.length})
+              Vergangene ({pastEvents.length})
             </TabsTrigger>
           </TabsList>
 
