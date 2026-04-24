@@ -235,7 +235,7 @@ export default function AusgabenPage() {
               <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-red-600 text-sm font-bold md:text-3xl truncate">
+              <p className="text-red-600 text-3xl font-bold md:text-4xl truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <p className="text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
@@ -261,7 +261,7 @@ export default function AusgabenPage() {
               <CardTitle className="text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-900 text-sm font-bold md:text-3xl truncate">
+              <p className="text-gray-900 text-3xl font-bold md:text-4xl truncate">
                 {(gesamtAusgaben / filteredAusgaben.length || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <p className="text-sm text-gray-500 mt-1">Pro Ausgabe</p>
