@@ -14,8 +14,8 @@ import {
   PieChart,
   ArrowLeft,
   LayoutGrid,
-  List
-} from "lucide-react";
+  List } from
+"lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,27 +47,27 @@ export default function AusgabenPage() {
     queryKey: ['eventMusiker', currentOrgId],
     queryFn: async () => {
       const events = await base44.entities.Event.filter({ org_id: currentOrgId });
-      const eventIds = events.map(e => e.id);
+      const eventIds = events.map((e) => e.id);
       if (eventIds.length === 0) return [];
-      
+
       const allEventMusiker = await Promise.all(
-        eventIds.map(id => base44.entities.EventMusiker.filter({ event_id: id, status: 'zugesagt' }))
+        eventIds.map((id) => base44.entities.EventMusiker.filter({ event_id: id, status: 'zugesagt' }))
       );
       return allEventMusiker.flat();
     },
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['events', currentOrgId],
     queryFn: () => base44.entities.Event.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const { data: musiker = [] } = useQuery({
     queryKey: ['musiker', currentOrgId],
     queryFn: () => base44.entities.Musiker.filter({ org_id: currentOrgId }),
-    enabled: !!currentOrgId,
+    enabled: !!currentOrgId
   });
 
   const createAusgabeMutation = useMutation({
@@ -79,16 +79,16 @@ export default function AusgabenPage() {
   });
 
   // Musiker-Kosten aus Events als virtuelle Ausgaben erstellen
-  const musikerAusgaben = events.map(event => {
-    const kosten = eventMusiker
-      .filter(em => em.event_id === event.id)
-      .reduce((sum, em) => {
-        const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
-        return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
-      }, 0);
-    
+  const musikerAusgaben = events.map((event) => {
+    const kosten = eventMusiker.
+    filter((em) => em.event_id === event.id).
+    reduce((sum, em) => {
+      const weitereKosten = (em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0);
+      return sum + (em.gage_netto || 0) + (em.spesen || 0) + weitereKosten;
+    }, 0);
+
     if (kosten === 0) return null;
-    
+
     return {
       id: `event-${event.id}`,
       titel: `Musiker-Kosten: ${event.titel}`,
@@ -141,40 +141,40 @@ export default function AusgabenPage() {
     };
 
     return (
-      <Card 
+      <Card
         className={`hover:shadow-lg transition-all duration-200 ${ausgabe.isEventKosten ? 'border-l-4 border-l-purple-500 cursor-pointer hover:scale-[1.02]' : ''}`}
-        onClick={handleClick}
-      >
+        onClick={handleClick}>
+        
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-sm md:text-lg text-gray-900 mb-1">{ausgabe.titel}</h3>
+              <h3 className="font-semibold text-lg text-gray-900 mb-1">{ausgabe.titel}</h3>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
                   {ausgabe.kategorie}
                 </Badge>
-                {ausgabe.isEventKosten && (
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                {ausgabe.isEventKosten &&
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                     Event
                   </Badge>
-                )}
+                }
                 <span className="text-sm text-gray-500">
                   {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                 </span>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-lg md:text-2xl font-bold text-red-600 flex-shrink-0">
+              <p className="text-2xl font-bold text-red-600">
                 {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
             </div>
           </div>
 
-          {ausgabe.isEventKosten && (
-            <p className="text-sm text-gray-600 mt-2">
+          {ausgabe.isEventKosten &&
+          <p className="text-sm text-gray-600 mt-2">
               Gesamtkosten für Musiker bei diesem Event (inkl. Gagen, Fahrtkosten und weitere Kosten)
             </p>
-          )}
+          }
 
           {ausgabe.notizen && !ausgabe.isEventKosten &&
           <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ausgabe.notizen}</p>
@@ -207,8 +207,8 @@ export default function AusgabenPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigate(createPageUrl('Finanzen'))}
-            className="gap-2 mb-4"
-          >
+            className="gap-2 mb-4">
+            
             <ArrowLeft className="w-4 h-4" />
             Zurück zu Finanzen
           </Button>
@@ -220,8 +220,8 @@ export default function AusgabenPage() {
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700"
-            >
+              className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700">
+              
               <Plus className="w-4 h-4 mr-2" />
               Neue Ausgabe
             </Button>
@@ -231,40 +231,40 @@ export default function AusgabenPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2 p-3 md:p-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-red-600 truncate">
+            <CardContent>
+              <p className="text-red-600 text-sm font-bold md:text-3xl truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
+              <p className="text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2 p-3 md:p-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Häufigste Kategorie</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Häufigste Kategorie</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-sm md:text-2xl font-bold text-gray-900 truncate">
+            <CardContent>
+              <p className="text-2xl font-bold text-gray-900">
                 {Object.keys(ausgabenNachKategorie).sort((a, b) => ausgabenNachKategorie[b] - ausgabenNachKategorie[a])[0] || '-'}
               </p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-1">
                 {Object.keys(ausgabenNachKategorie).length} Kategorien
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2 p-3 md:p-6">
-              <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
+            <CardContent>
+              <p className="text-gray-900 text-sm font-bold md:text-3xl truncate">
                 {(gesamtAusgaben / filteredAusgaben.length || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1">Pro Ausgabe</p>
+              <p className="text-sm text-gray-500 mt-1">Pro Ausgabe</p>
             </CardContent>
           </Card>
         </div>
@@ -304,15 +304,15 @@ export default function AusgabenPage() {
                 <Button
                   variant={viewMode === "grid" ? "default" : "outline"}
                   size="icon"
-                  onClick={() => setViewMode("grid")}
-                >
+                  onClick={() => setViewMode("grid")}>
+                  
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === "list" ? "default" : "outline"}
                   size="icon"
-                  onClick={() => setViewMode("list")}
-                >
+                  onClick={() => setViewMode("list")}>
+                  
                   <List className="w-4 h-4" />
                 </Button>
               </div>
@@ -331,34 +331,34 @@ export default function AusgabenPage() {
         }
 
         {/* Ausgaben Grid/List */}
-        {filteredAusgaben.length > 0 ? (
-          viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredAusgaben.length > 0 ?
+        viewMode === "grid" ?
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredAusgaben.map((ausgabe) =>
-                <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
-              )}
-            </div>
-          ) : (
-            <Card className="border-none shadow-lg">
+          <AusgabeCard key={ausgabe.id} ausgabe={ausgabe} />
+          )}
+            </div> :
+
+        <Card className="border-none shadow-lg">
               <CardContent className="p-0">
-                {filteredAusgaben.map((ausgabe, index) => (
-                  <div
-                    key={ausgabe.id}
-                    className={`flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50 transition-colors ${ausgabe.isEventKosten ? 'cursor-pointer' : ''}`}
-                    onClick={() => {
-                      if (ausgabe.isEventKosten && ausgabe.event) {
-                        navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
-                      }
-                    }}
-                  >
+                {filteredAusgaben.map((ausgabe, index) =>
+            <div
+              key={ausgabe.id}
+              className={`flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50 transition-colors ${ausgabe.isEventKosten ? 'cursor-pointer' : ''}`}
+              onClick={() => {
+                if (ausgabe.isEventKosten && ausgabe.event) {
+                  navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
+                }
+              }}>
+              
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">{ausgabe.titel}</h3>
-                        {ausgabe.isEventKosten && (
-                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                        <h3 className="font-semibold text-gray-900">{ausgabe.titel}</h3>
+                        {ausgabe.isEventKosten &&
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
                             Event
                           </Badge>
-                        )}
+                  }
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
@@ -369,15 +369,15 @@ export default function AusgabenPage() {
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm md:text-xl font-bold text-red-600 flex-shrink-0 ml-2">
+                    <p className="text-xl font-bold text-red-600">
                       {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
-                ))}
+            )}
               </CardContent>
-            </Card>
-          )
-        ) :
+            </Card> :
+
+
 
         <Card className="border-dashed">
             <CardContent className="p-12 text-center">
