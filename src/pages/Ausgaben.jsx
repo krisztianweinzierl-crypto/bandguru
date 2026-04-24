@@ -350,26 +350,26 @@ export default function AusgabenPage() {
                   navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
                 }
               }}>
-              
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900">{ausgabe.titel}</h3>
+
+                    <div className="flex-1 min-w-0 mr-4">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <h3 className="font-semibold text-gray-900 truncate">{ausgabe.titel}</h3>
                         {ausgabe.isEventKosten &&
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 shrink-0">
                             Event
                           </Badge>
-                  }
+                        }
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline" className={kategorieColors[ausgabe.kategorie] + " shrink-0"}>
                           {ausgabe.kategorie}
                         </Badge>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 shrink-0">
                           {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                         </span>
                       </div>
                     </div>
-                    <p className="text-xl font-bold text-red-600">
+                    <p className="text-lg font-bold text-red-600 shrink-0 whitespace-nowrap">
                       {(ausgabe.betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
