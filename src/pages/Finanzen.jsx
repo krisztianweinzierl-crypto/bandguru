@@ -172,21 +172,22 @@ export default function FinanzenPage() {
           {/* Gesamteinnahmen */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Gesamteinnahmen</CardTitle>
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamteinnahmen</CardTitle>
+                <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
                 {gesamtEinnahmen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <div className="flex items-center gap-1 mt-2 text-sm text-green-600">
-                <ArrowUpRight className="w-4 h-4" />
-                <span>Bezahlte Rechnungen</span>
+              <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-green-600">
+                <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Bezahlte Rechnungen</span>
+                <span className="sm:hidden">bezahlt</span>
               </div>
             </CardContent>
           </Card>
@@ -194,21 +195,21 @@ export default function FinanzenPage() {
           {/* Gesamtausgaben */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <TrendingDown className="w-5 h-5 text-red-600" />
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
+                <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
+                  <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <div className="flex items-center gap-1 mt-2 text-sm text-red-600">
-                <ArrowDownRight className="w-4 h-4" />
-                <span>Alle Ausgaben</span>
+              <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-red-600">
+                <ArrowDownRight className="w-3 h-3 md:w-4 md:h-4" />
+                <span>Ausgaben</span>
               </div>
             </CardContent>
           </Card>
@@ -216,20 +217,20 @@ export default function FinanzenPage() {
           {/* Gewinn/Verlust */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className={`absolute top-0 right-0 w-32 h-32 ${gewinn >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-full opacity-10 transform translate-x-8 -translate-y-8`} />
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Gewinn/Verlust</CardTitle>
-                <div className={`p-2 ${gewinn >= 0 ? 'bg-blue-100' : 'bg-orange-100'} rounded-lg`}>
-                  <Euro className={`w-5 h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} /> {/* Changed from DollarSign to Euro */}
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gewinn/Verlust</CardTitle>
+                <div className={`p-1.5 md:p-2 ${gewinn >= 0 ? 'bg-blue-100' : 'bg-orange-100'} rounded-lg`}>
+                  <Euro className={`w-4 h-4 md:w-5 md:h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className={`text-3xl font-bold ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className={`text-lg md:text-3xl font-bold truncate ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                 {gewinn.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-gray-500 mt-2">
-                {(gewinn / gesamtEinnahmen * 100 || 0).toFixed(1)}% Gewinnmarge
+              <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
+                {(gewinn / gesamtEinnahmen * 100 || 0).toFixed(1)}% Marge
               </p>
             </CardContent>
           </Card>
@@ -237,21 +238,21 @@ export default function FinanzenPage() {
           {/* Offene Rechnungen */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Offene Forderungen</CardTitle>
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <CreditCard className="w-5 h-5 text-yellow-600" />
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Offene Forderungen</CardTitle>
+                <div className="p-1.5 md:p-2 bg-yellow-100 rounded-lg">
+                  <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
                 {offeneRechnungen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               {ueberfaelligeRechnungen > 0 &&
-              <div className="flex items-center gap-1 mt-2 text-sm text-red-600">
-                  <AlertCircle className="w-4 h-4" />
+              <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-red-600">
+                  <AlertCircle className="w-3 h-3 md:w-4 md:h-4" />
                   <span>{ueberfaelligeRechnungen} überfällig</span>
                 </div>
               }
@@ -261,17 +262,17 @@ export default function FinanzenPage() {
           {/* Angebote */}
           <Card className="relative overflow-hidden border-none shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Angebote</CardTitle>
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <FileCheck className="w-5 h-5 text-amber-600" />
+                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Angebote</CardTitle>
+                <div className="p-1.5 md:p-2 bg-amber-100 rounded-lg">
+                  <FileCheck className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{offeneAngebote}</p>
-              <p className="text-sm text-gray-500 mt-2">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-lg md:text-3xl font-bold text-gray-900">{offeneAngebote}</p>
+              <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
                 {angenommeneAngebote} angenommen
               </p>
             </CardContent>
