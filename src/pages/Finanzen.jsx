@@ -405,7 +405,7 @@ export default function FinanzenPage() {
                 <CardTitle>Einnahmen vs. Ausgaben (letzten 12 Monate)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-64 md:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={(() => {
                       const now = new Date();
@@ -443,8 +443,8 @@ export default function FinanzenPage() {
                       return months;
                     })()}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                      <YAxis tick={{ fontSize: 10 }} width={50} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
                       <Tooltip 
                         formatter={(value) => value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                       />
@@ -463,7 +463,7 @@ export default function FinanzenPage() {
                 <CardTitle>Ausgaben nach Kategorien</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-80">
+                <div className="h-72 md:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -473,12 +473,9 @@ export default function FinanzenPage() {
                             const kat = a.kategorie || 'sonstiges';
                             kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
                           });
-                          
-                          // Musiker-Kosten hinzufügen
                           if (musikerKosten > 0) {
                             kategorien['gage'] = (kategorien['gage'] || 0) + musikerKosten;
                           }
-                          
                           return Object.entries(kategorien).map(([name, value]) => ({
                             name: name.charAt(0).toUpperCase() + name.slice(1),
                             value
@@ -487,8 +484,8 @@ export default function FinanzenPage() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={100}
+                        label={false}
+                        outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -499,12 +496,9 @@ export default function FinanzenPage() {
                             const kat = a.kategorie || 'sonstiges';
                             kategorien[kat] = (kategorien[kat] || 0) + (a.betrag || 0);
                           });
-                          
-                          // Musiker-Kosten hinzufügen
                           if (musikerKosten > 0) {
                             kategorien['gage'] = (kategorien['gage'] || 0) + musikerKosten;
                           }
-                          
                           return Object.keys(kategorien).map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ));
@@ -512,6 +506,9 @@ export default function FinanzenPage() {
                       </Pie>
                       <Tooltip 
                         formatter={(value) => value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                      />
+                      <Legend 
+                        formatter={(value) => <span className="text-xs md:text-sm">{value}</span>}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -544,9 +541,9 @@ export default function FinanzenPage() {
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-blue-600">{index + 1}</span>
                             </div>
-                            <span className="font-medium">{name}</span>
+                            <span className="font-medium text-sm md:text-base truncate max-w-[120px] md:max-w-none">{name}</span>
                           </div>
-                          <span className="text-lg font-bold text-gray-900">
+                          <span className="text-sm md:text-lg font-bold text-gray-900 flex-shrink-0">
                             {umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                           </span>
                         </div>
