@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3 } from "lucide-react";
+import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -225,6 +225,7 @@ export default function LeadsPage() {
   const LeadCard = ({ lead }) => {
     const statusStyle = statusColors[lead.status] || statusColors.neu;
     const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
+    const [expanded, setExpanded] = useState(false);
 
     return (
       <Card
@@ -329,6 +330,20 @@ export default function LeadsPage() {
           {assignedMitglied &&
           <div className="text-xs text-gray-500 mt-2">
               Zugewiesen an: {assignedMitglied.rolle}
+            </div>
+          }
+          {lead.beschreibung &&
+          <div className="pt-1">
+              <button
+              onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 transition-colors">
+
+                <ChevronRight className={`w-3 h-3 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+                {expanded ? 'Beschreibung ausblenden' : 'Beschreibung anzeigen'}
+              </button>
+              {expanded &&
+            <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">{lead.beschreibung}</p>
+            }
             </div>
           }
         </CardContent>
