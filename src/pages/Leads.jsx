@@ -517,7 +517,7 @@ export default function LeadsPage() {
                     <Euro className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs text-left normal-case">Umsatzchance</p>
+                    <p className="text-gray-500 text-xs text-left normal-case">Umsatz-chance</p>
                     <p className="text-sm font-bold">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
                   </div>
                 </div>
