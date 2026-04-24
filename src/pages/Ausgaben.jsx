@@ -229,7 +229,7 @@ export default function AusgabenPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
+        <div className="grid grid-cols-1 gap-3 md:gap-4 mb-6 md:mb-8">
           <Card className="border-none shadow-lg">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
