@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3 } from "lucide-react";
+import { Plus, Search, Target, Mail, Phone, Calendar, Euro, User, MoreVertical, Edit, Trash2, LayoutGrid, List, TrendingUp, Columns3, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -223,115 +223,130 @@ export default function LeadsPage() {
   };
 
   const LeadCard = ({ lead }) => {
+    const [expanded, setExpanded] = useState(false);
     const statusStyle = statusColors[lead.status] || statusColors.neu;
     const assignedMitglied = mitglieder.find((m) => m.user_id === lead.zugewiesen_an);
 
     return (
       <Card
-        className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
-        onClick={() => handleCardClick(lead.id)}>
+        className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass}`}>
 
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-start gap-4">
-            <div className="bg-[#223a5e] text-white text-lg font-bold rounded-lg w-12 h-12 from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
+            <div
+              className="bg-[#223a5e] text-white text-lg font-bold rounded-lg w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer"
+              onClick={() => handleCardClick(lead.id)}>
               <Target className="w-6 h-6" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleCardClick(lead.id)}>
               <CardTitle className="text-lg mb-1 truncate">{lead.titel}</CardTitle>
               {lead.firmenname &&
               <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
               }
             </div>
-            <div className="relative">
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowDropdownId(showDropdownId === lead.id ? null : lead.id);
+                  setExpanded(!expanded);
                 }}>
-
-                <MoreVertical className="w-4 h-4" />
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
               </Button>
-
-              {showDropdownId === lead.id &&
-              <>
-                  <div
-                  className="fixed inset-0 z-40"
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowDropdownId(null);
-                  }} />
+                    setShowDropdownId(showDropdownId === lead.id ? null : lead.id);
+                  }}>
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
 
-                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
-                    <button
+                {showDropdownId === lead.id &&
+                <>
+                    <div
+                    className="fixed inset-0 z-40"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleEdit(lead);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
+                      setShowDropdownId(null);
+                    }} />
 
-                      <Edit className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm font-medium">Lead bearbeiten</span>
-                    </button>
-                    <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(lead);
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t">
+                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                      <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(lead);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
 
-                      <Trash2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Lead löschen</span>
-                    </button>
-                  </div>
-                </>
-              }
+                        <Edit className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm font-medium">Lead bearbeiten</span>
+                      </button>
+                      <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(lead);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t">
+
+                        <Trash2 className="w-4 h-4" />
+                        <span className="text-sm font-medium">Lead löschen</span>
+                      </button>
+                    </div>
+                  </>
+                }
+              </div>
             </div>
           </div>
-          <div className="mt-3">
+          <div className="mt-3 cursor-pointer" onClick={() => handleCardClick(lead.id)}>
             <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
               {statusLabels[lead.status]}
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 space-y-2">
-          {lead.kontaktperson &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <User className="w-4 h-4 text-gray-400" />
-              <span className="truncate">{lead.kontaktperson}</span>
-            </div>
-          }
-          {lead.email &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Mail className="w-4 h-4 text-gray-400" />
-              <span className="truncate">{lead.email}</span>
-            </div>
-          }
-          {lead.telefon &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Phone className="w-4 h-4 text-gray-400" />
-              <span>{lead.telefon}</span>
-            </div>
-          }
-          {lead.event_datum &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
-            </div>
-          }
-          {lead.erwarteter_umsatz &&
-          <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-              <Euro className="w-4 h-4" />
-              <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
-            </div>
-          }
-          {assignedMitglied &&
-          <div className="text-xs text-gray-500 mt-2">
-              Zugewiesen an: {assignedMitglied.rolle}
-            </div>
-          }
-        </CardContent>
+
+        {expanded &&
+        <CardContent className="pt-0 space-y-2 border-t">
+            {lead.kontaktperson &&
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="w-4 h-4 text-gray-400" />
+                <span className="truncate">{lead.kontaktperson}</span>
+              </div>
+            }
+            {lead.email &&
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Mail className="w-4 h-4 text-gray-400" />
+                <span className="truncate">{lead.email}</span>
+              </div>
+            }
+            {lead.telefon &&
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Phone className="w-4 h-4 text-gray-400" />
+                <span>{lead.telefon}</span>
+              </div>
+            }
+            {lead.event_datum &&
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Calendar className="w-4 h-4 text-gray-400" />
+                <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
+              </div>
+            }
+            {lead.erwarteter_umsatz &&
+            <div className="flex items-center gap-2 text-sm font-medium text-green-600">
+                <Euro className="w-4 h-4" />
+                <span>{lead.erwarteter_umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
+              </div>
+            }
+            {assignedMitglied &&
+            <div className="text-xs text-gray-500 mt-2">
+                Zugewiesen an: {assignedMitglied.rolle}
+              </div>
+            }
+          </CardContent>
+        }
       </Card>);
 
   };
