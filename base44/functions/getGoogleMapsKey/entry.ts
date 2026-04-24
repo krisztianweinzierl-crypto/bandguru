@@ -1,6 +1,6 @@
 Deno.serve(async (req) => {
   try {
-    const apiKey = Deno.env.get("Places_API");
+    const apiKey = Deno.env.get("PLACES_API");
     
     if (!apiKey) {
       return Response.json(
