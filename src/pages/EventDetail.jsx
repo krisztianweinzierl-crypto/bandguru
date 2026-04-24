@@ -1044,7 +1044,7 @@ ${orgName} Team`;
 
           {/* Title & Actions */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{event.titel}</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">{event.titel}</h1>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
