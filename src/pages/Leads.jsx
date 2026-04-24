@@ -511,14 +511,15 @@ export default function LeadsPage() {
             </Card>
 
             <Card className="border-none shadow-lg">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-purple-100 rounded-lg flex-shrink-0">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-purple-100 rounded-lg">
                     <Euro className="w-6 h-6 text-purple-600" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm text-gray-500">Umsatzpotenzial</p>
-                    <p className="text-base font-bold truncate">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
+                  <div>
+                    <p className="text-gray-500 text-xs">Möglicher
+Umsatz</p>
+                    <p className="text-sm font-bold">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
                   </div>
                 </div>
               </CardContent>
