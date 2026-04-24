@@ -44,8 +44,7 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarProvider,
-  SidebarTrigger,
-  useSidebar } from
+  SidebarTrigger } from
 "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,11 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
-  // ALL hooks must be declared before any conditional return
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
+
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -85,16 +88,18 @@ export default function Layout({ children, currentPageName }) {
     primary_color: "#223a5e"
   });
 
-  useEffect(() => {
-    if (!isPublicPage) {
-      checkAuthAndLoadData();
+  // Prüfe ob wir im iframe (Preview-Modus) sind
+  const isInIframe = () => {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
     }
-  }, [isPublicPage]);
+  };
 
-  // Für Public Pages: früher Return NACH allen Hooks
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
+  useEffect(() => {
+    checkAuthAndLoadData();
+  }, []);
 
   const checkAuthAndLoadData = async () => {
     try {
@@ -360,56 +365,84 @@ export default function Layout({ children, currentPageName }) {
     }));
   };
 
-  // Inner component that can use useSidebar
-  function NavLink({ to, children, className, style, onMouseEnter, onMouseLeave, onClick }) {
-    const { setOpenMobile, isMobile } = useSidebar();
-    const handleClick = (e) => {
-      if (isMobile) setOpenMobile(false);
-      if (onClick) onClick(e);
-    };
-    return (
-      <Link to={to} className={className} style={style} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onClick={handleClick}>
-        {children}
-      </Link>
-    );
-  }
-
   const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
   const isManager = currentMitglied?.rolle === "Band Manager";
 
+  // Redirect Musiker to their dashboard if they're on wrong page
+  useEffect(() => {
+    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
+      window.location.href = createPageUrl('MusikerDashboard');
+    }
+  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
+
   const managerNavItems = [
-    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-    { title: "Events", icon: Calendar, submenu: [
-      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-      { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar },
-      { title: "AI Event-Planer", url: createPageUrl("EventAIPlanner"), icon: Sparkles }
-    ]},
-    { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
-    { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
-    { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
-    { title: "Finanzen", icon: DollarSign, url: createPageUrl("Finanzen"), submenu: [
-      { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
-      { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
-      { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }
-    ]},
-    { title: "Leads", url: createPageUrl("Leads"), icon: Target },
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
-  ];
+  { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
+
+  },
+  { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
+  { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
+  { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
+  {
+    title: "Finanzen",
+    icon: DollarSign,
+    url: createPageUrl("Finanzen"),
+    submenu: [
+    { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
+    { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
+    { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }]
+
+  },
+  { title: "Leads", url: createPageUrl("Leads"), icon: Target },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
 
   const musikerNavItems = [
-    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
-    { title: "Events", icon: Calendar, submenu: [
-      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-      { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }
-    ]},
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
-  ];
+  { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }]
+
+  },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
 
   const navigationItems = isManager ? managerNavItems : musikerNavItems;
+
+  useEffect(() => {
+    navigationItems.forEach((item, index) => {
+      if (item.submenu) {
+        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
+        if (isActive && !expandedMenus[index]) {
+          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
+        }
+      }
+    });
+
+    // Check for 'settings' submenu specifically
+    const settingsSubmenuUrls = [
+    createPageUrl("OrganisationSettings"),
+    createPageUrl("BuchungsbedingungVorlagen"),
+    createPageUrl("ArtikelVerwaltung")];
+
+    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
+    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
+      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
+    }
+
+  }, [location.pathname]);
 
   // Loading
   if (!initialLoadComplete) {
@@ -886,7 +919,7 @@ export default function Layout({ children, currentPageName }) {
   // Normale App mit Sidebar
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50 overflow-x-hidden">
+      <div className="min-h-screen flex w-full bg-gray-50">
         <Sidebar className="border-r border-gray-200">
           <SidebarHeader className="border-b border-gray-200 p-4">
             <div className="space-y-4">
@@ -979,7 +1012,7 @@ export default function Layout({ children, currentPageName }) {
                   <SidebarMenuItem key={item.title}>
                       {item.submenu ?
                     <>
-                          <NavLink
+                          <Link
                         to={item.url || '#'}
                         onClick={(e) => {
                           if (!item.url) e.preventDefault();
@@ -1008,7 +1041,7 @@ export default function Layout({ children, currentPageName }) {
                               <span className="font-medium">{item.title}</span>
                             </div>
                             <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
-                          </NavLink>
+                          </Link>
 
                           {expandedMenus[index] &&
                       <div className="ml-4 mb-1 space-y-1">
@@ -1018,7 +1051,7 @@ export default function Layout({ children, currentPageName }) {
                           asChild
                           className="transition-colors duration-200 rounded-lg">
 
-                                  <NavLink
+                                  <Link
                             to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
@@ -1040,7 +1073,7 @@ export default function Layout({ children, currentPageName }) {
 
                                     <subItem.icon className="w-4 h-4" />
                                     <span className="font-medium">{subItem.title}</span>
-                                  </NavLink>
+                                  </Link>
 
                                 </SidebarMenuButton>
                         )}
@@ -1052,7 +1085,7 @@ export default function Layout({ children, currentPageName }) {
                       asChild
                       className="transition-colors duration-200 rounded-lg mb-1">
 
-                          <NavLink
+                          <Link
                         to={item.url}
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
@@ -1074,7 +1107,7 @@ export default function Layout({ children, currentPageName }) {
 
                             <item.icon className="w-4 h-4" />
                             <span className="font-medium">{item.title}</span>
-                          </NavLink>
+                          </Link>
                         </SidebarMenuButton>
                     }
                     </SidebarMenuItem>
@@ -1124,85 +1157,85 @@ export default function Layout({ children, currentPageName }) {
                         asChild
                         className="transition-colors duration-200 rounded-lg">
 
-                            <NavLink
-                            to={createPageUrl("OrganisationSettings")}
-                            className="flex items-center gap-3 px-3 py-2"
-                            style={location.pathname === createPageUrl("OrganisationSettings") ? {
+                            <Link
+                          to={createPageUrl("OrganisationSettings")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("OrganisationSettings") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                            } : {}}
-                            onMouseEnter={(e) => {
+                          } : {}}
+                          onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                             e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
                             }
-                            }}
-                            onMouseLeave={(e) => {
+                          }}
+                          onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                             e.currentTarget.style.backgroundColor = 'transparent';
-                             e.currentTarget.style.color = '';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
                             }
-                            }}>
+                          }}>
 
-                             <Building2 className="w-4 h-4" />
-                             <span className="font-medium">Organisation</span>
-                            </NavLink>
-                            </SidebarMenuButton>
-                            <SidebarMenuButton
-                            asChild
-                            className="transition-colors duration-200 rounded-lg">
+                              <Building2 className="w-4 h-4" />
+                              <span className="font-medium">Organisation</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          <SidebarMenuButton
+                        asChild
+                        className="transition-colors duration-200 rounded-lg">
 
-                            <NavLink
-                            to={createPageUrl("BuchungsbedingungVorlagen")}
-                            className="flex items-center gap-3 px-3 py-2"
-                            style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
+                            <Link
+                          to={createPageUrl("BuchungsbedingungVorlagen")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                            } : {}}
-                            onMouseEnter={(e) => {
+                          } : {}}
+                          onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                             e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
                             }
-                            }}
-                            onMouseLeave={(e) => {
+                          }}
+                          onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                             e.currentTarget.style.backgroundColor = 'transparent';
-                             e.currentTarget.style.color = '';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
                             }
-                            }}>
+                          }}>
 
-                             <FileText className="w-4 h-4" />
-                             <span className="font-medium">Buchungsbedingungen</span>
-                            </NavLink>
-                            </SidebarMenuButton>
-                            <SidebarMenuButton
-                            asChild
-                            className="transition-colors duration-200 rounded-lg">
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">Buchungsbedingungen</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          <SidebarMenuButton
+                        asChild
+                        className="transition-colors duration-200 rounded-lg">
 
-                            <NavLink
-                            to={createPageUrl("ArtikelVerwaltung")}
-                            className="flex items-center gap-3 px-3 py-2"
-                            style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
+                            <Link
+                          to={createPageUrl("ArtikelVerwaltung")}
+                          className="flex items-center gap-3 px-3 py-2"
+                          style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
                             color: '#223a5e'
-                            } : {}}
-                            onMouseEnter={(e) => {
+                          } : {}}
+                          onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                             e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                              e.currentTarget.style.color = '#223a5e';
                             }
-                            }}
-                            onMouseLeave={(e) => {
+                          }}
+                          onMouseLeave={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                             e.currentTarget.style.backgroundColor = 'transparent';
-                             e.currentTarget.style.color = '';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '';
                             }
-                            }}>
+                          }}>
 
-                             <FileText className="w-4 h-4" />
-                             <span className="font-medium">Artikel & Positionen</span>
-                            </NavLink>
+                              <FileText className="w-4 h-4" />
+                              <span className="font-medium">Artikel & Positionen</span>
+                            </Link>
                           </SidebarMenuButton>
                         </div>
                     }
@@ -1214,78 +1247,78 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 2.0.1</p>
-                            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.2.0</p>
+                            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+
+                <Avatar className="w-9 h-9">
+                  <AvatarImage src={user?.avatar_url} />
+                  <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
+                    {(() => {
+                      if (currentMusiker?.name) {
+                        // Musiker name: Nimm erste Buchstaben von jedem Wort
+                        const parts = currentMusiker.name.split(' ').filter((p) => p.length > 0);
+                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+                        return parts[0][0].toUpperCase();
+                      }
+                      if (user?.full_name) {
+                        const parts = user.full_name.split(' ').filter((p) => p.length > 0);
+                        if (parts.length >= 2) return parts[0][0].toUpperCase() + parts[1][0].toUpperCase();
+                        return parts[0][0].toUpperCase();
+                      }
+                      if (user?.email) {
+                        return user.email[0].toUpperCase();
+                      }
+                      return '?';
+                    })()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-medium text-gray-900 text-sm truncate">
+                    {currentMusiker?.name || user?.full_name || user?.email}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showUserMenu &&
+              <>
+                  <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowUserMenu(false)} />
+
+                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                    {!isManager &&
+                  <Link
+                    to={createPageUrl('MusikerProfil')}
+                    onClick={() => setShowUserMenu(false)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+
+                        <UserCircle className="w-4 h-4" />
+                        Mein Profil
+                      </Link>
+                  }
+                    <button
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+
+                      <LogOut className="w-4 h-4" />
+                      Abmelden
+                    </button>
+                  </div>
+                </>
+              }
+            </div>
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+        <main className="flex-1 flex flex-col">
           <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200">
