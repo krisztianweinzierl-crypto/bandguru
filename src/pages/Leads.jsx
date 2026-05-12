@@ -351,7 +351,17 @@ export default function LeadsPage() {
             {lead.kontaktperson &&
             <div className="flex items-center gap-2 text-sm text-gray-600">
                 <User className="w-4 h-4 text-gray-400" />
-                <span className="truncate">{lead.kontaktperson}</span>
+                {(() => {
+                  const kunde = kunden.find((k) =>
+                    (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
+                    k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim()
+                  );
+                  return kunde ? (
+                    <span className="truncate text-blue-600 hover:underline cursor-pointer font-medium" onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}>{lead.kontaktperson}</span>
+                  ) : (
+                    <span className="truncate">{lead.kontaktperson}</span>
+                  );
+                })()}
               </div>
             }
             {lead.email &&
