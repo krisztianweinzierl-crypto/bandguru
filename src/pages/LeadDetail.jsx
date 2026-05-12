@@ -1099,7 +1099,17 @@ export default function LeadDetailPage() {
                         <p className="text-xs text-gray-500 mb-1">Kontaktperson</p>
                         <div className="flex items-center gap-2 text-sm">
                           <User className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{lead.kontaktperson}</span>
+                          {(() => {
+                            const kunde = kunden.find((k) =>
+                              (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
+                              k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim()
+                            );
+                            return kunde ? (
+                              <span className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={() => navigate(createPageUrl(`KundenDetail?id=${kunde.id}`))}>{lead.kontaktperson}</span>
+                            ) : (
+                              <span className="font-medium">{lead.kontaktperson}</span>
+                            );
+                          })()}
                         </div>
                       </div>
                     }
@@ -1133,7 +1143,17 @@ export default function LeadDetailPage() {
                         <p className="text-xs text-gray-500 mb-1">Unternehmen</p>
                         <div className="flex items-center gap-2 text-sm">
                           <Building2 className="w-4 h-4 text-gray-400" />
-                          <span className="font-medium">{lead.firmenname}</span>
+                          {(() => {
+                            const kunde = kunden.find((k) =>
+                              k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim() ||
+                              (lead.kontaktperson && k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim())
+                            );
+                            return kunde ? (
+                              <span className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={() => navigate(createPageUrl(`KundenDetail?id=${kunde.id}`))}>{lead.firmenname}</span>
+                            ) : (
+                              <span className="font-medium">{lead.firmenname}</span>
+                            );
+                          })()}
                         </div>
                       </div>
                     }
