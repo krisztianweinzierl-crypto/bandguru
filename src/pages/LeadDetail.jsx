@@ -1100,10 +1100,12 @@ export default function LeadDetailPage() {
                         <div className="flex items-center gap-2 text-sm">
                           <User className="w-4 h-4 text-gray-400" />
                           {(() => {
-                            const kunde = kunden.find((k) =>
-                              (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
-                              k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim()
-                            );
+                            const kunde = lead.kunde_id
+                              ? kunden.find((k) => k.id === lead.kunde_id)
+                              : kunden.find((k) =>
+                                  (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
+                                  k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim()
+                                );
                             return kunde ? (
                               <span className="font-medium text-blue-600 hover:underline cursor-pointer" onClick={() => navigate(createPageUrl(`KundenDetail?id=${kunde.id}`))}>{lead.kontaktperson}</span>
                             ) : (
