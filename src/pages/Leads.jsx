@@ -81,7 +81,25 @@ export default function LeadsPage() {
   });
 
   const createLeadMutation = useMutation({
-    mutationFn: (data) => base44.entities.Lead.create({ ...data, org_id: currentOrgId }),
+    mutationFn: async (data) => {
+      // Automatisch Kunden anlegen, wenn firmenname angegeben und noch kein passender Kunde existiert
+      if (data.firmenname) {
+        const existingKunde = kunden.find(
+          (k) => k.firmenname?.toLowerCase().trim() === data.firmenname?.toLowerCase().trim()
+        );
+        if (!existingKunde) {
+          await base44.entities.Kunde.create({
+            org_id: currentOrgId,
+            firmenname: data.firmenname,
+            ansprechpartner: data.kontaktperson || "",
+            email: data.email || "",
+            telefon: data.telefon || "",
+          });
+          queryClient.invalidateQueries({ queryKey: ['kunden'] });
+        }
+      }
+      return base44.entities.Lead.create({ ...data, org_id: currentOrgId });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setShowForm(false);
@@ -246,9 +264,17 @@ export default function LeadsPage() {
             </div>
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleCardClick(lead.id)}>
               <CardTitle className="text-lg mb-1 truncate">{lead.titel}</CardTitle>
-              {lead.firmenname &&
-              <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
-              }
+              {lead.firmenname && (() => {
+                const kunde = kunden.find((k) => k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim());
+                return kunde ? (
+                  <p
+                    className="text-sm text-blue-600 hover:underline truncate cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
+                  >{lead.firmenname}</p>
+                ) : (
+                  <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
               <Button
@@ -374,9 +400,17 @@ export default function LeadsPage() {
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg text-gray-900 truncate">{lead.titel}</h3>
-              {lead.firmenname &&
-              <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
-              }
+              {lead.firmenname && (() => {
+                const kunde = kunden.find((k) => k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim());
+                return kunde ? (
+                  <p
+                    className="text-sm text-blue-600 hover:underline truncate cursor-pointer"
+                    onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
+                  >{lead.firmenname}</p>
+                ) : (
+                  <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+                );
+              })()}
             </div>
             <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
               {statusLabels[lead.status]}
