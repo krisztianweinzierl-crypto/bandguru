@@ -5,10 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Save, Plus, Tag } from "lucide-react";
+import { X, Save, Plus, Tag, Search, UserPlus, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
+export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden = [] }) {
+  const [kontaktModus, setKontaktModus] = useState(lead ? 'manuell' : 'auswahl'); // 'auswahl' | 'manuell'
+  const [kundeSearch, setKundeSearch] = useState("");
+  const [selectedKunde, setSelectedKunde] = useState(null);
+
   const [formData, setFormData] = useState(lead || {
     titel: "",
     firmenname: "",
@@ -33,6 +37,24 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
   });
 
   const [tagInput, setTagInput] = useState("");
+
+  const filteredKunden = kunden.filter((k) =>
+    k.firmenname?.toLowerCase().includes(kundeSearch.toLowerCase()) ||
+    k.ansprechpartner?.toLowerCase().includes(kundeSearch.toLowerCase()) ||
+    k.email?.toLowerCase().includes(kundeSearch.toLowerCase())
+  );
+
+  const handleKundeSelect = (kunde) => {
+    setSelectedKunde(kunde);
+    setFormData((prev) => ({
+      ...prev,
+      firmenname: kunde.firmenname || "",
+      kontaktperson: kunde.ansprechpartner || "",
+      email: kunde.email || "",
+      telefon: kunde.telefon || "",
+    }));
+    setKontaktModus('manuell');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +107,86 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder }) {
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Kontakt-Auswahl (nur bei neuem Lead) */}
+          {!lead && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Kontakt</h3>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={kontaktModus === 'auswahl' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setKontaktModus('auswahl')}
+                  className={kontaktModus === 'auswahl' ? 'bg-[#223a5e] hover:opacity-90' : ''}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Aus Kontakten wählen
+                </Button>
+                <Button
+                  type="button"
+                  variant={kontaktModus === 'manuell' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => { setKontaktModus('manuell'); setSelectedKunde(null); }}
+                  className={kontaktModus === 'manuell' ? 'bg-[#223a5e] hover:opacity-90' : ''}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Neuen Kontakt eingeben
+                </Button>
+              </div>
+
+              {kontaktModus === 'auswahl' && (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Kunden suchen..."
+                      value={kundeSearch}
+                      onChange={(e) => setKundeSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  {kunden.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-4">
+                      Keine Kunden vorhanden.{" "}
+                      <button type="button" className="text-[#223a5e] underline" onClick={() => setKontaktModus('manuell')}>
+                        Neuen Kontakt eingeben
+                      </button>
+                    </p>
+                  ) : (
+                    <div className="max-h-48 overflow-y-auto border rounded-lg divide-y">
+                      {filteredKunden.length === 0 ? (
+                        <p className="text-sm text-gray-500 text-center py-4">Keine Kunden gefunden</p>
+                      ) : (
+                        filteredKunden.map((kunde) => (
+                          <button
+                            key={kunde.id}
+                            type="button"
+                            onClick={() => handleKundeSelect(kunde)}
+                            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                          >
+                            <p className="font-medium text-gray-900">{kunde.firmenname}</p>
+                            {kunde.ansprechpartner && <p className="text-sm text-gray-500">{kunde.ansprechpartner}</p>}
+                            {kunde.email && <p className="text-xs text-gray-400">{kunde.email}</p>}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selectedKunde && kontaktModus === 'manuell' && (
+                <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+                  <Users className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <span className="text-blue-800">Kontakt übernommen: <strong>{selectedKunde.firmenname}</strong></span>
+                  <button type="button" onClick={() => { setSelectedKunde(null); setFormData(prev => ({ ...prev, firmenname: "", kontaktperson: "", email: "", telefon: "" })); }} className="ml-auto text-blue-600 hover:text-blue-800">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Grundinformationen */}
           <div className="space-y-4">
             <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Grundinformationen</h3>

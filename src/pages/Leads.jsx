@@ -74,6 +74,12 @@ export default function LeadsPage() {
     enabled: !!currentOrgId
   });
 
+  const { data: kunden = [] } = useQuery({
+    queryKey: ['kunden', currentOrgId],
+    queryFn: () => base44.entities.Kunde.filter({ org_id: currentOrgId }, 'firmenname'),
+    enabled: !!currentOrgId
+  });
+
   const createLeadMutation = useMutation({
     mutationFn: (data) => base44.entities.Lead.create({ ...data, org_id: currentOrgId }),
     onSuccess: () => {
@@ -606,7 +612,8 @@ Umsatz</p>
                 setShowForm(false);
                 setEditingLead(null);
               }}
-              mitglieder={mitglieder} />
+              mitglieder={mitglieder}
+              kunden={kunden} />
 
             </div>
           }
