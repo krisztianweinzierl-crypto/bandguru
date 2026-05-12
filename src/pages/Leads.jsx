@@ -82,21 +82,23 @@ export default function LeadsPage() {
 
   const createLeadMutation = useMutation({
     mutationFn: async (data) => {
-      // Automatisch Kunden anlegen, wenn firmenname angegeben und noch kein passender Kunde existiert
-      if (data.firmenname) {
-        const existingKunde = kunden.find(
-          (k) => k.firmenname?.toLowerCase().trim() === data.firmenname?.toLowerCase().trim()
-        );
-        if (!existingKunde) {
-          await base44.entities.Kunde.create({
-            org_id: currentOrgId,
-            firmenname: data.firmenname,
-            ansprechpartner: data.kontaktperson || "",
-            email: data.email || "",
-            telefon: data.telefon || "",
-          });
-          queryClient.invalidateQueries({ queryKey: ['kunden'] });
-        }
+      // Automatisch Kunden anlegen: Suche nach Firmenname oder Kontaktperson
+      const existingKunde = kunden.find((k) => {
+        const matchFirma = data.firmenname && k.firmenname?.toLowerCase().trim() === data.firmenname?.toLowerCase().trim();
+        const matchKontakt = data.kontaktperson && k.ansprechpartner?.toLowerCase().trim() === data.kontaktperson?.toLowerCase().trim();
+        return matchFirma || matchKontakt;
+      });
+
+      if (!existingKunde) {
+        // Kein passender Kunde gefunden → immer neu anlegen (auch für Privatkunden)
+        await base44.entities.Kunde.create({
+          org_id: currentOrgId,
+          firmenname: data.firmenname || data.kontaktperson || "Unbekannt",
+          ansprechpartner: data.kontaktperson || "",
+          email: data.email || "",
+          telefon: data.telefon || "",
+        });
+        queryClient.invalidateQueries({ queryKey: ['kunden'] });
       }
       return base44.entities.Lead.create({ ...data, org_id: currentOrgId });
     },
@@ -264,15 +266,19 @@ export default function LeadsPage() {
             </div>
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleCardClick(lead.id)}>
               <CardTitle className="text-lg mb-1 truncate">{lead.titel}</CardTitle>
-              {lead.firmenname && (() => {
-                const kunde = kunden.find((k) => k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim());
+              {(lead.firmenname || lead.kontaktperson) && (() => {
+                const label = lead.firmenname || lead.kontaktperson;
+                const kunde = kunden.find((k) =>
+                  (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
+                  (lead.kontaktperson && k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim())
+                );
                 return kunde ? (
                   <p
                     className="text-sm text-blue-600 hover:underline truncate cursor-pointer"
                     onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
-                  >{lead.firmenname}</p>
+                  >{label}</p>
                 ) : (
-                  <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+                  <p className="text-sm text-gray-600 truncate">{label}</p>
                 );
               })()}
             </div>
@@ -400,15 +406,19 @@ export default function LeadsPage() {
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-lg text-gray-900 truncate">{lead.titel}</h3>
-              {lead.firmenname && (() => {
-                const kunde = kunden.find((k) => k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim());
+              {(lead.firmenname || lead.kontaktperson) && (() => {
+                const label = lead.firmenname || lead.kontaktperson;
+                const kunde = kunden.find((k) =>
+                  (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
+                  (lead.kontaktperson && k.ansprechpartner?.toLowerCase().trim() === lead.kontaktperson?.toLowerCase().trim())
+                );
                 return kunde ? (
                   <p
                     className="text-sm text-blue-600 hover:underline truncate cursor-pointer"
                     onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
-                  >{lead.firmenname}</p>
+                  >{label}</p>
                 ) : (
-                  <p className="text-sm text-gray-600 truncate">{lead.firmenname}</p>
+                  <p className="text-sm text-gray-600 truncate">{label}</p>
                 );
               })()}
             </div>
