@@ -81,25 +81,7 @@ export default function LeadsPage() {
   });
 
   const createLeadMutation = useMutation({
-    mutationFn: async (data) => {
-      // Automatisch Kunden anlegen, wenn firmenname angegeben und noch kein passender Kunde existiert
-      if (data.firmenname) {
-        const existingKunde = kunden.find(
-          (k) => k.firmenname?.toLowerCase().trim() === data.firmenname?.toLowerCase().trim()
-        );
-        if (!existingKunde) {
-          await base44.entities.Kunde.create({
-            org_id: currentOrgId,
-            firmenname: data.firmenname,
-            ansprechpartner: data.kontaktperson || "",
-            email: data.email || "",
-            telefon: data.telefon || "",
-          });
-          queryClient.invalidateQueries({ queryKey: ['kunden'] });
-        }
-      }
-      return base44.entities.Lead.create({ ...data, org_id: currentOrgId });
-    },
+    mutationFn: (data) => base44.entities.Lead.create({ ...data, org_id: currentOrgId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setShowForm(false);
