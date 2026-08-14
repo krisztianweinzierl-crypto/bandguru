@@ -1238,7 +1238,27 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-border p-4">
-                            <p className="text-xs text-muted-foreground text-center mb-3">Beta 1.2.0</p>
+                            <div className="flex items-center justify-between mb-3">
+                              <p className="text-xs text-muted-foreground">Beta 1.2.0</p>
+                              <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setTheme('light')}
+                                  aria-pressed={theme === 'light'}
+                                  title="Helles Design"
+                                  className={`p-1.5 rounded-full transition-colors ${theme === 'light' ? 'bg-[#FF6A4D] text-white' : 'text-muted-foreground hover:text-foreground'}`}>
+                                  <Sun className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setTheme('dark')}
+                                  aria-pressed={theme === 'dark'}
+                                  title="Dunkles Design"
+                                  className={`p-1.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-[#FF6A4D] text-white' : 'text-muted-foreground hover:text-foreground'}`}>
+                                  <Moon className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
@@ -1297,7 +1317,7 @@ export default function Layout({ children, currentPageName }) {
                       setShowUserMenu(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-border">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-destructive hover:bg-destructive/10 transition-colors border-t border-border">
 
                       <LogOut className="w-4 h-4" />
                       Abmelden
