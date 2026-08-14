@@ -1,0 +1,27 @@
+{
+  "name": "LeadNotiz",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "lead_id": {
+      "type": "string",
+      "description": "Referenz zum Lead"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "Notiz-Inhalt"
+    },
+    "erstellt_von": {
+      "type": "string",
+      "description": "User-ID des Erstellers"
+    }
+  },
+  "required": [
+    "org_id",
+    "lead_id",
+    "inhalt"
+  ]
+}

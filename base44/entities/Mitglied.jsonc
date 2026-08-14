@@ -1,0 +1,57 @@
+{
+  "name": "Mitglied",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Referenz zum User"
+    },
+    "rolle": {
+      "type": "string",
+      "enum": [
+        "Band Manager",
+        "Musiker"
+      ],
+      "description": "Rolle in der Organisation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "aktiv",
+        "eingeladen",
+        "gesperrt"
+      ],
+      "default": "aktiv",
+      "description": "Status des Mitglieds"
+    },
+    "musiker_id": {
+      "type": "string",
+      "description": "Verkn\u00fcpfung zum Musiker-Profil (wenn Rolle=Musiker)"
+    },
+    "invite_token": {
+      "type": "string",
+      "description": "Einladungs-Token f\u00fcr neue Mitglieder"
+    },
+    "invite_email": {
+      "type": "string",
+      "description": "E-Mail des eingeladenen Mitglieds"
+    },
+    "invite_name": {
+      "type": "string",
+      "description": "Name des eingeladenen Mitglieds"
+    },
+    "invite_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Ablaufdatum der Einladung"
+    }
+  },
+  "required": [
+    "org_id",
+    "rolle"
+  ]
+}

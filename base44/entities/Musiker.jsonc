@@ -1,0 +1,95 @@
+{
+  "name": "Musiker",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "K\u00fcnstlername"
+    },
+    "profilbild_url": {
+      "type": "string",
+      "description": "URL zum Profilbild"
+    },
+    "instrumente": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Liste der Instrumente"
+    },
+    "genre": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Musikgenres"
+    },
+    "sprachen": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Gesprochene Sprachen"
+    },
+    "buchungsbedingungen": {
+      "type": "string",
+      "description": "Buchungsbedingungen (Markdown)"
+    },
+    "tagessatz_netto": {
+      "type": "number",
+      "description": "Tagessatz netto"
+    },
+    "reisespesen_regeln": {
+      "type": "string",
+      "description": "Regeln f\u00fcr Reisespesen"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse"
+    },
+    "telefon": {
+      "type": "string",
+      "description": "Telefonnummer"
+    },
+    "adresse": {
+      "type": "string",
+      "description": "Vollst\u00e4ndige Adresse"
+    },
+    "steuernummer": {
+      "type": "string",
+      "description": "Steuernummer oder USt-IdNr."
+    },
+    "notfallkontakt": {
+      "type": "string",
+      "description": "Notfallkontakt"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "prioritaet": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "description": "Priorit\u00e4t des Musikers (A = h\u00f6chste Priorit\u00e4t)"
+    },
+    "aktiv": {
+      "type": "boolean",
+      "default": true,
+      "description": "Aktiv-Status"
+    }
+  },
+  "required": [
+    "org_id",
+    "name"
+  ]
+}

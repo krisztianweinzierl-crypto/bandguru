@@ -1,0 +1,116 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Lead-Titel (z.B. Geburtstagsparty Maier)"
+    },
+    "firmenname": {
+      "type": "string",
+      "description": "Name der Firma/Organisation"
+    },
+    "kontaktperson": {
+      "type": "string",
+      "description": "Name der Kontaktperson"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse"
+    },
+    "telefon": {
+      "type": "string",
+      "description": "Telefonnummer"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "neu",
+        "kontaktiert",
+        "qualifiziert",
+        "angebot",
+        "verhandlung",
+        "gewonnen",
+        "verloren"
+      ],
+      "default": "neu",
+      "description": "Status des Leads"
+    },
+    "erwarteter_umsatz": {
+      "type": "number",
+      "description": "Erwarteter Umsatz in Euro"
+    },
+    "event_datum": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum des Events"
+    },
+    "event_uhrzeit": {
+      "type": "string",
+      "description": "Uhrzeit des Events"
+    },
+    "event_ort": {
+      "type": "string",
+      "description": "Veranstaltungsort"
+    },
+    "event_typ": {
+      "type": "string",
+      "description": "Art des Events (z.B. Private Party, Hochzeit)"
+    },
+    "anzahl_gaeste": {
+      "type": "number",
+      "description": "Erwartete Anzahl der G\u00e4ste"
+    },
+    "quelle": {
+      "type": "string",
+      "description": "Lead-Quelle (z.B. Webseite, Empfehlung)"
+    },
+    "zugewiesen_an": {
+      "type": "string",
+      "description": "User-ID des zugewiesenen Mitarbeiters"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Detaillierte Beschreibung/Anfrage"
+    },
+    "budget": {
+      "type": "string",
+      "description": "Budget-Vorstellung"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags f\u00fcr Kategorisierung"
+    },
+    "prioritaet": {
+      "type": "string",
+      "enum": [
+        "niedrig",
+        "normal",
+        "hoch"
+      ],
+      "default": "normal",
+      "description": "Priorit\u00e4t"
+    },
+    "naechster_schritt": {
+      "type": "string",
+      "description": "N\u00e4chster geplanter Schritt"
+    },
+    "naechstes_followup": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum des n\u00e4chsten Follow-ups"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel",
+    "status"
+  ]
+}

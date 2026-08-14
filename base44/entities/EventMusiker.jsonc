@@ -1,0 +1,98 @@
+{
+  "name": "EventMusiker",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event"
+    },
+    "musiker_id": {
+      "type": "string",
+      "description": "Referenz zum Musiker"
+    },
+    "rolle": {
+      "type": "string",
+      "description": "Rolle/Instrument bei diesem Event"
+    },
+    "calltime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Calltime f\u00fcr den Musiker"
+    },
+    "gage_netto": {
+      "type": "number",
+      "description": "Gage netto"
+    },
+    "mwst_satz": {
+      "type": "number",
+      "default": 19,
+      "description": "Mehrwertsteuersatz in Prozent"
+    },
+    "distanz_km": {
+      "type": "number",
+      "description": "Entfernung zum Event in Kilometern (einfache Strecke)"
+    },
+    "fahrtkosten_pro_km": {
+      "type": "number",
+      "default": 0.3,
+      "description": "Fahrtkosten pro Kilometer in Euro"
+    },
+    "spesen": {
+      "type": "number",
+      "description": "Berechnete Fahrtkosten (distanz_km * 2 * fahrtkosten_pro_km)"
+    },
+    "weitere_kosten": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beschreibung": {
+            "type": "string"
+          },
+          "betrag": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Weitere individuelle Kosten (z.B. Unterkunft, Equipment)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "angefragt",
+        "optional",
+        "zugesagt",
+        "abgelehnt",
+        "ersetzt"
+      ],
+      "default": "angefragt",
+      "description": "Status der Zusage"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Notizen zur Buchung"
+    },
+    "buchungsbedingungen": {
+      "type": "string",
+      "description": "Spezifische Buchungsbedingungen f\u00fcr diese Anfrage"
+    },
+    "buchungsbedingungen_akzeptiert": {
+      "type": "boolean",
+      "default": false,
+      "description": "Hat der Musiker die Buchungsbedingungen akzeptiert"
+    },
+    "antwort_datum": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der Antwort des Musikers"
+    },
+    "ablehnungsgrund": {
+      "type": "string",
+      "description": "Optional: Grund f\u00fcr Ablehnung"
+    }
+  },
+  "required": [
+    "event_id",
+    "musiker_id"
+  ]
+}

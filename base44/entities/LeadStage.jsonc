@@ -1,0 +1,46 @@
+{
+  "name": "LeadStage",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name der Stage (z.B. Neu, Kontaktiert, Angebot)"
+    },
+    "farbe": {
+      "type": "string",
+      "description": "Farbe f\u00fcr die Stage in HEX",
+      "default": "#3B82F6"
+    },
+    "reihenfolge": {
+      "type": "number",
+      "description": "Sortier-Reihenfolge"
+    },
+    "ist_standard": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ist dies eine Standard-Stage (nicht l\u00f6schbar)"
+    },
+    "status_mapping": {
+      "type": "string",
+      "enum": [
+        "neu",
+        "kontaktiert",
+        "qualifiziert",
+        "angebot",
+        "verhandlung",
+        "gewonnen",
+        "verloren"
+      ],
+      "description": "Mapping zum internen Lead-Status"
+    }
+  },
+  "required": [
+    "org_id",
+    "name",
+    "reihenfolge"
+  ]
+}

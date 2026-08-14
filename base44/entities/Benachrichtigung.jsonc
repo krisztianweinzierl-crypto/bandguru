@@ -1,0 +1,83 @@
+{
+  "name": "Benachrichtigung",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Empf\u00e4nger User-ID"
+    },
+    "typ": {
+      "type": "string",
+      "enum": [
+        "event_einladung",
+        "event_update",
+        "aufgabe_zugewiesen",
+        "rechnung_bezahlt",
+        "neuer_lead",
+        "vertrag_unterschrieben",
+        "musiker_zugesagt",
+        "musiker_abgelehnt",
+        "system"
+      ],
+      "description": "Typ der Benachrichtigung"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Titel der Benachrichtigung"
+    },
+    "nachricht": {
+      "type": "string",
+      "description": "Nachrichtentext"
+    },
+    "gelesen": {
+      "type": "boolean",
+      "default": false,
+      "description": "Wurde die Benachrichtigung gelesen"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "Link zur Detail-Ansicht (z.B. Event-Detail)"
+    },
+    "bezug_typ": {
+      "type": "string",
+      "enum": [
+        "event",
+        "aufgabe",
+        "rechnung",
+        "lead",
+        "vertrag",
+        "musiker"
+      ],
+      "description": "Typ der Verlinkung"
+    },
+    "bezug_id": {
+      "type": "string",
+      "description": "ID des verlinkten Objekts"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon-Name (z.B. 'Calendar', 'CheckCircle')"
+    },
+    "prioritaet": {
+      "type": "string",
+      "enum": [
+        "niedrig",
+        "normal",
+        "hoch"
+      ],
+      "default": "normal",
+      "description": "Priorit\u00e4t der Benachrichtigung"
+    }
+  },
+  "required": [
+    "org_id",
+    "user_id",
+    "typ",
+    "titel",
+    "nachricht"
+  ]
+}

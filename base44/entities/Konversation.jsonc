@@ -1,0 +1,52 @@
+{
+  "name": "Konversation",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "teilnehmer_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array von User-IDs der Teilnehmer"
+    },
+    "typ": {
+      "type": "string",
+      "enum": [
+        "intern",
+        "kunde"
+      ],
+      "description": "Typ der Konversation: intern (Team) oder kunde (mit Kunden)"
+    },
+    "kunde_id": {
+      "type": "string",
+      "description": "Referenz zum Kunden (nur bei typ='kunde')"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Titel der Konversation (optional, z.B. 'Event XY Planung')"
+    },
+    "archiviert": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ob die Konversation archiviert ist"
+    },
+    "letzte_nachricht_zeit": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der letzten Nachricht"
+    },
+    "letzte_nachricht_vorschau": {
+      "type": "string",
+      "description": "Vorschau der letzten Nachricht"
+    }
+  },
+  "required": [
+    "org_id",
+    "teilnehmer_ids",
+    "typ"
+  ]
+}

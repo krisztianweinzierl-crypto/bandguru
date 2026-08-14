@@ -1,0 +1,46 @@
+{
+  "name": "BuchungsbedingungVorlage",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name der Vorlage"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "Text der Buchungsbedingungen"
+    },
+    "kategorie": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "hochzeit",
+        "corporate",
+        "konzert",
+        "festival",
+        "sonstiges"
+      ],
+      "default": "standard",
+      "description": "Kategorie der Vorlage"
+    },
+    "aktiv": {
+      "type": "boolean",
+      "default": true,
+      "description": "Ist die Vorlage aktiv"
+    },
+    "verwendungen": {
+      "type": "number",
+      "default": 0,
+      "description": "Anzahl der Verwendungen"
+    }
+  },
+  "required": [
+    "org_id",
+    "name",
+    "inhalt"
+  ]
+}

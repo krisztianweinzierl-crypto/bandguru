@@ -1,0 +1,75 @@
+{
+  "name": "EmailLog",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "bezug_typ": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "kunde",
+        "event",
+        "rechnung",
+        "vertrag"
+      ],
+      "description": "Typ der Verkn\u00fcpfung"
+    },
+    "bezug_id": {
+      "type": "string",
+      "description": "ID des verkn\u00fcpften Objekts"
+    },
+    "empfaenger_email": {
+      "type": "string",
+      "description": "E-Mail-Adresse des Empf\u00e4ngers"
+    },
+    "empfaenger_name": {
+      "type": "string",
+      "description": "Name des Empf\u00e4ngers"
+    },
+    "betreff": {
+      "type": "string",
+      "description": "E-Mail-Betreff"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "E-Mail-Inhalt (HTML oder Text)"
+    },
+    "gesendet_von": {
+      "type": "string",
+      "description": "User-ID des Absenders"
+    },
+    "gesendet_von_name": {
+      "type": "string",
+      "description": "Name des Absenders"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "gesendet",
+        "fehler",
+        "wartend"
+      ],
+      "default": "gesendet",
+      "description": "Status der E-Mail"
+    },
+    "fehler_nachricht": {
+      "type": "string",
+      "description": "Fehlermeldung falls status=fehler"
+    },
+    "mailgun_id": {
+      "type": "string",
+      "description": "Mailgun Message ID"
+    }
+  },
+  "required": [
+    "org_id",
+    "bezug_typ",
+    "bezug_id",
+    "empfaenger_email",
+    "betreff",
+    "inhalt"
+  ]
+}

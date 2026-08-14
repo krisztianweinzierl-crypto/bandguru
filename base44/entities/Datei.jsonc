@@ -1,0 +1,71 @@
+{
+  "name": "Datei",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL der hochgeladenen Datei"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Urspr\u00fcnglicher Dateiname"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "MIME-Type der Datei (z.B. image/png, application/pdf)"
+    },
+    "file_size": {
+      "type": "number",
+      "description": "Dateigr\u00f6\u00dfe in Bytes"
+    },
+    "bezug_typ": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "event",
+        "kunde",
+        "musiker",
+        "rechnung",
+        "sonstiges"
+      ],
+      "description": "Typ der Verkn\u00fcpfung"
+    },
+    "bezug_id": {
+      "type": "string",
+      "description": "ID des verkn\u00fcpften Objekts"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Beschreibung/Notizen zur Datei"
+    },
+    "kategorie": {
+      "type": "string",
+      "enum": [
+        "vertrag",
+        "angebot",
+        "rechnung",
+        "technische_unterlagen",
+        "bilder",
+        "sonstiges"
+      ],
+      "description": "Kategorie der Datei"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags f\u00fcr die Kategorisierung"
+    }
+  },
+  "required": [
+    "org_id",
+    "file_url",
+    "file_name",
+    "file_type"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "name": "Vertrag",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "vertragsnummer": {
+      "type": "string",
+      "description": "Eindeutige Vertragsnummer"
+    },
+    "titel": {
+      "type": "string",
+      "description": "Titel des Vertrags"
+    },
+    "kunde_id": {
+      "type": "string",
+      "description": "Referenz zum Kunden"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event (optional)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "entwurf",
+        "versendet",
+        "unterzeichnet",
+        "storniert"
+      ],
+      "default": "entwurf",
+      "description": "Status des Vertrags"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "Vertragsinhalt als HTML"
+    },
+    "unterzeichnen_bis": {
+      "type": "string",
+      "format": "date",
+      "description": "Frist f\u00fcr Unterschrift"
+    },
+    "eventinformationen_anzeigen": {
+      "type": "boolean",
+      "default": true,
+      "description": "Event-Details im Vertrag anzeigen"
+    },
+    "im_kundenportal_sichtbar": {
+      "type": "boolean",
+      "default": true,
+      "description": "F\u00fcr Kunden sichtbar"
+    },
+    "versendet_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Versandzeitpunkt"
+    },
+    "unterschrift_kunde": {
+      "type": "string",
+      "description": "Unterschrift des Kunden (Base64 Bild)"
+    },
+    "unterschrift_kunde_name": {
+      "type": "string",
+      "description": "Name des Unterzeichners"
+    },
+    "unterschrift_kunde_datum": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der Unterschrift"
+    },
+    "unterschrift_organisation": {
+      "type": "string",
+      "description": "Unterschrift der Organisation (Base64 Bild)"
+    },
+    "unterschrift_organisation_name": {
+      "type": "string",
+      "description": "Name des Unterzeichners (Organisation)"
+    },
+    "unterschrift_organisation_datum": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der Unterschrift (Organisation)"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "URL zum generierten PDF"
+    },
+    "vorlage_id": {
+      "type": "string",
+      "description": "Referenz zur verwendeten Vorlage"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    }
+  },
+  "required": [
+    "org_id",
+    "titel",
+    "kunde_id"
+  ]
+}

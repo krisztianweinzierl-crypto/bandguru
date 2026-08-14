@@ -86,6 +86,39 @@ export default function SongImport({ onClose, onSuccess, orgId }) {
     return songs;
   };
 
+  const isPdf = (f) => f.type === 'application/pdf' || f.name?.toLowerCase().endsWith('.pdf');
+
+  const extractFromPdf = async (f) => {
+    const { file_url } = await base44.integrations.Core.UploadFile({ file: f });
+    const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+      file_url,
+      json_schema: {
+        type: "object",
+        properties: {
+          songs: {
+            type: "array",
+            description: "Alle Songs, die in der Datei als Repertoire-/Songliste aufgeführt sind",
+            items: {
+              type: "object",
+              properties: {
+                titel: { type: "string", description: "Songtitel" },
+                kuenstler_original: { type: "string", description: "Original-Interpret oder Band" },
+                tonart: { type: "string", description: "Tonart, z.B. C-Dur oder Am, falls angegeben" },
+                bpm: { type: "number", description: "Tempo in BPM, falls angegeben" },
+                laenge: { type: "string", description: "Länge im Format MM:SS, falls angegeben" },
+                tags: { type: "array", items: { type: "string" }, description: "Genre- oder Kategorie-Tags, falls erkennbar" },
+                notizen: { type: "string", description: "Sonstige Hinweise zum Song, falls vorhanden" },
+              },
+              required: ["titel"],
+            },
+          },
+        },
+        required: ["songs"],
+      },
+    });
+    return (extracted?.songs || []).filter((s) => s.titel && s.titel.trim());
+  };
+
   const handleImport = async () => {
     if (!file) return;
 
@@ -93,13 +126,14 @@ export default function SongImport({ onClose, onSuccess, orgId }) {
     setResult(null);
 
     try {
-      const text = await file.text();
-      const songs = parseCSV(text);
+      const songs = isPdf(file) ? await extractFromPdf(file) : parseCSV(await file.text());
 
       if (songs.length === 0) {
         setResult({
           success: false,
-          message: "Keine Songs gefunden. Bitte überprüfe das CSV-Format."
+          message: isPdf(file)
+            ? "Keine Songs im PDF erkannt. Bitte prüfe, ob die Datei eine lesbare Songliste enthält."
+            : "Keine Songs gefunden. Bitte überprüfe das CSV-Format."
         });
         setImporting(false);
         return;
@@ -162,17 +196,18 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
               <FileText className="w-4 h-4" />
-              CSV-Format
+              CSV- oder PDF-Datei
             </h3>
             <p className="text-sm text-blue-800 mb-3">
-              Lade eine CSV-Datei mit deinen Songs hoch. Die erste Zeile sollte die Spaltenüberschriften enthalten.
+              Lade eine CSV-Datei mit deinen Songs hoch, oder lade direkt ein PDF mit eurer Songliste/Repertoireliste hoch – die Songs werden dann automatisch per KI ausgelesen.
             </p>
             <div className="text-xs text-blue-700 space-y-1">
-              <p><strong>Unterstützte Spalten:</strong></p>
+              <p><strong>CSV – unterstützte Spalten:</strong></p>
               <p>• Titel* (Pflichtfeld)</p>
               <p>• Künstler, Tonart, BPM, Länge (MM:SS)</p>
               <p>• Genre (mehrere mit Semikolon trennen: "Pop;Funk")</p>
               <p>• Noten (URL), YouTube (URL), Notizen</p>
+              <p className="pt-2"><strong>PDF:</strong> Egal ob Tabelle oder einfache Liste – Titel wird erkannt, weitere Felder (Künstler, Tonart, BPM etc.) werden übernommen, wo vorhanden.</p>
             </div>
           </div>
 
@@ -190,7 +225,7 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
 
           {/* File Upload */}
           <div className="space-y-2">
-            <Label htmlFor="file-upload">CSV-Datei auswählen</Label>
+            <Label htmlFor="file-upload">CSV- oder PDF-Datei auswählen</Label>
             <div className="flex items-center gap-3">
               <label
                 htmlFor="file-upload"
@@ -198,13 +233,13 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
               >
                 <Upload className="w-5 h-5 text-gray-400" />
                 <span className="text-sm text-gray-600">
-                  {file ? file.name : 'Datei auswählen oder hierher ziehen'}
+                  {file ? file.name : 'Datei auswählen oder hierher ziehen (CSV oder PDF)'}
                 </span>
               </label>
               <input
                 id="file-upload"
                 type="file"
-                accept=".csv"
+                accept=".csv,.pdf"
                 onChange={handleFileChange}
                 className="hidden"
               />

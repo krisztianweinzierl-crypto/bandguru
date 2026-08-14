@@ -1,0 +1,48 @@
+{
+  "name": "EventAktivitaet",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event"
+    },
+    "typ": {
+      "type": "string",
+      "enum": [
+        "event_erstellt",
+        "event_bearbeitet",
+        "musiker_hinzugefuegt",
+        "musiker_entfernt",
+        "musiker_status_geaendert",
+        "dokument_hinzugefuegt",
+        "dokument_geloescht",
+        "aufgabe_erstellt",
+        "aufgabe_geaendert",
+        "aufgabe_geloescht"
+      ],
+      "description": "Art der Aktivit\u00e4t"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Beschreibung der Aktivit\u00e4t"
+    },
+    "details": {
+      "type": "object",
+      "description": "Zus\u00e4tzliche Details als JSON"
+    },
+    "benutzer_name": {
+      "type": "string",
+      "description": "Name des Benutzers, der die Aktion durchgef\u00fchrt hat"
+    }
+  },
+  "required": [
+    "org_id",
+    "event_id",
+    "typ",
+    "beschreibung"
+  ]
+}

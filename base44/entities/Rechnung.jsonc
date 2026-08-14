@@ -1,0 +1,134 @@
+{
+  "name": "Rechnung",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "rechnungsnummer": {
+      "type": "string",
+      "description": "Eindeutige Rechnungsnummer (z.B. RG-2024-001)"
+    },
+    "kunde_id": {
+      "type": "string",
+      "description": "Referenz zum Kunden"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event (optional)"
+    },
+    "rechnungsdatum": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum der Rechnungserstellung"
+    },
+    "faelligkeitsdatum": {
+      "type": "string",
+      "format": "date",
+      "description": "Zahlungsf\u00e4lligkeitsdatum"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "entwurf",
+        "versendet",
+        "teilweise_bezahlt",
+        "bezahlt",
+        "\u00fcberf\u00e4llig",
+        "storniert"
+      ],
+      "default": "entwurf",
+      "description": "Status der Rechnung"
+    },
+    "positionen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beschreibung": {
+            "type": "string"
+          },
+          "menge": {
+            "type": "number"
+          },
+          "einheit": {
+            "type": "string"
+          },
+          "einzelpreis": {
+            "type": "number"
+          },
+          "steuersatz": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Rechnungspositionen"
+    },
+    "netto_betrag": {
+      "type": "number",
+      "description": "Gesamtbetrag netto"
+    },
+    "steuer_betrag": {
+      "type": "number",
+      "description": "Gesamter Steuerbetrag"
+    },
+    "brutto_betrag": {
+      "type": "number",
+      "description": "Gesamtbetrag brutto"
+    },
+    "bezahlt_betrag": {
+      "type": "number",
+      "default": 0,
+      "description": "Bereits bezahlter Betrag"
+    },
+    "waehrung": {
+      "type": "string",
+      "default": "EUR",
+      "description": "W\u00e4hrung"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "kunde_notizen": {
+      "type": "string",
+      "description": "Notizen f\u00fcr Kunde (auf Rechnung sichtbar)"
+    },
+    "zahlungsbedingungen": {
+      "type": "string",
+      "description": "Zahlungsbedingungen"
+    },
+    "versandt_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt des Versands"
+    },
+    "bezahlt_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der Zahlung"
+    },
+    "mahnung_stufe": {
+      "type": "number",
+      "default": 0,
+      "description": "Mahnstufe (0 = keine Mahnung)"
+    },
+    "letzte_mahnung_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Datum der letzten Mahnung"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "URL zur generierten PDF-Rechnung"
+    }
+  },
+  "required": [
+    "org_id",
+    "rechnungsnummer",
+    "kunde_id",
+    "rechnungsdatum",
+    "faelligkeitsdatum"
+  ]
+}

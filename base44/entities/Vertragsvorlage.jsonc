@@ -1,0 +1,49 @@
+{
+  "name": "Vertragsvorlage",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name der Vorlage"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Beschreibung der Vorlage"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "Vorlageninhalt als HTML mit Platzhaltern"
+    },
+    "kategorie": {
+      "type": "string",
+      "enum": [
+        "event",
+        "allgemein",
+        "abo",
+        "dienstleistung",
+        "sonstiges"
+      ],
+      "default": "allgemein",
+      "description": "Kategorie der Vorlage"
+    },
+    "aktiv": {
+      "type": "boolean",
+      "default": true,
+      "description": "Vorlage aktiv"
+    },
+    "verwendungen": {
+      "type": "number",
+      "default": 0,
+      "description": "Anzahl der Verwendungen"
+    }
+  },
+  "required": [
+    "org_id",
+    "name",
+    "inhalt"
+  ]
+}

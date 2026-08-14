@@ -1,0 +1,56 @@
+{
+  "name": "Nachricht",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "konversation_id": {
+      "type": "string",
+      "description": "Referenz zur Konversation"
+    },
+    "absender_id": {
+      "type": "string",
+      "description": "User-ID des Absenders oder Kunde-ID"
+    },
+    "absender_typ": {
+      "type": "string",
+      "enum": [
+        "user",
+        "kunde"
+      ],
+      "description": "Typ des Absenders"
+    },
+    "absender_name": {
+      "type": "string",
+      "description": "Name des Absenders (f\u00fcr Anzeige)"
+    },
+    "inhalt": {
+      "type": "string",
+      "description": "Nachrichteninhalt"
+    },
+    "gelesen_von": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array von User-IDs die die Nachricht gelesen haben"
+    },
+    "anhang_url": {
+      "type": "string",
+      "description": "Optional: URL zu einer angeh\u00e4ngten Datei"
+    },
+    "anhang_name": {
+      "type": "string",
+      "description": "Name der angeh\u00e4ngten Datei"
+    }
+  },
+  "required": [
+    "org_id",
+    "konversation_id",
+    "absender_id",
+    "absender_typ",
+    "inhalt"
+  ]
+}

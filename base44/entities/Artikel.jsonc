@@ -1,0 +1,46 @@
+{
+  "name": "Artikel",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "bezeichnung": {
+      "type": "string",
+      "description": "Bezeichnung des Artikels"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Detaillierte Beschreibung (HTML)"
+    },
+    "einheit": {
+      "type": "string",
+      "default": "Stk",
+      "description": "Einheit (z.B. Stk, Std, Tag)"
+    },
+    "einzelpreis": {
+      "type": "number",
+      "description": "Standardpreis pro Einheit"
+    },
+    "steuersatz": {
+      "type": "number",
+      "default": 19,
+      "description": "Steuersatz in Prozent"
+    },
+    "kategorie": {
+      "type": "string",
+      "description": "Kategorie des Artikels"
+    },
+    "aktiv": {
+      "type": "boolean",
+      "default": true,
+      "description": "Ist der Artikel aktiv"
+    }
+  },
+  "required": [
+    "org_id",
+    "bezeichnung",
+    "einzelpreis"
+  ]
+}

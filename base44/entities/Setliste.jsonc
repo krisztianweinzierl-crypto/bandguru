@@ -1,0 +1,55 @@
+{
+  "name": "Setliste",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name der Setliste"
+    },
+    "beschreibung": {
+      "type": "string",
+      "description": "Beschreibung/Notizen zur Setliste"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Verkn\u00fcpfung mit einem Event (optional)"
+    },
+    "songs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "song_id": {
+            "type": "string"
+          },
+          "reihenfolge": {
+            "type": "number"
+          },
+          "notizen": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Liste der Songs in dieser Setliste"
+    },
+    "gesamtdauer": {
+      "type": "number",
+      "description": "Gesamtdauer in Minuten"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags f\u00fcr Kategorisierung"
+    }
+  },
+  "required": [
+    "org_id",
+    "name"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "name": "Angebot",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Referenz zur Organisation"
+    },
+    "angebotsnummer": {
+      "type": "string",
+      "description": "Eindeutige Angebotsnummer (z.B. ANG-2024-001)"
+    },
+    "kunde_id": {
+      "type": "string",
+      "description": "Referenz zum Kunden"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "Referenz zum Event (optional)"
+    },
+    "angebotsdatum": {
+      "type": "string",
+      "format": "date",
+      "description": "Datum der Angebotserstellung"
+    },
+    "gueltig_bis": {
+      "type": "string",
+      "format": "date",
+      "description": "G\u00fcltigkeitsdatum des Angebots"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "entwurf",
+        "versendet",
+        "angenommen",
+        "abgelehnt",
+        "abgelaufen"
+      ],
+      "default": "entwurf",
+      "description": "Status des Angebots"
+    },
+    "positionen": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "beschreibung": {
+            "type": "string"
+          },
+          "menge": {
+            "type": "number"
+          },
+          "einheit": {
+            "type": "string"
+          },
+          "einzelpreis": {
+            "type": "number"
+          },
+          "steuersatz": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Angebotspositionen"
+    },
+    "netto_betrag": {
+      "type": "number",
+      "description": "Gesamtbetrag netto"
+    },
+    "steuer_betrag": {
+      "type": "number",
+      "description": "Gesamter Steuerbetrag"
+    },
+    "brutto_betrag": {
+      "type": "number",
+      "description": "Gesamtbetrag brutto"
+    },
+    "waehrung": {
+      "type": "string",
+      "default": "EUR",
+      "description": "W\u00e4hrung"
+    },
+    "notizen": {
+      "type": "string",
+      "description": "Interne Notizen"
+    },
+    "kunde_notizen": {
+      "type": "string",
+      "description": "Notizen f\u00fcr Kunde (auf Angebot sichtbar)"
+    },
+    "zahlungsbedingungen": {
+      "type": "string",
+      "description": "Zahlungsbedingungen"
+    },
+    "versandt_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt des Versands"
+    },
+    "angenommen_am": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Zeitpunkt der Annahme"
+    },
+    "rechnung_id": {
+      "type": "string",
+      "description": "Referenz zur erstellten Rechnung (bei Annahme)"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "URL zum generierten PDF-Angebot"
+    }
+  },
+  "required": [
+    "org_id",
+    "angebotsnummer",
+    "kunde_id",
+    "angebotsdatum",
+    "gueltig_bis"
+  ]
+}
