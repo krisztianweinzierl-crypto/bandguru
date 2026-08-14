@@ -130,7 +130,7 @@ export default function EventsPage() {
     angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400", label: "Wartet auf Musiker" },
     bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500", label: "Bestätigt" },
     abgesagt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400", label: "Abgesagt" },
-    zurückgezogen: { bg: "bg-slate-100", text: "text-slate-800", border: "border-slate-400", borderClass: "border-l-slate-400", label: "Zurückgezogen" },
+    zurückgezogen: { bg: "bg-muted", text: "text-foreground", border: "border-slate-400", borderClass: "border-l-slate-400", label: "Zurückgezogen" },
     durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Durchgeführt" },
     abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400", label: "Abgerechnet" }
   };

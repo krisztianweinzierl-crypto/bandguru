@@ -887,7 +887,7 @@ ${orgName} Team`;
     angefragt: { bg: "bg-orange-100", text: "text-orange-800", label: "Wartet auf Musiker" },
     bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
     abgesagt: { bg: "bg-red-100", text: "text-red-800", label: "Abgesagt" },
-    zurückgezogen: { bg: "bg-slate-100", text: "text-slate-800", label: "Zurückgezogen" },
+    zurückgezogen: { bg: "bg-muted", text: "text-foreground", label: "Zurückgezogen" },
     durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
     abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", label: "Abgerechnet" }
   };

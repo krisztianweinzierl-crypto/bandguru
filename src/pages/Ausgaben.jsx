@@ -126,7 +126,7 @@ export default function AusgabenPage() {
     versicherung: "bg-green-100 text-green-800 border-green-200",
     studio: "bg-yellow-100 text-yellow-800 border-yellow-200",
     software: "bg-cyan-100 text-cyan-800 border-cyan-200",
-    sonstiges: "bg-slate-100 text-slate-800 border-slate-200"
+    sonstiges: "bg-muted text-foreground border-border"
   };
 
   const handleSubmit = (data) => {

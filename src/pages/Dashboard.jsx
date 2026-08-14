@@ -53,7 +53,7 @@ export default function Dashboard() {
     angefragt: { className: "bg-orange-100 text-orange-800", label: "Wartet auf Musiker" },
     bestätigt: { className: "bg-green-100 text-green-800", label: "Bestätigt" },
     abgesagt: { className: "bg-red-100 text-red-800", label: "Abgesagt" },
-    zurückgezogen: { className: "bg-slate-100 text-slate-800", label: "Zurückgezogen" },
+    zurückgezogen: { className: "bg-muted text-foreground", label: "Zurückgezogen" },
     durchgeführt: { className: "bg-blue-100 text-blue-800", label: "Durchgeführt" },
     abgerechnet: { className: "bg-purple-100 text-purple-800", label: "Abgerechnet" }
   };
@@ -121,8 +121,8 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Alle Events</CardTitle>
-                <div className="p-2 bg-slate-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-slate-600" />
+                <div className="p-2 bg-muted rounded-lg">
+                  <Calendar className="w-5 h-5 text-muted-foreground" />
                 </div>
               </div>
             </CardHeader>
