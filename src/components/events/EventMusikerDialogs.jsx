@@ -112,7 +112,7 @@ export function EditMusikerDialog({ open, onOpenChange, editMusikerData, setEdit
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
-          <Button onClick={onSave} disabled={isSaving} className="text-white" style={{ backgroundColor: "#223a5e" }}>
+          <Button onClick={onSave} disabled={isSaving} className="text-white" style={{ backgroundColor: "#FF6A4D" }}>
             {isSaving ? "Wird gespeichert..." : "Speichern"}
           </Button>
         </DialogFooter>
@@ -143,7 +143,7 @@ export function EinladungDialog({ open, onOpenChange, einladungMusiker, einladun
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
-          <Button onClick={onSend} disabled={isSending} className="text-white" style={{ backgroundColor: "#223a5e" }}>
+          <Button onClick={onSend} disabled={isSending} className="text-white" style={{ backgroundColor: "#FF6A4D" }}>
             <Send className="w-4 h-4 mr-2" />
             {isSending ? "Wird gesendet..." : "Einladung senden"}
           </Button>
@@ -173,7 +173,7 @@ export function KontaktDialog({ open, onOpenChange, kunde, emailSubject, setEmai
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
-          <Button onClick={onSend} disabled={isSending || !emailSubject || !emailBody} className="text-white" style={{ backgroundColor: "#223a5e" }}>
+          <Button onClick={onSend} disabled={isSending || !emailSubject || !emailBody} className="text-white" style={{ backgroundColor: "#FF6A4D" }}>
             {isSending ? "Wird gesendet..." : "E-Mail senden"}
           </Button>
         </DialogFooter>

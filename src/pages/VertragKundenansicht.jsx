@@ -337,7 +337,7 @@ export default function VertragKundenansichtPage() {
             {organisation && (
               <div 
                 className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl"
-                style={{ backgroundColor: organisation.primary_color || '#223a5e' }}
+                style={{ backgroundColor: organisation.primary_color || '#FF6A4D' }}
               >
                 {organisation.name?.[0]?.toUpperCase() || "B"}
               </div>

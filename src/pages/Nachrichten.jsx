@@ -342,7 +342,7 @@ Dein Bandguru Team`
         <div className="relative">
           {teilnehmer.length === 1 ?
             <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
-              <AvatarFallback className="bg-[#223a5e] text-white rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
+              <AvatarFallback className="bg-[#FF6A4D] text-white rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                 {teilnehmer[0].user_name?.[0]?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar> :
@@ -444,7 +444,7 @@ Dein Bandguru Team`
                 <Button
                   size="sm"
                   onClick={() => setShowNewChatModal(true)}
-                  className="bg-[#223a5e] hover:opacity-90"
+                  className="bg-[#FF6A4D] hover:opacity-90"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Neu
@@ -639,7 +639,7 @@ Dein Bandguru Team`
                   <p className="text-gray-500 mb-6">Oder starte eine neue Konversation</p>
                   <Button
                     onClick={() => setShowNewChatModal(true)}
-                    className="bg-[#223a5e] hover:opacity-90"
+                    className="bg-[#FF6A4D] hover:opacity-90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Neuer Chat
@@ -681,7 +681,7 @@ Dein Bandguru Team`
                     return (
                       <div key={userId} className="flex items-center gap-3 p-3">
                         <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
-                          <AvatarFallback className="bg-[#223a5e] text-white text-xs">
+                          <AvatarFallback className="bg-[#FF6A4D] text-white text-xs">
                             {displayName[0]?.toUpperCase() || '?'}
                           </AvatarFallback>
                         </Avatar>
@@ -730,7 +730,7 @@ Dein Bandguru Team`
                           className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors"
                         >
                           <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
-                            <AvatarFallback className="bg-[#223a5e] text-white text-xs">
+                            <AvatarFallback className="bg-[#FF6A4D] text-white text-xs">
                               {displayName[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
                           </Avatar>
@@ -812,7 +812,7 @@ Dein Bandguru Team`
                             }
                           </div>
                           <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
-                            <AvatarFallback className="bg-[#223a5e] text-white text-xs rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
+                            <AvatarFallback className="bg-[#FF6A4D] text-white text-xs rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                               {displayName[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
                           </Avatar>
@@ -839,7 +839,7 @@ Dein Bandguru Team`
                 </Button>
                 <Button
                   onClick={handleCreateChat}
-                  disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                  disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
 
 
                   Chat erstellen

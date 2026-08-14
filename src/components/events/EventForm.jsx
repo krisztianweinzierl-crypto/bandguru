@@ -241,7 +241,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                   <Button
                     type="button"
                     onClick={handleCreateKunde}
-                    className="w-full bg-[#223a5e] hover:opacity-90"
+                    className="w-full bg-[#FF6A4D] hover:opacity-90"
                   >
                     Kunden erstellen und auswählen
                   </Button>

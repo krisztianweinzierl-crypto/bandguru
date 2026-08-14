@@ -44,7 +44,7 @@ export function AlertDialog({
         {/* Header mit Farbe */}
         <div 
           className="px-6 py-4 rounded-t-xl flex items-center gap-3"
-          style={{ backgroundColor: '#223a5e' }}
+          style={{ backgroundColor: '#FF6A4D' }}
         >
           <div className="p-2 bg-white/20 rounded-lg">
             {icons[type]}
@@ -74,7 +74,7 @@ export function AlertDialog({
           )}
           <Button
             onClick={handleConfirm}
-            style={{ backgroundColor: '#223a5e' }}
+            style={{ backgroundColor: '#FF6A4D' }}
             className="hover:opacity-90 min-w-24"
           >
             {confirmText}

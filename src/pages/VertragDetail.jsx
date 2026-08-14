@@ -479,7 +479,7 @@ Ihr Team`;
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 mb-4 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -510,7 +510,7 @@ Ihr Team`;
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Vertraege'))}
-              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
@@ -544,7 +544,7 @@ Ihr Team`;
                   size="sm"
                   onClick={handleSendVertrag}
                   disabled={sendVertragMutation.isPending}
-                  className="bg-[#223a5e] hover:bg-blue-700 gap-2">
+                  className="bg-[#FF6A4D] hover:bg-blue-700 gap-2">
 
                     <Send className="w-4 h-4" />
                     {sendVertragMutation.isPending ? "Wird versendet..." : "Vertrag versenden"}

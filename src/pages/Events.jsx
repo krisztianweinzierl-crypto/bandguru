@@ -195,7 +195,7 @@ export default function EventsPage() {
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
         <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
           <div className="flex-shrink-0">
-            <div className="bg-[#223a5e] text-white rounded-lg ] w-16 h-16 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
+            <div className="bg-[#FF6A4D] text-white rounded-lg ] w-16 h-16 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
                 {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
               </span>
@@ -263,7 +263,7 @@ export default function EventsPage() {
           <Button
             onClick={() => setShowForm(true)}
             className="text-white"
-            style={{ backgroundColor: '#223a5e' }}>
+            style={{ backgroundColor: '#FF6A4D' }}>
 
               <Plus className="w-4 h-4 mr-2" />
               Event erstellen
@@ -342,7 +342,7 @@ export default function EventsPage() {
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#223a5e'
+                '--active-bg': '#FF6A4D'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
@@ -354,7 +354,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #223a5e">
+              data-active-style="background-color: #FF6A4D">
 
               Anstehende ({upcomingEvents.length})
             </TabsTrigger>
@@ -362,7 +362,7 @@ export default function EventsPage() {
               value="past"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#223a5e'
+                '--active-bg': '#FF6A4D'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
@@ -374,7 +374,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #223a5e">
+              data-active-style="background-color: #FF6A4D">
 
               Vergangene ({pastEvents.length})
             </TabsTrigger>
@@ -443,7 +443,7 @@ export default function EventsPage() {
 
       <style>{`
         [data-state="active"][data-active-style] {
-          background-color: #223a5e !important;
+          background-color: #FF6A4D !important;
         }
       `}</style>
     </div>);

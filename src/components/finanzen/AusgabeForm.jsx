@@ -156,7 +156,7 @@ export default function AusgabeForm({ ausgabe, onSubmit, onCancel }) {
             </Button>
             <Button 
               type="submit"
-              style={{ backgroundColor: '#223a5e' }}
+              style={{ backgroundColor: '#FF6A4D' }}
               className="hover:opacity-90"
             >
               <Save className="w-4 h-4 mr-2" />

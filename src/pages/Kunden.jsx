@@ -265,7 +265,7 @@ export default function KundenPage() {
         className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer"
         onClick={() => handleCardClick(kunde.id)}>
 
-        <div className="bg-[#223a5e] text-white text-lg font-bold rounded-lg w-12 h-12 from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#FF6A4D] text-white text-lg font-bold rounded-lg w-12 h-12 from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
           {kunde.firmenname?.[0]?.toUpperCase() || 'K'}
         </div>
         
@@ -376,7 +376,7 @@ export default function KundenPage() {
             onClick={() => {
               setEditingKunde(null);
               setShowForm(true);
-            }} className="bg-[#223a5e] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:bg-slate-900">
+            }} className="bg-[#FF6A4D] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-9 hover:bg-slate-900">
 
 
             <Plus className="w-4 h-4 mr-2" />

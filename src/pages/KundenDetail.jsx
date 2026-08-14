@@ -119,7 +119,7 @@ export default function KundenDetailPage() {
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 mb-4 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -148,7 +148,7 @@ export default function KundenDetailPage() {
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Kunden'))}
-              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
@@ -158,7 +158,7 @@ export default function KundenDetailPage() {
           {/* Profile Header */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
             <div className="flex items-start gap-6">
-              <div className="bg-[#223a5e] text-white text-3xl font-bold rounded-lg w-24 h-24 from-green-500 to-emerald-600 flex items-center justify-center">
+              <div className="bg-[#FF6A4D] text-white text-3xl font-bold rounded-lg w-24 h-24 from-green-500 to-emerald-600 flex items-center justify-center">
                 {kunde.firmenname?.[0]?.toUpperCase() || 'K'}
               </div>
               <div>
@@ -183,7 +183,7 @@ export default function KundenDetailPage() {
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => setIsEditing(true)} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-green-700">
+                onClick={() => setIsEditing(true)} className="bg-[#FF6A4D] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-green-700">
 
 
                 <Edit className="w-4 h-4" />

@@ -1001,7 +1001,7 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 mb-4 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
               
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -1032,7 +1032,7 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Events'))}
-              className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+              className="gap-2 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
               
               <ArrowLeft className="w-4 h-4" />
               Zurück
@@ -1080,7 +1080,7 @@ ${orgName} Team`;
                 size="sm"
                 onClick={() => setIsEditing(true)}
                 className="gap-2 text-white"
-                style={{ backgroundColor: '#223a5e' }}>
+                style={{ backgroundColor: '#FF6A4D' }}>
                 
                   <Edit className="w-4 h-4" />
                   Bearbeiten
@@ -1167,7 +1167,7 @@ ${orgName} Team`;
                         {kunde ?
                       <Link
                         to={`${createPageUrl('KundenDetail')}?id=${kunde.id}`}
-                        className="font-medium text-[#223a5e] hover:underline inline-flex items-center gap-1">
+                        className="font-medium text-[#FF6A4D] hover:underline inline-flex items-center gap-1">
                         
                             {kunde.firmenname}
                             <ExternalLink className="w-3 h-3" />
@@ -1442,7 +1442,7 @@ ${orgName} Team`;
                     onClick={() => setShowMusikerForm(true)}
                     size="sm"
                     className="text-white"
-                    style={{ backgroundColor: '#223a5e' }}>
+                    style={{ backgroundColor: '#FF6A4D' }}>
                     
                       <Plus className="w-4 h-4 mr-2" />
                       Musiker hinzufügen
@@ -1503,7 +1503,7 @@ ${orgName} Team`;
                           <Button
                       onClick={() => setShowMusikerForm(true)}
                       className="text-white"
-                      style={{ backgroundColor: '#223a5e' }}>
+                      style={{ backgroundColor: '#FF6A4D' }}>
                       
                             <Plus className="w-4 h-4 mr-2" />
                             Ersten Musiker hinzufügen
@@ -1560,7 +1560,7 @@ ${orgName} Team`;
                       disabled={uploadingFile}
                       size="sm"
                       className="text-white"
-                      style={{ backgroundColor: '#223a5e' }}>
+                      style={{ backgroundColor: '#FF6A4D' }}>
                       
                         {uploadingFile ?
                       <>
@@ -1634,7 +1634,7 @@ ${orgName} Team`;
                     onClick={() => document.getElementById('file-upload').click()}
                     disabled={uploadingFile}
                     className="text-white"
-                    style={{ backgroundColor: '#223a5e' }}>
+                    style={{ backgroundColor: '#FF6A4D' }}>
                     
                         <Upload className="w-4 h-4 mr-2" />
                         Erste Datei hochladen

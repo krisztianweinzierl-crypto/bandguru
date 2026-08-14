@@ -69,12 +69,12 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#223a5e' }} />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#FF6A4D' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-gray-600">Nächste Events</CardTitle>
                 <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(34, 58, 94, 0.15)' }}>
-                  <Calendar className="w-5 h-5" style={{ color: '#223a5e' }} />
+                  <Calendar className="w-5 h-5" style={{ color: '#FF6A4D' }} />
                 </div>
               </div>
             </CardHeader>
@@ -156,7 +156,7 @@ export default function Dashboard() {
                   className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
 
                       <div className="flex-shrink-0">
-                        <div className="bg-[#223a5e] text-white rounded-xl w-14 h-14 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
+                        <div className="bg-[#FF6A4D] text-white rounded-xl w-14 h-14 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
                           <span className="text-xs font-medium">
                             {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
                           </span>
@@ -200,25 +200,25 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#223a5e' }}>
+                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#FF6A4D' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
+                <Button variant="outline" className="w-full justify-start border-[#FF6A4D] text-[#FF6A4D] hover:bg-[#FF6A4D]/10">
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
+                <Button variant="outline" className="w-full justify-start border-[#FF6A4D] text-[#FF6A4D] hover:bg-[#FF6A4D]/10">
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button variant="outline" className="w-full justify-start border-[#223a5e] text-[#223a5e] hover:bg-[#223a5e]/10">
+                <Button variant="outline" className="w-full justify-start border-[#FF6A4D] text-[#FF6A4D] hover:bg-[#FF6A4D]/10">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>

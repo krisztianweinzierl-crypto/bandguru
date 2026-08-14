@@ -976,7 +976,7 @@ export default function LeadDetailPage() {
                 variant="default"
                 size="default"
                 onClick={() => navigate(createPageUrl('Leads'))}
-                className="gap-2 bg-[#223a5e] text-white hover:bg-[#1a2d4a] h-8 px-3 text-sm">
+                className="gap-2 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
 
                 <ArrowLeft className="w-4 h-4" />
                 Zurück zu Leads
@@ -1293,7 +1293,7 @@ export default function LeadDetailPage() {
 
                         <Button
                           onClick={handleAddNote}
-                          disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                          disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
 
 
                           <Send className="w-4 h-4 mr-2" />
@@ -1337,7 +1337,7 @@ export default function LeadDetailPage() {
                             onClick={() => {
                               setEditingAufgabe(null);
                               setShowAufgabeForm(!showAufgabeForm);
-                            }} className="bg-[#223a5e] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+                            }} className="bg-[#FF6A4D] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
 
 
                             <Plus className="w-4 h-4 mr-2" />
@@ -1563,7 +1563,7 @@ export default function LeadDetailPage() {
                                 size="sm"
                                 onClick={() => setShowEmailForm(true)}
                                 disabled={!lead.email}
-                                style={{ backgroundColor: '#223a5e' }}
+                                style={{ backgroundColor: '#FF6A4D' }}
                                 className="hover:opacity-90"
                               >
                                 <Send className="w-4 h-4 mr-2" />
@@ -1642,7 +1642,7 @@ export default function LeadDetailPage() {
                               <p className="text-gray-500 mb-4">Sende die erste E-Mail an diesen Lead</p>
                               <Button 
                                 onClick={() => setShowEmailForm(true)}
-                                style={{ backgroundColor: '#223a5e' }}
+                                style={{ backgroundColor: '#FF6A4D' }}
                                 className="hover:opacity-90"
                               >
                                 <Send className="w-4 h-4 mr-2" />

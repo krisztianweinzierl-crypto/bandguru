@@ -117,7 +117,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
                   variant={kontaktModus === 'auswahl' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setKontaktModus('auswahl')}
-                  className={kontaktModus === 'auswahl' ? 'bg-[#223a5e] hover:opacity-90' : ''}
+                  className={kontaktModus === 'auswahl' ? 'bg-[#FF6A4D] hover:opacity-90' : ''}
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Aus Kontakten wählen
@@ -127,7 +127,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
                   variant={kontaktModus === 'manuell' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => { setKontaktModus('manuell'); setSelectedKunde(null); }}
-                  className={kontaktModus === 'manuell' ? 'bg-[#223a5e] hover:opacity-90' : ''}
+                  className={kontaktModus === 'manuell' ? 'bg-[#FF6A4D] hover:opacity-90' : ''}
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Neuen Kontakt eingeben
@@ -148,7 +148,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
                   {kunden.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-4">
                       Keine Kunden vorhanden.{" "}
-                      <button type="button" className="text-[#223a5e] underline" onClick={() => setKontaktModus('manuell')}>
+                      <button type="button" className="text-[#FF6A4D] underline" onClick={() => setKontaktModus('manuell')}>
                         Neuen Kontakt eingeben
                       </button>
                     </p>
@@ -493,7 +493,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-[#223a5e] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+            <Button type="submit" className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
               <Save className="w-4 h-4 mr-2" />
               {lead ? 'Änderungen speichern' : 'Lead erstellen'}
             </Button>

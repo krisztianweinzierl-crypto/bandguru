@@ -741,7 +741,7 @@ Das ${organisation.name} Team 🎵`;
                     onClick={handleGenerateDemoData}
                     disabled={demoLoading}
                     className="w-full h-12 text-base"
-                    style={{ backgroundColor: '#223a5e' }}
+                    style={{ backgroundColor: '#FF6A4D' }}
                   >
                     <Sparkles className="w-5 h-5 mr-2" />
                     {demoLoading ? "Erstelle Demo-Daten..." : "Demo-Daten jetzt erstellen"}
