@@ -759,7 +759,7 @@ export default function AngebotePage() {
                       <button
                         onClick={() => handleStatusSubmit('entwurf')}
                         className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-muted transition-colors ${
-                          statusToChange.status === 'entwurf' ? 'border-gray-400 bg-muted' : 'border-border'
+                          statusToChange.status === 'entwurf' ? 'border-border bg-muted' : 'border-border'
                         }`}
                       >
                         <Badge className={statusColors.entwurf}>Entwurf</Badge>
@@ -939,7 +939,7 @@ export default function AngebotePage() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <FileCheck className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileCheck className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Angebote gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle dein erstes Angebot</p>
               <Button onClick={() => setShowForm(true)} style={{ backgroundColor: '#FF6A4D' }} className="hover:opacity-90">

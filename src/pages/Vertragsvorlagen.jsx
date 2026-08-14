@@ -84,7 +84,7 @@ export default function VertragsvorlagenPage() {
 
   const kategorieColors = {
     event: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
-    allgemein: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    allgemein: { bg: "bg-muted", text: "text-foreground", border: "border-border", borderClass: "border-l-gray-400" },
     abo: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400" },
     dienstleistung: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-400" },
     sonstiges: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400" }
@@ -386,7 +386,7 @@ export default function VertragsvorlagenPage() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Vorlagen gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle deine erste Vertragsvorlage</p>
               <Button onClick={() => setShowForm(true)}>

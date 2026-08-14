@@ -189,7 +189,7 @@ export default function LeadsPage() {
   const bezahlteLeads = filteredLeads.filter((l) => l.status === 'bezahlt');
 
   const statusColors = {
-    neu: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    neu: { bg: "bg-muted", text: "text-foreground", border: "border-border", borderClass: "border-l-gray-400" },
     kontaktiert: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
     qualifiziert: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400" },
     angebot: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400" },
@@ -711,7 +711,7 @@ Umsatz</p>
 
           <Card className="border-dashed">
               <CardContent className="p-12 text-center">
-                <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <Target className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                 <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
                 <p className="text-muted-foreground mb-4">Lege deinen ersten Lead an</p>
                 <Button onClick={() => setShowForm(true)}>

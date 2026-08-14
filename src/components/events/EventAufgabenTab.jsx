@@ -169,7 +169,7 @@ export default function EventAufgabenTab({
                       {aufgabe.status === 'erledigt' ? (
                         <CheckCircle2 className="w-6 h-6 text-green-500" />
                       ) : (
-                        <Circle className="w-6 h-6 text-gray-300 hover:text-muted-foreground" />
+                        <Circle className="w-6 h-6 text-muted-foreground/40 hover:text-muted-foreground" />
                       )}
                     </button>
                     
@@ -332,7 +332,7 @@ export default function EventAufgabenTab({
           </div>
         ) : (
           <div className="text-center py-12">
-            <CheckSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <CheckSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
             <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
             <p className="text-muted-foreground mb-4">Es gibt noch keine Aufgaben für dieses Event</p>
             {isManager && (

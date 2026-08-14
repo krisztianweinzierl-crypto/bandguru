@@ -663,7 +663,7 @@ export default function MusikerDashboard() {
         {offeneAnfragen.length === 0 && optionaleAnfragen.length === 0 && bestaetigteEvents.length === 0 && (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Buchungsanfragen</h3>
               <p className="text-muted-foreground">Du hast aktuell keine offenen oder bestätigten Buchungsanfragen</p>
             </CardContent>

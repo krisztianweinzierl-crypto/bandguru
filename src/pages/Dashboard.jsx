@@ -181,7 +181,7 @@ export default function Dashboard() {
                 </div> :
 
               <div className="p-8 text-center text-muted-foreground">
-                  <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
                   <p>Keine anstehenden Events</p>
                   <Link to={createPageUrl("Events")}>
                     <Button variant="link" className="mt-2">

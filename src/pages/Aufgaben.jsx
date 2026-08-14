@@ -722,7 +722,7 @@ export default function AufgabenPage() {
                   </div> :
 
                 <div className="p-12 text-center text-muted-foreground">
-                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine Aufgaben gefunden</p>
                   </div>
                 }
@@ -741,7 +741,7 @@ export default function AufgabenPage() {
                   </div> :
 
                 <div className="p-12 text-center text-muted-foreground">
-                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine Aufgaben zugewiesen</p>
                   </div>
                 }
@@ -760,7 +760,7 @@ export default function AufgabenPage() {
                   </div> :
 
                 <div className="p-12 text-center text-muted-foreground">
-                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine offenen Aufgaben</p>
                   </div>
                 }
@@ -779,7 +779,7 @@ export default function AufgabenPage() {
                   </div> :
 
                 <div className="p-12 text-center text-muted-foreground">
-                    <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine Aufgaben in Arbeit</p>
                   </div>
                 }
@@ -798,7 +798,7 @@ export default function AufgabenPage() {
                   </div> :
 
                 <div className="p-12 text-center text-muted-foreground">
-                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine erledigten Aufgaben</p>
                   </div>
                 }

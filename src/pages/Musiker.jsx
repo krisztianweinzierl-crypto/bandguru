@@ -578,7 +578,7 @@ export default function MusikerPage() {
 
           <Card className="border-dashed">
               <CardContent className="p-12 text-center">
-                <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <Users className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                 <h3 className="text-lg font-semibold mb-2">Keine Musiker gefunden</h3>
                 <p className="text-muted-foreground mb-4">Füge deinen ersten Musiker hinzu</p>
                 <Button onClick={() => setShowForm(true)}>

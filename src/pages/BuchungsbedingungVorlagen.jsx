@@ -410,7 +410,7 @@ export default function BuchungsbedingungVorlagenPage() {
         ) : (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Vorlagen gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle deine erste Buchungsbedingung-Vorlage</p>
               <Button onClick={() => setShowForm(true)}>

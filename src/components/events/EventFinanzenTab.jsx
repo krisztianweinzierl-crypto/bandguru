@@ -15,7 +15,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
     return (
       <Card className="border-none shadow-lg">
         <CardContent className="p-12 text-center">
-          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+          <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
           <h3 className="text-lg font-semibold mb-2">Finanzen</h3>
           <p className="text-muted-foreground">Diese Ansicht ist nur für Manager verfügbar</p>
         </CardContent>
@@ -173,7 +173,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             </div>
           ) : (
             <div className="text-center py-8">
-              <Receipt className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <Receipt className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
               <p className="text-muted-foreground mb-3">Noch keine Rechnungen für dieses Event</p>
               <Button size="sm" onClick={() => navigate(createPageUrl('Rechnungen'))} className="text-white" style={{ backgroundColor: '#FF6A4D' }}>
                 <Plus className="w-4 h-4 mr-2" />Rechnung erstellen
@@ -219,7 +219,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             </div>
           ) : (
             <div className="text-center py-8">
-              <TrendingDown className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <TrendingDown className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
               <p className="text-muted-foreground mb-3">Noch keine Ausgaben für dieses Event</p>
               <Button size="sm" onClick={() => navigate(createPageUrl('Ausgaben'))} className="text-white" style={{ backgroundColor: '#FF6A4D' }}>
                 <Plus className="w-4 h-4 mr-2" />Ausgabe hinzufügen

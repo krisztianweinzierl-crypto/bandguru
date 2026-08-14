@@ -262,7 +262,7 @@ export default function MeineEventsPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine kommenden Events</h3>
                   <p className="text-muted-foreground">Du hast aktuell keine bestätigten Events</p>
                 </CardContent>
@@ -278,7 +278,7 @@ export default function MeineEventsPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine vergangenen Events</h3>
                   <p className="text-muted-foreground">Du hast noch keine abgeschlossenen Events</p>
                 </CardContent>

@@ -620,7 +620,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
           <Button type="button" variant="outline" onClick={onCancel}>
             Abbrechen
           </Button>
-          <Button type="submit" className="bg-gray-900 hover:bg-gray-800 gap-2">
+          <Button type="submit" className="bg-foreground hover:bg-foreground gap-2">
             <Save className="w-4 h-4" />
             {event ? 'Änderungen speichern' : 'Event erstellen'}
           </Button>

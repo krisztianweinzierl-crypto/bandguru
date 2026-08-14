@@ -481,7 +481,7 @@ Dein Bandguru Team`
                   </div>
                 ) : (
                   <div className="p-12 text-center text-muted-foreground">
-                    <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine Chats gefunden</p>
                   </div>
                 )}
@@ -496,7 +496,7 @@ Dein Bandguru Team`
                   </div>
                 ) : (
                   <div className="p-12 text-center text-muted-foreground">
-                    <Archive className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <Archive className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <p>Keine archivierten Chats</p>
                   </div>
                 )}
@@ -634,7 +634,7 @@ Dein Bandguru Team`
             ) : (
               <div className="flex-1 flex items-center justify-center text-center p-12">
                 <div>
-                  <MessageSquare className="w-24 h-24 mx-auto mb-6 text-gray-300" />
+                  <MessageSquare className="w-24 h-24 mx-auto mb-6 text-muted-foreground/40" />
                   <h3 className="text-2xl font-bold text-foreground mb-2">Wähle einen Chat</h3>
                   <p className="text-muted-foreground mb-6">Oder starte eine neue Konversation</p>
                   <Button

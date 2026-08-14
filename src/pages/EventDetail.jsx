@@ -1497,7 +1497,7 @@ ${orgName} Team`;
 
                   isManager ?
                   <div className="text-center py-12">
-                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                           <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
                           <p className="text-muted-foreground mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
                           <Button
@@ -1511,7 +1511,7 @@ ${orgName} Team`;
                         </div> :
 
                   <div className="text-center py-12">
-                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                           <h3 className="text-lg font-semibold mb-2">Keine Musiker</h3>
                           <p className="text-muted-foreground">Es sind noch keine anderen Musiker für dieses Event bestätigt.</p>
                         </div>
@@ -1621,7 +1621,7 @@ ${orgName} Team`;
                   </div> :
 
                 <div className="text-center py-12">
-                    <FileIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <FileIcon className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Dokumente</h3>
                     <p className="text-muted-foreground mb-4">
                       {isManager ?
@@ -1713,7 +1713,7 @@ ${orgName} Team`;
                   </div> :
 
                 <div className="text-center py-12">
-                    <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
                     <p className="text-muted-foreground">Änderungen am Event werden hier protokolliert</p>
                   </div>

@@ -730,7 +730,7 @@ export default function RepertoirePage() {
                     ) : (
                       <tr>
                         <td colSpan="10" className="p-12 text-center">
-                          <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                           <h3 className="text-lg font-semibold mb-2">Keine Songs gefunden</h3>
                           <p className="text-muted-foreground mb-4">
                             {isManager ? "Füge deinen ersten Song hinzu" : "Für dieses Repertoire sind noch keine Songs verfügbar."}
@@ -922,7 +922,7 @@ export default function RepertoirePage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <List className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <List className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine Setlists gefunden</h3>
                   <p className="text-muted-foreground mb-4">
                     {isManager ? 'Erstelle deine erste Setlist' : 'Keine Setlisten für deine Events'}

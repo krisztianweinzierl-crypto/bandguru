@@ -1239,7 +1239,7 @@ export default function LeadDetailPage() {
                     <p className="text-sm text-muted-foreground">Verknüpfte Angebote für diesen Lead</p>
                   </CardHeader>
                   <CardContent className="p-12 text-center">
-                    <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Angebote</h3>
                     <p className="text-muted-foreground mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
                     <Button
@@ -1374,7 +1374,7 @@ export default function LeadDetailPage() {
                           </div> :
 
                         <div className="p-12 text-center">
-                            <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                             <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
                             <p className="text-muted-foreground mb-4">
                               Erstelle die erste Aufgabe für diesen Lead
@@ -1543,7 +1543,7 @@ export default function LeadDetailPage() {
                     {dateien.length === 0 && !uploadingFile &&
                     <Card className="border-dashed border-2 mt-6">
                         <CardContent className="p-12 text-center">
-                          <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                          <File className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                           <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
                           <p className="text-muted-foreground">Lade die erste Datei für diesen Lead hoch</p>
                         </CardContent>
@@ -1637,7 +1637,7 @@ export default function LeadDetailPage() {
                         {emailLogs.length === 0 && lead.email && (
                           <Card className="border-dashed border-2 mt-6">
                             <CardContent className="p-12 text-center">
-                              <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                              <Mail className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                               <h3 className="text-lg font-semibold mb-2">Noch keine E-Mails versendet</h3>
                               <p className="text-muted-foreground mb-4">Sende die erste E-Mail an diesen Lead</p>
                               <Button 
@@ -1684,7 +1684,7 @@ export default function LeadDetailPage() {
                                     {getTimelineIcon(item.icon)}
                                   </div>
                                   {index < timeline.length - 1 && (
-                                    <div className="w-0.5 h-full bg-gray-200 mt-2" style={{ minHeight: '40px' }} />
+                                    <div className="w-0.5 h-full bg-muted mt-2" style={{ minHeight: '40px' }} />
                                   )}
                                 </div>
 
@@ -1709,7 +1709,7 @@ export default function LeadDetailPage() {
                           </div>
                         ) : (
                           <div className="text-center py-12">
-                            <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                            <Activity className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                             <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
                             <p className="text-muted-foreground">
                               Der Aktivitätenverlauf wird automatisch erstellt, sobald Notizen, Aufgaben oder E-Mails hinzugefügt werden.

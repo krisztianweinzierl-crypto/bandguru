@@ -321,7 +321,7 @@ export default function MeineAufgabenPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <CheckSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <CheckSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine offenen Aufgaben</h3>
                   <p className="text-muted-foreground">Super! Du hast keine offenen Aufgaben.</p>
                 </CardContent>
@@ -337,7 +337,7 @@ export default function MeineAufgabenPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <Clock className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine Aufgaben in Arbeit</h3>
                   <p className="text-muted-foreground">Starte mit einer offenen Aufgabe!</p>
                 </CardContent>
@@ -353,7 +353,7 @@ export default function MeineAufgabenPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine erledigten Aufgaben</h3>
                   <p className="text-muted-foreground">Erledige deine ersten Aufgaben!</p>
                 </CardContent>

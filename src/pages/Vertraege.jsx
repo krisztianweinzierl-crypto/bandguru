@@ -87,7 +87,7 @@ export default function VertraegePage() {
   });
 
   const statusColors = {
-    entwurf: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    entwurf: { bg: "bg-muted", text: "text-foreground", border: "border-border", borderClass: "border-l-gray-400" },
     versendet: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
     unterzeichnet: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500" },
     storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400" }
@@ -415,7 +415,7 @@ export default function VertraegePage() {
 
         <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Verträge gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle deinen ersten Vertrag</p>
               <Button onClick={() => setShowForm(true)}>

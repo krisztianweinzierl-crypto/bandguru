@@ -316,7 +316,7 @@ export default function ArtikelVerwaltungPage() {
               </div>
             ) : (
               <div className="p-12 text-center">
-                <Plus className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <Plus className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                 <h3 className="text-lg font-semibold mb-2">Keine Artikel gefunden</h3>
                 <p className="text-muted-foreground mb-4">Erstelle deinen ersten Artikel</p>
                 <Button onClick={() => setShowForm(true)}>

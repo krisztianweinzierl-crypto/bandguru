@@ -96,7 +96,7 @@ export default function NotificationBell({ user, currentOrgId }) {
     switch (prioritaet) {
       case 'hoch': return 'bg-red-500';
       case 'normal': return 'bg-blue-500';
-      case 'niedrig': return 'bg-gray-400';
+      case 'niedrig': return 'bg-muted';
       default: return 'bg-blue-500';
     }
   };
@@ -200,7 +200,7 @@ export default function NotificationBell({ user, currentOrgId }) {
 
                           <button
                             onClick={(e) => handleDelete(e, notification.id)}
-                            className="flex-shrink-0 p-1 hover:bg-gray-200 rounded transition-colors"
+                            className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors"
                           >
                             <X className="w-3.5 h-3.5 text-muted-foreground" />
                           </button>
@@ -211,7 +211,7 @@ export default function NotificationBell({ user, currentOrgId }) {
                 </div>
               ) : (
                 <div className="px-4 py-12 text-center">
-                  <Bell className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <Bell className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
                   <p className="text-sm text-muted-foreground">Keine Benachrichtigungen</p>
                 </div>
               )}

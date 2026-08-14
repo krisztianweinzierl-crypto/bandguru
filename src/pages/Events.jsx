@@ -123,7 +123,7 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter((e) => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    anfrage: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Anfrage" },
+    anfrage: { bg: "bg-muted", text: "text-foreground", border: "border-border", borderClass: "border-l-gray-400", label: "Anfrage" },
     angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Angebot erstellt" },
     angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400", label: "Angebot angenommen" },
     wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400", borderClass: "border-l-yellow-400", label: "Wartet auf Bestätigung" },
@@ -398,7 +398,7 @@ export default function EventsPage() {
 
             <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-semibold mb-2">Keine anstehenden Events</h3>
                   <p className="text-muted-foreground mb-4">
                     {isManager ? 'Erstelle dein erstes Event' : 'Du hast aktuell keine zugesagten Events'}
@@ -432,7 +432,7 @@ export default function EventsPage() {
 
             <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
-                  <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
                   <p className="text-muted-foreground">Keine vergangenen Events</p>
                 </CardContent>
               </Card>

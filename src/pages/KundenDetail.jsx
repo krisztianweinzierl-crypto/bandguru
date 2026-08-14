@@ -322,7 +322,7 @@ export default function KundenDetailPage() {
                   </div> :
 
                 <div className="p-8 text-center text-muted-foreground">
-                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
                     <p>Keine Events für diesen Kunden</p>
                   </div>
                 }
@@ -394,7 +394,7 @@ export default function KundenDetailPage() {
                   </div> :
 
                 <div className="p-8 text-center text-muted-foreground">
-                    <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
                     <p>Keine Rechnungen</p>
                   </div>
                 }

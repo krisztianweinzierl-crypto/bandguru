@@ -659,7 +659,7 @@ export default function Layout({ children, currentPageName }) {
         </section>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-muted-foreground py-12">
+        <footer className="bg-foreground text-muted-foreground py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <img

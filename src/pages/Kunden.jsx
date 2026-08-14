@@ -453,7 +453,7 @@ export default function KundenPage() {
         !showForm &&
         <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <Building2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Kunden gefunden</h3>
               <p className="text-muted-foreground mb-4">Lege deinen ersten Kunden an</p>
               <Button onClick={() => setShowForm(true)}>

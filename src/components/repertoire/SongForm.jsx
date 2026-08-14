@@ -243,7 +243,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             <Label>Noten / Dokumente</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted rounded-lg cursor-pointer transition-colors">
                   {uploadingFile ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -303,7 +303,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             <Label>Audio-Datei (MP3)</Label>
             <div className="border-2 border-dashed border-border rounded-lg p-4">
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted rounded-lg cursor-pointer transition-colors">
                   {uploadingAudio ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (

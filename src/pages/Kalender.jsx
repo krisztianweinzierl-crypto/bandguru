@@ -230,7 +230,7 @@ export default function KalenderPage() {
   };
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-400", text: "text-white" },
+    entwurf: { bg: "bg-muted", text: "text-white" },
     angefragt: { bg: "bg-orange-400", text: "text-white" },
     bestätigt: { bg: "bg-green-500", text: "text-white" },
     durchgeführt: { bg: "bg-blue-400", text: "text-white" },
@@ -521,7 +521,7 @@ export default function KalenderPage() {
         {sortedDates.length === 0 && (
           <Card className="border-dashed border-2">
             <CardContent className="p-12 text-center text-muted-foreground">
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <p>Keine Events in diesem Monat</p>
             </CardContent>
           </Card>

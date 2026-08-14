@@ -672,7 +672,7 @@ export default function RechnungenPage() {
                        <span>zzgl. MwSt.:</span>
                        <span className="font-semibold">{(viewRechnung.steuer_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                       </div>
-                      <div className="flex justify-between py-3 border-t-2 border-gray-800">
+                      <div className="flex justify-between py-3 border-t-2 border-border">
                        <span className="text-lg font-bold">Gesamtbetrag:</span>
                        <span className="text-lg font-bold">{(viewRechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
                       </div>
@@ -843,7 +843,7 @@ export default function RechnungenPage() {
 
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
-              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Rechnungen gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle deine erste Rechnung</p>
               <Button onClick={() => setShowForm(true)} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
