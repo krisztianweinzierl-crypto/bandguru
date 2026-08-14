@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer } from "lucide-react";
+import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import SongForm from "@/components/repertoire/SongForm";
 import SetlistForm from "@/components/repertoire/SetlistForm";
 import SongImport from "@/components/repertoire/SongImport"; // Added import for SongImport
+import SongEnrichment from "@/components/repertoire/SongEnrichment";
 
 export default function RepertoirePage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -25,6 +26,7 @@ export default function RepertoirePage() {
   const [showSongForm, setShowSongForm] = useState(false);
   const [showSetlistForm, setShowSetlistForm] = useState(false);
   const [showImport, setShowImport] = useState(false); // Added showImport state
+  const [showEnrichment, setShowEnrichment] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
   const [editingSetlist, setEditingSetlist] = useState(null);
   const queryClient = useQueryClient();
@@ -319,6 +321,11 @@ export default function RepertoirePage() {
     setShowImport(false);
   };
 
+  const handleEnrichmentSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['songs'] });
+    setShowEnrichment(false);
+  };
+
   // Für Musiker: Nur Songs aus ihren zugewiesenen Setlisten
   const visibleSongs = isManager
     ? songs
@@ -516,6 +523,13 @@ export default function RepertoirePage() {
               </div>
               {isManager && (
                 <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowEnrichment(true)}
+                  >
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Daten ergänzen
+                  </Button>
                   <Button 
                     variant="outline"
                     onClick={() => setShowImport(true)}
@@ -537,6 +551,15 @@ export default function RepertoirePage() {
                 </div>
               )}
             </div>
+
+            {/* Enrichment Component */}
+            {showEnrichment && (
+              <SongEnrichment
+                songs={songs}
+                onClose={() => setShowEnrichment(false)}
+                onSuccess={handleEnrichmentSuccess}
+              />
+            )}
 
             {/* Import Component */}
             {showImport && (
