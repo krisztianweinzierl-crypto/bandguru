@@ -189,7 +189,7 @@ export default function LeadsPage() {
   const bezahlteLeads = filteredLeads.filter((l) => l.status === 'bezahlt');
 
   const statusColors = {
-    neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    neu: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
     kontaktiert: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
     qualifiziert: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400" },
     angebot: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400" },
@@ -278,7 +278,7 @@ export default function LeadsPage() {
                     onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
                   >{label}</p>
                 ) : (
-                  <p className="text-sm text-gray-600 truncate">{label}</p>
+                  <p className="text-sm text-muted-foreground truncate">{label}</p>
                 );
               })()}
             </div>
@@ -312,15 +312,15 @@ export default function LeadsPage() {
                       setShowDropdownId(null);
                     }} />
 
-                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                       <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEdit(lead);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left">
 
-                        <Edit className="w-4 h-4 text-gray-600" />
+                        <Edit className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Lead bearbeiten</span>
                       </button>
                       <button
@@ -349,8 +349,8 @@ export default function LeadsPage() {
         {expanded &&
         <CardContent className="pt-0 space-y-2 border-t">
             {lead.kontaktperson &&
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-                <User className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <User className="w-4 h-4 text-muted-foreground" />
                 {(() => {
                   const kunde = kunden.find((k) =>
                     (lead.firmenname && k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim()) ||
@@ -365,20 +365,20 @@ export default function LeadsPage() {
               </div>
             }
             {lead.email &&
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="w-4 h-4 text-muted-foreground" />
                 <span className="truncate">{lead.email}</span>
               </div>
             }
             {lead.telefon &&
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="w-4 h-4 text-muted-foreground" />
                 <span>{lead.telefon}</span>
               </div>
             }
             {lead.event_datum &&
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
                 <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
               </div>
             }
@@ -389,7 +389,7 @@ export default function LeadsPage() {
               </div>
             }
             {assignedMitglied &&
-            <div className="text-xs text-gray-500 mt-2">
+            <div className="text-xs text-muted-foreground mt-2">
                 Zugewiesen an: {assignedMitglied.rolle}
               </div>
             }
@@ -405,7 +405,7 @@ export default function LeadsPage() {
 
     return (
       <div
-        className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
+        className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
         onClick={() => handleCardClick(lead.id)}>
 
         <div className="bg-[#FF6A4D] text-white font-bold rounded-lg w-12 h-12 from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
@@ -415,7 +415,7 @@ export default function LeadsPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">{lead.titel}</h3>
+              <h3 className="font-semibold text-lg text-foreground truncate">{lead.titel}</h3>
               {(lead.firmenname || lead.kontaktperson) && (() => {
                 const label = lead.firmenname || lead.kontaktperson;
                 const kunde = kunden.find((k) =>
@@ -428,7 +428,7 @@ export default function LeadsPage() {
                     onClick={(e) => { e.stopPropagation(); navigate(createPageUrl(`KundenDetail?id=${kunde.id}`)); }}
                   >{label}</p>
                 ) : (
-                  <p className="text-sm text-gray-600 truncate">{label}</p>
+                  <p className="text-sm text-muted-foreground truncate">{label}</p>
                 );
               })()}
             </div>
@@ -456,15 +456,15 @@ export default function LeadsPage() {
                     setShowDropdownId(null);
                   }} />
 
-                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                     <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEdit(lead);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left">
 
-                      <Edit className="w-4 h-4 text-gray-600" />
+                      <Edit className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm font-medium">Lead bearbeiten</span>
                     </button>
                     <button
@@ -483,7 +483,7 @@ export default function LeadsPage() {
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             {lead.kontaktperson &&
             <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
@@ -527,8 +527,8 @@ export default function LeadsPage() {
         <div className="w-full max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Leads</h1>
-              <p className="text-gray-600">Verwalte deine Verkaufschancen</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Leads</h1>
+              <p className="text-muted-foreground">Verwalte deine Verkaufschancen</p>
             </div>
             <Button
               onClick={() => {
@@ -550,7 +550,7 @@ export default function LeadsPage() {
                     <Target className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Neue Leads</p>
+                    <p className="text-sm text-muted-foreground">Neue Leads</p>
                     <p className="text-2xl font-bold">{neueLeads}</p>
                   </div>
                 </div>
@@ -564,7 +564,7 @@ export default function LeadsPage() {
                     <TrendingUp className="w-6 h-6 text-yellow-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Aktive Leads</p>
+                    <p className="text-sm text-muted-foreground">Aktive Leads</p>
                     <p className="text-2xl font-bold">{aktiveLeads}</p>
                   </div>
                 </div>
@@ -578,7 +578,7 @@ export default function LeadsPage() {
                     <Euro className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Gewonnene</p>
+                    <p className="text-sm text-muted-foreground">Gewonnene</p>
                     <p className="text-2xl font-bold">{gewonneneLeads}</p>
                   </div>
                 </div>
@@ -592,7 +592,7 @@ export default function LeadsPage() {
                     <Euro className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <p className="text-gray-500 text-xs">Möglicher
+                    <p className="text-muted-foreground text-xs">Möglicher
 Umsatz</p>
                     <p className="text-sm font-bold">{gesamtUmsatzPotenzial.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</p>
                   </div>
@@ -605,7 +605,7 @@ Umsatz</p>
             <CardContent className="p-4">
               <div className="flex gap-4">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input placeholder="Leads durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -627,12 +627,12 @@ Umsatz</p>
                     <SelectItem value="verloren">Verloren</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                <div className="flex gap-1 bg-muted rounded-lg p-1">
                   <Button
                     variant={viewMode === "kanban" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("kanban")}
-                    className={viewMode === "kanban" ? "bg-white shadow-sm" : ""}>
+                    className={viewMode === "kanban" ? "bg-card shadow-sm" : ""}>
 
                     <Columns3 className="w-4 h-4" />
                   </Button>
@@ -640,7 +640,7 @@ Umsatz</p>
                     variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("grid")}
-                    className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
+                    className={viewMode === "grid" ? "bg-card shadow-sm" : ""}>
 
                     <LayoutGrid className="w-4 h-4" />
                   </Button>
@@ -648,7 +648,7 @@ Umsatz</p>
                     variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("list")}
-                    className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
+                    className={viewMode === "list" ? "bg-card shadow-sm" : ""}>
 
                     <List className="w-4 h-4" />
                   </Button>
@@ -713,7 +713,7 @@ Umsatz</p>
               <CardContent className="p-12 text-center">
                 <Target className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-semibold mb-2">Keine Leads gefunden</h3>
-                <p className="text-gray-500 mb-4">Lege deinen ersten Lead an</p>
+                <p className="text-muted-foreground mb-4">Lege deinen ersten Lead an</p>
                 <Button onClick={() => setShowForm(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Lead anlegen

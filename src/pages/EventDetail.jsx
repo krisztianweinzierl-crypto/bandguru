@@ -843,7 +843,7 @@ ${orgName} Team`;
   if (eventLoading || !event) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Event...</p>
+        <p className="text-muted-foreground">Lade Event...</p>
       </div>);
 
   }
@@ -851,7 +851,7 @@ ${orgName} Team`;
   if (currentUser === null || !accessChecked) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Event...</p>
+        <p className="text-muted-foreground">Lade Event...</p>
       </div>);
 
   }
@@ -866,7 +866,7 @@ ${orgName} Team`;
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf dieses Event</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Du hast für dieses Event nicht zugesagt oder wurdest nicht für die Details freigegeben.
             </p>
             <Button onClick={() => navigate(createPageUrl('Events'))}>
@@ -880,7 +880,7 @@ ${orgName} Team`;
   }
 
   const statusColors = {
-    anfrage: { bg: "bg-gray-100", text: "text-gray-800", label: "Anfrage" },
+    anfrage: { bg: "bg-muted", text: "text-foreground", label: "Anfrage" },
     angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", label: "Angebot erstellt" },
     angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", label: "Angebot angenommen" },
     wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Wartet auf Bestätigung" },
@@ -897,7 +897,7 @@ ${orgName} Team`;
     optional: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-l-yellow-400", label: "Optional" },
     zugesagt: { bg: "bg-green-100", text: "text-green-800", border: "border-l-green-500", label: "Zugesagt" },
     abgelehnt: { bg: "bg-red-100", text: "text-red-800", border: "border-l-red-400", label: "Abgelehnt" },
-    ersetzt: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400", label: "Ersetzt" }
+    ersetzt: { bg: "bg-muted", text: "text-foreground", border: "border-l-gray-400", label: "Ersetzt" }
   };
 
   const statusInfo = statusColors[event.status] || statusColors.anfrage;
@@ -1006,8 +1006,8 @@ ${orgName} Team`;
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event bearbeiten</h1>
-            <p className="text-gray-600">{event.titel}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Event bearbeiten</h1>
+            <p className="text-muted-foreground">{event.titel}</p>
           </div>
           <EventForm
             event={event}
@@ -1024,7 +1024,7 @@ ${orgName} Team`;
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
           {/* Back Button & Status */}
           <div className="flex items-center gap-3 mb-4">
@@ -1044,7 +1044,7 @@ ${orgName} Team`;
 
           {/* Title & Actions */}
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <h1 className="text-gray-900 text-2xl font-bold md:text-2xl">{event.titel}</h1>
+            <h1 className="text-foreground text-2xl font-bold md:text-2xl">{event.titel}</h1>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
@@ -1106,7 +1106,7 @@ ${orgName} Team`;
       <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-8">
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white border-b border-gray-200 p-0 h-auto flex-wrap overflow-x-auto">
+          <TabsList className="bg-card border-b border-border p-0 h-auto flex-wrap overflow-x-auto">
             <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none pb-3 text-xs md:text-sm">
               Übersicht
             </TabsTrigger>
@@ -1130,18 +1130,18 @@ ${orgName} Team`;
           {/* Übersicht Tab */}
           <TabsContent value="overview" className="space-y-6">
             {/* Details Card */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="border-b bg-card">
                 <CardTitle className="text-xl font-bold">Details</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 bg-white">
+              <CardContent className="p-6 bg-card">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Datum */}
                   <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Calendar className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Datum</p>
-                      <p className="font-medium text-gray-900">
+                      <p className="text-sm text-muted-foreground mb-1">Datum</p>
+                      <p className="font-medium text-foreground">
                         {format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}
                       </p>
                     </div>
@@ -1149,10 +1149,10 @@ ${orgName} Team`;
 
                   {/* Veranstaltungsort */}
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Veranstaltungsort</p>
-                      <p className="font-medium text-gray-900">
+                      <p className="text-sm text-muted-foreground mb-1">Veranstaltungsort</p>
+                      <p className="font-medium text-foreground">
                         {event.ort_adresse || event.ort_name || 'Nicht angegeben'}
                       </p>
                     </div>
@@ -1161,9 +1161,9 @@ ${orgName} Team`;
                   {/* Kunde */}
                   {isManager &&
                   <div className="flex items-start gap-3">
-                      <FileText className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <FileText className="w-5 h-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Kunde</p>
+                        <p className="text-sm text-muted-foreground mb-1">Kunde</p>
                         {kunde ?
                       <Link
                         to={`${createPageUrl('KundenDetail')}?id=${kunde.id}`}
@@ -1173,7 +1173,7 @@ ${orgName} Team`;
                             <ExternalLink className="w-3 h-3" />
                           </Link> :
 
-                      <p className="font-medium text-gray-900">Kein Kunde verknüpft</p>
+                      <p className="font-medium text-foreground">Kein Kunde verknüpft</p>
                       }
                       </div>
                     </div>
@@ -1184,11 +1184,11 @@ ${orgName} Team`;
 
             {/* Event Location Card */}
             {(event.ort_name || event.ort_adresse) &&
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+                <CardHeader className="border-b bg-card">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-gray-700" />
+                      <MapPin className="w-5 h-5 text-foreground" />
                       <CardTitle className="text-xl font-bold">Event Location</CardTitle>
                     </div>
                     <Button
@@ -1202,8 +1202,8 @@ ${orgName} Team`;
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-6 bg-white">
-                  <p className="text-gray-700 mb-4 font-medium">{event.ort_adresse || event.ort_name}</p>
+                <CardContent className="p-6 bg-card">
+                  <p className="text-foreground mb-4 font-medium">{event.ort_adresse || event.ort_name}</p>
                   
                   {/* Google Maps Embed */}
                   <GoogleMapEmbed address={event.ort_adresse || event.ort_name} />
@@ -1212,18 +1212,18 @@ ${orgName} Team`;
             }
 
             {/* Zeitplan */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="border-b bg-card">
                 <CardTitle className="text-xl font-bold">Zeitplan</CardTitle>
               </CardHeader>
-              <CardContent className="p-6 bg-white">
+              <CardContent className="p-6 bg-card">
                 <div className="space-y-4">
                   {/* Veranstaltungszeit */}
                   <div className="flex items-start gap-3">
                     <Clock className="w-5 h-5 text-green-500 mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Veranstaltungszeit</p>
-                      <p className="font-medium text-gray-900">
+                      <p className="text-sm text-muted-foreground mb-1">Veranstaltungszeit</p>
+                      <p className="font-medium text-foreground">
                         {format(new Date(event.datum_von), 'HH:mm')} - {format(new Date(event.datum_bis), 'HH:mm')}
                       </p>
                     </div>
@@ -1234,8 +1234,8 @@ ${orgName} Team`;
                   <div className="flex items-start gap-3">
                       <Clock className="w-5 h-5 text-blue-500 mt-0.5" />
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Get-In Zeit</p>
-                        <p className="font-medium text-gray-900">{event.get_in_zeit}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Get-In Zeit</p>
+                        <p className="font-medium text-foreground">{event.get_in_zeit}</p>
                       </div>
                     </div>
                   }
@@ -1245,8 +1245,8 @@ ${orgName} Team`;
                   <div className="flex items-start gap-3">
                       <span className="text-yellow-500 text-xl mt-0.5">☀️</span>
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Soundcheck-Zeit</p>
-                        <p className="font-medium text-gray-900">{event.soundcheck_zeit}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Soundcheck-Zeit</p>
+                        <p className="font-medium text-foreground">{event.soundcheck_zeit}</p>
                       </div>
                     </div>
                   }
@@ -1256,8 +1256,8 @@ ${orgName} Team`;
                   <div className="flex items-start gap-3 pt-4 border-t">
                       <FileText className="w-5 h-5 text-purple-500 mt-0.5" />
                       <div className="flex-1">
-                        <p className="text-sm text-gray-500 mb-2">Ablaufplan</p>
-                        <div className="bg-gray-50 p-4 rounded-lg whitespace-pre-wrap text-gray-700">
+                        <p className="text-sm text-muted-foreground mb-2">Ablaufplan</p>
+                        <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap text-foreground">
                           {event.ablaufplan}
                         </div>
                       </div>
@@ -1268,20 +1268,20 @@ ${orgName} Team`;
             </Card>
 
             {/* Publikum & Ambiente */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="border-b bg-card">
                 <CardTitle className="text-xl font-bold">Publikum & Ambiente</CardTitle>
-                <p className="text-sm text-gray-500">Details über die Veranstaltung und das Publikum</p>
+                <p className="text-sm text-muted-foreground">Details über die Veranstaltung und das Publikum</p>
               </CardHeader>
-              <CardContent className="p-6 bg-white">
+              <CardContent className="p-6 bg-card">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Event-Typ */}
                   {event.event_typ &&
                   <div className="flex items-start gap-3">
                       <span className="text-purple-500 text-xl mt-0.5">🎉</span>
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Event-Typ</p>
-                        <p className="font-medium text-gray-900">{event.event_typ}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Event-Typ</p>
+                        <p className="font-medium text-foreground">{event.event_typ}</p>
                       </div>
                     </div>
                   }
@@ -1291,8 +1291,8 @@ ${orgName} Team`;
                   <div className="flex items-start gap-3">
                       <UsersIcon className="w-5 h-5 text-blue-500 mt-0.5" />
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Anzahl der Gäste</p>
-                        <p className="font-medium text-gray-900">{event.anzahl_gaeste}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Anzahl der Gäste</p>
+                        <p className="font-medium text-foreground">{event.anzahl_gaeste}</p>
                       </div>
                     </div>
                   }
@@ -1300,10 +1300,10 @@ ${orgName} Team`;
                   {/* Dresscode */}
                   {event.dresscode &&
                   <div className="flex items-start gap-3">
-                      <Shirt className="w-5 h-5 text-gray-400 mt-0.5" />
+                      <Shirt className="w-5 h-5 text-muted-foreground mt-0.5" />
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Dresscode</p>
-                        <p className="font-medium text-gray-900">{event.dresscode}</p>
+                        <p className="text-sm text-muted-foreground mb-1">Dresscode</p>
+                        <p className="font-medium text-foreground">{event.dresscode}</p>
                       </div>
                     </div>
                   }
@@ -1313,12 +1313,12 @@ ${orgName} Team`;
 
             {/* Hotel-Informationen */}
             {(event.hotel_name || event.hotel_adresse) &&
-            <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+                <CardHeader className="border-b bg-card">
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
-                      <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+                      <p className="text-sm text-muted-foreground">Unterkunft für Musiker</p>
                     </div>
                     {event.hotel_adresse &&
                   <Button
@@ -1333,15 +1333,15 @@ ${orgName} Team`;
                   }
                   </div>
                 </CardHeader>
-                <CardContent className="p-6 bg-white">
+                <CardContent className="p-6 bg-card">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Hotel-Name */}
                     {event.hotel_name &&
                   <div className="flex items-start gap-3">
-                        <Hotel className="w-5 h-5 text-gray-400 mt-0.5" />
+                        <Hotel className="w-5 h-5 text-muted-foreground mt-0.5" />
                         <div>
-                          <p className="text-sm text-gray-500 mb-1">Hotel-Name</p>
-                          <p className="font-medium text-gray-900">{event.hotel_name}</p>
+                          <p className="text-sm text-muted-foreground mb-1">Hotel-Name</p>
+                          <p className="font-medium text-foreground">{event.hotel_name}</p>
                         </div>
                       </div>
                   }
@@ -1349,12 +1349,12 @@ ${orgName} Team`;
                     {/* Hotel-Adresse */}
                     {event.hotel_adresse &&
                   <div className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                        <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
                         <div>
-                          <p className="text-sm text-gray-500 mb-1">Hotel-Adresse</p>
+                          <p className="text-sm text-muted-foreground mb-1">Hotel-Adresse</p>
                           <button
                         onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.hotel_adresse)}`, '_blank')}
-                        className="font-medium text-gray-900 hover:text-blue-600 hover:underline text-left transition-colors">
+                        className="font-medium text-foreground hover:text-blue-600 hover:underline text-left transition-colors">
                         
                             {event.hotel_adresse}
                           </button>
@@ -1367,18 +1367,18 @@ ${orgName} Team`;
             }
 
             {/* Zusätzliche Informationen */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader className="border-b bg-white">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="border-b bg-card">
                 <CardTitle className="text-xl font-bold">Zusätzliche Informationen</CardTitle>
-                <p className="text-sm text-gray-500">Weitere wichtige Details</p>
+                <p className="text-sm text-muted-foreground">Weitere wichtige Details</p>
               </CardHeader>
-              <CardContent className="p-6 bg-white space-y-4">
+              <CardContent className="p-6 bg-card space-y-4">
                 {/* Technik */}
                 <div className="flex items-start gap-3">
-                  <Settings className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <Settings className="w-5 h-5 text-muted-foreground mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500 mb-1">Technik</p>
-                    <p className="font-medium text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Technik</p>
+                    <p className="font-medium text-foreground">
                       {event.technik_hinweise || 'Nicht angegeben'}
                     </p>
                   </div>
@@ -1390,7 +1390,7 @@ ${orgName} Team`;
                     <MessageSquare className="w-5 h-5 text-blue-600 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-blue-900 mb-1">Notizen für Musiker</p>
-                      <div className="text-gray-700 whitespace-pre-wrap">
+                      <div className="text-foreground whitespace-pre-wrap">
                         {event.musiker_notizen}
                       </div>
                     </div>
@@ -1408,7 +1408,7 @@ ${orgName} Team`;
                           Nur für Manager
                         </Badge>
                       </div>
-                      <div className="text-gray-700 whitespace-pre-wrap">
+                      <div className="text-foreground whitespace-pre-wrap">
                         {event.interne_notizen}
                       </div>
                     </div>
@@ -1418,10 +1418,10 @@ ${orgName} Team`;
                 {/* Keine Notizen vorhanden */}
                 {!event.musiker_notizen && !event.interne_notizen &&
                 <div className="flex items-start gap-3">
-                    <File className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <File className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Notizen</p>
-                      <p className="font-medium text-gray-900">Nicht angegeben</p>
+                      <p className="text-sm text-muted-foreground mb-1">Notizen</p>
+                      <p className="font-medium text-foreground">Nicht angegeben</p>
                     </div>
                   </div>
                 }
@@ -1499,7 +1499,7 @@ ${orgName} Team`;
                   <div className="text-center py-12">
                           <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Noch keine Musiker hinzugefügt</h3>
-                          <p className="text-gray-500 mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
+                          <p className="text-muted-foreground mb-4">Füge Musiker hinzu, um sie für dieses Event anzufragen</p>
                           <Button
                       onClick={() => setShowMusikerForm(true)}
                       className="text-white"
@@ -1513,7 +1513,7 @@ ${orgName} Team`;
                   <div className="text-center py-12">
                           <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Musiker</h3>
-                          <p className="text-gray-500">Es sind noch keine anderen Musiker für dieses Event bestätigt.</p>
+                          <p className="text-muted-foreground">Es sind noch keine anderen Musiker für dieses Event bestätigt.</p>
                         </div>
 
                   }
@@ -1544,7 +1544,7 @@ ${orgName} Team`;
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="text-xl font-bold">Dokumente</CardTitle>
-                    <p className="text-sm text-gray-500 mt-1">Wegebeschreibungen, Abläufe und andere wichtige Dateien</p>
+                    <p className="text-sm text-muted-foreground mt-1">Wegebeschreibungen, Abläufe und andere wichtige Dateien</p>
                   </div>
                   {isManager &&
                   <div>
@@ -1584,13 +1584,13 @@ ${orgName} Team`;
                     {dateien.map((datei) =>
                   <div
                     key={datei.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    className="flex items-center justify-between p-4 bg-muted rounded-lg hover:bg-muted transition-colors">
                     
                         <div className="flex items-center gap-4">
                           <span className="text-2xl">{getFileIcon(datei.file_type)}</span>
                           <div>
-                            <p className="font-medium text-gray-900">{datei.file_name}</p>
-                            <p className="text-sm text-gray-500">
+                            <p className="font-medium text-foreground">{datei.file_name}</p>
+                            <p className="text-sm text-muted-foreground">
                               {formatFileSize(datei.file_size)} • {format(new Date(datei.created_date), 'dd.MM.yyyy', { locale: de })}
                             </p>
                           </div>
@@ -1623,7 +1623,7 @@ ${orgName} Team`;
                 <div className="text-center py-12">
                     <FileIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Dokumente</h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-muted-foreground mb-4">
                       {isManager ?
                     "Lade Wegebeschreibungen, Abläufe oder andere wichtige Dateien hoch" :
                     "Es wurden noch keine Dokumente für dieses Event hochgeladen"
@@ -1661,7 +1661,7 @@ ${orgName} Team`;
             <Card className="border-none shadow-lg">
               <CardHeader className="border-b">
                 <CardTitle className="text-xl font-bold">Aktivitätsverlauf</CardTitle>
-                <p className="text-sm text-gray-500 mt-1">Alle Änderungen und Aktivitäten zu diesem Event</p>
+                <p className="text-sm text-muted-foreground mt-1">Alle Änderungen und Aktivitäten zu diesem Event</p>
               </CardHeader>
               <CardContent className="p-6">
                 {aktivitaeten.length > 0 ?
@@ -1696,12 +1696,12 @@ ${orgName} Team`;
                     return (
                       <div
                         key={aktivitaet.id}
-                        className={`flex items-start gap-4 p-4 rounded-lg border ${colorMap[aktivitaet.typ] || 'bg-gray-50 border-gray-200'}`}>
+                        className={`flex items-start gap-4 p-4 rounded-lg border ${colorMap[aktivitaet.typ] || 'bg-muted border-border'}`}>
                         
                           <span className="text-2xl">{iconMap[aktivitaet.typ] || '📌'}</span>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900">{aktivitaet.beschreibung}</p>
-                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                            <p className="font-medium text-foreground">{aktivitaet.beschreibung}</p>
+                            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                               <span>{aktivitaet.benutzer_name}</span>
                               <span>•</span>
                               <span>{format(new Date(aktivitaet.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</span>
@@ -1715,7 +1715,7 @@ ${orgName} Team`;
                 <div className="text-center py-12">
                     <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
-                    <p className="text-gray-500">Änderungen am Event werden hier protokolliert</p>
+                    <p className="text-muted-foreground">Änderungen am Event werden hier protokolliert</p>
                   </div>
                 }
               </CardContent>

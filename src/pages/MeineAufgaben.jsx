@@ -85,12 +85,12 @@ export default function MeineAufgabenPage() {
 
   const priorityColors = {
     niedrig: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-300" },
-    normal: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-300" },
+    normal: { bg: "bg-muted", text: "text-foreground", border: "border-border" },
     hoch: { bg: "bg-red-100", text: "text-red-800", border: "border-red-300" }
   };
 
   const statusIcons = {
-    offen: <Circle className="w-5 h-5 text-gray-400" />,
+    offen: <Circle className="w-5 h-5 text-muted-foreground" />,
     in_arbeit: <Clock className="w-5 h-5 text-blue-500" />,
     erledigt: <CheckCircle2 className="w-5 h-5 text-green-500" />
   };
@@ -173,7 +173,7 @@ export default function MeineAufgabenPage() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-4 mb-2">
-                <h3 className={`font-semibold text-lg ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                <h3 className={`font-semibold text-lg ${aufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                   {aufgabe.titel}
                 </h3>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -185,7 +185,7 @@ export default function MeineAufgabenPage() {
               </div>
 
               {aufgabe.beschreibung && (
-                <p className="text-gray-600 text-sm mb-3">{aufgabe.beschreibung}</p>
+                <p className="text-muted-foreground text-sm mb-3">{aufgabe.beschreibung}</p>
               )}
 
               {relatedInfo && (
@@ -222,7 +222,7 @@ export default function MeineAufgabenPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Aufgaben...</p>
+        <p className="text-muted-foreground">Lade Aufgaben...</p>
       </div>
     );
   }
@@ -231,8 +231,8 @@ export default function MeineAufgabenPage() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Meine Aufgaben</h1>
-          <p className="text-gray-600">Verwalte deine zugewiesenen Aufgaben</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Meine Aufgaben</h1>
+          <p className="text-muted-foreground">Verwalte deine zugewiesenen Aufgaben</p>
         </div>
 
         {/* Statistik-Kacheln */}
@@ -240,42 +240,42 @@ export default function MeineAufgabenPage() {
           <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Offen</CardTitle>
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Circle className="w-5 h-5 text-gray-600" />
+                <CardTitle className="text-sm font-medium text-muted-foreground">Offen</CardTitle>
+                <div className="p-2 bg-muted rounded-lg">
+                  <Circle className="w-5 h-5 text-muted-foreground" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{offeneAufgaben.length}</p>
+              <p className="text-3xl font-bold text-foreground">{offeneAufgaben.length}</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">In Arbeit</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">In Arbeit</CardTitle>
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Clock className="w-5 h-5 text-blue-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{inArbeitAufgaben.length}</p>
+              <p className="text-3xl font-bold text-foreground">{inArbeitAufgaben.length}</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Erledigt</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Erledigt</CardTitle>
                 <div className="p-2 bg-green-100 rounded-lg">
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{erledigteAufgaben.length}</p>
+              <p className="text-3xl font-bold text-foreground">{erledigteAufgaben.length}</p>
             </CardContent>
           </Card>
         </div>
@@ -284,11 +284,11 @@ export default function MeineAufgabenPage() {
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-muted-foreground" />
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="flex h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-border bg-card px-3 py-2 text-sm"
               >
                 <option value="alle">Alle Prioritäten</option>
                 <option value="hoch">Hoch</option>
@@ -301,7 +301,7 @@ export default function MeineAufgabenPage() {
 
         {/* Aufgaben Tabs */}
         <Tabs defaultValue="offen" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger value="offen">
               Offen ({offeneAufgaben.length})
             </TabsTrigger>
@@ -323,7 +323,7 @@ export default function MeineAufgabenPage() {
                 <CardContent className="p-12 text-center">
                   <CheckSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine offenen Aufgaben</h3>
-                  <p className="text-gray-500">Super! Du hast keine offenen Aufgaben.</p>
+                  <p className="text-muted-foreground">Super! Du hast keine offenen Aufgaben.</p>
                 </CardContent>
               </Card>
             )}
@@ -339,7 +339,7 @@ export default function MeineAufgabenPage() {
                 <CardContent className="p-12 text-center">
                   <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine Aufgaben in Arbeit</h3>
-                  <p className="text-gray-500">Starte mit einer offenen Aufgabe!</p>
+                  <p className="text-muted-foreground">Starte mit einer offenen Aufgabe!</p>
                 </CardContent>
               </Card>
             )}
@@ -355,7 +355,7 @@ export default function MeineAufgabenPage() {
                 <CardContent className="p-12 text-center">
                   <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine erledigten Aufgaben</h3>
-                  <p className="text-gray-500">Erledige deine ersten Aufgaben!</p>
+                  <p className="text-muted-foreground">Erledige deine ersten Aufgaben!</p>
                 </CardContent>
               </Card>
             )}

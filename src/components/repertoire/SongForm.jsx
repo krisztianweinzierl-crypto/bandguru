@@ -241,9 +241,9 @@ export default function SongForm({ song, onSubmit, onCancel }) {
           {/* Noten-Upload */}
           <div className="space-y-3">
             <Label>Noten / Dokumente</Label>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-4">
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
                   {uploadingFile ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -260,7 +260,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                     disabled={uploadingFile}
                   />
                 </label>
-                <span className="text-sm text-gray-500">PDF oder Bilder, max. 10MB</span>
+                <span className="text-sm text-muted-foreground">PDF oder Bilder, max. 10MB</span>
               </div>
               
               {/* Hochgeladene Dateien */}
@@ -269,7 +269,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                   {formData.noten_dateien.map((datei, index) => (
                     <div 
                       key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
                     >
                       <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-blue-600" />
@@ -301,9 +301,9 @@ export default function SongForm({ song, onSubmit, onCancel }) {
           {/* Audio-Upload */}
           <div className="space-y-3">
             <Label>Audio-Datei (MP3)</Label>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-4">
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-gray-200 rounded-lg cursor-pointer transition-colors">
                   {uploadingAudio ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
@@ -320,16 +320,16 @@ export default function SongForm({ song, onSubmit, onCancel }) {
                     disabled={uploadingAudio}
                   />
                 </label>
-                <span className="text-sm text-gray-500">Max. 15MB</span>
+                <span className="text-sm text-muted-foreground">Max. 15MB</span>
               </div>
 
               {formData.audio_datei && (
                 <div className="mt-4">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center gap-3 flex-1">
                       <FileText className="w-5 h-5 text-green-600" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {formData.audio_datei.name}
                         </p>
                         <audio 

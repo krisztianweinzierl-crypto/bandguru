@@ -442,7 +442,7 @@ export default function LeadDetailPage() {
     rechnung: "bg-green-100 text-green-800",
     technische_unterlagen: "bg-orange-100 text-orange-800",
     bilder: "bg-pink-100 text-pink-800",
-    sonstiges: "bg-gray-100 text-gray-800"
+    sonstiges: "bg-muted text-foreground"
   };
 
   // Modified handleStatusChange to match new updateLeadMutation signature
@@ -742,7 +742,7 @@ export default function LeadDetailPage() {
   if (leadLoading || !lead) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Lead...</p>
+        <p className="text-muted-foreground">Lade Lead...</p>
       </div>);
 
   }
@@ -751,7 +751,7 @@ export default function LeadDetailPage() {
   if (userDataLoading) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Benutzerdaten und Berechtigungen...</p>
+        <p className="text-muted-foreground">Lade Benutzerdaten und Berechtigungen...</p>
       </div>);
 
   }
@@ -764,7 +764,7 @@ export default function LeadDetailPage() {
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf Leads</h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Nur Band Manager haben Zugriff auf Lead-Verwaltung.
             </p>
             <Button onClick={() => navigate(createPageUrl('Dashboard'))}>
@@ -788,7 +788,7 @@ export default function LeadDetailPage() {
   }, {});
 
   const statusColors = {
-    neu: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-200" },
+    neu: { bg: "bg-muted", text: "text-foreground", border: "border-border" },
     kontaktiert: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-200" },
     qualifiziert: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-200" },
     angebot: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-200" },
@@ -808,13 +808,13 @@ export default function LeadDetailPage() {
   };
 
   const priorityColors = {
-    niedrig: "text-gray-400",
+    niedrig: "text-muted-foreground",
     normal: "text-blue-500",
     hoch: "text-red-500"
   };
 
   const priorityBadges = {
-    niedrig: "bg-gray-100 text-gray-800",
+    niedrig: "bg-muted text-foreground",
     normal: "bg-blue-100 text-blue-800",
     hoch: "bg-red-100 text-red-800"
   };
@@ -833,9 +833,9 @@ export default function LeadDetailPage() {
     const assignedMitgliedForTask = mitglieder.find((m) => m.user_id === aufgabe.zugewiesen_an);
 
     return (
-      <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+      <div className={`${level > 0 ? 'ml-8 border-l-2 border-border pl-4' : ''}`}>
         <div
-          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors ${
           aufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
           }>
 
@@ -843,7 +843,7 @@ export default function LeadDetailPage() {
           {hasUnteraufgaben ?
           <button
             onClick={() => toggleExpand(aufgabe.id)}
-            className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all">
+            className="mt-1 text-muted-foreground hover:text-muted-foreground hover:bg-muted rounded p-0.5 transition-all">
 
               <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
             </button> :
@@ -867,23 +867,23 @@ export default function LeadDetailPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                   {aufgabe.titel}
                   {hasUnteraufgaben &&
-                  <span className="ml-2 text-xs text-gray-500">
+                  <span className="ml-2 text-xs text-muted-foreground">
                       ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                     </span>
                   }
                 </p>
                 {aufgabe.beschreibung &&
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
                 }
 
                 {/* Meta Info */}
                 <div className="flex flex-wrap items-center gap-3 mt-2">
                   {aufgabe.faellig_am &&
                   <div className={`flex items-center gap-1 text-xs ${
-                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                  isOverdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}`
                   }>
                       <Calendar className="w-3 h-3" />
                       {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
@@ -929,10 +929,10 @@ export default function LeadDetailPage() {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowDropdownId(null)} />
 
-                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                       <button
                       onClick={() => handleEditAufgabe(aufgabe)}
-                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm">
+                      className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors text-left text-sm">
 
                         <Edit className="w-4 h-4" />
                         Bearbeiten
@@ -969,7 +969,7 @@ export default function LeadDetailPage() {
       <AlertDialog />
       <div className="min-h-screen bg-background overflow-x-hidden">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-card border-b border-border">
           <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
             <div className="flex items-center gap-3 mb-4">
               <Button
@@ -985,9 +985,9 @@ export default function LeadDetailPage() {
 
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{lead.titel}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">{lead.titel}</h1>
                 {lead.firmenname &&
-                <p className="text-lg text-gray-600">{lead.firmenname}</p>
+                <p className="text-lg text-muted-foreground">{lead.firmenname}</p>
                 }
               </div>
 
@@ -1036,13 +1036,13 @@ export default function LeadDetailPage() {
                       <Activity className="w-5 h-5 text-yellow-600" />
                       <div className="flex-1">
                         <CardTitle className="text-sm font-semibold">Lead Fokus</CardTitle>
-                        <p className="text-xs text-gray-600">Schnellübersicht</p>
+                        <p className="text-xs text-muted-foreground">Schnellübersicht</p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label className="text-xs text-gray-600 mb-2 block">Status</Label>
+                      <Label className="text-xs text-muted-foreground mb-2 block">Status</Label>
                       <Select value={lead.status} onValueChange={handleStatusChange}>
                         <SelectTrigger className={`${statusStyle.bg} ${statusStyle.text} border-none`}>
                           <SelectValue />
@@ -1069,10 +1069,10 @@ export default function LeadDetailPage() {
                   <CardContent className="p-6 space-y-4">
                     {lead.event_datum &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1 uppercase">Event-Datum</p>
+                        <p className="text-xs text-muted-foreground mb-1 uppercase">Event-Datum</p>
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <p className="font-semibold text-gray-900">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <p className="font-semibold text-foreground">
                             {format(new Date(lead.event_datum), 'dd.MM.yyyy', { locale: de })}
                           </p>
                         </div>
@@ -1081,8 +1081,8 @@ export default function LeadDetailPage() {
 
                     {lead.event_ort &&
                     <div>
-                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                          <MapPin className="w-4 h-4 text-gray-400" />
+                        <div className="flex items-center gap-2 text-sm text-foreground">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
                           <span>{lead.event_ort}</span>
                         </div>
                       </div>
@@ -1096,9 +1096,9 @@ export default function LeadDetailPage() {
 
                     {lead.kontaktperson &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">Kontaktperson</p>
+                        <p className="text-xs text-muted-foreground mb-1">Kontaktperson</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <User className="w-4 h-4 text-gray-400" />
+                          <User className="w-4 h-4 text-muted-foreground" />
                           {(() => {
                             const kunde = lead.kunde_id
                               ? kunden.find((k) => k.id === lead.kunde_id)
@@ -1119,9 +1119,9 @@ export default function LeadDetailPage() {
 
                     {lead.email &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">E-Mail</p>
+                        <p className="text-xs text-muted-foreground mb-1">E-Mail</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-4 h-4 text-gray-400" />
+                          <Mail className="w-4 h-4 text-muted-foreground" />
                           <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline truncate">
                             {lead.email}
                           </a>
@@ -1131,10 +1131,10 @@ export default function LeadDetailPage() {
 
                     {lead.telefon &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">Telefon</p>
+                        <p className="text-xs text-muted-foreground mb-1">Telefon</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          <a href={`tel:${lead.telefon}`} className="text-gray-900 hover:underline">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <a href={`tel:${lead.telefon}`} className="text-foreground hover:underline">
                             {lead.telefon}
                           </a>
                         </div>
@@ -1143,9 +1143,9 @@ export default function LeadDetailPage() {
 
                     {lead.firmenname &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">Unternehmen</p>
+                        <p className="text-xs text-muted-foreground mb-1">Unternehmen</p>
                         <div className="flex items-center gap-2 text-sm">
-                          <Building2 className="w-4 h-4 text-gray-400" />
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
                           {(() => {
                             const kunde = kunden.find((k) =>
                               k.firmenname?.toLowerCase().trim() === lead.firmenname?.toLowerCase().trim() ||
@@ -1162,7 +1162,7 @@ export default function LeadDetailPage() {
                     }
 
                     <div className="pt-4 border-t">
-                      <p className="text-xs text-gray-500 mb-1">Status</p>
+                      <p className="text-xs text-muted-foreground mb-1">Status</p>
                       <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
                         {statusLabels[lead.status]}
                       </Badge>
@@ -1170,7 +1170,7 @@ export default function LeadDetailPage() {
 
                     {lead.erwarteter_umsatz &&
                     <div className="bg-green-50 rounded-lg p-4">
-                        <p className="text-xs text-gray-500 mb-1">Erwarteter Umsatz</p>
+                        <p className="text-xs text-muted-foreground mb-1">Erwarteter Umsatz</p>
                         <div className="flex items-center gap-2">
                           <Euro className="w-5 h-5 text-green-600" />
                           <span className="text-xl font-bold text-green-600">
@@ -1182,14 +1182,14 @@ export default function LeadDetailPage() {
 
                     {lead.quelle &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">Quelle</p>
+                        <p className="text-xs text-muted-foreground mb-1">Quelle</p>
                         <p className="text-sm font-medium">{lead.quelle}</p>
                       </div>
                     }
 
                     {assignedMitglied &&
                     <div>
-                        <p className="text-xs text-gray-500 mb-1">Zugewiesen an</p>
+                        <p className="text-xs text-muted-foreground mb-1">Zugewiesen an</p>
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {assignedMitglied.name?.[0]}
@@ -1208,10 +1208,10 @@ export default function LeadDetailPage() {
                       <CardTitle className="text-sm font-bold">Letzte Notiz</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4">
-                      <div className="text-xs text-gray-500 mb-2">
+                      <div className="text-xs text-muted-foreground mb-2">
                         {format(new Date(notizen[0].created_date), 'dd.MM.yyyy • HH:mm', { locale: de })}
                       </div>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{notizen[0].inhalt}</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{notizen[0].inhalt}</p>
                     </CardContent>
                   </Card>
                 }
@@ -1236,12 +1236,12 @@ export default function LeadDetailPage() {
                         Angebot erstellen
                       </Button>
                     </div>
-                    <p className="text-sm text-gray-500">Verknüpfte Angebote für diesen Lead</p>
+                    <p className="text-sm text-muted-foreground">Verknüpfte Angebote für diesen Lead</p>
                   </CardHeader>
                   <CardContent className="p-12 text-center">
                     <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <h3 className="text-lg font-semibold mb-2">Noch keine Angebote</h3>
-                    <p className="text-gray-500 mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
+                    <p className="text-muted-foreground mb-4">Erstellen Sie ein Angebot für diesen Lead</p>
                     <Button
                       variant="outline"
                       size="sm"
@@ -1255,7 +1255,7 @@ export default function LeadDetailPage() {
 
                 {/* Tabs */}
                 <Tabs defaultValue="notizen" className="space-y-6">
-                  <TabsList className="bg-white border shadow-sm">
+                  <TabsList className="bg-card border shadow-sm">
                     <TabsTrigger value="notizen">Notizen</TabsTrigger>
                     <TabsTrigger value="aufgaben">
                       Aufgaben
@@ -1311,16 +1311,16 @@ export default function LeadDetailPage() {
                         <div className="space-y-4">
                             {notizen.map((notiz) =>
                           <div key={notiz.id} className="bg-yellow-50 rounded-lg p-4 border-l-4 border-l-yellow-400">
-                                <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
+                                <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
                                   <Clock className="w-3 h-3" />
                                   {format(new Date(notiz.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}
                                 </div>
-                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{notiz.inhalt}</p>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">{notiz.inhalt}</p>
                               </div>
                           )}
                           </div> :
 
-                        <p className="text-center text-gray-500 py-8">Noch keine Notizen vorhanden</p>
+                        <p className="text-center text-muted-foreground py-8">Noch keine Notizen vorhanden</p>
                         }
                       </CardContent>
                     </Card>
@@ -1344,13 +1344,13 @@ export default function LeadDetailPage() {
                             Neue Aufgabe
                           </Button>
                         </div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {offeneAufgaben} offen • {erledigtAufgaben} erledigt
                         </p>
                       </CardHeader>
 
                       {showAufgabeForm &&
-                      <CardContent className="p-6 border-b bg-gray-50">
+                      <CardContent className="p-6 border-b bg-muted">
                           <AufgabeForm
                           aufgabe={editingAufgabe}
                           onSubmit={handleAufgabeSubmit}
@@ -1376,7 +1376,7 @@ export default function LeadDetailPage() {
                         <div className="p-12 text-center">
                             <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                             <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
-                            <p className="text-gray-500 mb-4">
+                            <p className="text-muted-foreground mb-4">
                               Erstelle die erste Aufgabe für diesen Lead
                             </p>
                             <Button
@@ -1429,7 +1429,7 @@ export default function LeadDetailPage() {
                             </div>
                           </div>
 
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
                             <input
                               type="file"
                               id="file-upload"
@@ -1441,11 +1441,11 @@ export default function LeadDetailPage() {
                               htmlFor="file-upload"
                               className="cursor-pointer flex flex-col items-center">
 
-                              <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                              <p className="text-sm font-medium text-gray-700 mb-2">
+                              <Upload className="w-12 h-12 text-muted-foreground mb-4" />
+                              <p className="text-sm font-medium text-foreground mb-2">
                                 {uploadingFile ? "Lädt hoch..." : "Klicke zum Hochladen oder ziehe Dateien hierher"}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 PDF, Word, Excel, Bilder und mehr (max. 10MB)
                               </p>
                             </label>
@@ -1462,22 +1462,22 @@ export default function LeadDetailPage() {
                         <CardContent className="p-0">
                           <div className="divide-y">
                             {dateien.map((datei) =>
-                          <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                          <div key={datei.id} className="group flex items-center gap-4 p-4 hover:bg-muted transition-colors">
                                 <div className="text-3xl">{getFileIcon(datei.file_type)}</div>
 
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
+                                    <p className="font-medium text-foreground truncate">{datei.file_name}</p>
                                     <Badge className={`${kategorieBadges[datei.kategorie]} text-xs`}>
                                       {kategorieLabels[datei.kategorie]}
                                     </Badge>
                                   </div>
 
                                   {datei.beschreibung &&
-                              <p className="text-sm text-gray-500 mt-1">{datei.beschreibung}</p>
+                              <p className="text-sm text-muted-foreground mt-1">{datei.beschreibung}</p>
                               }
 
-                                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                  <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span>{formatFileSize(datei.file_size)}</span>
                                     <span>•</span>
                                     <span>{format(new Date(datei.created_date), 'dd.MM.yyyy, HH:mm', { locale: de })}</span>
@@ -1489,19 +1489,19 @@ export default function LeadDetailPage() {
                                 href={datei.file_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-2 hover:bg-muted rounded-lg transition-colors"
                                 title="Öffnen">
 
-                                    <Eye className="w-4 h-4 text-gray-600" />
+                                    <Eye className="w-4 h-4 text-muted-foreground" />
                                   </a>
 
                                   <a
                                 href={datei.file_url}
                                 download={datei.file_name}
-                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                className="p-2 hover:bg-muted rounded-lg transition-colors"
                                 title="Herunterladen">
 
-                                    <Download className="w-4 h-4 text-gray-600" />
+                                    <Download className="w-4 h-4 text-muted-foreground" />
                                   </a>
 
                                   <div className="relative">
@@ -1520,7 +1520,7 @@ export default function LeadDetailPage() {
                                     className="fixed inset-0 z-40"
                                     onClick={() => setShowFileDropdownId(null)} />
 
-                                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                                        <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                                           <button
                                       onClick={() => handleDeleteFile(datei)}
                                       className="w-full flex items-center gap-3 px-4 py-2 hover:bg-red-50 transition-colors text-left text-sm text-red-600">
@@ -1545,7 +1545,7 @@ export default function LeadDetailPage() {
                         <CardContent className="p-12 text-center">
                           <File className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Noch keine Dateien</h3>
-                          <p className="text-gray-500">Lade die erste Datei für diesen Lead hoch</p>
+                          <p className="text-muted-foreground">Lade die erste Datei für diesen Lead hoch</p>
                         </CardContent>
                       </Card>
                     }
@@ -1587,7 +1587,7 @@ export default function LeadDetailPage() {
                             <CardContent className="p-0">
                               <div className="divide-y">
                                 {emailLogs.map((email) => (
-                                  <div key={email.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                  <div key={email.id} className="p-4 hover:bg-muted transition-colors">
                                     <div className="flex items-start justify-between mb-2">
                                       <div className="flex items-center gap-3">
                                         <div className={`p-2 rounded-lg ${
@@ -1598,8 +1598,8 @@ export default function LeadDetailPage() {
                                           }`} />
                                         </div>
                                         <div>
-                                          <h4 className="font-semibold text-gray-900">{email.betreff}</h4>
-                                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                          <h4 className="font-semibold text-foreground">{email.betreff}</h4>
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                             <span>An: {email.empfaenger_email}</span>
                                             <span>•</span>
                                             <span>Von: {email.gesendet_von_name}</span>
@@ -1624,7 +1624,7 @@ export default function LeadDetailPage() {
                                     )}
 
                                     <div 
-                                      className="text-sm text-gray-700 mt-3 line-clamp-3"
+                                      className="text-sm text-foreground mt-3 line-clamp-3"
                                       {...safeHtml(email.inhalt)}
                                     />
                                   </div>
@@ -1639,7 +1639,7 @@ export default function LeadDetailPage() {
                             <CardContent className="p-12 text-center">
                               <Mail className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                               <h3 className="text-lg font-semibold mb-2">Noch keine E-Mails versendet</h3>
-                              <p className="text-gray-500 mb-4">Sende die erste E-Mail an diesen Lead</p>
+                              <p className="text-muted-foreground mb-4">Sende die erste E-Mail an diesen Lead</p>
                               <Button 
                                 onClick={() => setShowEmailForm(true)}
                                 style={{ backgroundColor: '#FF6A4D' }}
@@ -1666,10 +1666,10 @@ export default function LeadDetailPage() {
                     <Card className="border-none shadow-lg">
                       <CardHeader className="border-b">
                         <div className="flex items-center gap-2">
-                          <Activity className="w-5 h-5 text-gray-600" />
+                          <Activity className="w-5 h-5 text-muted-foreground" />
                           <CardTitle>Aktivitätenverlauf</CardTitle>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Chronologische Übersicht aller Aktivitäten zu diesem Lead
                         </p>
                       </CardHeader>
@@ -1691,12 +1691,12 @@ export default function LeadDetailPage() {
                                 {/* Content */}
                                 <div className="flex-1 pb-8">
                                   <div className="flex items-start justify-between gap-4 mb-1">
-                                    <h4 className="font-semibold text-gray-900">{item.title}</h4>
-                                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                                    <h4 className="font-semibold text-foreground">{item.title}</h4>
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">
                                       {format(new Date(item.date), 'dd.MM.yyyy, HH:mm', { locale: de })}
                                     </span>
                                   </div>
-                                  <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+                                  <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
                                   {item.priority && item.priority !== 'normal' && (
                                     <Badge className={`${priorityBadges[item.priority]} text-xs mt-2`}>
                                       {item.priority === 'hoch' && <AlertCircle className="w-3 h-3 mr-1" />}
@@ -1711,7 +1711,7 @@ export default function LeadDetailPage() {
                           <div className="text-center py-12">
                             <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                             <h3 className="text-lg font-semibold mb-2">Noch keine Aktivitäten</h3>
-                            <p className="text-gray-500">
+                            <p className="text-muted-foreground">
                               Der Aktivitätenverlauf wird automatisch erstellt, sobald Notizen, Aufgaben oder E-Mails hinzugefügt werden.
                             </p>
                           </div>

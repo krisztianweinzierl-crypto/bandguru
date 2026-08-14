@@ -103,7 +103,7 @@ export default function MeineEventsPage() {
   });
 
   const eventStatusColors = {
-        entwurf: { bg: "bg-gray-100", text: "text-gray-700", label: "Entwurf" },
+        entwurf: { bg: "bg-muted", text: "text-foreground", label: "Entwurf" },
         angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Angefragt" },
         bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
         durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
@@ -123,24 +123,24 @@ export default function MeineEventsPage() {
             onClick={() => handleNavigateToEvent(event.id)}
             className={`group flex items-center gap-4 p-4 border-l-4 ${
               isPast ? 'border-l-gray-400' : 'border-l-green-500'
-            } bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg shadow-sm ${
+            } bg-card hover:bg-muted transition-all cursor-pointer rounded-lg shadow-sm ${
               isPast ? 'opacity-75' : ''
             }`}
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+                <h3 className="font-semibold text-lg text-foreground truncate">{event.titel}</h3>
                 <Badge className={`${eventStatus.bg} ${eventStatus.text} flex-shrink-0`}>
                   {eventStatus.label}
                 </Badge>
                 {isPast && (
-                  <Badge variant="outline" className="text-gray-600 flex-shrink-0">
+                  <Badge variant="outline" className="text-muted-foreground flex-shrink-0">
                     Vergangen
                   </Badge>
                 )}
           </div>
           
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
               <span>{format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}</span>
@@ -170,7 +170,7 @@ export default function MeineEventsPage() {
           </div>
         </div>
 
-        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-muted-foreground flex-shrink-0" />
       </div>
     );
   };
@@ -182,7 +182,7 @@ export default function MeineEventsPage() {
           <CardContent className="p-8 text-center">
             <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
             <h3 className="text-lg font-semibold mb-2">Lade Events...</h3>
-            <p className="text-sm text-gray-500">Bitte warten</p>
+            <p className="text-sm text-muted-foreground">Bitte warten</p>
           </CardContent>
         </Card>
       </div>
@@ -196,7 +196,7 @@ export default function MeineEventsPage() {
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Kein Musiker-Profil gefunden</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Bitte kontaktiere deinen Band Manager, um ein Musiker-Profil zu erstellen.
             </p>
           </CardContent>
@@ -209,16 +209,16 @@ export default function MeineEventsPage() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             Meine Events 🎵
           </h1>
-          <p className="text-gray-600">Alle Events, bei denen du zugesagt hast</p>
+          <p className="text-muted-foreground">Alle Events, bei denen du zugesagt hast</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Kommende Events</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Kommende Events</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold text-green-600">{upcomingEvents.length}</p>
@@ -227,7 +227,7 @@ export default function MeineEventsPage() {
 
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Gesamt zugesagt</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Gesamt zugesagt</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold text-blue-600">{eventMusiker.length}</p>
@@ -236,7 +236,7 @@ export default function MeineEventsPage() {
 
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Vergangene Events</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Vergangene Events</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold text-purple-600">{pastEvents.length}</p>
@@ -245,7 +245,7 @@ export default function MeineEventsPage() {
         </div>
 
         <Tabs defaultValue="upcoming" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger value="upcoming">
               Kommend ({upcomingEvents.length})
             </TabsTrigger>
@@ -264,7 +264,7 @@ export default function MeineEventsPage() {
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine kommenden Events</h3>
-                  <p className="text-gray-500">Du hast aktuell keine bestätigten Events</p>
+                  <p className="text-muted-foreground">Du hast aktuell keine bestätigten Events</p>
                 </CardContent>
               </Card>
             )}
@@ -280,7 +280,7 @@ export default function MeineEventsPage() {
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine vergangenen Events</h3>
-                  <p className="text-gray-500">Du hast noch keine abgeschlossenen Events</p>
+                  <p className="text-muted-foreground">Du hast noch keine abgeschlossenen Events</p>
                 </CardContent>
               </Card>
             )}

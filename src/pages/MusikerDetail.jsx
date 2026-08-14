@@ -114,7 +114,7 @@ ${orgName} Team`;
   if (isLoading || !musiker) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Musiker...</p>
+        <p className="text-muted-foreground">Lade Musiker...</p>
       </div>);
 
   }
@@ -142,8 +142,8 @@ ${orgName} Team`;
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Musiker bearbeiten</h1>
-            <p className="text-gray-600">{musiker.name}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Musiker bearbeiten</h1>
+            <p className="text-muted-foreground">{musiker.name}</p>
           </div>
           <MusikerForm
             musiker={musiker}
@@ -158,7 +158,7 @@ ${orgName} Team`;
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
           {/* Back Button */}
           <div className="flex items-center gap-3 mb-4">
@@ -172,7 +172,7 @@ ${orgName} Team`;
               Zurück
             </Button>
             {!musiker.aktiv &&
-            <Badge variant="outline" className="bg-gray-100">
+            <Badge variant="outline" className="bg-muted">
                 Inaktiv
               </Badge>
             }
@@ -195,7 +195,7 @@ ${orgName} Team`;
                 )}
               </Avatar>
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{musiker.name}</h1>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">{musiker.name}</h1>
                 {musiker.instrumente && musiker.instrumente.length > 0 &&
                 <div className="flex flex-wrap gap-2 mb-3">
                     {musiker.instrumente.map((instrument, i) =>
@@ -206,7 +206,7 @@ ${orgName} Team`;
                   </div>
                 }
                 {musiker.genre && musiker.genre.length > 0 &&
-                <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-muted-foreground">
                     <Music className="w-4 h-4" />
                     <span className="text-sm">{musiker.genre.join(', ')}</span>
                   </div>
@@ -267,9 +267,9 @@ ${orgName} Team`;
               <CardContent className="p-6 space-y-4">
                 {musiker.email &&
                 <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">E-Mail</p>
+                      <p className="text-sm text-muted-foreground mb-1">E-Mail</p>
                       <a href={`mailto:${musiker.email}`} className="font-medium text-blue-600 hover:underline">
                         {musiker.email}
                       </a>
@@ -279,10 +279,10 @@ ${orgName} Team`;
 
                 {musiker.telefon &&
                 <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Phone className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Telefon</p>
-                      <a href={`tel:${musiker.telefon}`} className="font-medium text-gray-900">
+                      <p className="text-sm text-muted-foreground mb-1">Telefon</p>
+                      <a href={`tel:${musiker.telefon}`} className="font-medium text-foreground">
                         {musiker.telefon}
                       </a>
                     </div>
@@ -291,10 +291,10 @@ ${orgName} Team`;
 
                 {musiker.adresse &&
                 <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Adresse</p>
-                      <p className="font-medium text-gray-900">{musiker.adresse}</p>
+                      <p className="text-sm text-muted-foreground mb-1">Adresse</p>
+                      <p className="font-medium text-foreground">{musiker.adresse}</p>
                     </div>
                   </div>
                 }
@@ -303,8 +303,8 @@ ${orgName} Team`;
                 <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">Notfallkontakt</p>
-                      <p className="font-medium text-gray-900">{musiker.notfallkontakt}</p>
+                      <p className="text-sm text-muted-foreground mb-1">Notfallkontakt</p>
+                      <p className="font-medium text-foreground">{musiker.notfallkontakt}</p>
                     </div>
                   </div>
                 }
@@ -319,9 +319,9 @@ ${orgName} Team`;
               <CardContent className="p-6 space-y-4">
                 {musiker.sprachen && musiker.sprachen.length > 0 &&
                 <div className="flex items-start gap-3">
-                    <Languages className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Languages className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-2">Sprachen</p>
+                      <p className="text-sm text-muted-foreground mb-2">Sprachen</p>
                       <div className="flex flex-wrap gap-2">
                         {musiker.sprachen.map((sprache, i) =>
                       <Badge key={i} variant="outline" className="text-sm">
@@ -335,9 +335,9 @@ ${orgName} Team`;
 
                 {musiker.genre && musiker.genre.length > 0 &&
                 <div className="flex items-start gap-3">
-                    <Music className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Music className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-500 mb-2">Genres</p>
+                      <p className="text-sm text-muted-foreground mb-2">Genres</p>
                       <div className="flex flex-wrap gap-2">
                         {musiker.genre.map((g, i) =>
                       <Badge key={i} variant="outline" className="text-sm">
@@ -358,7 +358,7 @@ ${orgName} Team`;
                   <CardTitle className="text-xl font-bold">Buchungsbedingungen</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <p className="text-gray-700 whitespace-pre-wrap">{musiker.buchungsbedingungen}</p>
+                  <p className="text-foreground whitespace-pre-wrap">{musiker.buchungsbedingungen}</p>
                 </CardContent>
               </Card>
             }
@@ -370,7 +370,7 @@ ${orgName} Team`;
                   <CardTitle className="text-xl font-bold">Interne Notizen</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  <p className="text-gray-700 whitespace-pre-wrap">{musiker.notizen}</p>
+                  <p className="text-foreground whitespace-pre-wrap">{musiker.notizen}</p>
                 </CardContent>
               </Card>
             }
@@ -386,8 +386,8 @@ ${orgName} Team`;
               <CardContent className="p-6 space-y-4">
                 {musiker.tagessatz_netto &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Gage</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-sm text-muted-foreground mb-1">Gage</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {musiker.tagessatz_netto.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                     </p>
                   </div>
@@ -395,8 +395,8 @@ ${orgName} Team`;
 
                 {musiker.reisespesen_regeln &&
                 <div className="pt-4 border-t">
-                    <p className="text-sm text-gray-500 mb-1">Reisespesen-Regeln</p>
-                    <p className="text-sm text-gray-700">{musiker.reisespesen_regeln}</p>
+                    <p className="text-sm text-muted-foreground mb-1">Reisespesen-Regeln</p>
+                    <p className="text-sm text-foreground">{musiker.reisespesen_regeln}</p>
                   </div>
                 }
               </CardContent>
@@ -409,13 +409,13 @@ ${orgName} Team`;
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Events gespielt</p>
-                  <p className="text-2xl font-bold text-gray-900">{eventMusiker.length}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Events gespielt</p>
+                  <p className="text-2xl font-bold text-foreground">{eventMusiker.length}</p>
                 </div>
                 
                 {musiker.prioritaet && (
                   <div className="pt-4 border-t">
-                    <p className="text-sm text-gray-500 mb-1">Priorität</p>
+                    <p className="text-sm text-muted-foreground mb-1">Priorität</p>
                     <span
                       style={{
                         display: 'inline-flex',
@@ -439,7 +439,7 @@ ${orgName} Team`;
                   </div>
                 )}
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-gray-500 mb-1">Status</p>
+                  <p className="text-sm text-muted-foreground mb-1">Status</p>
                   <Badge style={musiker.aktiv ? { backgroundColor: '#d1fae5', color: '#065f46' } : { backgroundColor: '#f3f4f6', color: '#374151' }}>
                     {musiker.aktiv ? 'Aktiv' : 'Inaktiv'}
                   </Badge>
@@ -474,7 +474,7 @@ ${orgName} Team`;
                 placeholder="z.B. Freue mich auf die Zusammenarbeit mit dir!"
                 rows={4}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Diese Nachricht wird in der E-Mail angezeigt
               </p>
             </div>

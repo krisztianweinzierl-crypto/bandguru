@@ -191,12 +191,12 @@ export default function RechnungenPage() {
   const bezahlteRechnungen = filteredRechnungen.filter((r) => r.status === 'bezahlt');
 
   const statusColors = {
-    entwurf: "bg-gray-100 text-gray-800",
+    entwurf: "bg-muted text-foreground",
     versendet: "bg-blue-100 text-blue-800",
     teilweise_bezahlt: "bg-yellow-100 text-yellow-800",
     bezahlt: "bg-green-100 text-green-800",
     überfällig: "bg-red-100 text-red-800",
-    storniert: "bg-gray-100 text-gray-800"
+    storniert: "bg-muted text-foreground"
   };
 
   const handleSubmit = (data) => {
@@ -290,7 +290,7 @@ export default function RechnungenPage() {
                   </Badge>
                 }
               </div>
-              <p className="text-sm text-gray-600">{kunde?.firmenname || 'Kunde unbekannt'}</p>
+              <p className="text-sm text-muted-foreground">{kunde?.firmenname || 'Kunde unbekannt'}</p>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -328,13 +328,13 @@ export default function RechnungenPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <span>{format(new Date(rechnung.rechnungsdatum), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Betrag</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-muted-foreground">Betrag</p>
+              <p className="text-xl font-bold text-foreground">
                 {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
               </p>
             </div>
@@ -343,8 +343,8 @@ export default function RechnungenPage() {
           {rechnung.status !== 'bezahlt' &&
             <div className="pt-3 border-t">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Fällig am:</span>
-                <span className={`font-medium ${isUeberfaellig ? 'text-red-600' : 'text-gray-900'}`}>
+                <span className="text-muted-foreground">Fällig am:</span>
+                <span className={`font-medium ${isUeberfaellig ? 'text-red-600' : 'text-foreground'}`}>
                   {format(new Date(rechnung.faelligkeitsdatum), 'dd. MMM yyyy', { locale: de })}
                 </span>
               </div>
@@ -405,8 +405,8 @@ export default function RechnungenPage() {
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Rechnungen</h1>
-              <p className="text-gray-600">Erstelle und verwalte deine Rechnungen</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Rechnungen</h1>
+              <p className="text-muted-foreground">Erstelle und verwalte deine Rechnungen</p>
             </div>
             <Button
               onClick={() => setShowForm(true)}
@@ -425,8 +425,8 @@ export default function RechnungenPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Offen</p>
-                  <p className="text-2xl font-bold text-gray-900">{offeneRechnungen.length}</p>
+                  <p className="text-sm text-muted-foreground">Offen</p>
+                  <p className="text-2xl font-bold text-foreground">{offeneRechnungen.length}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <FileText className="w-6 h-6 text-blue-600" />
@@ -439,7 +439,7 @@ export default function RechnungenPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Überfällig</p>
+                  <p className="text-sm text-muted-foreground">Überfällig</p>
                   <p className="text-2xl font-bold text-red-600">{ueberfaelligeRechnungen.length}</p>
                 </div>
                 <div className="p-3 bg-red-100 rounded-lg">
@@ -453,7 +453,7 @@ export default function RechnungenPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Bezahlt</p>
+                  <p className="text-sm text-muted-foreground">Bezahlt</p>
                   <p className="text-2xl font-bold text-green-600">{bezahlteRechnungen.length}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-lg">
@@ -469,7 +469,7 @@ export default function RechnungenPage() {
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Rechnungen durchsuchen..."
                   value={searchQuery}
@@ -480,7 +480,7 @@ export default function RechnungenPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white">
+                className="px-4 py-2 border rounded-lg bg-card">
 
                 <option value="alle">Alle Status</option>
                 <option value="entwurf">Entwurf</option>
@@ -490,7 +490,7 @@ export default function RechnungenPage() {
                 <option value="überfällig">Überfällig</option>
                 <option value="storniert">Storniert</option>
               </select>
-              <div className="flex gap-2 border rounded-lg p-1 bg-gray-50">
+              <div className="flex gap-2 border rounded-lg p-1 bg-muted">
                 <Button
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
@@ -607,10 +607,10 @@ export default function RechnungenPage() {
             {viewRechnung && (() => {
               const kunde = kunden.find((k) => k.id === viewRechnung.kunde_id);
               return (
-                <div className="bg-white p-8 print:p-0" id="rechnung-preview">
+                <div className="bg-card p-8 print:p-0" id="rechnung-preview">
                   {/* Organisation Header */}
-                  <div className="mb-8 text-sm text-gray-600">
-                    {organisation?.name && <p className="font-semibold text-gray-900">{organisation.name}</p>}
+                  <div className="mb-8 text-sm text-muted-foreground">
+                    {organisation?.name && <p className="font-semibold text-foreground">{organisation.name}</p>}
                     {organisation?.adresse && <p className="whitespace-pre-line">{organisation.adresse}</p>}
                   </div>
 
@@ -627,9 +627,9 @@ export default function RechnungenPage() {
                     <div className="text-right">
                       {kunde && (
                         <div className="text-sm">
-                          <p className="font-semibold text-gray-900">{kunde.firmenname}</p>
-                          {kunde.ansprechpartner && <p className="text-gray-600">{kunde.ansprechpartner}</p>}
-                          {kunde.adresse && <p className="text-gray-600 whitespace-pre-line">{kunde.adresse}</p>}
+                          <p className="font-semibold text-foreground">{kunde.firmenname}</p>
+                          {kunde.ansprechpartner && <p className="text-muted-foreground">{kunde.ansprechpartner}</p>}
+                          {kunde.adresse && <p className="text-muted-foreground whitespace-pre-line">{kunde.adresse}</p>}
                         </div>
                       )}
                     </div>
@@ -639,7 +639,7 @@ export default function RechnungenPage() {
                   <div className="mb-8">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b-2 border-gray-300">
+                        <tr className="border-b-2 border-border">
                           <th className="text-left py-2 font-semibold">Beschreibung</th>
                           <th className="text-right py-2 font-semibold w-20">Menge</th>
                           <th className="text-right py-2 font-semibold w-24">Einzelpreis</th>
@@ -648,7 +648,7 @@ export default function RechnungenPage() {
                       </thead>
                       <tbody>
                         {viewRechnung.positionen?.map((pos, index) => (
-                          <tr key={index} className="border-b border-gray-200">
+                          <tr key={index} className="border-b border-border">
                            <td className="py-3">{pos.beschreibung}</td>
                            <td className="py-3 text-right">{pos.menge} {pos.einheit}</td>
                            <td className="py-3 text-right">{(pos.einzelpreis || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</td>
@@ -681,7 +681,7 @@ export default function RechnungenPage() {
 
                   {/* Zahlungsbedingungen */}
                   {viewRechnung.zahlungsbedingungen && (
-                    <div className="mb-6 text-sm text-gray-600">
+                    <div className="mb-6 text-sm text-muted-foreground">
                       <p className="font-semibold mb-2">Zahlungsbedingungen:</p>
                       <p className="whitespace-pre-line">{viewRechnung.zahlungsbedingungen}</p>
                     </div>
@@ -689,7 +689,7 @@ export default function RechnungenPage() {
 
                   {/* Kundennotizen */}
                   {viewRechnung.kunde_notizen && (
-                    <div className="mb-6 text-sm text-gray-600">
+                    <div className="mb-6 text-sm text-muted-foreground">
                       <p className="whitespace-pre-line">{viewRechnung.kunde_notizen}</p>
                     </div>
                   )}
@@ -717,55 +717,55 @@ export default function RechnungenPage() {
             <Card className="border-none shadow-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-muted border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Rechnungsnummer
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Kunde
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Datum
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Fällig
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Betrag
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Aktionen
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-card divide-y divide-gray-200">
                     {filteredRechnungen.map((rechnung) => {
                       const kunde = kunden.find((k) => k.id === rechnung.kunde_id);
                       const isUeberfaellig = new Date(rechnung.faelligkeitsdatum) < new Date() && rechnung.status === 'versendet';
                       return (
-                        <tr key={rechnung.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={rechnung.id} className="hover:bg-muted transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-2">
-                              <FileText className="w-4 h-4 text-gray-400" />
-                              <span className="text-sm font-medium text-gray-900">
+                              <FileText className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground">
                                 {rechnung.rechnungsnummer}
                               </span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900">
+                            <span className="text-sm text-foreground">
                               {kunde?.firmenname || "-"}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                             {format(new Date(rechnung.rechnungsdatum), "dd.MM.yyyy", { locale: de })}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`text-sm ${isUeberfaellig ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+                            <span className={`text-sm ${isUeberfaellig ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
                               {format(new Date(rechnung.faelligkeitsdatum), "dd.MM.yyyy", { locale: de })}
                             </span>
                           </td>
@@ -775,7 +775,7 @@ export default function RechnungenPage() {
                             </Badge>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right">
-                            <span className="text-sm font-semibold text-gray-900">
+                            <span className="text-sm font-semibold text-foreground">
                               {(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                             </span>
                           </td>
@@ -845,7 +845,7 @@ export default function RechnungenPage() {
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Rechnungen gefunden</h3>
-              <p className="text-gray-500 mb-4">Erstelle deine erste Rechnung</p>
+              <p className="text-muted-foreground mb-4">Erstelle deine erste Rechnung</p>
               <Button onClick={() => setShowForm(true)} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
                 <Plus className="w-4 h-4 mr-2" />
                 Neue Rechnung

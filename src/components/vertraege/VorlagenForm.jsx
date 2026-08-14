@@ -209,7 +209,7 @@ export default function VorlagenForm({ vorlage = null, onSubmit, onCancel }) {
           {/* Vorlageninhalt (Rich Text Editor) */}
           <div className="space-y-2">
             <Label>Vorlageninhalt *</Label>
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-border rounded-lg">
               <ReactQuill
                 theme="snow"
                 value={formData.inhalt}
@@ -223,9 +223,9 @@ export default function VorlagenForm({ vorlage = null, onSubmit, onCancel }) {
           </div>
 
           {/* Beispieltext */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="font-semibold text-gray-900 mb-2">💡 Beispiel-Vertragsvorlage</h4>
-            <div className="text-sm text-gray-700 space-y-2">
+          <div className="bg-muted border border-border rounded-lg p-4">
+            <h4 className="font-semibold text-foreground mb-2">💡 Beispiel-Vertragsvorlage</h4>
+            <div className="text-sm text-foreground space-y-2">
               <p><strong>Vertrag zwischen</strong></p>
               <p>{'{{organisation_name}}'} (im Folgenden "Auftragnehmer")</p>
               <p>und</p>

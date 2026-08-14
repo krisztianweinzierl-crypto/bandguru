@@ -60,7 +60,7 @@ export default function KanbanView({
               
               return (
                 <div key={stage.id} className="flex-shrink-0 w-80">
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-sm border border-border">
                     {/* Stage Header */}
                     <div 
                       className="p-4 border-b"
@@ -72,7 +72,7 @@ export default function KanbanView({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-gray-900">{stage.name}</h3>
+                          <h3 className="font-semibold text-foreground">{stage.name}</h3>
                           <Badge variant="secondary" className="text-xs">
                             {stageLeads.length}
                           </Badge>
@@ -87,7 +87,7 @@ export default function KanbanView({
                           ref={provided.innerRef}
                           {...provided.droppableProps}
                           className={`p-3 space-y-3 min-h-[200px] transition-colors ${
-                            snapshot.isDraggingOver ? 'bg-blue-50' : 'bg-gray-50'
+                            snapshot.isDraggingOver ? 'bg-blue-50' : 'bg-muted'
                           }`}
                           style={{ maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}
                         >
@@ -108,11 +108,11 @@ export default function KanbanView({
                                     <CardHeader className="p-3 pb-2">
                                       <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1 min-w-0">
-                                          <h4 className="font-semibold text-sm text-gray-900 truncate mb-1">
+                                          <h4 className="font-semibold text-sm text-foreground truncate mb-1">
                                             {lead.titel}
                                           </h4>
                                           {lead.firmenname && (
-                                            <p className="text-xs text-gray-600 truncate">
+                                            <p className="text-xs text-muted-foreground truncate">
                                               {lead.firmenname}
                                             </p>
                                           )}
@@ -139,15 +139,15 @@ export default function KanbanView({
                                                   setShowDropdownId(null);
                                                 }}
                                               />
-                                              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                                              <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                                                 <button
                                                   onClick={(e) => {
                                                     e.stopPropagation();
                                                     onLeadEdit(lead);
                                                   }}
-                                                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                                                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted transition-colors text-left text-sm"
                                                 >
-                                                  <Edit className="w-3 h-3 text-gray-600" />
+                                                  <Edit className="w-3 h-3 text-muted-foreground" />
                                                   <span>Bearbeiten</span>
                                                 </button>
                                               </div>
@@ -158,13 +158,13 @@ export default function KanbanView({
                                     </CardHeader>
                                     <CardContent className="p-3 pt-0 space-y-2">
                                       {lead.kontaktperson && (
-                                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                           <User className="w-3 h-3" />
                                           <span className="truncate">{lead.kontaktperson}</span>
                                         </div>
                                       )}
                                       {lead.event_datum && (
-                                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                           <Calendar className="w-3 h-3" />
                                           <span>{format(new Date(lead.event_datum), 'dd. MMM yyyy', { locale: de })}</span>
                                         </div>

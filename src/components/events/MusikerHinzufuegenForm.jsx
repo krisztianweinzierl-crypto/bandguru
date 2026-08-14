@@ -88,7 +88,7 @@ export default function MusikerHinzufuegenForm({
             </div>
             <div>
               <Label>Fahrtkosten (berechnet)</Label>
-              <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
+              <div className="h-10 px-3 py-2 bg-muted border rounded-md flex items-center text-sm font-medium">
                 {((parseFloat(musikerDistanz) || 0) * 2 * (parseFloat(musikerFahrtkostenProKm) || 0.30)).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function MusikerHinzufuegenForm({
           <div className="space-y-3">
             <Label>Buchungsbedingungen (sichtbar für Musiker)</Label>
             <div className="space-y-2">
-              <Label className="text-sm text-gray-600">Vorlage auswählen (optional)</Label>
+              <Label className="text-sm text-muted-foreground">Vorlage auswählen (optional)</Label>
               <Select value={selectedVorlageId} onValueChange={(value) => {
                 setSelectedVorlageId(value);
                 if (value === "keine") {
@@ -124,10 +124,10 @@ export default function MusikerHinzufuegenForm({
                 <p className="text-xs text-amber-600">Noch keine Vorlagen vorhanden. Erstelle Vorlagen unter Einstellungen → Buchungsbedingungen</p>
               )}
             </div>
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-border rounded-lg">
               <ReactQuill theme="snow" value={buchungsbedingungen} onChange={setBuchungsbedingungen} modules={modules} formats={formats} placeholder="z.B. Bitte Smoking mitbringen..." className="min-h-[150px]" />
             </div>
-            <p className="text-xs text-gray-500">Diese Bedingungen muss der Musiker bei Zusage akzeptieren</p>
+            <p className="text-xs text-muted-foreground">Diese Bedingungen muss der Musiker bei Zusage akzeptieren</p>
           </div>
 
           <div className="flex justify-end gap-2">

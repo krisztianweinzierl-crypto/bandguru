@@ -452,7 +452,7 @@ export default function RepertoirePage() {
   if (isLoadingAccess || (currentMusiker && isLoadingEventMusiker)) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade...</p>
+        <p className="text-muted-foreground">Lade...</p>
       </div>
     );
   }
@@ -461,7 +461,7 @@ export default function RepertoirePage() {
   if (!currentOrgId || !currentUser) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade...</p>
+        <p className="text-muted-foreground">Lade...</p>
       </div>
     );
   }
@@ -474,7 +474,7 @@ export default function RepertoirePage() {
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
             <h3 className="text-lg font-semibold mb-2">Kein Zugriff auf Repertoire</h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Du siehst das Repertoire, sobald eine Setliste einem deiner zugesagten Events zugewiesen wurde.
             </p>
           </CardContent>
@@ -487,14 +487,14 @@ export default function RepertoirePage() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Repertoire</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Repertoire</h1>
+          <p className="text-muted-foreground">
             {isManager ? 'Verwalte deine Songs und Setlisten' : 'Songs und Setlisten deiner Events'}
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger value="bibliothek" className="gap-2">
             <Music className="w-4 h-4" />
             Song-Bibliothek
@@ -587,7 +587,7 @@ export default function RepertoirePage() {
               <CardContent className="p-4">
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       placeholder="Songs durchsuchen..."
                       value={searchQuery}
@@ -614,26 +614,26 @@ export default function RepertoirePage() {
             <Card className="border-none shadow-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-muted border-b">
                     <tr>
-                      <th className="text-left p-4 font-semibold text-gray-700">Titel</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Künstler</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Genre</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Tonart</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Tempo</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Noten</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Audio</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">YouTube</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Dateien</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Aktionen</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Titel</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Künstler</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Genre</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Tonart</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Tempo</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Noten</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Audio</th>
+                      <th className="text-left p-4 font-semibold text-foreground">YouTube</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Dateien</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Aktionen</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {filteredSongs.length > 0 ? (
                       filteredSongs.map((song) => (
-                        <tr key={song.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-4 font-medium text-gray-900">{song.titel}</td>
-                          <td className="p-4 text-gray-600">{song.kuenstler_original || '-'}</td>
+                        <tr key={song.id} className="hover:bg-muted transition-colors">
+                          <td className="p-4 font-medium text-foreground">{song.titel}</td>
+                          <td className="p-4 text-muted-foreground">{song.kuenstler_original || '-'}</td>
                           <td className="p-4">
                             {song.tags && song.tags.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
@@ -645,9 +645,9 @@ export default function RepertoirePage() {
                               </div>
                             ) : '-'}
                           </td>
-                          <td className="p-4 text-gray-600">{song.tonart || '-'}</td>
-                          <td className="p-4 text-gray-600">{song.bpm ? `${song.bpm} BPM` : '-'}</td>
-                          <td className="p-4 text-gray-600 text-center">
+                          <td className="p-4 text-muted-foreground">{song.tonart || '-'}</td>
+                          <td className="p-4 text-muted-foreground">{song.bpm ? `${song.bpm} BPM` : '-'}</td>
+                          <td className="p-4 text-muted-foreground text-center">
                             {song.lead_sheet_url ? '1' : '0'}
                           </td>
                           <td className="p-4">
@@ -732,7 +732,7 @@ export default function RepertoirePage() {
                         <td colSpan="10" className="p-12 text-center">
                           <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-lg font-semibold mb-2">Keine Songs gefunden</h3>
-                          <p className="text-gray-500 mb-4">
+                          <p className="text-muted-foreground mb-4">
                             {isManager ? "Füge deinen ersten Song hinzu" : "Für dieses Repertoire sind noch keine Songs verfügbar."}
                           </p>
                           {isManager && (
@@ -796,7 +796,7 @@ export default function RepertoirePage() {
             <Card className="border-none shadow-md">
               <CardContent className="p-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Setlists durchsuchen..."
                     value={searchQuery}
@@ -827,22 +827,22 @@ export default function RepertoirePage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {event && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span>{event.titel} - {new Date(event.datum_von).toLocaleDateString('de-DE')}</span>
                       </div>
                     )}
 
                     {setlist.beschreibung && (
-                      <p className="text-sm text-gray-600 line-clamp-2">{setlist.beschreibung}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{setlist.beschreibung}</p>
                     )}
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4" />
                       <span>Gesamtdauer: {setlist.gesamtdauer || 0} Min.</span>
                     </div>
 
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       <Music className="w-4 h-4 inline mr-2" />
                       {songCount} {songCount === 1 ? 'Song' : 'Songs'}
                     </div>
@@ -861,14 +861,14 @@ export default function RepertoirePage() {
                     {/* Song-Liste für alle sichtbar */}
                     {setlistSongs.length > 0 && (
                       <div className="pt-3 border-t space-y-2">
-                        <p className="text-xs font-semibold text-gray-500 uppercase">Songs in dieser Setliste:</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase">Songs in dieser Setliste:</p>
                         <div className="space-y-1 max-h-48 overflow-y-auto">
                           {setlist.songs?.sort((a, b) => (a.reihenfolge || 0) - (b.reihenfolge || 0)).map((s, index) => {
                             const songData = songs.find(song => song.id === s.song_id);
                             if (!songData) return null;
                             return (
-                              <div key={s.song_id} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                                <span className="text-gray-400 w-5 text-center">{index + 1}.</span>
+                              <div key={s.song_id} className="flex items-center gap-2 p-2 bg-muted rounded text-sm">
+                                <span className="text-muted-foreground w-5 text-center">{index + 1}.</span>
                                 <span className="font-medium flex-1">{songData.titel}</span>
                                 {songData.tonart && (
                                   <Badge variant="outline" className="text-xs">{songData.tonart}</Badge>
@@ -924,7 +924,7 @@ export default function RepertoirePage() {
                 <CardContent className="p-12 text-center">
                   <List className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine Setlists gefunden</h3>
-                  <p className="text-gray-500 mb-4">
+                  <p className="text-muted-foreground mb-4">
                     {isManager ? 'Erstelle deine erste Setlist' : 'Keine Setlisten für deine Events'}
                   </p>
                   {isManager && (

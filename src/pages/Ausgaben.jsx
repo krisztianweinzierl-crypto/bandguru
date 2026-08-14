@@ -121,7 +121,7 @@ export default function AusgabenPage() {
     unterkunft: "bg-indigo-100 text-indigo-800 border-indigo-200",
     equipment: "bg-orange-100 text-orange-800 border-orange-200",
     marketing: "bg-pink-100 text-pink-800 border-pink-200",
-    verwaltung: "bg-gray-100 text-gray-800 border-gray-200",
+    verwaltung: "bg-muted text-foreground border-border",
     steuern: "bg-red-100 text-red-800 border-red-200",
     versicherung: "bg-green-100 text-green-800 border-green-200",
     studio: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -148,7 +148,7 @@ export default function AusgabenPage() {
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex-1">
-              <h3 className="font-semibold text-lg text-gray-900 mb-1">{ausgabe.titel}</h3>
+              <h3 className="font-semibold text-lg text-foreground mb-1">{ausgabe.titel}</h3>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className={kategorieColors[ausgabe.kategorie]}>
                   {ausgabe.kategorie}
@@ -158,7 +158,7 @@ export default function AusgabenPage() {
                     Event
                   </Badge>
                 }
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                 </span>
               </div>
@@ -171,18 +171,18 @@ export default function AusgabenPage() {
           </div>
 
           {ausgabe.isEventKosten &&
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
               Gesamtkosten für Musiker bei diesem Event (inkl. Gagen, Fahrtkosten und weitere Kosten)
             </p>
           }
 
           {ausgabe.notizen && !ausgabe.isEventKosten &&
-          <p className="text-sm text-gray-600 mt-2 line-clamp-2">{ausgabe.notizen}</p>
+          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{ausgabe.notizen}</p>
           }
 
           {ausgabe.zahlungsmethode &&
           <div className="flex items-center justify-between mt-3 pt-3 border-t">
-              <span className="text-sm text-gray-500">Zahlungsmethode:</span>
+              <span className="text-sm text-muted-foreground">Zahlungsmethode:</span>
               <span className="text-sm font-medium">{ausgabe.zahlungsmethode}</span>
             </div>
           }
@@ -215,8 +215,8 @@ export default function AusgabenPage() {
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Ausgaben</h1>
-              <p className="text-gray-600">Verfolge alle deine Kosten und Ausgaben</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Ausgaben</h1>
+              <p className="text-muted-foreground">Verfolge alle deine Kosten und Ausgaben</p>
             </div>
             <Button
               onClick={() => setShowForm(true)}
@@ -232,25 +232,25 @@ export default function AusgabenPage() {
         <div className="grid grid-cols-1 gap-3 md:gap-4 mb-6 md:mb-8">
           <Card className="border-none shadow-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Gesamtausgaben</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-red-600 text-2xl font-bold md:text-4xl truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-gray-500 mt-1">{filteredAusgaben.length} Ausgaben</p>
+              <p className="text-sm text-muted-foreground mt-1">{filteredAusgaben.length} Ausgaben</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Häufigste Kategorie</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Häufigste Kategorie</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-foreground">
                 {Object.keys(ausgabenNachKategorie).sort((a, b) => ausgabenNachKategorie[b] - ausgabenNachKategorie[a])[0] || '-'}
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {Object.keys(ausgabenNachKategorie).length} Kategorien
               </p>
             </CardContent>
@@ -258,13 +258,13 @@ export default function AusgabenPage() {
 
           <Card className="border-none shadow-lg">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Durchschnitt</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Durchschnitt</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-900 text-2xl font-bold md:text-4xl truncate">
+              <p className="text-foreground text-2xl font-bold md:text-4xl truncate">
                 {(gesamtAusgaben / filteredAusgaben.length || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-gray-500 mt-1">Pro Ausgabe</p>
+              <p className="text-sm text-muted-foreground mt-1">Pro Ausgabe</p>
             </CardContent>
           </Card>
         </div>
@@ -274,7 +274,7 @@ export default function AusgabenPage() {
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Ausgaben durchsuchen..."
                   value={searchQuery}
@@ -285,7 +285,7 @@ export default function AusgabenPage() {
               <select
                 value={kategorieFilter}
                 onChange={(e) => setKategorieFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white">
+                className="px-4 py-2 border rounded-lg bg-card">
 
                 <option value="alle">Alle Kategorien</option>
                 <option value="gage">Gage</option>
@@ -344,7 +344,7 @@ export default function AusgabenPage() {
                 {filteredAusgaben.map((ausgabe, index) =>
             <div
               key={ausgabe.id}
-              className={`flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50 transition-colors ${ausgabe.isEventKosten ? 'cursor-pointer' : ''}`}
+              className={`flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted transition-colors ${ausgabe.isEventKosten ? 'cursor-pointer' : ''}`}
               onClick={() => {
                 if (ausgabe.isEventKosten && ausgabe.event) {
                   navigate(`${createPageUrl('EventDetail')}?id=${ausgabe.event.id}&tab=finanzen`);
@@ -353,7 +353,7 @@ export default function AusgabenPage() {
 
                     <div className="flex-1 min-w-0 mr-4">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-semibold text-gray-900 truncate">{ausgabe.titel}</h3>
+                        <h3 className="font-semibold text-foreground truncate">{ausgabe.titel}</h3>
                         {ausgabe.isEventKosten &&
                           <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 shrink-0">
                             Event
@@ -364,7 +364,7 @@ export default function AusgabenPage() {
                         <Badge variant="outline" className={kategorieColors[ausgabe.kategorie] + " shrink-0"}>
                           {ausgabe.kategorie}
                         </Badge>
-                        <span className="text-sm text-gray-500 shrink-0">
+                        <span className="text-sm text-muted-foreground shrink-0">
                           {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                         </span>
                       </div>
@@ -383,7 +383,7 @@ export default function AusgabenPage() {
             <CardContent className="p-12 text-center">
               <Receipt className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Ausgaben gefunden</h3>
-              <p className="text-gray-500 mb-4">Erfasse deine erste Ausgabe</p>
+              <p className="text-muted-foreground mb-4">Erfasse deine erste Ausgabe</p>
               <Button onClick={() => setShowForm(true)} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
                 <Plus className="w-4 h-4 mr-2" />
                 Neue Ausgabe

@@ -40,13 +40,13 @@ export function AlertDialog({
       />
       
       {/* Dialog */}
-      <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full animate-in zoom-in-95 duration-200">
+      <div className="relative bg-card rounded-xl shadow-2xl max-w-md w-full animate-in zoom-in-95 duration-200">
         {/* Header mit Farbe */}
         <div 
           className="px-6 py-4 rounded-t-xl flex items-center gap-3"
           style={{ backgroundColor: '#FF6A4D' }}
         >
-          <div className="p-2 bg-white/20 rounded-lg">
+          <div className="p-2 bg-card/20 rounded-lg">
             {icons[type]}
           </div>
           <h2 className="text-lg font-semibold text-white flex-1">
@@ -56,13 +56,13 @@ export function AlertDialog({
 
         {/* Content */}
         <div className="px-6 py-6">
-          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+          <p className="text-foreground leading-relaxed whitespace-pre-line">
             {message}
           </p>
         </div>
 
         {/* Footer mit Buttons */}
-        <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
+        <div className="px-6 py-4 bg-muted rounded-b-xl flex justify-end gap-3">
           {showCancel && (
             <Button
               variant="outline"

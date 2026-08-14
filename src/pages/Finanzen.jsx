@@ -126,12 +126,12 @@ export default function FinanzenPage() {
   const angenommeneAngebote = angebote.filter((a) => a.status === 'angenommen').length;
 
   const statusColors = {
-    entwurf: "bg-gray-100 text-gray-800",
+    entwurf: "bg-muted text-foreground",
     versendet: "bg-blue-100 text-blue-800",
     teilweise_bezahlt: "bg-yellow-100 text-yellow-800",
     bezahlt: "bg-green-100 text-green-800",
     überfällig: "bg-red-100 text-red-800",
-    storniert: "bg-gray-100 text-gray-800"
+    storniert: "bg-muted text-foreground"
   };
 
   return (
@@ -140,8 +140,8 @@ export default function FinanzenPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Finanzen</h1>
-            <p className="text-gray-600">Übersicht über Einnahmen, Ausgaben und Rechnungen</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Finanzen</h1>
+            <p className="text-muted-foreground">Übersicht über Einnahmen, Ausgaben und Rechnungen</p>
           </div>
           <div className="flex gap-2">
             <Link to={createPageUrl("Rechnungen")}>
@@ -174,14 +174,14 @@ export default function FinanzenPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamteinnahmen</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gesamteinnahmen</CardTitle>
                 <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
                   <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
+              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
                 {gesamtEinnahmen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-green-600">
@@ -197,14 +197,14 @@ export default function FinanzenPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gesamtausgaben</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gesamtausgaben</CardTitle>
                 <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
                   <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
+              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-red-600">
@@ -219,7 +219,7 @@ export default function FinanzenPage() {
             <div className={`absolute top-0 right-0 w-32 h-32 ${gewinn >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-full opacity-10 transform translate-x-8 -translate-y-8`} />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Gewinn/Verlust</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gewinn/Verlust</CardTitle>
                 <div className={`p-1.5 md:p-2 ${gewinn >= 0 ? 'bg-blue-100' : 'bg-orange-100'} rounded-lg`}>
                   <Euro className={`w-4 h-4 md:w-5 md:h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
                 </div>
@@ -229,7 +229,7 @@ export default function FinanzenPage() {
               <p className={`text-lg md:text-3xl font-bold truncate ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                 {gewinn.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
                 {(gewinn / gesamtEinnahmen * 100 || 0).toFixed(1)}% Marge
               </p>
             </CardContent>
@@ -240,14 +240,14 @@ export default function FinanzenPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Offene Forderungen</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Offene Forderungen</CardTitle>
                 <div className="p-1.5 md:p-2 bg-yellow-100 rounded-lg">
                   <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-gray-900 truncate">
+              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
                 {offeneRechnungen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               {ueberfaelligeRechnungen > 0 &&
@@ -264,15 +264,15 @@ export default function FinanzenPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-gray-600">Angebote</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Angebote</CardTitle>
                 <div className="p-1.5 md:p-2 bg-amber-100 rounded-lg">
                   <FileCheck className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-gray-900">{offeneAngebote}</p>
-              <p className="text-xs md:text-sm text-gray-500 mt-1 md:mt-2">
+              <p className="text-lg md:text-3xl font-bold text-foreground">{offeneAngebote}</p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
                 {angenommeneAngebote} angenommen
               </p>
             </CardContent>
@@ -281,7 +281,7 @@ export default function FinanzenPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="uebersicht" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger value="uebersicht">Übersicht</TabsTrigger>
             <TabsTrigger value="berichte">Berichte</TabsTrigger>
           </TabsList>
@@ -303,10 +303,10 @@ export default function FinanzenPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                   {rechnungen.slice(0, 5).map((rechnung) =>
-                  <div key={rechnung.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                  <div key={rechnung.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{rechnung.rechnungsnummer}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="font-medium text-foreground">{rechnung.rechnungsnummer}</p>
+                        <p className="text-sm text-muted-foreground">
                           {format(new Date(rechnung.rechnungsdatum), 'dd. MMM yyyy', { locale: de })}
                         </p>
                       </div>
@@ -355,12 +355,12 @@ export default function FinanzenPage() {
                         }, 0);
                       
                       return (
-                        <div key={event.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                        <div key={event.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted">
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900">Musiker-Kosten: {event.titel}</p>
+                            <p className="font-medium text-foreground">Musiker-Kosten: {event.titel}</p>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="outline" className="text-xs">gage</Badge>
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-muted-foreground">
                                 {format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}
                               </span>
                             </div>
@@ -375,14 +375,14 @@ export default function FinanzenPage() {
                   
                   {/* Sonstige Ausgaben */}
                   {ausgaben.slice(0, 5).map((ausgabe) =>
-                  <div key={ausgabe.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-gray-50">
+                  <div key={ausgabe.id} className="flex items-center justify-between p-4 border-b last:border-0 hover:bg-muted">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{ausgabe.titel}</p>
+                        <p className="font-medium text-foreground">{ausgabe.titel}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline" className="text-xs">
                             {ausgabe.kategorie}
                           </Badge>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-muted-foreground">
                             {format(new Date(ausgabe.datum), 'dd. MMM yyyy', { locale: de })}
                           </span>
                         </div>
@@ -536,14 +536,14 @@ export default function FinanzenPage() {
                       .sort((a, b) => b[1] - a[1])
                       .slice(0, 5)
                       .map(([name, umsatz], index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-blue-600">{index + 1}</span>
                             </div>
                             <span className="font-medium text-sm md:text-base truncate max-w-[120px] md:max-w-none">{name}</span>
                           </div>
-                          <span className="text-sm md:text-lg font-bold text-gray-900 flex-shrink-0">
+                          <span className="text-sm md:text-lg font-bold text-foreground flex-shrink-0">
                             {umsatz.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                           </span>
                         </div>
@@ -562,26 +562,26 @@ export default function FinanzenPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Bezahlt</span>
+                      <span className="text-muted-foreground">Bezahlt</span>
                       <span className="font-bold text-green-600">
                         {rechnungen.filter(r => r.status === 'bezahlt').length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Versendet</span>
+                      <span className="text-muted-foreground">Versendet</span>
                       <span className="font-bold text-blue-600">
                         {rechnungen.filter(r => r.status === 'versendet').length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Überfällig</span>
+                      <span className="text-muted-foreground">Überfällig</span>
                       <span className="font-bold text-red-600">
                         {ueberfaelligeRechnungen}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Entwurf</span>
-                      <span className="font-bold text-gray-600">
+                      <span className="text-muted-foreground">Entwurf</span>
+                      <span className="font-bold text-muted-foreground">
                         {rechnungen.filter(r => r.status === 'entwurf').length}
                       </span>
                     </div>
@@ -596,26 +596,26 @@ export default function FinanzenPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Angenommen</span>
+                      <span className="text-muted-foreground">Angenommen</span>
                       <span className="font-bold text-green-600">
                         {angebote.filter(a => a.status === 'angenommen').length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Versendet</span>
+                      <span className="text-muted-foreground">Versendet</span>
                       <span className="font-bold text-blue-600">
                         {angebote.filter(a => a.status === 'versendet').length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Abgelehnt</span>
+                      <span className="text-muted-foreground">Abgelehnt</span>
                       <span className="font-bold text-red-600">
                         {angebote.filter(a => a.status === 'abgelehnt').length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Entwurf</span>
-                      <span className="font-bold text-gray-600">
+                      <span className="text-muted-foreground">Entwurf</span>
+                      <span className="font-bold text-muted-foreground">
                         {angebote.filter(a => a.status === 'entwurf').length}
                       </span>
                     </div>

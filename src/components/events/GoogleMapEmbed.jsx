@@ -22,9 +22,9 @@ export default function GoogleMapEmbed({ address }) {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 rounded-lg p-12 text-center border border-gray-200">
-        <Loader2 className="w-8 h-8 mx-auto mb-4 text-gray-400 animate-spin" />
-        <p className="text-gray-600 text-sm">Karte wird geladen...</p>
+      <div className="bg-muted rounded-lg p-12 text-center border border-border">
+        <Loader2 className="w-8 h-8 mx-auto mb-4 text-muted-foreground animate-spin" />
+        <p className="text-muted-foreground text-sm">Karte wird geladen...</p>
       </div>
     );
   }
@@ -36,7 +36,7 @@ export default function GoogleMapEmbed({ address }) {
   const encodedAddress = encodeURIComponent(address);
 
   return (
-    <div className="w-full h-[250px] md:h-[400px] rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+    <div className="w-full h-[250px] md:h-[400px] rounded-lg overflow-hidden border border-border shadow-sm">
       <iframe
         width="100%"
         height="100%"

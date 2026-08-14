@@ -405,7 +405,7 @@ export default function MusikerDashboard() {
       };
 
       const eventStatusColors = {
-        entwurf: { bg: "bg-gray-100", text: "text-gray-700", label: "Entwurf" },
+        entwurf: { bg: "bg-muted", text: "text-foreground", label: "Entwurf" },
         angefragt: { bg: "bg-yellow-100", text: "text-yellow-800", label: "Angefragt" },
         bestätigt: { bg: "bg-green-100", text: "text-green-800", label: "Bestätigt" },
         durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", label: "Durchgeführt" },
@@ -422,11 +422,11 @@ export default function MusikerDashboard() {
     return (
       <div
         onClick={() => handleOpenDetailsDialog(em)}
-        className={`group flex items-center gap-4 p-4 border-l-4 ${statusStyle.border} bg-white hover:bg-gray-50 transition-all cursor-pointer rounded-lg shadow-sm`}
+        className={`group flex items-center gap-4 p-4 border-l-4 ${statusStyle.border} bg-card hover:bg-muted transition-all cursor-pointer rounded-lg shadow-sm`}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+            <h3 className="font-semibold text-lg text-foreground truncate">{event.titel}</h3>
             <Badge className={`${statusStyle.bg} ${statusStyle.text} flex-shrink-0`}>
               {em.status === 'angefragt' && '⏳ Offen'}
               {em.status === 'optional' && '❓ Optional'}
@@ -435,7 +435,7 @@ export default function MusikerDashboard() {
             </Badge>
           </div>
           
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
               <span>{format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}</span>
@@ -463,7 +463,7 @@ export default function MusikerDashboard() {
           </div>
         </div>
 
-        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-muted-foreground flex-shrink-0" />
       </div>
     );
   };
@@ -476,7 +476,7 @@ export default function MusikerDashboard() {
           <CardContent className="p-8 text-center">
             <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
             <h3 className="text-lg font-semibold mb-2">Lade Dashboard...</h3>
-            <p className="text-sm text-gray-500">Bitte warten</p>
+            <p className="text-sm text-muted-foreground">Bitte warten</p>
           </CardContent>
         </Card>
       </div>
@@ -498,7 +498,7 @@ export default function MusikerDashboard() {
               <p className="text-sm text-orange-800">{errorMessage}</p>
             </div>
 
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-foreground">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="font-semibold mb-2">🔍 Debug-Informationen:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
@@ -506,16 +506,16 @@ export default function MusikerDashboard() {
                   <li>Organisation ID: {currentOrgId}</li>
                   <li>User ID: {currentUser?.id}</li>
                 </ul>
-                <p className="mt-3 text-xs text-gray-600">
+                <p className="mt-3 text-xs text-muted-foreground">
                   Öffne die Browser-Console (F12) für detailliertere Debug-Logs
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-muted rounded-lg p-4">
                 <p className="font-semibold mb-2">✅ Lösung:</p>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>Bitte deinen Band Manager, ein Musiker-Profil für dich anzulegen</li>
-                  <li>Die E-Mail-Adresse im Musiker-Profil muss sein: <span className="font-mono bg-white px-2 py-1 rounded">{currentUser?.email}</span></li>
+                  <li>Die E-Mail-Adresse im Musiker-Profil muss sein: <span className="font-mono bg-card px-2 py-1 rounded">{currentUser?.email}</span></li>
                   <li>Der Musiker muss als "aktiv" markiert sein</li>
                   <li>Nach dem Anlegen: Seite neu laden (F5)</li>
                 </ol>
@@ -544,7 +544,7 @@ export default function MusikerDashboard() {
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
             <h3 className="text-lg font-semibold mb-2">Fehler beim Laden</h3>
-            <p className="text-sm text-gray-600 mb-4">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground mb-4">{errorMessage}</p>
             <Button onClick={() => window.location.reload()}>
               Erneut versuchen
             </Button>
@@ -559,51 +559,51 @@ export default function MusikerDashboard() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             Dashboard
           </h1>
-          <p className="text-gray-600">Willkommen zurück{currentMusiker ? `, ${currentMusiker.name}` : ''}! 🎵</p>
-          <p className="text-gray-600">Deine Buchungsanfragen und Events im Überblick</p>
+          <p className="text-muted-foreground">Willkommen zurück{currentMusiker ? `, ${currentMusiker.name}` : ''}! 🎵</p>
+          <p className="text-muted-foreground">Deine Buchungsanfragen und Events im Überblick</p>
         </div>
 
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Offene Anfragen</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Offene Anfragen</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <p className="text-4xl font-bold text-orange-600">{offeneAnfragen.length}</p>
                 <AlertCircle className="w-12 h-12 text-orange-300" />
               </div>
-              <p className="text-sm text-gray-500 mt-2">Warten auf deine Antwort</p>
+              <p className="text-sm text-muted-foreground mt-2">Warten auf deine Antwort</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Optional</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Optional</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <p className="text-4xl font-bold text-blue-600">{optionaleAnfragen.length}</p>
                 <HelpCircle className="w-12 h-12 text-blue-300" />
               </div>
-              <p className="text-sm text-gray-500 mt-2">Noch nicht festgelegt</p>
+              <p className="text-sm text-muted-foreground mt-2">Noch nicht festgelegt</p>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Bestätigt</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Bestätigt</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <p className="text-4xl font-bold text-green-600">{bestaetigteEvents.length}</p>
                 <CheckCircle2 className="w-12 h-12 text-green-300" />
               </div>
-              <p className="text-sm text-gray-500 mt-2">Zugesagte Events</p>
+              <p className="text-sm text-muted-foreground mt-2">Zugesagte Events</p>
             </CardContent>
           </Card>
         </div>
@@ -613,7 +613,7 @@ export default function MusikerDashboard() {
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <AlertCircle className="w-6 h-6 text-orange-600" />
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Offene Buchungsanfragen ({offeneAnfragen.length})
               </h2>
             </div>
@@ -630,7 +630,7 @@ export default function MusikerDashboard() {
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <HelpCircle className="w-6 h-6 text-blue-600" />
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Optionale Anfragen ({optionaleAnfragen.length})
               </h2>
             </div>
@@ -647,7 +647,7 @@ export default function MusikerDashboard() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <CheckCircle2 className="w-6 h-6 text-green-600" />
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-foreground">
                 Bestätigte Events ({bestaetigteEvents.length})
               </h2>
             </div>
@@ -665,7 +665,7 @@ export default function MusikerDashboard() {
             <CardContent className="p-12 text-center">
               <Music className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Buchungsanfragen</h3>
-              <p className="text-gray-500">Du hast aktuell keine offenen oder bestätigten Buchungsanfragen</p>
+              <p className="text-muted-foreground">Du hast aktuell keine offenen oder bestätigten Buchungsanfragen</p>
             </CardContent>
           </Card>
         )}
@@ -711,15 +711,15 @@ export default function MusikerDashboard() {
                       <>
                         {/* Event Details */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="w-5 h-5 flex-shrink-0" />
                             <span>{format(new Date(event.datum_von), 'dd. MMMM yyyy', { locale: de })}</span>
                           </div>
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Clock className="w-5 h-5 flex-shrink-0" />
                             <span>{format(new Date(event.datum_von), 'HH:mm', { locale: de })} Uhr</span>
                           </div>
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-muted-foreground">
                             <Music className="w-5 h-5 flex-shrink-0" />
                             <span className="font-medium">{selectedEventMusiker.rolle}</span>
                           </div>
@@ -728,7 +728,7 @@ export default function MusikerDashboard() {
                               <Euro className="w-5 h-5 flex-shrink-0" />
                               <span>€{selectedEventMusiker.gage_netto.toFixed(2)}</span>
                               {selectedEventMusiker.spesen > 0 && (
-                                <span className="text-gray-500 font-normal text-sm">
+                                <span className="text-muted-foreground font-normal text-sm">
                                   (+ €{selectedEventMusiker.spesen.toFixed(2)} Reisekosten)
                                 </span>
                               )}
@@ -739,13 +739,13 @@ export default function MusikerDashboard() {
                         {/* Location mit Google Maps */}
                         {(event.ort_name || event.ort_adresse) && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Location</p>
-                            <div className="p-4 bg-gray-50 rounded-lg">
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Location</p>
+                            <div className="p-4 bg-muted rounded-lg">
                               {event.ort_name && (
-                                <p className="font-semibold text-gray-900">{event.ort_name}</p>
+                                <p className="font-semibold text-foreground">{event.ort_name}</p>
                               )}
                               {event.ort_adresse && (
-                                <p className="text-gray-600 mt-1">{event.ort_adresse}</p>
+                                <p className="text-muted-foreground mt-1">{event.ort_adresse}</p>
                               )}
                               <Button
                                 variant="outline"
@@ -764,7 +764,7 @@ export default function MusikerDashboard() {
                         {/* Ablaufplan / Schedule */}
                         {(event.get_in_zeit || event.soundcheck_zeit || selectedEventMusiker.calltime || event.oeffentliche_notizen) && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Ablaufplan</p>
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Ablaufplan</p>
                             <div className="space-y-2">
                               {selectedEventMusiker.calltime && (
                                 <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
@@ -776,19 +776,19 @@ export default function MusikerDashboard() {
                                 </div>
                               )}
                               {event.get_in_zeit && (
-                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                  <Clock className="w-5 h-5 text-gray-500" />
+                                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                                  <Clock className="w-5 h-5 text-muted-foreground" />
                                   <div>
-                                    <p className="text-sm text-gray-500">Get-In</p>
+                                    <p className="text-sm text-muted-foreground">Get-In</p>
                                     <p className="font-semibold">{event.get_in_zeit} Uhr</p>
                                   </div>
                                 </div>
                               )}
                               {event.soundcheck_zeit && (
-                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                  <Wrench className="w-5 h-5 text-gray-500" />
+                                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                                  <Wrench className="w-5 h-5 text-muted-foreground" />
                                   <div>
-                                    <p className="text-sm text-gray-500">Soundcheck</p>
+                                    <p className="text-sm text-muted-foreground">Soundcheck</p>
                                     <p className="font-semibold">{event.soundcheck_zeit} Uhr</p>
                                   </div>
                                 </div>
@@ -817,22 +817,22 @@ export default function MusikerDashboard() {
                         {/* Publikum & Ambiente */}
                         {(event.event_typ || event.anzahl_gaeste || event.dresscode) && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Details</p>
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Details</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {event.event_typ && (
-                                <div className="flex items-center gap-2 text-gray-600">
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                   <span className="text-xl">🎉</span>
                                   <span>{event.event_typ}</span>
                                 </div>
                               )}
                               {event.anzahl_gaeste && (
-                                <div className="flex items-center gap-2 text-gray-600">
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                   <Users className="w-5 h-5" />
                                   <span>{event.anzahl_gaeste} Gäste</span>
                                 </div>
                               )}
                               {event.dresscode && (
-                                <div className="flex items-center gap-2 text-gray-600">
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                   <Shirt className="w-5 h-5" />
                                   <span>{event.dresscode}</span>
                                 </div>
@@ -852,14 +852,14 @@ export default function MusikerDashboard() {
                         {/* Hotel mit Google Maps */}
                         {event.hotel_name && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Hotel</p>
-                            <div className="p-4 bg-gray-50 rounded-lg">
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Hotel</p>
+                            <div className="p-4 bg-muted rounded-lg">
                               <div className="flex items-start gap-3">
-                                <Hotel className="w-5 h-5 text-gray-500 mt-0.5" />
+                                <Hotel className="w-5 h-5 text-muted-foreground mt-0.5" />
                                 <div className="flex-1">
-                                  <p className="font-semibold text-gray-900">{event.hotel_name}</p>
+                                  <p className="font-semibold text-foreground">{event.hotel_name}</p>
                                   {event.hotel_adresse && (
-                                    <p className="text-gray-600 mt-1">{event.hotel_adresse}</p>
+                                    <p className="text-muted-foreground mt-1">{event.hotel_adresse}</p>
                                   )}
                                 </div>
                               </div>
@@ -882,9 +882,9 @@ export default function MusikerDashboard() {
                         {/* Technik */}
                         {event.technik_hinweise && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Technik</p>
-                            <div className="p-4 bg-gray-50 rounded-lg">
-                              <p className="text-gray-700 whitespace-pre-wrap">{event.technik_hinweise}</p>
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Technik</p>
+                            <div className="p-4 bg-muted rounded-lg">
+                              <p className="text-foreground whitespace-pre-wrap">{event.technik_hinweise}</p>
                             </div>
                           </div>
                         )}
@@ -892,7 +892,7 @@ export default function MusikerDashboard() {
                         {/* Dokumente */}
                         {dateien.length > 0 && (
                           <div className="pt-4 border-t">
-                            <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Dokumente</p>
+                            <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Dokumente</p>
                             <div className="space-y-2">
                               {dateien.map((datei) => (
                                 <a
@@ -900,16 +900,16 @@ export default function MusikerDashboard() {
                                   href={datei.file_url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                                  className="flex items-center gap-3 p-3 bg-muted rounded-lg hover:bg-muted transition-colors"
                                 >
                                   <FileText className="w-5 h-5 text-blue-600" />
                                   <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-gray-900 truncate">{datei.file_name}</p>
+                                    <p className="font-medium text-foreground truncate">{datei.file_name}</p>
                                     {datei.beschreibung && (
-                                      <p className="text-sm text-gray-500 truncate">{datei.beschreibung}</p>
+                                      <p className="text-sm text-muted-foreground truncate">{datei.beschreibung}</p>
                                     )}
                                   </div>
-                                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                                  <ExternalLink className="w-4 h-4 text-muted-foreground" />
                                 </a>
                               ))}
                             </div>
@@ -1017,11 +1017,11 @@ export default function MusikerDashboard() {
 
             <div className="space-y-4">
               {selectedEventMusiker && getEventForEventMusiker(selectedEventMusiker) && (
-                <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+                <div className="p-4 bg-muted rounded-lg space-y-2">
                   <p className="font-semibold">
                     {getEventForEventMusiker(selectedEventMusiker)?.titel}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     {selectedEventMusiker.rolle} • €{selectedEventMusiker.gage_netto?.toFixed(2)}
                   </p>
                 </div>

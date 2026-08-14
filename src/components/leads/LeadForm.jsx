@@ -110,7 +110,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
           {/* Kontakt-Auswahl (nur bei neuem Lead) */}
           {!lead && (
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Kontakt</h3>
+              <h3 className="font-semibold text-lg text-foreground border-b pb-2">Kontakt</h3>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -137,7 +137,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
               {kontaktModus === 'auswahl' && (
                 <div className="space-y-2">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       placeholder="Kunden suchen..."
                       value={kundeSearch}
@@ -146,7 +146,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
                     />
                   </div>
                   {kunden.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">
+                    <p className="text-sm text-muted-foreground text-center py-4">
                       Keine Kunden vorhanden.{" "}
                       <button type="button" className="text-[#FF6A4D] underline" onClick={() => setKontaktModus('manuell')}>
                         Neuen Kontakt eingeben
@@ -155,18 +155,18 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
                   ) : (
                     <div className="max-h-48 overflow-y-auto border rounded-lg divide-y">
                       {filteredKunden.length === 0 ? (
-                        <p className="text-sm text-gray-500 text-center py-4">Keine Kunden gefunden</p>
+                        <p className="text-sm text-muted-foreground text-center py-4">Keine Kunden gefunden</p>
                       ) : (
                         filteredKunden.map((kunde) => (
                           <button
                             key={kunde.id}
                             type="button"
                             onClick={() => handleKundeSelect(kunde)}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                            className="w-full text-left px-4 py-3 hover:bg-muted transition-colors"
                           >
-                            <p className="font-medium text-gray-900">{kunde.firmenname}</p>
-                            {kunde.ansprechpartner && <p className="text-sm text-gray-500">{kunde.ansprechpartner}</p>}
-                            {kunde.email && <p className="text-xs text-gray-400">{kunde.email}</p>}
+                            <p className="font-medium text-foreground">{kunde.firmenname}</p>
+                            {kunde.ansprechpartner && <p className="text-sm text-muted-foreground">{kunde.ansprechpartner}</p>}
+                            {kunde.email && <p className="text-xs text-muted-foreground">{kunde.email}</p>}
                           </button>
                         ))
                       )}
@@ -189,7 +189,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
 
           {/* Grundinformationen */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Grundinformationen</h3>
+            <h3 className="font-semibold text-lg text-foreground border-b pb-2">Grundinformationen</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -267,7 +267,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
 
           {/* Event-Details */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Event-Details</h3>
+            <h3 className="font-semibold text-lg text-foreground border-b pb-2">Event-Details</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -333,7 +333,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
 
           {/* Finanzen & Verwaltung */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Finanzen & Verwaltung</h3>
+            <h3 className="font-semibold text-lg text-foreground border-b pb-2">Finanzen & Verwaltung</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -413,7 +413,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
 
           {/* Beschreibung & Notizen */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Beschreibung & Notizen</h3>
+            <h3 className="font-semibold text-lg text-foreground border-b pb-2">Beschreibung & Notizen</h3>
             
             <div className="space-y-2">
               <Label htmlFor="beschreibung">Beschreibung/Anfrage</Label>
@@ -449,7 +449,7 @@ export default function LeadForm({ lead, onSubmit, onCancel, mitglieder, kunden 
 
           {/* Tags */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg text-gray-900 border-b pb-2">Tags</h3>
+            <h3 className="font-semibold text-lg text-foreground border-b pb-2">Tags</h3>
             
             <div className="space-y-2">
               <Label>Tags hinzufügen</Label>

@@ -87,7 +87,7 @@ export default function VertraegePage() {
   });
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    entwurf: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
     versendet: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
     unterzeichnet: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500" },
     storniert: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400" }
@@ -138,7 +138,7 @@ export default function VertraegePage() {
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{vertrag.titel}</CardTitle>
               {vertrag.vertragsnummer &&
-              <p className="text-sm text-gray-500">{vertrag.vertragsnummer}</p>
+              <p className="text-sm text-muted-foreground">{vertrag.vertragsnummer}</p>
               }
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -167,20 +167,20 @@ export default function VertraegePage() {
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
           {kunde &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <User className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <User className="w-4 h-4 text-muted-foreground" />
               <span className="truncate">{kunde.firmenname}</span>
             </div>
           }
           {event &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Calendar className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
               <span className="truncate">{event.titel}</span>
             </div>
           }
           {vertrag.unterzeichnen_bis &&
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Calendar className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
               <span>Frist: {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</span>
             </div>
           }
@@ -196,7 +196,7 @@ export default function VertraegePage() {
 
     return (
       <div
-        className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass} cursor-pointer`}
+        className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass} cursor-pointer`}
         onClick={() => handleView(vertrag)}
       >
         <div className="bg-[#FF6A4D] text-white font-bold rounded-lg w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -206,9 +206,9 @@ export default function VertraegePage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">{vertrag.titel}</h3>
+              <h3 className="font-semibold text-lg text-foreground truncate">{vertrag.titel}</h3>
               {vertrag.vertragsnummer &&
-              <p className="text-sm text-gray-500">{vertrag.vertragsnummer}</p>
+              <p className="text-sm text-muted-foreground">{vertrag.vertragsnummer}</p>
               }
             </div>
             <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
@@ -216,7 +216,7 @@ export default function VertraegePage() {
             </Badge>
           </div>
           
-          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             {kunde &&
             <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
@@ -268,8 +268,8 @@ export default function VertraegePage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Verträge</h1>
-            <p className="text-gray-600">Verwalte deine Verträge mit digitaler Unterschrift</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Verträge</h1>
+            <p className="text-muted-foreground">Verwalte deine Verträge mit digitaler Unterschrift</p>
           </div>
           <div className="flex gap-2">
             <Button
@@ -296,11 +296,11 @@ export default function VertraegePage() {
           <Card className="border-none shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-gray-100 rounded-lg">
-                  <FileText className="w-6 h-6 text-gray-600" />
+                <div className="p-3 bg-muted rounded-lg">
+                  <FileText className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Entwürfe</p>
+                  <p className="text-sm text-muted-foreground">Entwürfe</p>
                   <p className="text-2xl font-bold">{entwuerfe}</p>
                 </div>
               </div>
@@ -314,7 +314,7 @@ export default function VertraegePage() {
                   <Send className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Versendet</p>
+                  <p className="text-sm text-muted-foreground">Versendet</p>
                   <p className="text-2xl font-bold">{versendet}</p>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function VertraegePage() {
                   <FileText className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Unterzeichnet</p>
+                  <p className="text-sm text-muted-foreground">Unterzeichnet</p>
                   <p className="text-2xl font-bold">{unterzeichnet}</p>
                 </div>
               </div>
@@ -340,7 +340,7 @@ export default function VertraegePage() {
           <CardContent className="p-4">
             <div className="flex gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Verträge durchsuchen..."
                   value={searchQuery}
@@ -360,12 +360,12 @@ export default function VertraegePage() {
                   <SelectItem value="storniert">Storniert</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
+                  className={viewMode === "grid" ? "bg-card shadow-sm" : ""}>
 
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
@@ -373,7 +373,7 @@ export default function VertraegePage() {
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
+                  className={viewMode === "list" ? "bg-card shadow-sm" : ""}>
 
                   <List className="w-4 h-4" />
                 </Button>
@@ -417,7 +417,7 @@ export default function VertraegePage() {
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Verträge gefunden</h3>
-              <p className="text-gray-500 mb-4">Erstelle deinen ersten Vertrag</p>
+              <p className="text-muted-foreground mb-4">Erstelle deinen ersten Vertrag</p>
               <Button onClick={() => setShowForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Vertrag erstellen

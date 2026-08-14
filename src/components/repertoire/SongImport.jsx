@@ -306,10 +306,10 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
               <div className="flex items-center gap-3">
                 <label
                   htmlFor="file-upload"
-                  className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 p-4 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
                 >
-                  <Upload className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">
+                  <Upload className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
                     {file ? file.name : 'Datei auswählen oder hierher ziehen (CSV oder PDF)'}
                   </span>
                 </label>
@@ -366,13 +366,13 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
                 <div className="border rounded-lg overflow-hidden">
                   <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b sticky top-0">
+                      <thead className="bg-muted border-b sticky top-0">
                         <tr>
                           <th className="p-2 w-8"></th>
-                          <th className="text-left p-2 font-semibold text-gray-700">Titel</th>
-                          <th className="text-left p-2 font-semibold text-gray-700">Künstler</th>
-                          <th className="text-left p-2 font-semibold text-gray-700 w-24">Tonart</th>
-                          <th className="text-left p-2 font-semibold text-gray-700">Notizen</th>
+                          <th className="text-left p-2 font-semibold text-foreground">Titel</th>
+                          <th className="text-left p-2 font-semibold text-foreground">Künstler</th>
+                          <th className="text-left p-2 font-semibold text-foreground w-24">Tonart</th>
+                          <th className="text-left p-2 font-semibold text-foreground">Notizen</th>
                           <th className="p-2 w-8"></th>
                         </tr>
                       </thead>

@@ -152,7 +152,7 @@ export default function AngebotePage() {
   );
 
   const statusColors = {
-    entwurf: "bg-gray-100 text-gray-800",
+    entwurf: "bg-muted text-foreground",
     versendet: "bg-blue-100 text-blue-800",
     angenommen: "bg-green-100 text-green-800",
     abgelehnt: "bg-red-100 text-red-800",
@@ -495,7 +495,7 @@ export default function AngebotePage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-gray-600 truncate">{kunde?.firmenname || 'Kunde unbekannt'}</p>
+              <p className="text-sm text-muted-foreground truncate">{kunde?.firmenname || 'Kunde unbekannt'}</p>
             </div>
             <div className="relative">
               <Button 
@@ -518,15 +518,15 @@ export default function AngebotePage() {
                       setShowDropdownId(null);
                     }}
                   />
-                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleChangeStatus(angebot);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left"
                     >
-                      <CheckCircle className="w-4 h-4 text-gray-600" />
+                      <CheckCircle className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm font-medium">Status ändern</span>
                     </button>
                     <button
@@ -534,9 +534,9 @@ export default function AngebotePage() {
                         e.stopPropagation();
                         handleEdit(angebot);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left border-t"
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left border-t"
                     >
-                      <Edit className="w-4 h-4 text-gray-600" />
+                      <Edit className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm font-medium">Angebot bearbeiten</span>
                     </button>
                     <button
@@ -557,12 +557,12 @@ export default function AngebotePage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-muted-foreground">
               <span>Erstellt: {format(new Date(angebot.angebotsdatum), 'dd. MMM yyyy', { locale: de })}</span>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-xs text-gray-600">Betrag</p>
-              <p className="text-lg font-bold text-gray-900">
+              <p className="text-xs text-muted-foreground">Betrag</p>
+              <p className="text-lg font-bold text-foreground">
                 {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
             </div>
@@ -570,8 +570,8 @@ export default function AngebotePage() {
 
           <div className="pt-3 border-t">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Gültig bis:</span>
-              <span className={`font-medium ${isAbgelaufen ? 'text-orange-600' : 'text-gray-900'}`}>
+              <span className="text-muted-foreground">Gültig bis:</span>
+              <span className={`font-medium ${isAbgelaufen ? 'text-orange-600' : 'text-foreground'}`}>
                 {format(new Date(angebot.gueltig_bis), 'dd. MMM yyyy', { locale: de })}
               </span>
             </div>
@@ -631,8 +631,8 @@ export default function AngebotePage() {
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Angebote</h1>
-              <p className="text-gray-600">Erstelle und verwalte deine Angebote</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Angebote</h1>
+              <p className="text-muted-foreground">Erstelle und verwalte deine Angebote</p>
             </div>
             <Button
               onClick={() => {
@@ -654,8 +654,8 @@ export default function AngebotePage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Versendet</p>
-                  <p className="text-2xl font-bold text-gray-900">{versendeteAngebote.length}</p>
+                  <p className="text-sm text-muted-foreground">Versendet</p>
+                  <p className="text-2xl font-bold text-foreground">{versendeteAngebote.length}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-lg">
                   <Send className="w-6 h-6 text-blue-600" />
@@ -668,7 +668,7 @@ export default function AngebotePage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Angenommen</p>
+                  <p className="text-sm text-muted-foreground">Angenommen</p>
                   <p className="text-2xl font-bold text-green-600">{angenommeneAngebote.length}</p>
                 </div>
                 <div className="p-3 bg-green-100 rounded-lg">
@@ -682,7 +682,7 @@ export default function AngebotePage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Abgelaufen</p>
+                  <p className="text-sm text-muted-foreground">Abgelaufen</p>
                   <p className="text-2xl font-bold text-orange-600">{abgelaufeneAngebote.length}</p>
                 </div>
                 <div className="p-3 bg-orange-100 rounded-lg">
@@ -698,7 +698,7 @@ export default function AngebotePage() {
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Angebote durchsuchen..."
                   value={searchQuery}
@@ -709,7 +709,7 @@ export default function AngebotePage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white"
+                className="px-4 py-2 border rounded-lg bg-card"
               >
                 <option value="alle">Alle Status</option>
                 <option value="entwurf">Entwurf</option>
@@ -746,20 +746,20 @@ export default function AngebotePage() {
                   <DialogTitle>Status ändern</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-muted rounded-lg">
                     <p className="font-semibold">{statusToChange.angebotsnummer}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       Aktueller Status: <Badge className={statusColors[statusToChange.status]}>{statusToChange.status}</Badge>
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Neuer Status:</p>
+                    <p className="text-sm font-medium text-foreground">Neuer Status:</p>
                     <div className="space-y-2">
                       <button
                         onClick={() => handleStatusSubmit('entwurf')}
-                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors ${
-                          statusToChange.status === 'entwurf' ? 'border-gray-400 bg-gray-50' : 'border-gray-200'
+                        className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-muted transition-colors ${
+                          statusToChange.status === 'entwurf' ? 'border-gray-400 bg-muted' : 'border-border'
                         }`}
                       >
                         <Badge className={statusColors.entwurf}>Entwurf</Badge>
@@ -767,7 +767,7 @@ export default function AngebotePage() {
                       <button
                         onClick={() => handleStatusSubmit('versendet')}
                         className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-blue-50 transition-colors ${
-                          statusToChange.status === 'versendet' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
+                          statusToChange.status === 'versendet' ? 'border-blue-400 bg-blue-50' : 'border-border'
                         }`}
                       >
                         <Badge className={statusColors.versendet}>Versendet</Badge>
@@ -775,7 +775,7 @@ export default function AngebotePage() {
                       <button
                         onClick={() => handleStatusSubmit('angenommen')}
                         className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-green-50 transition-colors ${
-                          statusToChange.status === 'angenommen' ? 'border-green-400 bg-green-50' : 'border-gray-200'
+                          statusToChange.status === 'angenommen' ? 'border-green-400 bg-green-50' : 'border-border'
                         }`}
                       >
                         <Badge className={statusColors.angenommen}>Angenommen</Badge>
@@ -783,7 +783,7 @@ export default function AngebotePage() {
                       <button
                         onClick={() => handleStatusSubmit('abgelehnt')}
                         className={`w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-red-50 transition-colors ${
-                          statusToChange.status === 'abgelehnt' ? 'border-red-400 bg-red-50' : 'border-gray-200'
+                          statusToChange.status === 'abgelehnt' ? 'border-red-400 bg-red-50' : 'border-border'
                         }`}
                       >
                         <Badge className={statusColors.abgelehnt}>Abgelehnt</Badge>
@@ -813,12 +813,12 @@ export default function AngebotePage() {
                     </div>
                     {organisation && (
                       <div className="text-right text-sm">
-                        <p className="font-semibold text-gray-900">{organisation.name}</p>
+                        <p className="font-semibold text-foreground">{organisation.name}</p>
                         {organisation.adresse && (
-                          <p className="text-gray-600 text-xs mt-1 whitespace-pre-line">{organisation.adresse}</p>
+                          <p className="text-muted-foreground text-xs mt-1 whitespace-pre-line">{organisation.adresse}</p>
                         )}
                         {organisation.steuernummer && (
-                          <p className="text-gray-500 text-xs mt-1">Steuernr.: {organisation.steuernummer}</p>
+                          <p className="text-muted-foreground text-xs mt-1">Steuernr.: {organisation.steuernummer}</p>
                         )}
                       </div>
                     )}
@@ -829,17 +829,17 @@ export default function AngebotePage() {
                   {/* Kunde & Daten */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Kunde</p>
-                      <p className="font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Kunde</p>
+                      <p className="font-semibold text-foreground">
                         {kunden.find((k) => k.id === selectedAngebot.kunde_id)?.firmenname || 'Unbekannt'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Datum</p>
-                      <p className="text-gray-700">
+                      <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Datum</p>
+                      <p className="text-foreground">
                         Erstellt: {format(new Date(selectedAngebot.angebotsdatum), 'dd. MMMM yyyy', { locale: de })}
                       </p>
-                      <p className="text-gray-700">
+                      <p className="text-foreground">
                         Gültig bis: {format(new Date(selectedAngebot.gueltig_bis), 'dd. MMMM yyyy', { locale: de })}
                       </p>
                     </div>
@@ -847,12 +847,12 @@ export default function AngebotePage() {
 
                   {/* Positionen */}
                   <div>
-                    <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Positionen</p>
+                    <p className="text-sm font-semibold text-muted-foreground uppercase mb-3">Positionen</p>
                     <div className="space-y-2">
                      {selectedAngebot.positionen?.map((pos, idx) => (
-                       <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                       <div key={idx} className="p-3 bg-muted rounded-lg">
                          {pos.bezeichnung && (
-                           <p className="font-bold text-gray-900 mb-2 pb-2 border-b">{pos.bezeichnung}</p>
+                           <p className="font-bold text-foreground mb-2 pb-2 border-b">{pos.bezeichnung}</p>
                          )}
                          <div className="flex justify-between items-start mb-1">
                            <div 
@@ -863,7 +863,7 @@ export default function AngebotePage() {
                              {((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                            </p>
                          </div>
-                         <p className="text-sm text-gray-600">
+                         <p className="text-sm text-muted-foreground">
                            {pos.menge} {pos.einheit || 'Stk'} × {(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                          </p>
                        </div>
@@ -872,13 +872,13 @@ export default function AngebotePage() {
                   </div>
 
                   {/* Summen */}
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div className="bg-muted p-4 rounded-lg space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Netto:</span>
+                      <span className="text-muted-foreground">Netto:</span>
                       <span className="font-medium">{(selectedAngebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">MwSt.:</span>
+                      <span className="text-muted-foreground">MwSt.:</span>
                       <span className="font-medium">{(selectedAngebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold border-t pt-2">
@@ -890,8 +890,8 @@ export default function AngebotePage() {
                   {/* Zahlungsbedingungen */}
                   {selectedAngebot.zahlungsbedingungen && (
                     <div>
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Zahlungsbedingungen</p>
-                      <p className="text-gray-700 whitespace-pre-wrap">{selectedAngebot.zahlungsbedingungen}</p>
+                      <p className="text-sm font-semibold text-muted-foreground uppercase mb-2">Zahlungsbedingungen</p>
+                      <p className="text-foreground whitespace-pre-wrap">{selectedAngebot.zahlungsbedingungen}</p>
                     </div>
                   )}
 
@@ -941,7 +941,7 @@ export default function AngebotePage() {
             <CardContent className="p-12 text-center">
               <FileCheck className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Angebote gefunden</h3>
-              <p className="text-gray-500 mb-4">Erstelle dein erstes Angebot</p>
+              <p className="text-muted-foreground mb-4">Erstelle dein erstes Angebot</p>
               <Button onClick={() => setShowForm(true)} style={{ backgroundColor: '#FF6A4D' }} className="hover:opacity-90">
                 <Plus className="w-4 h-4 mr-2" />
                 Neues Angebot

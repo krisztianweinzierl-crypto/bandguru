@@ -58,7 +58,7 @@ export default function EventAufgabenTab({
   const [deleteConfirmType, setDeleteConfirmType] = useState(null); // 'aufgabe' or 'unteraufgabe'
 
   const prioritaetColors = {
-    niedrig: 'bg-gray-100 text-gray-600',
+    niedrig: 'bg-muted text-muted-foreground',
     normal: 'bg-blue-100 text-blue-600',
     hoch: 'bg-red-100 text-red-600'
   };
@@ -143,14 +143,14 @@ export default function EventAufgabenTab({
                 <div key={aufgabe.id} className="border rounded-lg overflow-hidden">
                   <div
                     className={`flex items-center gap-3 p-4 ${
-                      aufgabe.status === 'erledigt' ? 'bg-gray-50 opacity-60' : 'bg-white'
-                    } hover:bg-gray-50 transition-colors`}
+                      aufgabe.status === 'erledigt' ? 'bg-muted opacity-60' : 'bg-card'
+                    } hover:bg-muted transition-colors`}
                   >
                     {/* Expand Button */}
                     {hasUnteraufgaben ? (
                       <button
                         onClick={() => toggleExpand(aufgabe.id)}
-                        className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all"
+                        className="text-muted-foreground hover:text-muted-foreground hover:bg-muted rounded p-0.5 transition-all"
                       >
                         <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                       </button>
@@ -169,7 +169,7 @@ export default function EventAufgabenTab({
                       {aufgabe.status === 'erledigt' ? (
                         <CheckCircle2 className="w-6 h-6 text-green-500" />
                       ) : (
-                        <Circle className="w-6 h-6 text-gray-300 hover:text-gray-400" />
+                        <Circle className="w-6 h-6 text-gray-300 hover:text-muted-foreground" />
                       )}
                     </button>
                     
@@ -194,20 +194,20 @@ export default function EventAufgabenTab({
                             <CheckCircle2 className="w-4 h-4 text-green-600" />
                           </Button>
                           <Button size="sm" variant="ghost" onClick={handleInlineEditCancel}>
-                            <X className="w-4 h-4 text-gray-400" />
+                            <X className="w-4 h-4 text-muted-foreground" />
                           </Button>
                         </div>
                       ) : (
                         <>
-                          <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                          <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                             {aufgabe.titel}
                             {hasUnteraufgaben && (
-                              <span className="ml-2 text-xs text-gray-500">
+                              <span className="ml-2 text-xs text-muted-foreground">
                                 ({unteraufgaben.filter(u => u.status === 'erledigt').length}/{unteraufgaben.length})
                               </span>
                             )}
                           </p>
-                          <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                          <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                             {aufgabe.faellig_am && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
@@ -232,7 +232,7 @@ export default function EventAufgabenTab({
                           variant="ghost"
                           size="icon"
                           onClick={() => openEditDialog(aufgabe)}
-                          className="text-gray-400 hover:text-blue-500"
+                          className="text-muted-foreground hover:text-blue-500"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -243,7 +243,7 @@ export default function EventAufgabenTab({
                             setDeleteConfirmId(aufgabe.id);
                             setDeleteConfirmType('aufgabe');
                           }}
-                          className="text-gray-400 hover:text-red-500"
+                          className="text-muted-foreground hover:text-red-500"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -253,11 +253,11 @@ export default function EventAufgabenTab({
                   
                   {/* Unteraufgaben - aufklappbar */}
                   {hasUnteraufgaben && isExpanded && (
-                    <div className="bg-gray-50 border-t px-4 py-2 space-y-1">
+                    <div className="bg-muted border-t px-4 py-2 space-y-1">
                       {unteraufgaben.map((sub) => (
                         <div 
                           key={sub.id} 
-                          className="flex items-center gap-3 ml-6 border-l-2 border-gray-200 pl-4 py-2 hover:bg-gray-100 rounded-r transition-colors"
+                          className="flex items-center gap-3 ml-6 border-l-2 border-border pl-4 py-2 hover:bg-muted rounded-r transition-colors"
                           onDoubleClick={() => handleDoubleClick(sub)}
                         >
                           <button
@@ -290,11 +290,11 @@ export default function EventAufgabenTab({
                                 <CheckCircle2 className="w-4 h-4 text-green-600" />
                               </Button>
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={handleInlineEditCancel}>
-                                <X className="w-4 h-4 text-gray-400" />
+                                <X className="w-4 h-4 text-muted-foreground" />
                               </Button>
                             </div>
                           ) : (
-                            <span className={`text-sm flex-1 ${sub.status === 'erledigt' ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                            <span className={`text-sm flex-1 ${sub.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                               {sub.titel}
                             </span>
                           )}
@@ -305,7 +305,7 @@ export default function EventAufgabenTab({
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => openEditDialog(sub)}
-                                className="h-6 w-6 text-gray-400 hover:text-blue-500"
+                                className="h-6 w-6 text-muted-foreground hover:text-blue-500"
                               >
                                 <Edit className="w-3 h-3" />
                               </Button>
@@ -316,7 +316,7 @@ export default function EventAufgabenTab({
                                   setDeleteConfirmId(sub.id);
                                   setDeleteConfirmType('unteraufgabe');
                                 }}
-                                className="h-6 w-6 text-gray-400 hover:text-red-500"
+                                className="h-6 w-6 text-muted-foreground hover:text-red-500"
                               >
                                 <Trash2 className="w-3 h-3" />
                               </Button>
@@ -334,7 +334,7 @@ export default function EventAufgabenTab({
           <div className="text-center py-12">
             <CheckSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-semibold mb-2">Keine Aufgaben</h3>
-            <p className="text-gray-500 mb-4">Es gibt noch keine Aufgaben für dieses Event</p>
+            <p className="text-muted-foreground mb-4">Es gibt noch keine Aufgaben für dieses Event</p>
             {isManager && (
               <Button
                 onClick={() => {
@@ -461,10 +461,10 @@ export default function EventAufgabenTab({
               {/* Existierende Unteraufgaben (beim Bearbeiten) */}
               {editingAufgabe && existingUnteraufgaben.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs text-gray-500">Bestehende Unteraufgaben:</p>
+                  <p className="text-xs text-muted-foreground">Bestehende Unteraufgaben:</p>
                   {existingUnteraufgaben.map((sub) => (
-                    <div key={sub.id} className="flex gap-2 items-center bg-gray-50 p-2 rounded">
-                      <span className={`text-sm flex-1 ${sub.status === 'erledigt' ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                    <div key={sub.id} className="flex gap-2 items-center bg-muted p-2 rounded">
+                      <span className={`text-sm flex-1 ${sub.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                         {sub.titel}
                       </span>
                       <Button
@@ -487,7 +487,7 @@ export default function EventAufgabenTab({
               {/* Neue Unteraufgaben */}
               {neueUnteraufgaben.length > 0 && (
                 <div className="space-y-2">
-                  {editingAufgabe && <p className="text-xs text-gray-500">Neue Unteraufgaben:</p>}
+                  {editingAufgabe && <p className="text-xs text-muted-foreground">Neue Unteraufgaben:</p>}
                   {neueUnteraufgaben.map((sub, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <Input
@@ -515,7 +515,7 @@ export default function EventAufgabenTab({
               )}
 
               {existingUnteraufgaben.length === 0 && neueUnteraufgaben.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-2">Keine Unteraufgaben</p>
+                <p className="text-sm text-muted-foreground text-center py-2">Keine Unteraufgaben</p>
               )}
             </div>
           </div>

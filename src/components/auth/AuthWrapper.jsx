@@ -42,7 +42,7 @@ export default function AuthWrapper({ children }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse"
           />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Authentifizierung prüfen...</p>
+          <p className="text-muted-foreground">Authentifizierung prüfen...</p>
         </div>
       </div>
     );

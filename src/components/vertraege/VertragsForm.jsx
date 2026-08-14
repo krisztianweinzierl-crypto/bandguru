@@ -228,7 +228,7 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
                 )}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 💡 Tipp: Wähle zuerst Kunde und Event aus, damit die Platzhalter automatisch ersetzt werden
               </p>
             </div>
@@ -269,7 +269,7 @@ export default function VertragsForm({ vertrag = null, onSubmit, onCancel, kunde
           {/* Vertragsbedingungen (Rich Text Editor) */}
           <div className="space-y-2">
             <Label>Vertragsbedingungen *</Label>
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-border rounded-lg">
               <ReactQuill
                 theme="snow"
                 value={formData.inhalt}

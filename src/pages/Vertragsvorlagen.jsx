@@ -84,7 +84,7 @@ export default function VertragsvorlagenPage() {
 
   const kategorieColors = {
     event: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400" },
-    allgemein: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400" },
+    allgemein: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400" },
     abo: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400" },
     dienstleistung: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-400" },
     sonstiges: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400" }
@@ -135,7 +135,7 @@ export default function VertragsvorlagenPage() {
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg mb-1 truncate">{vorlage.name}</CardTitle>
               {vorlage.beschreibung && (
-                <p className="text-sm text-gray-500 line-clamp-2">{vorlage.beschreibung}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{vorlage.beschreibung}</p>
               )}
             </div>
             <div className="flex flex-col gap-2 items-end">
@@ -151,8 +151,8 @@ export default function VertragsvorlagenPage() {
           </div>
         </CardHeader>
         <CardContent className="pt-0 space-y-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <FileText className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <FileText className="w-4 h-4 text-muted-foreground" />
             <span>{vorlage.verwendungen || 0}x verwendet</span>
           </div>
           
@@ -180,7 +180,7 @@ export default function VertragsvorlagenPage() {
     const kategorieStyle = kategorieColors[vorlage.kategorie] || kategorieColors.allgemein;
 
     return (
-      <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${kategorieStyle.borderClass} ${!vorlage.aktiv ? 'opacity-60' : ''}`}>
+      <div className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${kategorieStyle.borderClass} ${!vorlage.aktiv ? 'opacity-60' : ''}`}>
         <div className="w-12 h-12 bg-[#FF6A4D] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
           <FileText className="w-6 h-6" />
         </div>
@@ -188,9 +188,9 @@ export default function VertragsvorlagenPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">{vorlage.name}</h3>
+              <h3 className="font-semibold text-lg text-foreground truncate">{vorlage.name}</h3>
               {vorlage.beschreibung && (
-                <p className="text-sm text-gray-500 line-clamp-1">{vorlage.beschreibung}</p>
+                <p className="text-sm text-muted-foreground line-clamp-1">{vorlage.beschreibung}</p>
               )}
             </div>
             <div className="flex gap-2 items-center flex-shrink-0">
@@ -205,8 +205,8 @@ export default function VertragsvorlagenPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <FileText className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <FileText className="w-4 h-4 text-muted-foreground" />
             <span>{vorlage.verwendungen || 0}x verwendet</span>
           </div>
         </div>
@@ -250,8 +250,8 @@ export default function VertragsvorlagenPage() {
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Vertragsvorlagen</h1>
-            <p className="text-gray-600">Erstelle und verwalte wiederverwendbare Vertragsvorlagen</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Vertragsvorlagen</h1>
+            <p className="text-muted-foreground">Erstelle und verwalte wiederverwendbare Vertragsvorlagen</p>
           </div>
           <Button 
             onClick={() => {
@@ -273,7 +273,7 @@ export default function VertragsvorlagenPage() {
                   <FileText className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Aktive Vorlagen</p>
+                  <p className="text-sm text-muted-foreground">Aktive Vorlagen</p>
                   <p className="text-2xl font-bold">{aktiveVorlagen}</p>
                 </div>
               </div>
@@ -283,11 +283,11 @@ export default function VertragsvorlagenPage() {
           <Card className="border-none shadow-lg">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-gray-100 rounded-lg">
-                  <FileText className="w-6 h-6 text-gray-600" />
+                <div className="p-3 bg-muted rounded-lg">
+                  <FileText className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Inaktive Vorlagen</p>
+                  <p className="text-sm text-muted-foreground">Inaktive Vorlagen</p>
                   <p className="text-2xl font-bold">{inaktiveVorlagen}</p>
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default function VertragsvorlagenPage() {
                   <Copy className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Gesamt verwendet</p>
+                  <p className="text-sm text-muted-foreground">Gesamt verwendet</p>
                   <p className="text-2xl font-bold">{gesamtVerwendungen}</p>
                 </div>
               </div>
@@ -313,7 +313,7 @@ export default function VertragsvorlagenPage() {
           <CardContent className="p-4">
             <div className="flex gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Vorlagen durchsuchen..."
                   value={searchQuery}
@@ -334,12 +334,12 @@ export default function VertragsvorlagenPage() {
                   <SelectItem value="sonstiges">Sonstiges</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}
+                  className={viewMode === "grid" ? "bg-card shadow-sm" : ""}
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
@@ -347,7 +347,7 @@ export default function VertragsvorlagenPage() {
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}
+                  className={viewMode === "list" ? "bg-card shadow-sm" : ""}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -388,7 +388,7 @@ export default function VertragsvorlagenPage() {
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Vorlagen gefunden</h3>
-              <p className="text-gray-500 mb-4">Erstelle deine erste Vertragsvorlage</p>
+              <p className="text-muted-foreground mb-4">Erstelle deine erste Vertragsvorlage</p>
               <Button onClick={() => setShowForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Vorlage erstellen
@@ -407,7 +407,7 @@ export default function VertragsvorlagenPage() {
                 <div>
                   <CardTitle>{previewVorlage.name}</CardTitle>
                   {previewVorlage.beschreibung && (
-                    <p className="text-sm text-gray-500 mt-1">{previewVorlage.beschreibung}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{previewVorlage.beschreibung}</p>
                   )}
                 </div>
                 <Button

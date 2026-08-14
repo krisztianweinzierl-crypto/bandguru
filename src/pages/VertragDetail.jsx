@@ -456,13 +456,13 @@ Ihr Team`;
   if (isLoading || !vertrag) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-gray-600">Lade Vertrag...</p>
+        <p className="text-muted-foreground">Lade Vertrag...</p>
       </div>);
 
   }
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", label: "Entwurf" },
+    entwurf: { bg: "bg-muted", text: "text-foreground", label: "Entwurf" },
     versendet: { bg: "bg-blue-100", text: "text-blue-800", label: "Versendet" },
     unterzeichnet: { bg: "bg-green-100", text: "text-green-800", label: "Unterzeichnet" },
     storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
@@ -484,8 +484,8 @@ Ihr Team`;
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Vertrag bearbeiten</h1>
-            <p className="text-gray-600">{vertrag.titel}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Vertrag bearbeiten</h1>
+            <p className="text-muted-foreground">{vertrag.titel}</p>
           </div>
           <VertragsForm
             vertrag={vertrag}
@@ -503,7 +503,7 @@ Ihr Team`;
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
           <div className="flex items-center gap-3 mb-4">
             <Button
@@ -522,9 +522,9 @@ Ihr Team`;
 
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{vertrag.titel}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">{vertrag.titel}</h1>
               {vertrag.vertragsnummer &&
-              <p className="text-gray-600">{vertrag.vertragsnummer}</p>
+              <p className="text-muted-foreground">{vertrag.vertragsnummer}</p>
               }
             </div>
             <div className="flex flex-wrap gap-2">
@@ -619,7 +619,7 @@ Ihr Team`;
                       {unterschrift ? (
                         <div className="border-2 border-green-200 rounded-lg p-3 bg-green-50">
                           <img src={unterschrift} alt={`Unterschrift ${typ}`} className="w-full h-24 object-contain" />
-                          <div className="mt-2 text-sm text-gray-600">
+                          <div className="mt-2 text-sm text-muted-foreground">
                             <p className="font-medium">{name}</p>
                             <p>{format(new Date(datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
                           </div>
@@ -628,9 +628,9 @@ Ihr Team`;
                           </div>
                         </div>
                       ) : (
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                          <PenTool className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                          <p className="text-gray-600 mb-3 text-sm">Noch nicht unterzeichnet</p>
+                        <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
+                          <PenTool className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-muted-foreground mb-3 text-sm">Noch nicht unterzeichnet</p>
                           {vertrag.status !== 'storniert' &&
                             <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-[#FF6A4D]">
                               <PenTool className="w-4 h-4 mr-2" />Unterschreiben
@@ -652,11 +652,11 @@ Ihr Team`;
                 <CardTitle className="text-lg font-bold">Details</CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-4">
-                {kunde && <div><p className="text-sm text-gray-500 mb-1">Kunde</p><div className="flex items-center gap-2"><User className="w-4 h-4 text-gray-400" /><p className="font-medium">{kunde.firmenname}</p></div></div>}
-                {event && <div><p className="text-sm text-gray-500 mb-1">Event</p><div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-400" /><p className="font-medium">{event.titel}</p></div></div>}
-                {vertrag.unterzeichnen_bis && <div><p className="text-sm text-gray-500 mb-1">Unterzeichnen bis</p><div className="flex items-center gap-2"><Clock className="w-4 h-4 text-gray-400" /><p className="font-medium">{format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</p></div></div>}
-                {vertrag.versendet_am && <div><p className="text-sm text-gray-500 mb-1">Versendet am</p><p className="font-medium">{format(new Date(vertrag.versendet_am), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>}
-                <div><p className="text-sm text-gray-500 mb-1">Erstellt am</p><p className="font-medium">{format(new Date(vertrag.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>
+                {kunde && <div><p className="text-sm text-muted-foreground mb-1">Kunde</p><div className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" /><p className="font-medium">{kunde.firmenname}</p></div></div>}
+                {event && <div><p className="text-sm text-muted-foreground mb-1">Event</p><div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-muted-foreground" /><p className="font-medium">{event.titel}</p></div></div>}
+                {vertrag.unterzeichnen_bis && <div><p className="text-sm text-muted-foreground mb-1">Unterzeichnen bis</p><div className="flex items-center gap-2"><Clock className="w-4 h-4 text-muted-foreground" /><p className="font-medium">{format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</p></div></div>}
+                {vertrag.versendet_am && <div><p className="text-sm text-muted-foreground mb-1">Versendet am</p><p className="font-medium">{format(new Date(vertrag.versendet_am), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>}
+                <div><p className="text-sm text-muted-foreground mb-1">Erstellt am</p><p className="font-medium">{format(new Date(vertrag.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p></div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -668,7 +668,7 @@ Ihr Team`;
                 <CardTitle className="text-lg font-bold">Kundenportal-Link</CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-3">
-                <p className="text-sm text-gray-600">Teile diesen Link mit dem Kunden zum Unterschreiben:</p>
+                <p className="text-sm text-muted-foreground">Teile diesen Link mit dem Kunden zum Unterschreiben:</p>
                 <div className="flex gap-2">
                   <Input value={`https://app.bandguru.de/api/functions/vertragsKundenansicht?id=${vertragId}`} readOnly className="text-xs" />
                   <Button variant="outline" size="icon" onClick={copyKundenLink}>
@@ -690,11 +690,11 @@ Ihr Team`;
               </CardHeader>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2 text-sm">
-                  {vertrag.eventinformationen_anzeigen ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-gray-400" />}
+                  {vertrag.eventinformationen_anzeigen ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-muted-foreground" />}
                   <span>Eventinformationen anzeigen</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  {vertrag.im_kundenportal_sichtbar ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-gray-400" />}
+                  {vertrag.im_kundenportal_sichtbar ? <Check className="w-4 h-4 text-green-600" /> : <X className="w-4 h-4 text-muted-foreground" />}
                   <span>Im Kundenportal sichtbar</span>
                 </div>
               </CardContent>
@@ -758,7 +758,7 @@ Ihr Team`;
                         alt="Unterschrift Kunde"
                         className="w-full h-32 object-contain" />
 
-                        <div className="mt-3 text-sm text-gray-600">
+                        <div className="mt-3 text-sm text-muted-foreground">
                           <p className="font-medium">{vertrag.unterschrift_kunde_name}</p>
                           <p>{format(new Date(vertrag.unterschrift_kunde_datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
                         </div>
@@ -768,9 +768,9 @@ Ihr Team`;
                         </div>
                       </div> :
 
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <PenTool className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                        <p className="text-gray-600 mb-4">Noch nicht unterzeichnet</p>
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                        <PenTool className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-muted-foreground mb-4">Noch nicht unterzeichnet</p>
                         {vertrag.status !== 'storniert' &&
                       <Button
                         onClick={() => openUnterschriftModal('kunde')}
@@ -795,7 +795,7 @@ Ihr Team`;
                         alt="Unterschrift Organisation"
                         className="w-full h-32 object-contain" />
 
-                        <div className="mt-3 text-sm text-gray-600">
+                        <div className="mt-3 text-sm text-muted-foreground">
                           <p className="font-medium">{vertrag.unterschrift_organisation_name}</p>
                           <p>{format(new Date(vertrag.unterschrift_organisation_datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
                         </div>
@@ -805,9 +805,9 @@ Ihr Team`;
                         </div>
                       </div> :
 
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                        <PenTool className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                        <p className="text-gray-600 mb-4">Noch nicht unterzeichnet</p>
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                        <PenTool className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-muted-foreground mb-4">Noch nicht unterzeichnet</p>
                         {vertrag.status !== 'storniert' &&
                       <Button
                         onClick={() => openUnterschriftModal('organisation')}
@@ -834,7 +834,7 @@ Ihr Team`;
                 <CardTitle className="text-lg font-bold">Kundenportal-Link</CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-3">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Teile diesen Link mit dem Kunden zum Unterschreiben:
                 </p>
                 <div className="flex gap-2">
@@ -871,9 +871,9 @@ Ihr Team`;
               <CardContent className="p-6 space-y-4">
                 {kunde &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Kunde</p>
+                    <p className="text-sm text-muted-foreground mb-1">Kunde</p>
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-gray-400" />
+                      <User className="w-4 h-4 text-muted-foreground" />
                       <p className="font-medium">{kunde.firmenname}</p>
                     </div>
                   </div>
@@ -881,9 +881,9 @@ Ihr Team`;
 
                 {event &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Event</p>
+                    <p className="text-sm text-muted-foreground mb-1">Event</p>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
                       <p className="font-medium">{event.titel}</p>
                     </div>
                   </div>
@@ -891,9 +891,9 @@ Ihr Team`;
 
                 {vertrag.unterzeichnen_bis &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Unterzeichnen bis</p>
+                    <p className="text-sm text-muted-foreground mb-1">Unterzeichnen bis</p>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-400" />
+                      <Clock className="w-4 h-4 text-muted-foreground" />
                       <p className="font-medium">
                         {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}
                       </p>
@@ -903,7 +903,7 @@ Ihr Team`;
 
                 {vertrag.versendet_am &&
                 <div>
-                    <p className="text-sm text-gray-500 mb-1">Versendet am</p>
+                    <p className="text-sm text-muted-foreground mb-1">Versendet am</p>
                     <p className="font-medium">
                       {format(new Date(vertrag.versendet_am), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr
                     </p>
@@ -911,7 +911,7 @@ Ihr Team`;
                 }
 
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Erstellt am</p>
+                  <p className="text-sm text-muted-foreground mb-1">Erstellt am</p>
                   <p className="font-medium">
                     {format(new Date(vertrag.created_date), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr
                   </p>
@@ -929,7 +929,7 @@ Ihr Team`;
                   {vertrag.eventinformationen_anzeigen ?
                   <Check className="w-4 h-4 text-green-600" /> :
 
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                   }
                   <span>Eventinformationen anzeigen</span>
                 </div>
@@ -937,7 +937,7 @@ Ihr Team`;
                   {vertrag.im_kundenportal_sichtbar ?
                   <Check className="w-4 h-4 text-green-600" /> :
 
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                   }
                   <span>Im Kundenportal sichtbar</span>
                 </div>
@@ -979,15 +979,15 @@ Ihr Team`;
               </div>
 
               {/* Modus-Auswahl */}
-              <div className="flex gap-2 border rounded-lg p-1 bg-gray-50">
+              <div className="flex gap-2 border rounded-lg p-1 bg-muted">
                 <button
                   onClick={() => setUnterschriftModus('zeichnen')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'zeichnen' ? 'bg-white shadow text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'zeichnen' ? 'bg-card shadow text-purple-700' : 'text-muted-foreground hover:text-foreground'}`}>
                   <PenTool className="w-4 h-4" /> Zeichnen
                 </button>
                 <button
                   onClick={() => setUnterschriftModus('hochladen')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'hochladen' ? 'bg-white shadow text-purple-700' : 'text-gray-500 hover:text-gray-700'}`}>
+                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${unterschriftModus === 'hochladen' ? 'bg-card shadow text-purple-700' : 'text-muted-foreground hover:text-foreground'}`}>
                   <Upload className="w-4 h-4" /> Hochladen
                 </button>
               </div>
@@ -995,7 +995,7 @@ Ihr Team`;
               {unterschriftModus === 'zeichnen' ? (
                 <div className="space-y-2">
                   <Label>Unterschrift zeichnen</Label>
-                  <div className="border-2 border-gray-300 rounded-lg bg-white">
+                  <div className="border-2 border-border rounded-lg bg-card">
                     <canvas
                     ref={canvasRef}
                     width={600}
@@ -1006,7 +1006,7 @@ Ihr Team`;
                     onMouseUp={stopDrawing}
                     onMouseLeave={stopDrawing} />
                   </div>
-                  <p className="text-xs text-gray-500">Zeichne deine Unterschrift mit der Maus</p>
+                  <p className="text-xs text-muted-foreground">Zeichne deine Unterschrift mit der Maus</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -1025,10 +1025,10 @@ Ihr Team`;
                   ) : (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 hover:bg-purple-50 transition-colors">
-                      <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-600">Klicken zum Hochladen</p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF unterstützt</p>
+                      className="w-full border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-purple-400 hover:bg-purple-50 transition-colors">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Klicken zum Hochladen</p>
+                      <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF unterstützt</p>
                     </button>
                   )}
                 </div>

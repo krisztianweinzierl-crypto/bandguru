@@ -262,13 +262,13 @@ export default function AufgabenPage() {
   const meineAufgaben = filteredAufgaben.filter((a) => a.zugewiesen_an === currentUserId);
 
   const priorityColors = {
-    niedrig: "text-gray-400",
+    niedrig: "text-muted-foreground",
     normal: "text-blue-500",
     hoch: "text-red-500"
   };
 
   const priorityBadges = {
-    niedrig: "bg-gray-100 text-gray-800",
+    niedrig: "bg-muted text-foreground",
     normal: "bg-blue-100 text-blue-800",
     hoch: "bg-red-100 text-red-800"
   };
@@ -282,9 +282,9 @@ export default function AufgabenPage() {
     const linkedEvent = aufgabe.bezug_typ === 'event' && aufgabe.bezug_id ? events.find(e => e.id === aufgabe.bezug_id) : null;
 
     return (
-      <div className={`${level > 0 ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+      <div className={`${level > 0 ? 'ml-8 border-l-2 border-border pl-4' : ''}`}>
         <div
-          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ${
+          className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer ${
           aufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
           }
           onClick={() => setSelectedAufgabe(aufgabe)}>
@@ -296,7 +296,7 @@ export default function AufgabenPage() {
               e.stopPropagation();
               toggleExpand(aufgabe.id);
             }}
-            className="mt-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded p-0.5 transition-all">
+            className="mt-1 text-muted-foreground hover:text-muted-foreground hover:bg-muted rounded p-0.5 transition-all">
 
               <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
             </button> :
@@ -323,16 +323,16 @@ export default function AufgabenPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                <p className={`font-medium ${aufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                   {aufgabe.titel}
                   {hasUnteraufgaben &&
-                  <span className="ml-2 text-xs text-gray-500">
+                  <span className="ml-2 text-xs text-muted-foreground">
                       ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                     </span>
                   }
                 </p>
                 {aufgabe.beschreibung &&
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{aufgabe.beschreibung}</p>
                 }
 
                 {/* Meta Info */}
@@ -350,7 +350,7 @@ export default function AufgabenPage() {
                 
                   {aufgabe.faellig_am &&
                   <div className={`flex items-center gap-1 text-xs ${
-                  isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                  isOverdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}`
                   }>
                       <CalendarIcon className="w-3 h-3" />
                       {format(new Date(aufgabe.faellig_am), 'dd. MMM', { locale: de })}
@@ -412,7 +412,7 @@ export default function AufgabenPage() {
 
         
         {/* Slide-in Panel */}
-        <div className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-white shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-right duration-300">
+        <div className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-card shadow-2xl z-50 overflow-y-auto animate-in slide-in-from-right duration-300">
           <div className="p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
@@ -430,7 +430,7 @@ export default function AufgabenPage() {
                   }
                 </button>
                 <div className="flex-1 min-w-0">
-                  <h2 className={`text-xl font-bold ${selectedAufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  <h2 className={`text-xl font-bold ${selectedAufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                     {selectedAufgabe.titel}
                   </h2>
                 </div>
@@ -452,7 +452,7 @@ export default function AufgabenPage() {
               <Badge className={
               selectedAufgabe.status === 'erledigt' ? 'bg-green-100 text-green-800' :
               selectedAufgabe.status === 'in_arbeit' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-gray-100 text-gray-800'
+              'bg-muted text-foreground'
               }>
                 {selectedAufgabe.status}
               </Badge>
@@ -467,27 +467,27 @@ export default function AufgabenPage() {
             <div className="space-y-6">
               {selectedAufgabe.beschreibung &&
               <div>
-                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Beschreibung</Label>
-                  <p className="text-gray-600">{selectedAufgabe.beschreibung}</p>
+                  <Label className="text-sm font-semibold text-foreground mb-2 block">Beschreibung</Label>
+                  <p className="text-muted-foreground">{selectedAufgabe.beschreibung}</p>
                 </div>
               }
 
               {assignedMitglied &&
               <div>
-                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Zugewiesen an</Label>
+                  <Label className="text-sm font-semibold text-foreground mb-2 block">Zugewiesen an</Label>
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900">{assignedMitglied.rolle}</span>
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground">{assignedMitglied.rolle}</span>
                   </div>
                 </div>
               }
 
               {selectedAufgabe.faellig_am &&
               <div>
-                  <Label className="text-sm font-semibold text-gray-700 mb-2 block">Fällig am</Label>
+                  <Label className="text-sm font-semibold text-foreground mb-2 block">Fällig am</Label>
                   <div className="flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900">
+                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-foreground">
                       {format(new Date(selectedAufgabe.faellig_am), 'dd. MMMM yyyy', { locale: de })}
                     </span>
                   </div>
@@ -500,7 +500,7 @@ export default function AufgabenPage() {
                 if (!linkedEvent) return null;
                 return (
                   <div>
-                    <Label className="text-sm font-semibold text-gray-700 mb-2 block">Verknüpftes Event</Label>
+                    <Label className="text-sm font-semibold text-foreground mb-2 block">Verknüpftes Event</Label>
                     <Link 
                       to={createUrl('EventDetail') + `?id=${linkedEvent.id}`}
                       className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors"
@@ -520,7 +520,7 @@ export default function AufgabenPage() {
               {/* Unteraufgaben Sektion */}
               {hasUnteraufgaben &&
               <div className="border-t pt-6">
-                  <Label className="text-sm font-semibold text-gray-700 mb-3 block">
+                  <Label className="text-sm font-semibold text-foreground mb-3 block">
                     Unteraufgaben ({unteraufgaben.filter((u) => u.status === 'erledigt').length}/{unteraufgaben.length})
                   </Label>
                   <div className="space-y-2">
@@ -531,7 +531,7 @@ export default function AufgabenPage() {
                     return (
                       <div
                         key={unteraufgabe.id}
-                        className={`flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+                        className={`flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors ${
                         unteraufgabe.status === 'erledigt' ? 'opacity-60' : ''}`
                         }>
 
@@ -551,13 +551,13 @@ export default function AufgabenPage() {
 
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-medium ${
-                          unteraufgabe.status === 'erledigt' ? 'line-through text-gray-500' : 'text-gray-900'}`
+                          unteraufgabe.status === 'erledigt' ? 'line-through text-muted-foreground' : 'text-foreground'}`
                           }>
                               {unteraufgabe.titel}
                             </p>
                             
                             {unteraufgabe.beschreibung &&
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                 {unteraufgabe.beschreibung}
                               </p>
                           }
@@ -565,7 +565,7 @@ export default function AufgabenPage() {
                             <div className="flex flex-wrap items-center gap-2 mt-2">
                               {unteraufgabe.faellig_am &&
                             <div className={`flex items-center gap-1 text-xs ${
-                            isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`
+                            isOverdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}`
                             }>
                                   <CalendarIcon className="w-3 h-3" />
                                   {format(new Date(unteraufgabe.faellig_am), 'dd. MMM', { locale: de })}
@@ -628,8 +628,8 @@ export default function AufgabenPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Aufgaben</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Aufgaben</h1>
+            <p className="text-muted-foreground">
               {isManager ? 'Organisiere und verfolge deine Aufgaben' : 'Deine Aufgaben'}
             </p>
           </div>
@@ -652,7 +652,7 @@ export default function AufgabenPage() {
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Aufgaben durchsuchen..."
                   value={searchQuery}
@@ -663,7 +663,7 @@ export default function AufgabenPage() {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-4 py-2 border rounded-lg bg-white">
+                className="px-4 py-2 border rounded-lg bg-card">
 
                 <option value="alle">Alle Prioritäten</option>
                 <option value="niedrig">Niedrig</option>
@@ -693,7 +693,7 @@ export default function AufgabenPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="alle" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm flex-wrap h-auto gap-1 p-1">
+          <TabsList className="bg-card border shadow-sm flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="alle">
               Alle ({filteredAufgaben.length})
             </TabsTrigger>
@@ -721,7 +721,7 @@ export default function AufgabenPage() {
                   )}
                   </div> :
 
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-muted-foreground">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben gefunden</p>
                   </div>
@@ -740,7 +740,7 @@ export default function AufgabenPage() {
                   )}
                   </div> :
 
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-muted-foreground">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben zugewiesen</p>
                   </div>
@@ -759,7 +759,7 @@ export default function AufgabenPage() {
                   )}
                   </div> :
 
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-muted-foreground">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine offenen Aufgaben</p>
                   </div>
@@ -778,7 +778,7 @@ export default function AufgabenPage() {
                   )}
                   </div> :
 
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-muted-foreground">
                     <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Aufgaben in Arbeit</p>
                   </div>
@@ -797,7 +797,7 @@ export default function AufgabenPage() {
                   )}
                   </div> :
 
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-muted-foreground">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine erledigten Aufgaben</p>
                   </div>

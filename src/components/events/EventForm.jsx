@@ -127,12 +127,12 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Details */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b bg-white">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b bg-card">
           <CardTitle className="text-xl font-bold">Details</CardTitle>
-          <p className="text-sm text-gray-500">Grundlegende Informationen zum Event</p>
+          <p className="text-sm text-muted-foreground">Grundlegende Informationen zum Event</p>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
+        <CardContent className="p-6 space-y-6 bg-card">
           {/* Client */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                       value={newKunde.firmenname}
                       onChange={(e) => setNewKunde({...newKunde, firmenname: e.target.value})}
                       placeholder="z.B. Mustermann GmbH"
-                      className="bg-white"
+                      className="bg-card"
                     />
                   </div>
 
@@ -199,7 +199,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                         value={newKunde.ansprechpartner}
                         onChange={(e) => setNewKunde({...newKunde, ansprechpartner: e.target.value})}
                         placeholder="z.B. Max Mustermann"
-                        className="bg-white"
+                        className="bg-card"
                       />
                     </div>
 
@@ -211,7 +211,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                         value={newKunde.email}
                         onChange={(e) => setNewKunde({...newKunde, email: e.target.value})}
                         placeholder="z.B. max@mustermann.de"
-                        className="bg-white"
+                        className="bg-card"
                       />
                     </div>
                   </div>
@@ -223,7 +223,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                       value={newKunde.telefon}
                       onChange={(e) => setNewKunde({...newKunde, telefon: e.target.value})}
                       placeholder="z.B. +49 123 456789"
-                      className="bg-white"
+                      className="bg-card"
                     />
                   </div>
 
@@ -234,7 +234,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
                       value={newKunde.adresse}
                       onChange={(e) => setNewKunde({...newKunde, adresse: e.target.value})}
                       placeholder="z.B. Musterstraße 123, 12345 Berlin"
-                      className="bg-white"
+                      className="bg-card"
                     />
                   </div>
 
@@ -267,7 +267,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
             <div className="space-y-2">
               <Label htmlFor="datum">Datum</Label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="datum"
                   type="date"
@@ -333,17 +333,17 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
       </Card>
 
       {/* Zeitplan & Ablauf */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b bg-white">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b bg-card">
           <CardTitle className="text-xl font-bold">Zeitplan & Ablauf</CardTitle>
-          <p className="text-sm text-gray-500">Zeitliche Details und Ablauf des Events</p>
+          <p className="text-sm text-muted-foreground">Zeitliche Details und Ablauf des Events</p>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
+        <CardContent className="p-6 space-y-6 bg-card">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="startzeit">Startzeit</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="startzeit"
                   type="time"
@@ -360,7 +360,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
             <div className="space-y-2">
               <Label htmlFor="endzeit">Endzeit</Label>
               <div className="relative">
-                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="endzeit"
                   type="time"
@@ -429,12 +429,12 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
       </Card>
 
       {/* Publikum & Ambiente */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b bg-white">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b bg-card">
           <CardTitle className="text-xl font-bold">Publikum & Ambiente</CardTitle>
-          <p className="text-sm text-gray-500">Details über die Veranstaltung und das Publikum</p>
+          <p className="text-sm text-muted-foreground">Details über die Veranstaltung und das Publikum</p>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
+        <CardContent className="p-6 space-y-6 bg-card">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="eventtyp" className="flex items-center gap-2">
@@ -473,7 +473,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
 
             <div className="space-y-2">
               <Label htmlFor="dresscode" className="flex items-center gap-2">
-                <Shirt className="w-4 h-4 text-gray-500" />
+                <Shirt className="w-4 h-4 text-muted-foreground" />
                 Dresscode
               </Label>
               <Input
@@ -499,12 +499,12 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
       </Card>
 
       {/* Hotel-Informationen - Normale Input-Felder */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b bg-white">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b bg-card">
           <CardTitle className="text-xl font-bold">Hotel-Informationen</CardTitle>
-          <p className="text-sm text-gray-500">Unterkunft für Musiker</p>
+          <p className="text-sm text-muted-foreground">Unterkunft für Musiker</p>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
+        <CardContent className="p-6 space-y-6 bg-card">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="hotelname" className="flex items-center gap-2">
@@ -549,12 +549,12 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
       </Card>
 
       {/* Zusätzliche Informationen */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b bg-white">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b bg-card">
           <CardTitle className="text-xl font-bold">Zusätzliche Informationen</CardTitle>
-          <p className="text-sm text-gray-500">Weitere wichtige Details</p>
+          <p className="text-sm text-muted-foreground">Weitere wichtige Details</p>
         </CardHeader>
-        <CardContent className="p-6 space-y-6 bg-white">
+        <CardContent className="p-6 space-y-6 bg-card">
           <div className="space-y-2">
             <Label htmlFor="technik" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -574,7 +574,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
               <MessageSquare className="w-4 h-4 text-blue-500" />
               Notizen für Musiker
             </Label>
-            <p className="text-xs text-gray-500">Diese Notizen sind für alle gebuchten Musiker sichtbar</p>
+            <p className="text-xs text-muted-foreground">Diese Notizen sind für alle gebuchten Musiker sichtbar</p>
             <Textarea
               id="notizen_musiker"
               value={formData.musiker_notizen}
@@ -589,7 +589,7 @@ export default function EventForm({ onSubmit, onCancel, onDelete, kunden, event 
               <File className="w-4 h-4 text-amber-500" />
               Interne Notizen
             </Label>
-            <p className="text-xs text-gray-500">Diese Notizen sind nur für Band Manager sichtbar</p>
+            <p className="text-xs text-muted-foreground">Diese Notizen sind nur für Band Manager sichtbar</p>
             <Textarea
               id="interne_notizen"
               value={formData.interne_notizen}

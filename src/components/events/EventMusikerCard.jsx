@@ -62,8 +62,8 @@ export default function EventMusikerCard({
                     onClick={() => setExpanded(prev => !prev)}
                   >
                     {expanded
-                      ? <ChevronUp className="w-4 h-4 text-gray-400" />
-                      : <ChevronDown className="w-4 h-4 text-gray-400" />
+                      ? <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                      : <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     }
                   </Button>
                 )}
@@ -82,19 +82,19 @@ export default function EventMusikerCard({
                     {showDropdownId === em.id && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setShowDropdownId(null)} />
-                        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-56 overflow-hidden">
                           {em.status === 'angefragt' && (
                             <>
-                              <button onClick={() => handleUpdateStatus(em.id, 'zugesagt')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm">Als zugesagt markieren</button>
-                              <button onClick={() => handleUpdateStatus(em.id, 'optional')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm border-t">Als optional markieren</button>
-                              <button onClick={() => handleUpdateStatus(em.id, 'abgelehnt')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm border-t">Als abgelehnt markieren</button>
+                              <button onClick={() => handleUpdateStatus(em.id, 'zugesagt')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left text-sm">Als zugesagt markieren</button>
+                              <button onClick={() => handleUpdateStatus(em.id, 'optional')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left text-sm border-t">Als optional markieren</button>
+                              <button onClick={() => handleUpdateStatus(em.id, 'abgelehnt')} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left text-sm border-t">Als abgelehnt markieren</button>
                             </>
                           )}
-                          <button onClick={() => handleOpenEditMusikerDialog(em)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm border-t">
+                          <button onClick={() => handleOpenEditMusikerDialog(em)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left text-sm border-t">
                             <Edit className="w-4 h-4" /> Bearbeiten
                           </button>
                           {musikerData?.email && (
-                            <button onClick={() => handleOpenEinladungDialog(em.id, em.musiker_id)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 text-left text-sm border-t">
+                            <button onClick={() => handleOpenEinladungDialog(em.id, em.musiker_id)} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left text-sm border-t">
                               <Send className="w-4 h-4" /> Einladung senden
                             </button>
                           )}
@@ -109,54 +109,54 @@ export default function EventMusikerCard({
               </div>
             </div>
 
-            <p className="text-sm text-gray-500 mt-0.5">{em.rolle}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{em.rolle}</p>
 
             {/* Collapsible details */}
             {expanded && hasDetails && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="mt-3 pt-3 border-t border-border">
                 {isManager ? (
                   <>
                     <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Calendar className="w-4 h-4 flex-shrink-0" />
                         <div>
-                          <p className="text-xs text-gray-500">Eingeladen am</p>
+                          <p className="text-xs text-muted-foreground">Eingeladen am</p>
                           <p className="font-medium">{format(new Date(em.created_date), 'dd.MM.yyyy', { locale: de })}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Euro className="w-4 h-4 flex-shrink-0" />
                         <div>
-                          <p className="text-xs text-gray-500">Gage (netto)</p>
+                          <p className="text-xs text-muted-foreground">Gage (netto)</p>
                           <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Euro className="w-4 h-4 flex-shrink-0" />
                         <div>
-                          <p className="text-xs text-gray-500">Fahrtkosten</p>
+                          <p className="text-xs text-muted-foreground">Fahrtkosten</p>
                           <p className="font-medium">
                             {((em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0))).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
                           </p>
                         </div>
                       </div>
                       {em.status === 'zugesagt' && (
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-muted-foreground">
                           <Calendar className="w-4 h-4 flex-shrink-0 text-green-600" />
                           <div>
-                            <p className="text-xs text-gray-500">Zugesagt am</p>
+                            <p className="text-xs text-muted-foreground">Zugesagt am</p>
                             <p className="font-medium text-green-600">{format(new Date(em.updated_date), 'dd.MM.yyyy', { locale: de })}</p>
                           </div>
                         </div>
                       )}
                     </div>
                     {em.notizen && (
-                      <div className="p-3 bg-gray-50 rounded-lg mb-2">
+                      <div className="p-3 bg-muted rounded-lg mb-2">
                         <div className="flex items-start gap-2 text-sm">
-                          <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                          <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
-                            <p className="text-xs text-gray-500 mb-1">Notizen</p>
-                            <p className="text-gray-700">{em.notizen}</p>
+                            <p className="text-xs text-muted-foreground mb-1">Notizen</p>
+                            <p className="text-foreground">{em.notizen}</p>
                           </div>
                         </div>
                       </div>
@@ -172,18 +172,18 @@ export default function EventMusikerCard({
                   </>
                 ) : isCurrentUserMusiker ? (
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Euro className="w-4 h-4 flex-shrink-0" />
                       <div>
-                        <p className="text-xs text-gray-500">Deine Gage (netto)</p>
+                        <p className="text-xs text-muted-foreground">Deine Gage (netto)</p>
                         <p className="font-medium">{(em.gage_netto || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</p>
                       </div>
                     </div>
                     {em.spesen > 0 && (
-                      <div className="flex items-center gap-2 text-gray-600">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Euro className="w-4 h-4 flex-shrink-0" />
                         <div>
-                          <p className="text-xs text-gray-500">Fahrtkosten</p>
+                          <p className="text-xs text-muted-foreground">Fahrtkosten</p>
                           <p className="font-medium">{(em.spesen || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</p>
                         </div>
                       </div>

@@ -207,7 +207,7 @@ export default function SongEnrichment({ songs, onClose, onSuccess }) {
         {phase === 'researching' && (
           <div className="py-12 flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-8 h-8 text-purple-600 animate-spin" />
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Recherchiere {progress.done} von {progress.total} Songs...
             </p>
           </div>
@@ -229,15 +229,15 @@ export default function SongEnrichment({ songs, onClose, onSuccess }) {
               <div className="border rounded-lg overflow-hidden">
                 <div className="overflow-x-auto max-h-[420px] overflow-y-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b sticky top-0">
+                    <thead className="bg-muted border-b sticky top-0">
                       <tr>
                         <th className="p-2 w-8"></th>
-                        <th className="text-left p-2 font-semibold text-gray-700">Titel</th>
-                        <th className="text-left p-2 font-semibold text-gray-700">Künstler</th>
-                        <th className="text-left p-2 font-semibold text-gray-700 w-20">Tonart</th>
-                        <th className="text-left p-2 font-semibold text-gray-700 w-20">BPM</th>
-                        <th className="text-left p-2 font-semibold text-gray-700 w-24">Länge</th>
-                        <th className="text-left p-2 font-semibold text-gray-700">Genre</th>
+                        <th className="text-left p-2 font-semibold text-foreground">Titel</th>
+                        <th className="text-left p-2 font-semibold text-foreground">Künstler</th>
+                        <th className="text-left p-2 font-semibold text-foreground w-20">Tonart</th>
+                        <th className="text-left p-2 font-semibold text-foreground w-20">BPM</th>
+                        <th className="text-left p-2 font-semibold text-foreground w-24">Länge</th>
+                        <th className="text-left p-2 font-semibold text-foreground">Genre</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
@@ -250,7 +250,7 @@ export default function SongEnrichment({ songs, onClose, onSuccess }) {
                               onChange={(e) => updateProposal(p.song_id, 'include', e.target.checked)}
                             />
                           </td>
-                          <td className="p-2 font-medium text-gray-900 whitespace-nowrap">{p.titel}</td>
+                          <td className="p-2 font-medium text-foreground whitespace-nowrap">{p.titel}</td>
                           <td className="p-2">
                             <Input value={p.kuenstler_original} onChange={(e) => updateProposal(p.song_id, 'kuenstler_original', e.target.value)} className="h-8 text-sm" placeholder="—" />
                           </td>

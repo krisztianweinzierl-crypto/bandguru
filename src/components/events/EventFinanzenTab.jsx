@@ -17,7 +17,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
         <CardContent className="p-12 text-center">
           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <h3 className="text-lg font-semibold mb-2">Finanzen</h3>
-          <p className="text-gray-500">Diese Ansicht ist nur für Manager verfügbar</p>
+          <p className="text-muted-foreground">Diese Ansicht ist nur für Manager verfügbar</p>
         </CardContent>
       </Card>
     );
@@ -34,12 +34,12 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
   const gewinn = einnahmenNetto - musikerKosten - sonstigeAusgaben;
 
   const statusColors = {
-    entwurf: 'bg-gray-100 text-gray-700',
+    entwurf: 'bg-muted text-foreground',
     versendet: 'bg-blue-100 text-blue-700',
     teilweise_bezahlt: 'bg-yellow-100 text-yellow-700',
     bezahlt: 'bg-green-100 text-green-700',
     überfällig: 'bg-red-100 text-red-700',
-    storniert: 'bg-gray-100 text-gray-500'
+    storniert: 'bg-muted text-muted-foreground'
   };
 
   return (
@@ -51,8 +51,8 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg"><UsersIcon className="w-5 h-5 text-blue-600" /></div>
               <div>
-                <p className="text-xs text-gray-500">Musiker-Kosten gesamt</p>
-                <p className="text-lg font-bold text-gray-900">{musikerKosten.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
+                <p className="text-xs text-muted-foreground">Musiker-Kosten gesamt</p>
+                <p className="text-lg font-bold text-foreground">{musikerKosten.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </div>
             </div>
           </CardContent>
@@ -62,8 +62,8 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg"><TrendingDown className="w-5 h-5 text-orange-600" /></div>
               <div>
-                <p className="text-xs text-gray-500">Sonstige Ausgaben</p>
-                <p className="text-lg font-bold text-gray-900">{sonstigeAusgaben.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
+                <p className="text-xs text-muted-foreground">Sonstige Ausgaben</p>
+                <p className="text-lg font-bold text-foreground">{sonstigeAusgaben.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </div>
             </div>
           </CardContent>
@@ -73,8 +73,8 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg"><TrendingUp className="w-5 h-5 text-green-600" /></div>
               <div>
-                <p className="text-xs text-gray-500">Rechnungen (brutto)</p>
-                <p className="text-lg font-bold text-gray-900">{einnahmenBrutto.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
+                <p className="text-xs text-muted-foreground">Rechnungen (brutto)</p>
+                <p className="text-lg font-bold text-foreground">{einnahmenBrutto.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
               </div>
             </div>
           </CardContent>
@@ -84,7 +84,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg"><Euro className="w-5 h-5 text-purple-600" /></div>
               <div>
-                <p className="text-xs text-gray-500">Gewinn (netto)</p>
+                <p className="text-xs text-muted-foreground">Gewinn (netto)</p>
                 <p className={`text-lg font-bold ${gewinn >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {gewinn.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                 </p>
@@ -98,7 +98,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
       <Card className="border-none shadow-lg">
         <CardHeader className="border-b">
           <div className="flex items-center gap-2">
-            <UsersIcon className="w-5 h-5 text-gray-700" />
+            <UsersIcon className="w-5 h-5 text-foreground" />
             <CardTitle className="text-xl font-bold">Musiker-Gagen</CardTitle>
           </div>
         </CardHeader>
@@ -108,7 +108,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
               {eventMusiker.filter(em => em.status === 'zugesagt').map((em) => {
                 const total = (em.gage_netto || 0) + (em.spesen || 0) + ((em.weitere_kosten || []).reduce((s, k) => s + (k.betrag || 0), 0));
                 return (
-                  <div key={em.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={em.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-10 h-10">
                         <AvatarFallback className="bg-blue-500 text-white text-sm">
@@ -117,12 +117,12 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
                       </Avatar>
                       <div>
                         <p className="font-medium">{em.musiker_name || 'Unbekannt'}</p>
-                        <p className="text-sm text-gray-500">{em.rolle}</p>
+                        <p className="text-sm text-muted-foreground">{em.rolle}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{total.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {em.spesen > 0 && `Fahrt: ${em.spesen?.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`}
                         {em.weitere_kosten?.length > 0 && (<>{em.spesen > 0 && ' + '}Weitere: {(em.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</>)}
                       </p>
@@ -136,7 +136,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-500 py-6">Noch keine zugesagten Musiker</p>
+            <p className="text-center text-muted-foreground py-6">Noch keine zugesagten Musiker</p>
           )}
         </CardContent>
       </Card>
@@ -146,7 +146,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-gray-700" />
+              <Receipt className="w-5 h-5 text-foreground" />
               <CardTitle className="text-xl font-bold">Rechnungen</CardTitle>
             </div>
             <Button size="sm" onClick={() => navigate(`${createPageUrl('Rechnungen')}?event_id=${eventId}`)} variant="outline">
@@ -159,13 +159,13 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="space-y-3">
               {rechnungen.map((rechnung) => (
                 <div key={rechnung.id} onClick={() => navigate(createPageUrl('Rechnungen'))}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  className="flex items-center justify-between p-4 bg-muted rounded-lg hover:bg-muted transition-colors cursor-pointer">
                   <div>
                     <p className="font-medium">{rechnung.rechnungsnummer}</p>
-                    <p className="text-sm text-gray-500">{rechnung.rechnungsdatum && format(new Date(rechnung.rechnungsdatum), 'dd.MM.yyyy', { locale: de })}</p>
+                    <p className="text-sm text-muted-foreground">{rechnung.rechnungsdatum && format(new Date(rechnung.rechnungsdatum), 'dd.MM.yyyy', { locale: de })}</p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Badge className={statusColors[rechnung.status] || 'bg-gray-100'}>{rechnung.status}</Badge>
+                    <Badge className={statusColors[rechnung.status] || 'bg-muted'}>{rechnung.status}</Badge>
                     <p className="font-semibold">{(rechnung.brutto_betrag || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</p>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
           ) : (
             <div className="text-center py-8">
               <Receipt className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p className="text-gray-500 mb-3">Noch keine Rechnungen für dieses Event</p>
+              <p className="text-muted-foreground mb-3">Noch keine Rechnungen für dieses Event</p>
               <Button size="sm" onClick={() => navigate(createPageUrl('Rechnungen'))} className="text-white" style={{ backgroundColor: '#FF6A4D' }}>
                 <Plus className="w-4 h-4 mr-2" />Rechnung erstellen
               </Button>
@@ -188,7 +188,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingDown className="w-5 h-5 text-gray-700" />
+              <TrendingDown className="w-5 h-5 text-foreground" />
               <CardTitle className="text-xl font-bold">Ausgaben</CardTitle>
             </div>
             <Button size="sm" onClick={() => navigate(createPageUrl('Ausgaben'))} variant="outline">
@@ -200,10 +200,10 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
           {ausgaben.length > 0 ? (
             <div className="space-y-3">
               {ausgaben.map((ausgabe) => (
-                <div key={ausgabe.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div key={ausgabe.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <p className="font-medium">{ausgabe.titel}</p>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Badge variant="outline" className="text-xs">{ausgabe.kategorie}</Badge>
                       <span>•</span>
                       <span>{ausgabe.datum && format(new Date(ausgabe.datum), 'dd.MM.yyyy', { locale: de })}</span>
@@ -220,7 +220,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
           ) : (
             <div className="text-center py-8">
               <TrendingDown className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p className="text-gray-500 mb-3">Noch keine Ausgaben für dieses Event</p>
+              <p className="text-muted-foreground mb-3">Noch keine Ausgaben für dieses Event</p>
               <Button size="sm" onClick={() => navigate(createPageUrl('Ausgaben'))} className="text-white" style={{ backgroundColor: '#FF6A4D' }}>
                 <Plus className="w-4 h-4 mr-2" />Ausgabe hinzufügen
               </Button>

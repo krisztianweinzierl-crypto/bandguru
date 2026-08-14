@@ -119,7 +119,7 @@ export default function OnboardingPage() {
             className="w-24 h-24 mx-auto mb-4 animate-pulse"
           />
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Prüfe Zugang...</p>
+          <p className="text-muted-foreground">Prüfe Zugang...</p>
         </div>
       </div>
     );
@@ -136,9 +136,9 @@ export default function OnboardingPage() {
               alt="Bandguru Logo"
               className="w-16 h-16 object-contain"
             />
-            <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
+            <h1 className="text-4xl font-bold text-foreground">Bandguru</h1>
           </div>
-          <p className="text-xl text-gray-600">Willkommen! Lass uns deine Band einrichten.</p>
+          <p className="text-xl text-muted-foreground">Willkommen! Lass uns deine Band einrichten.</p>
         </div>
 
         {/* Form */}
@@ -169,7 +169,7 @@ export default function OnboardingPage() {
                   required
                   autoFocus
                 />
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Dies kann der Name deiner Band, Musikgruppe oder Organisation sein
                 </p>
               </div>
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
                   onChange={(e) => setOrgData({...orgData, steuernummer: e.target.value})}
                   placeholder="z.B. 12/345/67890"
                 />
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Für Rechnungen und steuerliche Zwecke
                 </p>
               </div>
@@ -213,7 +213,7 @@ export default function OnboardingPage() {
                     id="waehrung"
                     value={orgData.waehrung}
                     onChange={(e) => setOrgData({...orgData, waehrung: e.target.value})}
-                    className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                    className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                   >
                     <option value="EUR">EUR (€)</option>
                     <option value="USD">USD ($)</option>
@@ -230,7 +230,7 @@ export default function OnboardingPage() {
                     id="zeitzone"
                     value={orgData.zeitzone}
                     onChange={(e) => setOrgData({...orgData, zeitzone: e.target.value})}
-                    className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                    className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                   >
                     <option value="Europe/Berlin">Berlin (MEZ)</option>
                     <option value="Europe/Vienna">Wien (MEZ)</option>
@@ -253,7 +253,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setOrgData({...orgData, primary_color: e.target.value})}
                     className="w-20 h-12 cursor-pointer"
                   />
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-muted-foreground">
                     Diese Farbe wird in der App für deine Organisation verwendet
                   </span>
                 </div>
@@ -279,7 +279,7 @@ export default function OnboardingPage() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           Du kannst später weitere Mitglieder zu deiner Organisation einladen
         </p>
       </div>

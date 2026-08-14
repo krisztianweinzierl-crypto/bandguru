@@ -91,7 +91,7 @@ export default function BuchungsbedingungVorlagenPage() {
     corporate: { bg: "bg-purple-100", text: "text-purple-800", border: "border-l-purple-400" },
     konzert: { bg: "bg-green-100", text: "text-green-800", border: "border-l-green-400" },
     festival: { bg: "bg-orange-100", text: "text-orange-800", border: "border-l-orange-400" },
-    sonstiges: { bg: "bg-gray-100", text: "text-gray-800", border: "border-l-gray-400" }
+    sonstiges: { bg: "bg-muted", text: "text-foreground", border: "border-l-gray-400" }
   };
 
   const kategorieLabels = {
@@ -179,8 +179,8 @@ export default function BuchungsbedingungVorlagenPage() {
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Buchungsbedingung-Vorlagen</h1>
-            <p className="text-gray-600">Erstelle wiederverwendbare Vorlagen für Musiker-Buchungen</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Buchungsbedingung-Vorlagen</h1>
+            <p className="text-muted-foreground">Erstelle wiederverwendbare Vorlagen für Musiker-Buchungen</p>
           </div>
           <Button 
             onClick={() => {
@@ -203,7 +203,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   <FileText className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Gesamt Vorlagen</p>
+                  <p className="text-sm text-muted-foreground">Gesamt Vorlagen</p>
                   <p className="text-2xl font-bold">{vorlagen.length}</p>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   <FileText className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Aktive Vorlagen</p>
+                  <p className="text-sm text-muted-foreground">Aktive Vorlagen</p>
                   <p className="text-2xl font-bold">{aktiveVorlagen}</p>
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   <Copy className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Gesamt verwendet</p>
+                  <p className="text-sm text-muted-foreground">Gesamt verwendet</p>
                   <p className="text-2xl font-bold">{gesamtVerwendungen}</p>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function BuchungsbedingungVorlagenPage() {
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Vorlagen durchsuchen..."
                 value={searchQuery}
@@ -296,7 +296,7 @@ export default function BuchungsbedingungVorlagenPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="inhalt">Buchungsbedingungen *</Label>
-                  <div className="border border-gray-200 rounded-lg">
+                  <div className="border border-border rounded-lg">
                     <ReactQuill
                       theme="snow"
                       value={formData.inhalt}
@@ -307,7 +307,7 @@ export default function BuchungsbedingungVorlagenPage() {
                       className="min-h-[200px]"
                     />
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Diese Bedingungen werden bei der Musiker-Buchung angezeigt und müssen akzeptiert werden
                   </p>
                 </div>
@@ -366,13 +366,13 @@ export default function BuchungsbedingungVorlagenPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0 space-y-3">
-                    <div className="p-3 bg-gray-50 rounded-lg">
+                    <div className="p-3 bg-muted rounded-lg">
                       {/* Dangerously set inner HTML for content, assuming it's sanitized HTML from ReactQuill */}
-                      <div className="text-sm text-gray-700 line-clamp-3 quill-content" {...safeHtml(vorlage.inhalt)}></div>
+                      <div className="text-sm text-foreground line-clamp-3 quill-content" {...safeHtml(vorlage.inhalt)}></div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <FileText className="w-4 h-4 text-gray-400" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
                       <span>{vorlage.verwendungen || 0}x verwendet</span>
                     </div>
                     
@@ -412,7 +412,7 @@ export default function BuchungsbedingungVorlagenPage() {
             <CardContent className="p-12 text-center">
               <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">Keine Vorlagen gefunden</h3>
-              <p className="text-gray-500 mb-4">Erstelle deine erste Buchungsbedingung-Vorlage</p>
+              <p className="text-muted-foreground mb-4">Erstelle deine erste Buchungsbedingung-Vorlage</p>
               <Button onClick={() => setShowForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Vorlage erstellen

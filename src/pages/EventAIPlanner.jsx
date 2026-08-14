@@ -312,8 +312,8 @@ export default function EventAIPlanner() {
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI Event-Planer</h1>
-          <p className="text-sm text-gray-500">Beschreibe dein Event – die KI erstellt einen vollständigen Plan</p>
+          <h1 className="text-2xl font-bold text-foreground">AI Event-Planer</h1>
+          <p className="text-sm text-muted-foreground">Beschreibe dein Event – die KI erstellt einen vollständigen Plan</p>
         </div>
       </div>
 
@@ -324,13 +324,13 @@ export default function EventAIPlanner() {
             placeholder="Beschreibe dein Event... z.B. 'Plane eine Hochzeitsfeier im Juni in München für 150 Gäste mit Dinner und Tanzabend'"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="min-h-[120px] text-base resize-none border-gray-200 focus:border-purple-400"
+            className="min-h-[120px] text-base resize-none border-border focus:border-purple-400"
           />
 
           {/* Example Prompts */}
           {!plan && !loading && (
             <div className="space-y-2">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Lightbulb className="w-3 h-3" /> Beispiele:
               </p>
               <div className="flex flex-col gap-2">
@@ -379,9 +379,9 @@ export default function EventAIPlanner() {
                     <Badge className="bg-purple-100 text-purple-700 border-0">{plan.event_typ || "Event"}</Badge>
                     {saved && <Badge className="bg-green-100 text-green-700 border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-2">{plan.titel}</h2>
+                  <h2 className="text-xl font-bold text-foreground mb-2">{plan.titel}</h2>
                   {plan.zusammenfassung && (
-                    <p className="text-gray-600 text-sm">{plan.zusammenfassung}</p>
+                    <p className="text-muted-foreground text-sm">{plan.zusammenfassung}</p>
                   )}
                 </div>
                 <Button
@@ -406,28 +406,28 @@ export default function EventAIPlanner() {
             {/* Datum & Zeit */}
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-purple-500" /> Datum & Zeit
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Beginn</span>
+                  <span className="text-muted-foreground">Beginn</span>
                   <span className="font-medium">{formatDateTime(plan.datum_von)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Ende</span>
+                  <span className="text-muted-foreground">Ende</span>
                   <span className="font-medium">{formatDateTime(plan.datum_bis)}</span>
                 </div>
                 {plan.get_in_zeit && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Get-In</span>
+                    <span className="text-muted-foreground">Get-In</span>
                     <span className="font-medium">{plan.get_in_zeit}</span>
                   </div>
                 )}
                 {plan.soundcheck_zeit && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Soundcheck</span>
+                    <span className="text-muted-foreground">Soundcheck</span>
                     <span className="font-medium">{plan.soundcheck_zeit}</span>
                   </div>
                 )}
@@ -438,9 +438,9 @@ export default function EventAIPlanner() {
             {plan.location_vorschlaege?.length > 0 && (
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-purple-500" /> Location-Vorschläge
-                    <span className="text-xs text-gray-400 font-normal ml-1">– wähle eine aus</span>
+                    <span className="text-xs text-muted-foreground font-normal ml-1">– wähle eine aus</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -452,21 +452,21 @@ export default function EventAIPlanner() {
                         className={`text-left rounded-xl border-2 p-4 transition-all space-y-2 ${
                           selectedLocationIndex === i
                             ? "border-purple-500 bg-purple-50"
-                            : "border-gray-200 hover:border-purple-300 bg-white"
+                            : "border-border hover:border-purple-300 bg-card"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <span className="font-semibold text-sm text-gray-900">{loc.name}</span>
+                          <span className="font-semibold text-sm text-foreground">{loc.name}</span>
                           <Badge className={`text-xs shrink-0 border-0 ${
-                            selectedLocationIndex === i ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-600"
+                            selectedLocationIndex === i ? "bg-purple-500 text-white" : "bg-muted text-muted-foreground"
                           }`}>
                             {loc.preisklasse}
                           </Badge>
                         </div>
-                        <p className="text-xs text-gray-500">{loc.adresse}</p>
-                        <p className="text-xs text-gray-600">{loc.beschreibung}</p>
+                        <p className="text-xs text-muted-foreground">{loc.adresse}</p>
+                        <p className="text-xs text-muted-foreground">{loc.beschreibung}</p>
                         {loc.kapazitaet && (
-                          <p className="text-xs text-gray-400 flex items-center gap-1">
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
                             <Users className="w-3 h-3" /> {loc.kapazitaet}
                           </p>
                         )}
@@ -475,13 +475,13 @@ export default function EventAIPlanner() {
                   </div>
                   {plan.anzahl_gaeste && (
                     <div className="flex justify-between text-sm pt-1 border-t">
-                      <span className="text-gray-500">Erwartete Gäste</span>
+                      <span className="text-muted-foreground">Erwartete Gäste</span>
                       <span className="font-medium">{plan.anzahl_gaeste}</span>
                     </div>
                   )}
                   {plan.dresscode && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Dresscode</span>
+                      <span className="text-muted-foreground">Dresscode</span>
                       <span className="font-medium">{plan.dresscode}</span>
                     </div>
                   )}
@@ -493,12 +493,12 @@ export default function EventAIPlanner() {
             {plan.ablaufplan && (
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Clock className="w-4 h-4 text-purple-500" /> Ablaufplan
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">{plan.ablaufplan}</p>
+                  <p className="text-sm text-foreground whitespace-pre-line">{plan.ablaufplan}</p>
                 </CardContent>
               </Card>
             )}
@@ -507,12 +507,12 @@ export default function EventAIPlanner() {
             {plan.technik_hinweise && (
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <Users className="w-4 h-4 text-purple-500" /> Technik
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">{plan.technik_hinweise}</p>
+                  <p className="text-sm text-foreground whitespace-pre-line">{plan.technik_hinweise}</p>
                 </CardContent>
               </Card>
             )}
@@ -521,21 +521,21 @@ export default function EventAIPlanner() {
             {(plan.musiker_notizen || plan.interne_notizen) && (
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                     <FileText className="w-4 h-4 text-purple-500" /> Notizen
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   {plan.musiker_notizen && (
                     <div>
-                      <p className="text-gray-500 text-xs mb-1">Für Musiker</p>
-                      <p className="text-gray-700 whitespace-pre-line">{plan.musiker_notizen}</p>
+                      <p className="text-muted-foreground text-xs mb-1">Für Musiker</p>
+                      <p className="text-foreground whitespace-pre-line">{plan.musiker_notizen}</p>
                     </div>
                   )}
                   {plan.interne_notizen && (
                     <div>
-                      <p className="text-gray-500 text-xs mb-1">Intern</p>
-                      <p className="text-gray-700 whitespace-pre-line">{plan.interne_notizen}</p>
+                      <p className="text-muted-foreground text-xs mb-1">Intern</p>
+                      <p className="text-foreground whitespace-pre-line">{plan.interne_notizen}</p>
                     </div>
                   )}
                 </CardContent>
@@ -547,7 +547,7 @@ export default function EventAIPlanner() {
           {plan.besetzung_anforderung && Object.keys(plan.besetzung_anforderung).length > 0 && (
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Guitar className="w-4 h-4 text-purple-500" /> Empfohlene Besetzung
                   {plan.genre_anforderung?.length > 0 && (
                     <div className="flex gap-1 ml-auto">
@@ -572,7 +572,7 @@ export default function EventAIPlanner() {
                 {suggestedMusiker.length > 0 ? (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Music className="w-3 h-3" /> Passende Musiker aus deinem Pool:
                       </p>
                       {saved && (
@@ -586,7 +586,7 @@ export default function EventAIPlanner() {
                         const isRequested = requestedMusikerIds.includes(m.id);
                         const isLoading = requestingMusiker[m.id];
                         return (
-                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-gray-100 bg-gray-50"}`}>
+                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-border bg-muted"}`}>
                             <Avatar className="w-10 h-10 shrink-0">
                               <AvatarImage src={m.profilbild_url} alt={m.name} />
                               <AvatarFallback className="bg-[#FF6A4D] text-white text-xs font-bold">
@@ -595,7 +595,7 @@ export default function EventAIPlanner() {
                             </Avatar>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="font-semibold text-sm text-gray-900 truncate">{m.name}</p>
+                                <p className="font-semibold text-sm text-foreground truncate">{m.name}</p>
                                 {m.prioritaet && (
                                   <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
                                     {m.prioritaet}
@@ -604,14 +604,14 @@ export default function EventAIPlanner() {
                               </div>
                               <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
                               {m.instrumente?.length > 0 && (
-                                <p className="text-xs text-gray-500 truncate">{m.instrumente.join(", ")}</p>
+                                <p className="text-xs text-muted-foreground truncate">{m.instrumente.join(", ")}</p>
                               )}
                               {isRequested ? (
                                 <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
                                   <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
                                 </p>
                               ) : m.email ? (
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                                   <Mail className="w-3 h-3" /> {m.email}
                                 </p>
                               ) : null}
@@ -633,7 +633,7 @@ export default function EventAIPlanner() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">
+                  <p className="text-sm text-muted-foreground italic">
                     Keine passenden Musiker im Pool gefunden für diese Besetzung.
                   </p>
                 )}

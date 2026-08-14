@@ -47,7 +47,7 @@ export default function EmailForm({ lead, onSubmit, onCancel, isSending }) {
         <div className="flex justify-between items-center">
           <div>
             <CardTitle>E-Mail verfassen</CardTitle>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 <span>An: {lead.email}</span>
@@ -82,7 +82,7 @@ export default function EmailForm({ lead, onSubmit, onCancel, isSending }) {
           {/* Nachricht (Rich Text Editor) */}
           <div className="space-y-2">
             <Label>Nachricht *</Label>
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-border rounded-lg">
               <ReactQuill
                 theme="snow"
                 value={formData.inhalt}

@@ -44,13 +44,13 @@ export function EditMusikerDialog({ open, onOpenChange, editMusikerData, setEdit
               <Input type="number" value={editMusikerData.mwst_satz} onChange={(e) => setEditMusikerData({ ...editMusikerData, mwst_satz: e.target.value })} placeholder="19" />
             </div>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+          <div className="p-3 bg-muted rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Gage (netto):</span>
+              <span className="text-muted-foreground">Gage (netto):</span>
               <span className="font-medium">{(parseFloat(editMusikerData.gage_netto) || 0).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">MwSt. ({editMusikerData.mwst_satz}%):</span>
+              <span className="text-muted-foreground">MwSt. ({editMusikerData.mwst_satz}%):</span>
               <span className="font-medium">{((parseFloat(editMusikerData.gage_netto) || 0) * (parseFloat(editMusikerData.mwst_satz) || 0) / 100).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-base font-bold border-t pt-2">
@@ -69,7 +69,7 @@ export function EditMusikerDialog({ open, onOpenChange, editMusikerData, setEdit
             </div>
             <div>
               <Label>Fahrtkosten</Label>
-              <div className="h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-sm font-medium">
+              <div className="h-10 px-3 py-2 bg-muted border rounded-md flex items-center text-sm font-medium">
                 {((parseFloat(editMusikerData.distanz_km) || 0) * 2 * (parseFloat(editMusikerData.fahrtkosten_pro_km) || 0.30)).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €
               </div>
             </div>
@@ -90,7 +90,7 @@ export function EditMusikerDialog({ open, onOpenChange, editMusikerData, setEdit
                     <Button type="button" size="icon" variant="ghost" onClick={() => { const u = editMusikerData.weitere_kosten.filter((_, i) => i !== index); setEditMusikerData({ ...editMusikerData, weitere_kosten: u }); }} className="text-red-600"><X className="w-4 h-4" /></Button>
                   </div>
                 ))}
-                <div className="text-sm text-gray-600 pt-2 border-t">Summe: {(editMusikerData.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</div>
+                <div className="text-sm text-muted-foreground pt-2 border-t">Summe: {(editMusikerData.weitere_kosten.reduce((s, k) => s + (k.betrag || 0), 0)).toLocaleString("de-DE", { minimumFractionDigits: 2 })} €</div>
               </div>
             )}
           </div>
@@ -99,12 +99,12 @@ export function EditMusikerDialog({ open, onOpenChange, editMusikerData, setEdit
             <Textarea value={editMusikerData.notizen} onChange={(e) => setEditMusikerData({ ...editMusikerData, notizen: e.target.value })} placeholder="Zusätzliche Informationen..." rows={2} />
           </div>
           <Collapsible>
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-muted rounded-lg hover:bg-muted transition-colors">
               <span className="font-medium text-sm">Buchungsbedingungen</span>
               <ChevronDown className="w-4 h-4" />
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-3">
-              <div className="border border-gray-200 rounded-lg">
+              <div className="border border-border rounded-lg">
                 <ReactQuill theme="snow" value={editMusikerData.buchungsbedingungen} onChange={(v) => setEditMusikerData({ ...editMusikerData, buchungsbedingungen: v })} modules={modules} formats={formats} placeholder="Buchungsbedingungen..." className="min-h-[150px]" />
               </div>
             </CollapsibleContent>
@@ -138,7 +138,7 @@ export function EinladungDialog({ open, onOpenChange, einladungMusiker, einladun
           <div>
             <Label>Persönliche Nachricht (optional)</Label>
             <Textarea value={einladungText} onChange={(e) => setEinladungText(e.target.value)} placeholder="z.B. Freue mich auf dich!..." rows={4} />
-            <p className="text-xs text-gray-500 mt-1">Diese Nachricht wird in der E-Mail angezeigt</p>
+            <p className="text-xs text-muted-foreground mt-1">Diese Nachricht wird in der E-Mail angezeigt</p>
           </div>
         </div>
         <DialogFooter>

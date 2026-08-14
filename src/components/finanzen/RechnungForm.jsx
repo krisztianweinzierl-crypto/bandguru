@@ -116,7 +116,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
                   id="kunde"
                   value={formData.kunde_id}
                   onChange={(e) => handleChange('kunde_id', e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                  className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                   required
                 >
                   <option value="">Kunde wählen</option>
@@ -134,7 +134,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
                   id="event"
                   value={formData.event_id || ""}
                   onChange={(e) => handleChange('event_id', e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                  className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                 >
                   <option value="">Kein Event</option>
                   {events.map((event) => (
@@ -195,23 +195,23 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
                         className="fixed inset-0 z-40" 
                         onClick={() => setShowArtikelDropdown(false)}
                       />
-                      <div className="absolute top-full right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                      <div className="absolute top-full right-0 mt-2 w-72 bg-card border rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
                         {artikel.length > 0 ? (
                           artikel.map((art) => (
                             <button
                               key={art.id}
                               type="button"
                               onClick={() => addArtikelPosition(art)}
-                              className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b last:border-0"
+                              className="w-full text-left px-4 py-3 hover:bg-muted border-b last:border-0"
                             >
                               <p className="font-medium text-sm">{art.bezeichnung}</p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 {art.einzelpreis.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € / {art.einheit}
                               </p>
                             </button>
                           ))
                         ) : (
-                          <div className="px-4 py-6 text-center text-sm text-gray-500">
+                          <div className="px-4 py-6 text-center text-sm text-muted-foreground">
                             <p className="mb-2">Keine Artikel vorhanden</p>
                             <p className="text-xs">Erstelle Artikel unter Einstellungen</p>
                           </div>
@@ -229,7 +229,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
 
             <div className="space-y-3">
               {formData.positionen.map((position, index) => (
-                <div key={index} className="p-4 border rounded-lg bg-gray-50 space-y-3">
+                <div key={index} className="p-4 border rounded-lg bg-muted space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                     <div className="md:col-span-5">
                       <Label htmlFor={`beschreibung-${index}`} className="text-xs">Beschreibung</Label>
@@ -305,7 +305,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
                     </div>
                   </div>
 
-                  <div className="text-right text-sm text-gray-600">
+                  <div className="text-right text-sm text-muted-foreground">
                     Summe: {((position.menge || 0) * (position.einzelpreis || 0)).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
                   </div>
                 </div>
@@ -314,13 +314,13 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
           </div>
 
           {/* Summen */}
-          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+          <div className="bg-muted p-4 rounded-lg space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Netto:</span>
+              <span className="text-muted-foreground">Netto:</span>
               <span className="font-medium">{totals.netto_betrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">MwSt.:</span>
+              <span className="text-muted-foreground">MwSt.:</span>
               <span className="font-medium">{totals.steuer_betrag.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
             </div>
             <div className="flex justify-between text-lg font-bold border-t pt-2">

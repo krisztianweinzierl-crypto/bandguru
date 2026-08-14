@@ -46,7 +46,7 @@ export default function Dashboard() {
   const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
-    anfrage: { className: "bg-gray-100 text-gray-800", label: "Anfrage" },
+    anfrage: { className: "bg-muted text-foreground", label: "Anfrage" },
     angebot_erstellt: { className: "bg-blue-100 text-blue-800", label: "Angebot erstellt" },
     angebot_angenommen: { className: "bg-indigo-100 text-indigo-800", label: "Angebot angenommen" },
     wartet_auf_bestaetigung: { className: "bg-yellow-100 text-yellow-800", label: "Wartet auf Bestätigung" },
@@ -62,8 +62,8 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-gray-600">Willkommen zurück! Hier ist deine Übersicht.</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Dashboard</h1>
+          <p className="text-muted-foreground">Willkommen zurück! Hier ist deine Übersicht.</p>
         </div>
 
         {/* Statistik-Kacheln */}
@@ -72,15 +72,15 @@ export default function Dashboard() {
             <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#FF6A4D' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Nächste Events</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Nächste Events</CardTitle>
                 <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(34, 58, 94, 0.15)' }}>
                   <Calendar className="w-5 h-5" style={{ color: '#FF6A4D' }} />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{naechsteEvents.length}</p>
-              <p className="text-sm text-gray-500 mt-1">Events anstehend</p>
+              <p className="text-3xl font-bold text-foreground">{naechsteEvents.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">Events anstehend</p>
             </CardContent>
           </Card>
 
@@ -88,15 +88,15 @@ export default function Dashboard() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Aktive Musiker</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Aktive Musiker</CardTitle>
                 <div className="p-2 bg-green-100 rounded-lg">
                   <Users className="w-5 h-5 text-green-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{musiker.length}</p>
-              <p className="text-sm text-gray-500 mt-1">Im Pool verfügbar</p>
+              <p className="text-3xl font-bold text-foreground">{musiker.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">Im Pool verfügbar</p>
             </CardContent>
           </Card>
 
@@ -104,15 +104,15 @@ export default function Dashboard() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Offene Aufgaben</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Offene Aufgaben</CardTitle>
                 <div className="p-2 bg-orange-100 rounded-lg">
                   <AlertCircle className="w-5 h-5 text-orange-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{offeneAufgaben}</p>
-              <p className="text-sm text-gray-500 mt-1">{inArbeitAufgaben} in Arbeit</p>
+              <p className="text-3xl font-bold text-foreground">{offeneAufgaben}</p>
+              <p className="text-sm text-muted-foreground mt-1">{inArbeitAufgaben} in Arbeit</p>
             </CardContent>
           </Card>
 
@@ -120,15 +120,15 @@ export default function Dashboard() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-sm font-medium text-gray-600">Alle Events</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Alle Events</CardTitle>
                 <div className="p-2 bg-slate-100 rounded-lg">
                   <Calendar className="w-5 h-5 text-slate-600" />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{events.length}</p>
-              <p className="text-sm text-gray-500 mt-1">Gesamt</p>
+              <p className="text-3xl font-bold text-foreground">{events.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">Gesamt</p>
             </CardContent>
           </Card>
         </div>
@@ -153,7 +153,7 @@ export default function Dashboard() {
                 <Link
                   key={event.id}
                   to={createPageUrl(`EventDetail?id=${event.id}`)}
-                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors">
+                  className="flex items-center gap-4 p-4 hover:bg-muted transition-colors">
 
                       <div className="flex-shrink-0">
                         <div className="bg-[#FF6A4D] text-white rounded-xl w-14 h-14 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
@@ -166,21 +166,21 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate text-sm md:text-base">{event.titel}</h3>
-                        <div className="flex items-center gap-1 mt-1 text-xs md:text-sm text-gray-500 truncate">
+                        <h3 className="font-semibold text-foreground truncate text-sm md:text-base">{event.titel}</h3>
+                        <div className="flex items-center gap-1 mt-1 text-xs md:text-sm text-muted-foreground truncate">
                           <Clock className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                           {format(new Date(event.datum_von), 'HH:mm')} Uhr
                           {event.ort_name && <span className="truncate"> • {event.ort_name}</span>}
                         </div>
                       </div>
-                      <Badge className={`text-xs flex-shrink-0 ${statusColors[event.status]?.className || "bg-gray-100 text-gray-800"}`}>
+                      <Badge className={`text-xs flex-shrink-0 ${statusColors[event.status]?.className || "bg-muted text-foreground"}`}>
                         {statusColors[event.status]?.label || event.status}
                       </Badge>
                     </Link>
                 )}
                 </div> :
 
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-muted-foreground">
                   <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>Keine anstehenden Events</p>
                   <Link to={createPageUrl("Events")}>
@@ -229,7 +229,7 @@ export default function Dashboard() {
             {aufgaben.length > 0 &&
             <>
                 <div className="border-t p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Offene Aufgaben</h3>
+                  <h3 className="font-semibold text-foreground mb-3">Offene Aufgaben</h3>
                   <div className="space-y-2">
                     {aufgaben.slice(0, 5).map((aufgabe) =>
                   <div key={aufgabe.id} className="flex items-start gap-2 text-sm">
@@ -238,7 +238,7 @@ export default function Dashboard() {
                     aufgabe.prioritaet === 'normal' ? 'bg-yellow-500' :
                     'bg-green-500'}`
                     } />
-                        <p className="flex-1 text-gray-700">{aufgabe.titel}</p>
+                        <p className="flex-1 text-foreground">{aufgabe.titel}</p>
                       </div>
                   )}
                   </div>

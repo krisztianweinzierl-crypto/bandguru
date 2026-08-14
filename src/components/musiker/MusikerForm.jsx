@@ -95,7 +95,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
           {/* Profilbild Upload */}
           <div className="flex items-start gap-6">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+              <div className="w-24 h-24 rounded-full bg-muted border-2 border-dashed border-border flex items-center justify-center overflow-hidden">
                 {formData.profilbild_url ? (
                   <img 
                     src={formData.profilbild_url} 
@@ -103,7 +103,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-10 h-10 text-gray-400" />
+                  <User className="w-10 h-10 text-muted-foreground" />
                 )}
               </div>
               <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#FF6A4D] hover:bg-[#E85A3D] text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg transition-colors">
@@ -123,7 +123,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
             </div>
             <div className="flex-1 space-y-1">
               <Label>Profilbild</Label>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 JPG, PNG oder GIF. Max. 5MB.
               </p>
               {formData.profilbild_url && (
@@ -208,7 +208,7 @@ export default function MusikerForm({ onSubmit, onCancel, musiker = null }) {
 
           <div className="space-y-2">
             <Label>Instrumente</Label>
-            <p className="text-xs text-gray-500">Das erste Instrument ist das <span className="font-semibold text-purple-600">Primärinstrument</span> und wird für die KI-Besetzungsvorschläge bevorzugt.</p>
+            <p className="text-xs text-muted-foreground">Das erste Instrument ist das <span className="font-semibold text-purple-600">Primärinstrument</span> und wird für die KI-Besetzungsvorschläge bevorzugt.</p>
             <div className="flex gap-2">
               <Input
                 value={instrumentInput}

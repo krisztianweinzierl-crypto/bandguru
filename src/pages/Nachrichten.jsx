@@ -336,7 +336,7 @@ Dein Bandguru Team`
         className={`flex items-start gap-3 p-4 cursor-pointer transition-colors border-l-4 ${
           isSelected ?
             'bg-blue-50 border-l-blue-500' :
-            'hover:bg-gray-50 border-l-transparent'}`
+            'hover:bg-muted border-l-transparent'}`
         }>
 
         <div className="relative">
@@ -358,24 +358,24 @@ Dein Bandguru Team`
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <p className={`font-semibold truncate ${unread ? 'text-gray-900' : 'text-gray-700'}`}>
+            <p className={`font-semibold truncate ${unread ? 'text-foreground' : 'text-foreground'}`}>
               {name}
             </p>
             {konversation.letzte_nachricht_zeit &&
-              <span className="text-xs text-gray-500 flex-shrink-0">
+              <span className="text-xs text-muted-foreground flex-shrink-0">
                 {format(new Date(konversation.letzte_nachricht_zeit), 'HH:mm', { locale: de })}
               </span>
             }
           </div>
           {konversation.letzte_nachricht_vorschau &&
-            <p className={`text-sm truncate ${unread ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+            <p className={`text-sm truncate ${unread ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
               {konversation.letzte_nachricht_vorschau}
             </p>
           }
           {teilnehmer.length > 1 &&
             <div className="flex items-center gap-1 mt-1">
-              <Users className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-500">
+              <Users className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">
                 {teilnehmer.map((t) => t.user_name).join(', ')}
               </span>
             </div>
@@ -393,19 +393,19 @@ Dein Bandguru Team`
       <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'}`}>
           {!isOwn &&
-            <p className="text-xs text-gray-500 mb-1 ml-3">{nachricht.absender_name}</p>
+            <p className="text-xs text-muted-foreground mb-1 ml-3">{nachricht.absender_name}</p>
           }
           <div
             className={`rounded-2xl px-4 py-2 ${
               isOwn ?
                 'bg-[#FF6A4D] text-white' :
-                'bg-gray-100 text-gray-900'}`
+                'bg-muted text-foreground'}`
             }>
 
             <p className="text-sm whitespace-pre-wrap break-words">{nachricht.inhalt}</p>
           </div>
           <div className={`flex items-center gap-2 mt-1 px-3 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {format(new Date(nachricht.created_date), 'HH:mm', { locale: de })}
             </span>
             {isOwn &&
@@ -413,7 +413,7 @@ Dein Bandguru Team`
                 {isRead ?
                   <CheckCheck className="w-3 h-3 text-blue-500" /> :
 
-                  <Check className="w-3 h-3 text-gray-400" />
+                  <Check className="w-3 h-3 text-muted-foreground" />
                 }
               </span>
             }
@@ -426,10 +426,10 @@ Dein Bandguru Team`
   return (
     <div className="flex flex-col bg-background overflow-x-hidden w-full" style={{ height: 'calc(100vh - 0px)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
+      <div className="bg-card border-b border-border px-4 md:px-8 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Nachrichten</h1>
-          <p className="text-sm md:text-base text-gray-600">Kommuniziere mit deinem Team</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Nachrichten</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Kommuniziere mit deinem Team</p>
         </div>
       </div>
 
@@ -452,7 +452,7 @@ Dein Bandguru Team`
               </div>
 
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Chats durchsuchen..."
                   value={searchQuery}
@@ -480,7 +480,7 @@ Dein Bandguru Team`
                     ))}
                   </div>
                 ) : (
-                  <div className="p-12 text-center text-gray-500">
+                  <div className="p-12 text-center text-muted-foreground">
                     <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine Chats gefunden</p>
                   </div>
@@ -495,7 +495,7 @@ Dein Bandguru Team`
                     ))}
                   </div>
                 ) : (
-                  <div className="p-12 text-center text-gray-500">
+                  <div className="p-12 text-center text-muted-foreground">
                     <Archive className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p>Keine archivierten Chats</p>
                   </div>
@@ -528,10 +528,10 @@ Dein Bandguru Team`
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-foreground">
                           {getKonversationName(selectedKonversation)}
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {getKonversationTeilnehmer(selectedKonversation).length + 1} Teilnehmer
                         </p>
                       </div>
@@ -558,13 +558,13 @@ Dein Bandguru Team`
                             className="fixed inset-0 z-40"
                             onClick={() => setShowKonversationMenu(null)}
                           />
-                          <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-48 overflow-hidden">
+                          <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-48 overflow-hidden">
                             <button
                               onClick={() => {
                                 setShowTeilnehmerModal(true);
                                 setShowKonversationMenu(null);
                               }}
-                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm"
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors text-left text-sm"
                             >
                               <Users className="w-4 h-4" />
                               Teilnehmer verwalten
@@ -576,7 +576,7 @@ Dein Bandguru Team`
                                   archiviert: !selectedKonversation.archiviert,
                                 })
                               }
-                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors text-left text-sm border-t"
+                              className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors text-left text-sm border-t"
                             >
                               {selectedKonversation.archiviert ? (
                                 <>
@@ -635,8 +635,8 @@ Dein Bandguru Team`
               <div className="flex-1 flex items-center justify-center text-center p-12">
                 <div>
                   <MessageSquare className="w-24 h-24 mx-auto mb-6 text-gray-300" />
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Wähle einen Chat</h3>
-                  <p className="text-gray-500 mb-6">Oder starte eine neue Konversation</p>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Wähle einen Chat</h3>
+                  <p className="text-muted-foreground mb-6">Oder starte eine neue Konversation</p>
                   <Button
                     onClick={() => setShowNewChatModal(true)}
                     className="bg-[#FF6A4D] hover:opacity-90"
@@ -689,7 +689,7 @@ Dein Bandguru Team`
                           <p className="font-medium text-sm truncate">
                             {displayName} {isCurrentUser && '(Du)'}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">{mitglied?.rolle}</p>
+                          <p className="text-xs text-muted-foreground truncate">{mitglied?.rolle}</p>
                         </div>
                         {!isCurrentUser && (
                           <Button
@@ -727,7 +727,7 @@ Dein Bandguru Team`
                             konversationId: selectedKonversation.id,
                             userId: mitglied.user_id
                           })}
-                          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted transition-colors"
                         >
                           <Avatar className="w-8 h-8 bg-[#FF6A4D]">
                             <AvatarFallback className="bg-[#FF6A4D] text-white text-xs">
@@ -736,14 +736,14 @@ Dein Bandguru Team`
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm truncate">{displayName}</p>
-                            <p className="text-xs text-gray-500 truncate">{mitglied.rolle}</p>
+                            <p className="text-xs text-muted-foreground truncate">{mitglied.rolle}</p>
                           </div>
-                          <Plus className="w-4 h-4 text-gray-400" />
+                          <Plus className="w-4 h-4 text-muted-foreground" />
                         </div>
                       );
                     })}
                   {mitglieder.filter((m) => m.user_id && !selectedKonversation.teilnehmer_ids?.includes(m.user_id)).length === 0 && (
-                    <div className="p-6 text-center text-sm text-gray-500">
+                    <div className="p-6 text-center text-sm text-muted-foreground">
                       Alle Mitglieder sind bereits im Chat
                     </div>
                   )}
@@ -798,14 +798,14 @@ Dein Bandguru Team`
                         <div
                           key={mitglied.user_id}
                           onClick={() => toggleUserSelection(mitglied.user_id)}
-                          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                          className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-muted transition-colors ${
                             selectedUsers.includes(mitglied.user_id) ? 'bg-blue-50' : ''}`
                           }>
 
                           <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
                             selectedUsers.includes(mitglied.user_id) ?
                               'bg-blue-500 border-blue-500' :
-                              'border-gray-300'}`
+                              'border-border'}`
                           }>
                             {selectedUsers.includes(mitglied.user_id) &&
                               <Check className="w-3 h-3 text-white" />
@@ -818,7 +818,7 @@ Dein Bandguru Team`
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm truncate">{displayName}</p>
-                            <p className="text-xs text-gray-500 truncate">{mitglied.rolle}</p>
+                            <p className="text-xs text-muted-foreground truncate">{mitglied.rolle}</p>
                           </div>
                         </div>);
 

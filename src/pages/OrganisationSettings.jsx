@@ -380,7 +380,7 @@ Das ${organisation.name} Team 🎵`;
   if (!organisation || !orgFormData) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
-        <p className="text-gray-600">Lade Organisation...</p>
+        <p className="text-muted-foreground">Lade Organisation...</p>
       </div>
     );
   }
@@ -391,14 +391,14 @@ Das ${organisation.name} Team 🎵`;
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
             Organisations-Einstellungen
           </h1>
-          <p className="text-gray-600">Verwalte deine Organisation und Mitglieder</p>
+          <p className="text-muted-foreground">Verwalte deine Organisation und Mitglieder</p>
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger value="general">Allgemein</TabsTrigger>
             <TabsTrigger value="members">Mitglieder</TabsTrigger>
             {isManager && <TabsTrigger value="demo">Demo-Daten</TabsTrigger>}
@@ -452,7 +452,7 @@ Das ${organisation.name} Team 🎵`;
                       id="org-waehrung"
                       value={orgFormData.waehrung}
                       onChange={(e) => handleFormChange('waehrung', e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                      className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                       disabled={!isManager}
                     >
                       <option value="EUR">EUR (€)</option>
@@ -512,7 +512,7 @@ Das ${organisation.name} Team 🎵`;
                     {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                   Diese ID wird für technische Integrationen benötigt
                 </p>
               </CardContent>
@@ -529,7 +529,7 @@ Das ${organisation.name} Team 🎵`;
                     <UserPlus className="w-5 h-5 text-blue-600" />
                     <CardTitle>Mitglied einladen</CardTitle>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Lade neue Band Manager oder Musiker per E-Mail zu deiner Organisation ein
                   </p>
                 </CardHeader>
@@ -552,7 +552,7 @@ Das ${organisation.name} Team 🎵`;
                           id="invite-role"
                           value={inviteRole}
                           onChange={(e) => setInviteRole(e.target.value)}
-                          className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                          className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                         >
                           <option value="Band Manager">Band Manager</option>
                           <option value="Musiker">Musiker</option>
@@ -615,19 +615,19 @@ Das ${organisation.name} Team 🎵`;
                     return (
                       <div
                         key={mitglied.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-4 bg-muted rounded-lg"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white font-bold">
                             {displayInitial}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-foreground">
                               {displayUserName}
-                              {isInvited && <span className="text-sm text-gray-500 ml-2">(eingeladen)</span>}
+                              {isInvited && <span className="text-sm text-muted-foreground ml-2">(eingeladen)</span>}
                             </p>
                             {displayEmail && (
-                              <p className="text-sm text-gray-600 flex items-center gap-1 mt-0.5">
+                              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                                 <Mail className="w-3 h-3" />
                                 {displayEmail}
                               </p>
@@ -654,14 +654,14 @@ Das ${organisation.name} Team 🎵`;
                                 className={
                                   mitglied.status === "aktiv"
                                     ? "bg-green-50 text-green-700 border-green-200"
-                                    : "bg-gray-50 text-gray-700 border-gray-200"
+                                    : "bg-muted text-foreground border-border"
                                 }
                               >
                                 {mitglied.status}
                               </Badge>
                             </div>
                             {/* Timestamp-Anzeige */}
-                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                               {isInvited ? (
                                 <span className="flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
@@ -706,7 +706,7 @@ Das ${organisation.name} Team 🎵`;
                     <Sparkles className="w-5 h-5 text-purple-600" />
                     <CardTitle>Demo-Daten generieren</CardTitle>
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Fülle deine Organisation mit realistischen Beispieldaten für Demo-Videos oder Tests
                   </p>
                 </CardHeader>
@@ -730,9 +730,9 @@ Das ${organisation.name} Team 🎵`;
                       { label: "6 Aufgaben", icon: "✅" },
                       { label: "4 Leads", icon: "🎯" },
                     ].map((item) => (
-                      <div key={item.label} className="bg-gray-50 rounded-lg p-3 text-center">
+                      <div key={item.label} className="bg-muted rounded-lg p-3 text-center">
                         <div className="text-2xl mb-1">{item.icon}</div>
-                        <p className="text-sm font-medium text-gray-700">{item.label}</p>
+                        <p className="text-sm font-medium text-foreground">{item.label}</p>
                       </div>
                     ))}
                   </div>

@@ -52,7 +52,7 @@ export default function AusgabeForm({ ausgabe, onSubmit, onCancel }) {
                 id="kategorie"
                 value={formData.kategorie}
                 onChange={(e) => handleChange('kategorie', e.target.value)}
-                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                 required
               >
                 <option value="gage">Gage</option>
@@ -98,7 +98,7 @@ export default function AusgabeForm({ ausgabe, onSubmit, onCancel }) {
                 id="zahlungsmethode"
                 value={formData.zahlungsmethode}
                 onChange={(e) => handleChange('zahlungsmethode', e.target.value)}
-                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                 required
               >
                 <option value="überweisung">Überweisung</option>
@@ -116,7 +116,7 @@ export default function AusgabeForm({ ausgabe, onSubmit, onCancel }) {
                 id="status"
                 value={formData.status}
                 onChange={(e) => handleChange('status', e.target.value)}
-                className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
                 required
               >
                 <option value="ausstehend">Ausstehend</option>
@@ -143,7 +143,7 @@ export default function AusgabeForm({ ausgabe, onSubmit, onCancel }) {
               id="steuerlich_absetzbar"
               checked={formData.steuerlich_absetzbar}
               onChange={(e) => handleChange('steuerlich_absetzbar', e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300"
+              className="w-4 h-4 rounded border-border"
             />
             <Label htmlFor="steuerlich_absetzbar" className="cursor-pointer">
               Steuerlich absetzbar

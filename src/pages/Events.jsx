@@ -123,7 +123,7 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter((e) => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    anfrage: { bg: "bg-gray-100", text: "text-gray-800", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Anfrage" },
+    anfrage: { bg: "bg-muted", text: "text-foreground", border: "border-gray-400", borderClass: "border-l-gray-400", label: "Anfrage" },
     angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Angebot erstellt" },
     angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400", label: "Angebot angenommen" },
     wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400", borderClass: "border-l-yellow-400", label: "Wartet auf Bestätigung" },
@@ -150,7 +150,7 @@ export default function EventsPage() {
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-lg mb-1 truncate">{event.titel}</CardTitle>
-                <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+                <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     {format(new Date(event.datum_von), 'dd. MMM yyyy', { locale: de })}
@@ -169,14 +169,14 @@ export default function EventsPage() {
           <CardContent className="pt-0">
             <div className="space-y-2">
               {event.ort_name &&
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
                   <span className="truncate">{event.ort_name}</span>
                 </div>
               }
               {kunde &&
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <User className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <User className="w-4 h-4 text-muted-foreground" />
                   <span className="truncate">{kunde.firmenname}</span>
                 </div>
               }
@@ -193,7 +193,7 @@ export default function EventsPage() {
 
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
+        <div className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
           <div className="flex-shrink-0">
             <div className="bg-[#FF6A4D] text-white rounded-lg ] w-16 h-16 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
@@ -207,13 +207,13 @@ export default function EventsPage() {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4 mb-2">
-              <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+              <h3 className="font-semibold text-lg text-foreground truncate">{event.titel}</h3>
               <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
                 {statusStyle.label}
               </Badge>
             </div>
             
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {format(new Date(event.datum_von), 'HH:mm')} Uhr
@@ -242,7 +242,7 @@ export default function EventsPage() {
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-gray-600">Lade Organisation...</p>
+            <p className="text-muted-foreground">Lade Organisation...</p>
           </CardContent>
         </Card>
       </div>);
@@ -254,8 +254,8 @@ export default function EventsPage() {
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Events</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Events</h1>
+            <p className="text-muted-foreground">
               {isManager ? 'Verwalte alle deine Veranstaltungen' : 'Deine zugesagten Events'}
             </p>
           </div>
@@ -275,7 +275,7 @@ export default function EventsPage() {
           <CardContent className="p-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Events durchsuchen..."
                   value={searchQuery}
@@ -304,12 +304,12 @@ export default function EventsPage() {
               </Select>
               
               {/* View Mode Toggle */}
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={viewMode === "grid" ? "bg-white shadow-sm" : ""}>
+                  className={viewMode === "grid" ? "bg-card shadow-sm" : ""}>
 
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
@@ -317,7 +317,7 @@ export default function EventsPage() {
                   variant={viewMode === "list" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={viewMode === "list" ? "bg-white shadow-sm" : ""}>
+                  className={viewMode === "list" ? "bg-card shadow-sm" : ""}>
 
                   <List className="w-4 h-4" />
                 </Button>
@@ -337,7 +337,7 @@ export default function EventsPage() {
         }
 
         <Tabs defaultValue="upcoming" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-card border shadow-sm">
             <TabsTrigger
               value="upcoming"
               className="data-[state=active]:text-white"
@@ -400,7 +400,7 @@ export default function EventsPage() {
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <h3 className="text-lg font-semibold mb-2">Keine anstehenden Events</h3>
-                  <p className="text-gray-500 mb-4">
+                  <p className="text-muted-foreground mb-4">
                     {isManager ? 'Erstelle dein erstes Event' : 'Du hast aktuell keine zugesagten Events'}
                   </p>
                   {isManager &&
@@ -433,7 +433,7 @@ export default function EventsPage() {
             <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-500">Keine vergangenen Events</p>
+                  <p className="text-muted-foreground">Keine vergangenen Events</p>
                 </CardContent>
               </Card>
             }

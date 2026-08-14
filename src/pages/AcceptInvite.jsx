@@ -242,8 +242,8 @@ export default function AcceptInvitePage() {
           {status === "loading" && (
             <div className="space-y-4">
               <Loader2 className="w-16 h-16 mx-auto text-blue-600 animate-spin" />
-              <p className="text-gray-600">Verarbeite Einladung...</p>
-              <p className="text-sm text-gray-400">Bitte einen Moment Geduld</p>
+              <p className="text-muted-foreground">Verarbeite Einladung...</p>
+              <p className="text-sm text-muted-foreground">Bitte einen Moment Geduld</p>
             </div>
           )}
 
@@ -253,13 +253,13 @@ export default function AcceptInvitePage() {
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">🎉 Erfolgreich!</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">🎉 Erfolgreich!</h3>
                 {organisation && (
-                  <p className="text-lg font-medium text-gray-700 mb-2">
+                  <p className="text-lg font-medium text-foreground mb-2">
                     {organisation.name}
                   </p>
                 )}
-                <p className="text-gray-600">{message}</p>
+                <p className="text-muted-foreground">{message}</p>
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700">
                     Du wirst automatisch weitergeleitet...
@@ -275,8 +275,8 @@ export default function AcceptInvitePage() {
                 <UserPlus className="w-12 h-12 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Bereits Mitglied</h3>
-                <p className="text-gray-600 mb-4">{message}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Bereits Mitglied</h3>
+                <p className="text-muted-foreground mb-4">{message}</p>
                 <Button 
                   onClick={() => {
                     if (mitgliedschaft) {
@@ -298,10 +298,10 @@ export default function AcceptInvitePage() {
                 <XCircle className="w-12 h-12 text-orange-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Einladung abgelaufen</h3>
-                <p className="text-gray-600 mb-4">{message}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Einladung abgelaufen</h3>
+                <p className="text-muted-foreground mb-4">{message}</p>
                 {organisation && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Organisation: {organisation.name}
                   </p>
                 )}
@@ -320,8 +320,8 @@ export default function AcceptInvitePage() {
                 <XCircle className="w-12 h-12 text-red-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Fehler</h3>
-                <p className="text-gray-600 mb-4">{message}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">Fehler</h3>
+                <p className="text-muted-foreground mb-4">{message}</p>
                 <div className="space-y-2">
                   <Button 
                     variant="outline"

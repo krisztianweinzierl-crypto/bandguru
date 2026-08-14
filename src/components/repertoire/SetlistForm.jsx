@@ -376,20 +376,20 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`flex items-center gap-3 p-3 bg-white border rounded-lg ${
+                                className={`flex items-center gap-3 p-3 bg-card border rounded-lg ${
                                   snapshot.isDragging ? 'shadow-lg' : ''
                                 }`}
                               >
                                 <div {...provided.dragHandleProps}>
-                                  <GripVertical className="w-5 h-5 text-gray-400 cursor-grab" />
+                                  <GripVertical className="w-5 h-5 text-muted-foreground cursor-grab" />
                                 </div>
                                 
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                                    <p className="font-medium text-gray-900">{song.titel}</p>
+                                    <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                                    <p className="font-medium text-foreground">{song.titel}</p>
                                   </div>
-                                  <p className="text-sm text-gray-500">{song.kuenstler_original}</p>
+                                  <p className="text-sm text-muted-foreground">{song.kuenstler_original}</p>
                                 </div>
 
                                 <div className="flex items-center gap-2">

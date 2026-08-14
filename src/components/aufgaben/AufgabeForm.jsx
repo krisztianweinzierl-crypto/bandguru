@@ -212,13 +212,13 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
               {/* Existierende Unteraufgaben (beim Bearbeiten) */}
               {existingUnteraufgaben.length > 0 &&
             <div className="space-y-2">
-                  <p className="text-sm text-gray-600 font-medium">Vorhandene Unteraufgaben:</p>
+                  <p className="text-sm text-muted-foreground font-medium">Vorhandene Unteraufgaben:</p>
                   <div className="space-y-2 border rounded-lg p-4 bg-blue-50">
                     {existingUnteraufgaben.map((unteraufgabe) =>
-                <div key={unteraufgabe.id} className="flex gap-2 items-center bg-white p-3 rounded-lg">
+                <div key={unteraufgabe.id} className="flex gap-2 items-center bg-card p-3 rounded-lg">
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{unteraufgabe.titel}</p>
-                          <p className="text-sm text-gray-500">
+                          <p className="font-medium text-foreground">{unteraufgabe.titel}</p>
+                          <p className="text-sm text-muted-foreground">
                             Status: {unteraufgabe.status} • Priorität: {unteraufgabe.prioritaet}
                           </p>
                         </div>
@@ -240,8 +240,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
               {/* Neue Unteraufgaben hinzufügen */}
               {unteraufgaben.length > 0 &&
             <div className="space-y-2">
-                  <p className="text-sm text-gray-600 font-medium">Neue Unteraufgaben:</p>
-                  <div className="space-y-2 border rounded-lg p-4 bg-gray-50">
+                  <p className="text-sm text-muted-foreground font-medium">Neue Unteraufgaben:</p>
+                  <div className="space-y-2 border rounded-lg p-4 bg-muted">
                     {unteraufgaben.map((unteraufgabe, index) =>
                 <div key={index} className="flex gap-2 items-start">
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -283,8 +283,8 @@ export default function AufgabeForm({ aufgabe, onSubmit, onCancel, mitglieder, h
 
               {/* Empty State (nur wenn keine Unteraufgaben existieren) */}
               {existingUnteraufgaben.length === 0 && unteraufgaben.length === 0 &&
-            <div className="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
-                  <p className="text-sm text-gray-500 mb-2">Noch keine Unteraufgaben</p>
+            <div className="text-center p-6 border-2 border-dashed border-border rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-2">Noch keine Unteraufgaben</p>
                   <Button
                 type="button"
                 variant="outline"

@@ -209,7 +209,7 @@ export default function VertragKundenansichtPage() {
         <Card className="max-w-md w-full border-none shadow-xl">
           <CardHeader className="border-b bg-[#FF6A4D] text-white">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-white/20 rounded-lg">
+              <div className="p-3 bg-card/20 rounded-lg">
                 <Lock className="w-6 h-6" />
               </div>
               <div>
@@ -224,11 +224,11 @@ export default function VertragKundenansichtPage() {
                 <Label htmlFor="email" className="text-base font-medium">
                   Bitte geben Sie Ihre E-Mail-Adresse ein
                 </Label>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   Um den Vertrag anzuzeigen, bestätigen Sie bitte Ihre E-Mail-Adresse, die bei uns hinterlegt ist.
                 </p>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
@@ -266,7 +266,7 @@ export default function VertragKundenansichtPage() {
               </Button>
 
               <div className="pt-4 border-t">
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-muted-foreground text-center">
                   🔒 Ihre Daten sind sicher. Diese Verifizierung dient ausschließlich dazu, sicherzustellen, dass Sie berechtigt sind, diesen Vertrag einzusehen.
                 </p>
               </div>
@@ -282,7 +282,7 @@ export default function VertragKundenansichtPage() {
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <div className="text-center">
           <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-600 animate-pulse" />
-          <p className="text-gray-600">Lade Vertrag...</p>
+          <p className="text-muted-foreground">Lade Vertrag...</p>
         </div>
       </div>
     );
@@ -295,9 +295,9 @@ export default function VertragKundenansichtPage() {
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-red-400" />
             <h2 className="text-xl font-bold mb-2">Vertrag nicht gefunden</h2>
-            <p className="text-gray-600 mb-4">Der angeforderte Vertrag konnte nicht gefunden werden.</p>
+            <p className="text-muted-foreground mb-4">Der angeforderte Vertrag konnte nicht gefunden werden.</p>
             {error?.message && (
-              <p className="text-sm text-gray-500">Fehler: {error.message}</p>
+              <p className="text-sm text-muted-foreground">Fehler: {error.message}</p>
             )}
           </CardContent>
         </Card>
@@ -312,7 +312,7 @@ export default function VertragKundenansichtPage() {
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-orange-400" />
             <h2 className="text-xl font-bold mb-2">Vertrag nicht verfügbar</h2>
-            <p className="text-gray-600">Dieser Vertrag ist derzeit nicht im Kundenportal verfügbar.</p>
+            <p className="text-muted-foreground">Dieser Vertrag ist derzeit nicht im Kundenportal verfügbar.</p>
           </CardContent>
         </Card>
       </div>
@@ -320,7 +320,7 @@ export default function VertragKundenansichtPage() {
   }
 
   const statusColors = {
-    entwurf: { bg: "bg-gray-100", text: "text-gray-800", label: "Entwurf" },
+    entwurf: { bg: "bg-muted", text: "text-foreground", label: "Entwurf" },
     versendet: { bg: "bg-blue-100", text: "text-blue-800", label: "Versendet" },
     unterzeichnet: { bg: "bg-green-100", text: "text-green-800", label: "Unterzeichnet" },
     storniert: { bg: "bg-red-100", text: "text-red-800", label: "Storniert" }
@@ -331,7 +331,7 @@ export default function VertragKundenansichtPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-6">
           <div className="flex items-center gap-4 mb-4">
             {organisation && (
@@ -343,8 +343,8 @@ export default function VertragKundenansichtPage() {
               </div>
             )}
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{organisation?.name || 'Vertragsansicht'}</h1>
-              <p className="text-gray-600">Kundenportal</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{organisation?.name || 'Vertragsansicht'}</h1>
+              <p className="text-muted-foreground">Kundenportal</p>
             </div>
             <Badge className={`${statusInfo.bg} ${statusInfo.text} border-none px-3 py-1 ml-auto`}>
               {statusInfo.label}
@@ -420,9 +420,9 @@ export default function VertragKundenansichtPage() {
                       <img 
                         src={vertrag.unterschrift_kunde} 
                         alt="Ihre Unterschrift" 
-                        className="w-full max-w-md h-32 object-contain mb-3 bg-white rounded p-2"
+                        className="w-full max-w-md h-32 object-contain mb-3 bg-card rounded p-2"
                       />
-                      <div className="text-sm text-gray-700">
+                      <div className="text-sm text-foreground">
                         <p className="font-medium">{vertrag.unterschrift_kunde_name}</p>
                         <p>{format(new Date(vertrag.unterschrift_kunde_datum), 'dd.MM.yyyy HH:mm', { locale: de })} Uhr</p>
                       </div>
@@ -431,9 +431,9 @@ export default function VertragKundenansichtPage() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <PenTool className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                  <PenTool className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="text-lg font-semibold mb-2">Bitte unterschreiben Sie den Vertrag</h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-muted-foreground mb-6">
                     {vertrag.unterzeichnen_bis && (
                       <>Bitte unterzeichnen Sie bis zum {format(new Date(vertrag.unterzeichnen_bis), 'dd.MM.yyyy', { locale: de })}</>
                     )}
@@ -455,11 +455,11 @@ export default function VertragKundenansichtPage() {
           {organisation && (
             <Card className="border-none shadow-lg">
               <CardContent className="p-6">
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-sm text-muted-foreground">
                   <p>Bei Fragen wenden Sie sich bitte an:</p>
-                  <p className="font-medium text-gray-900 mt-1">{organisation.name}</p>
+                  <p className="font-medium text-foreground mt-1">{organisation.name}</p>
                   {organisation.adresse && (
-                    <p className="text-gray-600">{organisation.adresse}</p>
+                    <p className="text-muted-foreground">{organisation.adresse}</p>
                   )}
                 </div>
               </CardContent>
@@ -499,7 +499,7 @@ export default function VertragKundenansichtPage() {
 
               <div className="space-y-2">
                 <Label>Ihre Unterschrift</Label>
-                <div className="border-2 border-gray-300 rounded-lg bg-white">
+                <div className="border-2 border-border rounded-lg bg-card">
                   <canvas
                     ref={canvasRef}
                     width={600}
@@ -511,7 +511,7 @@ export default function VertragKundenansichtPage() {
                     onMouseLeave={stopDrawing}
                   />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Zeichnen Sie Ihre Unterschrift mit der Maus oder dem Touchpad
                 </p>
               </div>

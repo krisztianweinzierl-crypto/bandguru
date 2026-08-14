@@ -260,8 +260,8 @@ export default function KalenderPage() {
           <div
             key={day.toString()}
             onClick={() => handleDateClick(cloneDay)}
-            className={`min-h-32 border border-gray-200 p-2 cursor-pointer hover:bg-blue-50 transition-colors ${
-              !isCurrentMonth ? 'bg-gray-50 text-gray-400' : 'bg-white'
+            className={`min-h-32 border border-border p-2 cursor-pointer hover:bg-blue-50 transition-colors ${
+              !isCurrentMonth ? 'bg-muted text-muted-foreground' : 'bg-card'
             } ${isTodayDate ? 'ring-2 ring-blue-500' : ''}`}
           >
             <div className={`text-sm font-semibold mb-1 ${isTodayDate ? 'text-blue-600' : ''}`}>
@@ -282,25 +282,25 @@ export default function KalenderPage() {
                     <span className="truncate block">{format(parseISO(event.datum_von), 'HH:mm')} {event.titel}</span>
                     
                     {/* Hover Tooltip */}
-                    <div className="absolute left-0 top-full mt-1 w-64 bg-white border-2 border-gray-300 rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none text-left">
-                      <div className="space-y-2 text-gray-900">
+                    <div className="absolute left-0 top-full mt-1 w-64 bg-card border-2 border-border rounded-lg shadow-xl p-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none text-left">
+                      <div className="space-y-2 text-foreground">
                         <div className="font-bold text-sm border-b pb-2">{event.titel}</div>
                         
                         <div className="flex items-start gap-2 text-xs">
-                          <Clock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <Clock className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                           <div>
                             <div>{format(parseISO(event.datum_von), 'HH:mm')} - {format(parseISO(event.datum_bis), 'HH:mm')} Uhr</div>
-                            <div className="text-gray-600">{format(parseISO(event.datum_von), 'dd. MMM yyyy', { locale: de })}</div>
+                            <div className="text-muted-foreground">{format(parseISO(event.datum_von), 'dd. MMM yyyy', { locale: de })}</div>
                           </div>
                         </div>
                         
                         {event.ort_name && (
                           <div className="flex items-start gap-2 text-xs">
-                            <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                             <div>
                               <div>{event.ort_name}</div>
                               {event.ort_adresse && (
-                                <div className="text-gray-600">{event.ort_adresse}</div>
+                                <div className="text-muted-foreground">{event.ort_adresse}</div>
                               )}
                             </div>
                           </div>
@@ -308,11 +308,11 @@ export default function KalenderPage() {
                         
                         {kunde && (
                           <div className="flex items-start gap-2 text-xs">
-                            <User className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <User className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                             <div>
                               <div>{kunde.firmenname}</div>
                               {kunde.ansprechpartner && (
-                                <div className="text-gray-600">{kunde.ansprechpartner}</div>
+                                <div className="text-muted-foreground">{kunde.ansprechpartner}</div>
                               )}
                             </div>
                           </div>
@@ -320,10 +320,10 @@ export default function KalenderPage() {
                         
                         {eventMusikerList.length > 0 && (
                           <div className="flex items-start gap-2 text-xs">
-                            <Users className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                            <Users className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                             <div>
                               <div className="font-medium">{eventMusikerList.length} Musiker</div>
-                              <div className="text-gray-600">
+                              <div className="text-muted-foreground">
                                 {eventMusikerList.filter(em => em.status === 'zugesagt').length} zugesagt
                               </div>
                             </div>
@@ -336,7 +336,7 @@ export default function KalenderPage() {
                           </div>
                         </div>
                         
-                        <div className="text-xs text-gray-500 italic pt-1">
+                        <div className="text-xs text-muted-foreground italic pt-1">
                           Klicken für Details →
                         </div>
                       </div>
@@ -345,7 +345,7 @@ export default function KalenderPage() {
                 );
               })}
               {dayEvents.length > 3 && (
-                <div className="text-xs text-gray-500 pl-2">
+                <div className="text-xs text-muted-foreground pl-2">
                   +{dayEvents.length - 3} weitere
                 </div>
               )}
@@ -367,7 +367,7 @@ export default function KalenderPage() {
         {/* Weekday Headers */}
         <div className="grid grid-cols-7">
           {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
-            <div key={day} className="p-2 text-center text-sm font-semibold text-gray-700 bg-gray-100 border border-gray-200">
+            <div key={day} className="p-2 text-center text-sm font-semibold text-foreground bg-muted border border-border">
               {day}
             </div>
           ))}
@@ -388,14 +388,14 @@ export default function KalenderPage() {
       const isTodayDate = isToday(day);
 
       weekDays.push(
-        <div key={day.toString()} className="flex-1 border-r border-gray-200 last:border-r-0">
+        <div key={day.toString()} className="flex-1 border-r border-border last:border-r-0">
           <div
             onClick={() => handleDateClick(day)}
-            className={`p-3 border-b border-gray-200 text-center cursor-pointer hover:bg-blue-50 ${
+            className={`p-3 border-b border-border text-center cursor-pointer hover:bg-blue-50 ${
               isTodayDate ? 'bg-blue-50 text-blue-600 font-bold' : ''
             }`}
           >
-            <div className="text-xs text-gray-500">{format(day, 'EEE', { locale: de })}</div>
+            <div className="text-xs text-muted-foreground">{format(day, 'EEE', { locale: de })}</div>
             <div className="text-xl">{format(day, 'd')}</div>
           </div>
           <div className="p-2 space-y-2 min-h-96">
@@ -426,7 +426,7 @@ export default function KalenderPage() {
       );
     }
 
-    return <div className="flex border border-gray-200 bg-white rounded-lg overflow-hidden">{weekDays}</div>;
+    return <div className="flex border border-border bg-card rounded-lg overflow-hidden">{weekDays}</div>;
   };
 
   // Listenansicht rendern
@@ -473,19 +473,19 @@ export default function KalenderPage() {
                     <div
                       key={event.id}
                       onClick={(e) => handleEventClick(event, e)}
-                      className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      className="flex items-center gap-4 p-4 bg-muted rounded-lg hover:bg-muted cursor-pointer transition-colors"
                     >
                       <div className={`w-2 h-16 ${statusStyle.bg} rounded-full flex-shrink-0`} />
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-lg text-gray-900 truncate">{event.titel}</h3>
+                          <h3 className="font-semibold text-lg text-foreground truncate">{event.titel}</h3>
                           <Badge className={`${statusStyle.bg} ${statusStyle.text} flex-shrink-0`}>
                             {event.status}
                           </Badge>
                         </div>
                         
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="w-4 h-4" />
                             {format(parseISO(event.datum_von), 'HH:mm')} - {format(parseISO(event.datum_bis), 'HH:mm')}
@@ -520,7 +520,7 @@ export default function KalenderPage() {
 
         {sortedDates.length === 0 && (
           <Card className="border-dashed border-2">
-            <CardContent className="p-12 text-center text-gray-500">
+            <CardContent className="p-12 text-center text-muted-foreground">
               <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <p>Keine Events in diesem Monat</p>
             </CardContent>
@@ -537,8 +537,8 @@ export default function KalenderPage() {
         <div className="mb-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Kalender</h1>
-              <p className="text-gray-600">Visualisiere alle deine Events</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Kalender</h1>
+              <p className="text-muted-foreground">Visualisiere alle deine Events</p>
             </div>
             {isManager && ( // Only show create event button for managers
               <Button
@@ -590,12 +590,12 @@ export default function KalenderPage() {
                     </Button>
                   )}
                   
-                  <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                  <div className="flex gap-1 bg-muted rounded-lg p-1">
                     <Button
                       variant={viewMode === "month" ? "default" : "ghost"}
                       size="sm"
                       onClick={() => setViewMode("month")}
-                      className={viewMode === "month" ? "bg-white shadow-sm" : ""}
+                      className={viewMode === "month" ? "bg-card shadow-sm" : ""}
                     >
                       Monat
                     </Button>
@@ -603,7 +603,7 @@ export default function KalenderPage() {
                       variant={viewMode === "week" ? "default" : "ghost"}
                       size="sm"
                       onClick={() => setViewMode("week")}
-                      className={viewMode === "week" ? "bg-white shadow-sm" : ""}
+                      className={viewMode === "week" ? "bg-card shadow-sm" : ""}
                     >
                       Woche
                     </Button>
@@ -611,7 +611,7 @@ export default function KalenderPage() {
                       variant={viewMode === "list" ? "default" : "ghost"}
                       size="sm"
                       onClick={() => setViewMode("list")}
-                      className={viewMode === "list" ? "bg-white shadow-sm" : ""}
+                      className={viewMode === "list" ? "bg-card shadow-sm" : ""}
                     >
                       <ListIcon className="w-4 h-4" />
                     </Button>
@@ -691,8 +691,8 @@ export default function KalenderPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="border-none shadow-md">
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-gray-900">{filteredEvents.length}</div>
-                <div className="text-sm text-gray-500">Events gesamt</div>
+                <div className="text-2xl font-bold text-foreground">{filteredEvents.length}</div>
+                <div className="text-sm text-muted-foreground">Events gesamt</div>
               </CardContent>
             </Card>
             <Card className="border-none shadow-md">
@@ -700,7 +700,7 @@ export default function KalenderPage() {
                 <div className="text-2xl font-bold text-green-600">
                   {filteredEvents.filter(e => e.status === 'bestätigt').length}
                 </div>
-                <div className="text-sm text-gray-500">Bestätigt</div>
+                <div className="text-sm text-muted-foreground">Bestätigt</div>
               </CardContent>
             </Card>
             <Card className="border-none shadow-md">
@@ -708,7 +708,7 @@ export default function KalenderPage() {
                 <div className="text-2xl font-bold text-orange-600">
                   {filteredEvents.filter(e => e.status === 'angefragt').length}
                 </div>
-                <div className="text-sm text-gray-500">Angefragt</div>
+                <div className="text-sm text-muted-foreground">Angefragt</div>
               </CardContent>
             </Card>
             <Card className="border-none shadow-md">
@@ -716,7 +716,7 @@ export default function KalenderPage() {
                 <div className="text-2xl font-bold text-blue-600">
                   {filteredEvents.filter(e => new Date(e.datum_von) > new Date()).length}
                 </div>
-                <div className="text-sm text-gray-500">Anstehend</div>
+                <div className="text-sm text-muted-foreground">Anstehend</div>
               </CardContent>
             </Card>
           </div>
@@ -726,8 +726,8 @@ export default function KalenderPage() {
       {/* Event Form Modal */}
       {showEventForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+          <div className="bg-card rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b p-4 flex justify-between items-center">
               <h2 className="text-2xl font-bold">
                 Event erstellen {selectedDate && `am ${format(selectedDate, 'd. MMMM yyyy', { locale: de })}`}
               </h2>

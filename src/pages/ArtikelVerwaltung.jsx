@@ -117,8 +117,8 @@ export default function ArtikelVerwaltungPage() {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Artikel & Positionen</h1>
-          <p className="text-gray-600">Verwalte wiederverwendbare Artikel für Angebote und Rechnungen</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Artikel & Positionen</h1>
+          <p className="text-muted-foreground">Verwalte wiederverwendbare Artikel für Angebote und Rechnungen</p>
         </div>
 
         {/* Form */}
@@ -163,7 +163,7 @@ export default function ArtikelVerwaltungPage() {
                         ['clean']
                       ]
                     }}
-                    className="bg-white rounded-md"
+                    className="bg-card rounded-md"
                   />
                 </div>
 
@@ -225,7 +225,7 @@ export default function ArtikelVerwaltungPage() {
         {/* Search & Add */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Artikel durchsuchen..."
               value={searchQuery}
@@ -252,25 +252,25 @@ export default function ArtikelVerwaltungPage() {
             {filteredArtikel.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-muted border-b">
                     <tr>
-                      <th className="text-left p-4 font-semibold text-gray-700">Bezeichnung</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Kategorie</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Einheit</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Preis</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">MwSt.</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Status</th>
-                      <th className="text-left p-4 font-semibold text-gray-700">Aktionen</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Bezeichnung</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Kategorie</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Einheit</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Preis</th>
+                      <th className="text-left p-4 font-semibold text-foreground">MwSt.</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Status</th>
+                      <th className="text-left p-4 font-semibold text-foreground">Aktionen</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {filteredArtikel.map((artikel) => (
-                      <tr key={artikel.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={artikel.id} className="hover:bg-muted transition-colors">
                         <td className="p-4">
-                          <p className="font-medium text-gray-900">{artikel.bezeichnung}</p>
+                          <p className="font-medium text-foreground">{artikel.bezeichnung}</p>
                           {artikel.beschreibung && (
                             <div 
-                              className="text-sm text-gray-500 line-clamp-1" 
+                              className="text-sm text-muted-foreground line-clamp-1" 
                               {...safeHtml(artikel.beschreibung)}
                             />
                           )}
@@ -280,13 +280,13 @@ export default function ArtikelVerwaltungPage() {
                             <Badge variant="outline">{artikel.kategorie}</Badge>
                           )}
                         </td>
-                        <td className="p-4 text-gray-600">{artikel.einheit}</td>
-                        <td className="p-4 font-medium text-gray-900">
+                        <td className="p-4 text-muted-foreground">{artikel.einheit}</td>
+                        <td className="p-4 font-medium text-foreground">
                           {artikel.einzelpreis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                         </td>
-                        <td className="p-4 text-gray-600">{artikel.steuersatz}%</td>
+                        <td className="p-4 text-muted-foreground">{artikel.steuersatz}%</td>
                         <td className="p-4">
-                          <Badge className={artikel.aktiv ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                          <Badge className={artikel.aktiv ? "bg-green-100 text-green-800" : "bg-muted text-foreground"}>
                             {artikel.aktiv ? "Aktiv" : "Inaktiv"}
                           </Badge>
                         </td>
@@ -318,7 +318,7 @@ export default function ArtikelVerwaltungPage() {
               <div className="p-12 text-center">
                 <Plus className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-lg font-semibold mb-2">Keine Artikel gefunden</h3>
-                <p className="text-gray-500 mb-4">Erstelle deinen ersten Artikel</p>
+                <p className="text-muted-foreground mb-4">Erstelle deinen ersten Artikel</p>
                 <Button onClick={() => setShowForm(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Neuer Artikel

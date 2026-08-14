@@ -32,11 +32,11 @@ export default function LandingPage() {
             />
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
             Willkommen bei <span className="bg-[#FF6A4D] bg-clip-text text-transparent">Bandguru</span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Die All-in-One Lösung für professionelles Band-Management. 
             Events planen, Musiker verwalten, Finanzen im Blick behalten.
           </p>
@@ -63,7 +63,7 @@ export default function LandingPage() {
               <CardTitle>Event-Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Verwalte alle deine Auftritte an einem Ort. Von der Anfrage bis zur Abrechnung.
               </p>
             </CardContent>
@@ -77,7 +77,7 @@ export default function LandingPage() {
               <CardTitle>Musiker-Pool</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Verwalte dein Musiker-Netzwerk mit allen wichtigen Infos zu Instrumenten und Gagen.
               </p>
             </CardContent>
@@ -91,7 +91,7 @@ export default function LandingPage() {
               <CardTitle>Finanz-Übersicht</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Behalte Einnahmen und Ausgaben im Blick. Rechnungen erstellen und Zahlungen tracken.
               </p>
             </CardContent>
@@ -105,7 +105,7 @@ export default function LandingPage() {
               <CardTitle>Repertoire-Verwaltung</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Verwalte dein Song-Repertoire und erstelle Setlisten für jeden Auftritt.
               </p>
             </CardContent>
@@ -119,7 +119,7 @@ export default function LandingPage() {
               <CardTitle>Aufgaben-Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Organisiere Aufgaben und Deadlines. Nichts geht mehr unter.
               </p>
             </CardContent>
@@ -133,7 +133,7 @@ export default function LandingPage() {
               <CardTitle>Team-Kommunikation</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Kommuniziere mit deinem Team und halte alle auf dem Laufenden.
               </p>
             </CardContent>
@@ -155,7 +155,7 @@ export default function LandingPage() {
                 onClick={handleLogin}
                 size="lg"
                 variant="secondary"
-                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6"
+                className="bg-card text-blue-600 hover:bg-muted text-lg px-8 py-6"
               >
                 Jetzt anmelden
                 <ArrowRight className="w-5 h-5 ml-2" />

@@ -91,7 +91,7 @@ export default function StageManager({ stages, onSave, onCancel }) {
               <X className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Erstelle und organisiere deine Lead-Pipeline-Stages. Ziehe Stages um sie neu anzuordnen.
           </p>
         </CardHeader>
@@ -113,13 +113,13 @@ export default function StageManager({ stages, onSave, onCancel }) {
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
-                            className={`p-4 border rounded-lg bg-white ${
+                            className={`p-4 border rounded-lg bg-card ${
                               snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-400' : ''
                             }`}
                           >
                             <div className="flex items-center gap-3">
                               <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                <GripVertical className="w-5 h-5 text-gray-400" />
+                                <GripVertical className="w-5 h-5 text-muted-foreground" />
                               </div>
 
                               {editingStageId === stage.id ? (
@@ -135,12 +135,12 @@ export default function StageManager({ stages, onSave, onCancel }) {
                                 />
                               ) : (
                                 <div 
-                                  className="flex-1 px-3 py-2 border border-transparent rounded-md hover:border-gray-300 cursor-pointer transition-colors"
+                                  className="flex-1 px-3 py-2 border border-transparent rounded-md hover:border-border cursor-pointer transition-colors"
                                   onClick={() => setEditingStageId(stage.id)}
                                 >
                                   <div className="flex items-center gap-2">
                                     <span>{stage.name}</span>
-                                    <Edit2 className="w-3 h-3 text-gray-400" />
+                                    <Edit2 className="w-3 h-3 text-muted-foreground" />
                                   </div>
                                 </div>
                               )}
@@ -155,7 +155,7 @@ export default function StageManager({ stages, onSave, onCancel }) {
                               <select
                                 value={stage.status_mapping}
                                 onChange={(e) => handleUpdateStage(stage.id, 'status_mapping', e.target.value)}
-                                className="flex h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm w-40"
+                                className="flex h-10 rounded-md border border-border bg-card px-3 py-2 text-sm w-40"
                               >
                                 <option value="neu">Neu</option>
                                 <option value="kontaktiert">Kontaktiert</option>

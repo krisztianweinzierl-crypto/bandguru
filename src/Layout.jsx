@@ -433,7 +433,7 @@ export default function Layout({ children, currentPageName }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse" />
 
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Wird geladen...</p>
+          <p className="text-muted-foreground">Wird geladen...</p>
         </div>
       </div>);
 
@@ -444,7 +444,7 @@ export default function Layout({ children, currentPageName }) {
     return (
       <div className="min-h-screen bg-background">
         {/* Header */}
-        <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img
@@ -452,7 +452,7 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-12 h-12 object-contain" />
 
-              <h1 className="text-2xl font-bold text-gray-900">Bandguru</h1>
+              <h1 className="text-2xl font-bold text-foreground">Bandguru</h1>
             </div>
             <div className="flex gap-3">
               <Button
@@ -480,7 +480,7 @@ export default function Layout({ children, currentPageName }) {
               Das ultimative Band-Management Tool
             </div>
             
-            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
               Verwalte deine Band
               <br />
               <span className="bg-[#FF6A4D] bg-clip-text text-transparent">
@@ -488,7 +488,7 @@ export default function Layout({ children, currentPageName }) {
               </span>
             </h2>
             
-            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-10 max-w-3xl mx-auto">
               Events organisieren, Musiker koordinieren, Kunden verwalten, Finanzen im Blick behalten – 
               alles an einem Ort. Für Bands, die mehr wollen.
             </p>
@@ -520,19 +520,19 @@ export default function Layout({ children, currentPageName }) {
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/87a1fd4b2_Bildschirmfoto2025-11-02um073357.png"
               alt="Bandguru Dashboard Preview"
-              className="relative rounded-2xl shadow-2xl border border-gray-200 w-full" />
+              className="relative rounded-2xl shadow-2xl border border-border w-full" />
 
           </div>
         </section>
 
         {/* Features */}
-        <section className="bg-white py-20">
+        <section className="bg-card py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 Alles, was deine Band braucht
               </h3>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-muted-foreground">
                 Von Event-Management bis zur Rechnungsstellung
               </p>
             </div>
@@ -546,7 +546,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Event-Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Plane und verwalte alle deine Auftritte an einem Ort. Mit Kalender, Checklisten und automatischen Erinnerungen.
                   </p>
                 </CardContent>
@@ -560,7 +560,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Musiker-Pool</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Verwalte dein Musiker-Netzwerk mit Verfügbarkeiten, Instrumenten und Gagen. Perfekt für flexible Besetzungen.
                   </p>
                 </CardContent>
@@ -574,7 +574,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Finanzen</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Erstelle Rechnungen, verfolge Zahlungen und behalte Ausgaben im Blick. Alles für eine saubere Buchhaltung.
                   </p>
                 </CardContent>
@@ -588,7 +588,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Lead-Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Verfolge Anfragen von der ersten Kontaktaufnahme bis zum gebuchten Event. Nie wieder eine Opportunity verpassen.
                   </p>
                 </CardContent>
@@ -602,7 +602,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Repertoire</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Verwalte Songs, Setlisten und Arrangements. Perfekt für die Planung eurer Shows.
                   </p>
                 </CardContent>
@@ -616,7 +616,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Verträge</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Erstelle professionelle Verträge mit digitaler Unterschrift. Rechtssicher und unkompliziert.
                   </p>
                 </CardContent>
@@ -637,7 +637,7 @@ export default function Layout({ children, currentPageName }) {
             <Button
               size="lg"
               onClick={() => base44.auth.redirectToLogin()}
-              className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-14 px-8">
+              className="bg-card text-blue-600 hover:bg-muted text-lg h-14 px-8">
 
               Jetzt kostenlos starten
               <Zap className="w-5 h-5 ml-2" />
@@ -646,7 +646,7 @@ export default function Layout({ children, currentPageName }) {
         </section>
 
         {/* Footer */}
-        <footer className="bg-gray-900 text-gray-400 py-12">
+        <footer className="bg-gray-900 text-muted-foreground py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <img
@@ -677,12 +677,12 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-16 h-16 object-contain" />
 
-              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
+              <h1 className="text-4xl font-bold text-foreground">Bandguru</h1>
             </div>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-muted-foreground">
               Willkommen {user?.full_name || user?.email}! 🎉
             </p>
-            <p className="text-gray-600 mt-2">
+            <p className="text-muted-foreground mt-2">
               Du wurdest zu {pendingInvites.length === 1 ? 'einer Organisation' : `${pendingInvites.length} Organisationen`} eingeladen!
             </p>
           </div>
@@ -713,17 +713,17 @@ export default function Layout({ children, currentPageName }) {
                     <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
                       <UserPlus className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-foreground">
                           Du wurdest als <span className="font-semibold">{invite.rolle}</span> eingeladen.
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Klicke auf "Einladung annehmen" um der Organisation beizutreten.
                         </p>
                       </div>
                     </div>
 
                     {invite.invite_expires_at &&
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span>
                           Gültig bis: {format(new Date(invite.invite_expires_at), 'dd. MMM yyyy', { locale: de })}
@@ -746,7 +746,7 @@ export default function Layout({ children, currentPageName }) {
 
           <div className="mt-8 space-y-4">
             <div className="text-center">
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Oder möchtest du lieber deine eigene Organisation erstellen?
               </p>
               <Button
@@ -768,13 +768,13 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Abmelden Button */}
             <div className="text-center pt-4 border-t">
-              <p className="text-sm text-gray-500 mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 Probleme beim Annehmen der Einladung?
               </p>
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900">
+                className="text-muted-foreground hover:text-foreground">
 
                 <LogOut className="w-4 h-4 mr-2" />
                 Abmelden
@@ -798,9 +798,9 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-16 h-16 object-contain" />
 
-              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
+              <h1 className="text-4xl font-bold text-foreground">Bandguru</h1>
             </div>
-            <p className="text-xl text-gray-600">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
+            <p className="text-xl text-muted-foreground">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
           </div>
 
           <Card className="border-none shadow-xl">
@@ -840,7 +840,7 @@ export default function Layout({ children, currentPageName }) {
                       id="waehrung"
                       value={orgData.waehrung}
                       onChange={(e) => setOrgData({ ...orgData, waehrung: e.target.value })}
-                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm">
+                      className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm">
 
                       <option value="EUR">EUR (€)</option>
                       <option value="USD">USD ($)</option>
@@ -888,7 +888,7 @@ export default function Layout({ children, currentPageName }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse" />
 
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-gray-600">Lade Organisation...</p>
+          <p className="text-muted-foreground">Lade Organisation...</p>
         </div>
       </div>);
 
@@ -897,9 +897,9 @@ export default function Layout({ children, currentPageName }) {
   // Normale App mit Sidebar
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-200">
-          <SidebarHeader className="border-b border-gray-200 p-4">
+      <div className="min-h-screen flex w-full bg-muted">
+        <Sidebar className="border-r border-border">
+          <SidebarHeader className="border-b border-border p-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <img
@@ -908,8 +908,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain" />
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
-                  <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
+                  <h2 className="font-bold text-foreground truncate">Bandguru</h2>
+                  <p className="text-xs text-muted-foreground truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
                 <NotificationBell user={user} currentOrgId={currentOrg?.id} />
@@ -939,8 +939,8 @@ export default function Layout({ children, currentPageName }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowOrgSwitcher(false)} />
 
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                      <div className="p-2 text-xs text-gray-500 font-medium border-b">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="p-2 text-xs text-muted-foreground font-medium border-b">
                         Organisation wechseln
                       </div>
                       {organisations.map((org) => {
@@ -951,7 +951,7 @@ export default function Layout({ children, currentPageName }) {
                         <button
                           key={org.id}
                           onClick={() => handleOrgChange(org.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
+                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-muted transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
                           style={isCurrentOrg ? { borderLeftColor: '#FF6A4D' } : {}}>
@@ -962,7 +962,7 @@ export default function Layout({ children, currentPageName }) {
 
                             <div className="flex-1 min-w-0 text-left">
                               <p className="font-medium text-sm truncate">{org.name}</p>
-                              <p className="text-xs text-gray-500 truncate">
+                              <p className="text-xs text-muted-foreground truncate">
                                 {mitglied?.rolle}
                               </p>
                             </div>
@@ -981,7 +981,7 @@ export default function Layout({ children, currentPageName }) {
           
           <SidebarContent className="p-2">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-2">
                 Navigation
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -1096,7 +1096,7 @@ export default function Layout({ children, currentPageName }) {
 
             {isManager &&
             <SidebarGroup className="mt-4">
-                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-2">
                   Verwaltung
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -1224,12 +1224,12 @@ export default function Layout({ children, currentPageName }) {
             }
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.2.0</p>
+          <SidebarFooter className="border-t border-border p-4">
+                            <p className="text-xs text-muted-foreground text-center mb-3">Beta 1.2.0</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+                className="w-full flex items-center gap-3 hover:bg-muted rounded-lg p-2 transition-colors">
 
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
@@ -1254,12 +1254,12 @@ export default function Layout({ children, currentPageName }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-medium text-gray-900 text-sm truncate">
+                  <p className="font-medium text-foreground text-sm truncate">
                     {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
@@ -1268,12 +1268,12 @@ export default function Layout({ children, currentPageName }) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)} />
 
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
                     {!isManager &&
                   <Link
                     to={createPageUrl('MusikerProfil')}
                     onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors">
 
                         <UserCircle className="w-4 h-4" />
                         Mein Profil
@@ -1284,7 +1284,7 @@ export default function Layout({ children, currentPageName }) {
                       setShowUserMenu(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-border">
 
                       <LogOut className="w-4 h-4" />
                       Abmelden
@@ -1297,9 +1297,9 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden">
+          <header className="bg-card border-b border-border px-6 py-4 md:hidden">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200">
+              <SidebarTrigger className="hover:bg-muted p-2 rounded-lg transition-colors duration-200">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
               <img
@@ -1318,14 +1318,14 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           {/* Mobile Bottom Navigation */}
-          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-50">
             <div className="flex justify-around items-center h-16 px-2">
               <Link
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
                 'text-[#FF6A4D]' :
-                'text-gray-500'}`
+                'text-muted-foreground'}`
                 }>
 
                 <LayoutDashboard className="w-6 h-6" />
@@ -1338,7 +1338,7 @@ export default function Layout({ children, currentPageName }) {
                 location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
                 location.pathname === createPageUrl("Kalender") ?
                 'text-[#FF6A4D]' :
-                'text-gray-500'}`
+                'text-muted-foreground'}`
                 }>
 
                 <Calendar className="w-6 h-6" />
@@ -1350,7 +1350,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl("Nachrichten") ?
                 'text-[#FF6A4D]' :
-                'text-gray-500'}`
+                'text-muted-foreground'}`
                 }>
 
                 <MessageSquare className="w-6 h-6" />
@@ -1362,7 +1362,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
                 'text-[#FF6A4D]' :
-                'text-gray-500'}`
+                'text-muted-foreground'}`
                 }>
 
                 <CheckSquare className="w-6 h-6" />
