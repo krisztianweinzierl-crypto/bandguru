@@ -30,7 +30,9 @@ import {
   Guitar,
   Zap,
   Shield,
-  UserPlus } from
+  UserPlus,
+  Sun,
+  Moon } from
 "lucide-react";
 import {
   Sidebar,
@@ -82,6 +84,17 @@ export default function Layout({ children, currentPageName }) {
     zeitzone: "Europe/Berlin",
     primary_color: "#FF6A4D"
   });
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === "undefined") return "light";
+    const stored = localStorage.getItem("bandguru-theme");
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("bandguru-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!isPublicPage) {
