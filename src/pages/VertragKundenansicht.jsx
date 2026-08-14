@@ -205,9 +205,9 @@ export default function VertragKundenansichtPage() {
   // E-Mail-Verifizierungs-Screen
   if (!emailVerified) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md w-full border-none shadow-xl">
-          <CardHeader className="border-b bg-gradient-to-r from-purple-500 to-pink-600 text-white">
+          <CardHeader className="border-b bg-[#FF6A4D] text-white">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white/20 rounded-lg">
                 <Lock className="w-6 h-6" />
@@ -252,7 +252,7 @@ export default function VertragKundenansichtPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                className="w-full h-12 bg-[#FF6A4D] hover:bg-[#E85A3D]"
                 disabled={verifyEmailMutation.isPending}
               >
                 {verifyEmailMutation.isPending ? (
@@ -279,7 +279,7 @@ export default function VertragKundenansichtPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <div className="text-center">
           <Building2 className="w-16 h-16 mx-auto mb-4 text-purple-600 animate-pulse" />
           <p className="text-gray-600">Lade Vertrag...</p>
@@ -290,7 +290,7 @@ export default function VertragKundenansichtPage() {
 
   if (error || !vertrag) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-red-400" />
@@ -307,7 +307,7 @@ export default function VertragKundenansichtPage() {
 
   if (!vertrag.im_kundenportal_sichtbar) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-12 text-center">
             <FileText className="w-16 h-16 mx-auto mb-4 text-orange-400" />
@@ -329,7 +329,7 @@ export default function VertragKundenansichtPage() {
   const statusInfo = statusColors[vertrag.status] || statusColors.entwurf;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 md:px-8 py-6">
@@ -358,7 +358,7 @@ export default function VertragKundenansichtPage() {
         <div className="space-y-6">
           {/* Vertragstitel */}
           <Card className="border-none shadow-lg">
-            <CardHeader className="border-b bg-gradient-to-r from-purple-500 to-pink-600 text-white">
+            <CardHeader className="border-b bg-[#FF6A4D] text-white">
               <CardTitle className="text-2xl">{vertrag.titel}</CardTitle>
               {vertrag.vertragsnummer && (
                 <p className="text-purple-100 mt-1">{vertrag.vertragsnummer}</p>
@@ -441,7 +441,7 @@ export default function VertragKundenansichtPage() {
                   <Button
                     onClick={() => setShowUnterschriftModal(true)}
                     size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+                    className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
                   >
                     <PenTool className="w-5 h-5 mr-2" />
                     Jetzt unterschreiben
@@ -543,7 +543,7 @@ export default function VertragKundenansichtPage() {
                   <Button
                     onClick={saveUnterschrift}
                     disabled={saveUnterschriftMutation.isPending}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600"
+                    className="bg-[#FF6A4D]"
                   >
                     <Check className="w-4 h-4 mr-2" />
                     {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}

@@ -471,7 +471,7 @@ export default function MusikerDashboard() {
   // Loading State
   if (loadingState === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
             <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
@@ -486,7 +486,7 @@ export default function MusikerDashboard() {
   // No Profile State
   if (loadingState === "no_profile") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-2xl w-full border-l-4 border-l-orange-500">
           <CardContent className="p-8">
             <div className="text-center mb-6">
@@ -539,7 +539,7 @@ export default function MusikerDashboard() {
   // Error State
   if (loadingState === "error") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md w-full border-l-4 border-l-red-500">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-red-500" />
@@ -556,7 +556,7 @@ export default function MusikerDashboard() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-3 md:p-8 overflow-x-hidden">
+    <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -568,7 +568,7 @@ export default function MusikerDashboard() {
 
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
-          <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50">
+          <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Offene Anfragen</CardTitle>
             </CardHeader>
@@ -581,7 +581,7 @@ export default function MusikerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+          <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Optional</CardTitle>
             </CardHeader>
@@ -594,7 +594,7 @@ export default function MusikerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card className="border-none shadow-lg bg-background">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Bestätigt</CardTitle>
             </CardHeader>

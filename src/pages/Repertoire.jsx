@@ -451,7 +451,7 @@ export default function RepertoirePage() {
   // Loading während User-Daten und Berechtigungen geladen werden
   if (isLoadingAccess || (currentMusiker && isLoadingEventMusiker)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade...</p>
       </div>
     );
@@ -460,7 +460,7 @@ export default function RepertoirePage() {
   // Basic Check: Org und User müssen geladen sein
   if (!currentOrgId || !currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade...</p>
       </div>
     );
@@ -469,7 +469,7 @@ export default function RepertoirePage() {
   // Wenn Musiker ohne Zugriff (keine Setliste an zugesagten Events)
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
@@ -484,7 +484,7 @@ export default function RepertoirePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-3 md:p-8 overflow-x-hidden">
+    <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Repertoire</h1>

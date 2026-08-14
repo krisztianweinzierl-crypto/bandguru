@@ -181,7 +181,7 @@ export default function VertragsvorlagenPage() {
 
     return (
       <div className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${kategorieStyle.borderClass} ${!vorlage.aktiv ? 'opacity-60' : ''}`}>
-        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+        <div className="w-12 h-12 bg-[#FF6A4D] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
           <FileText className="w-6 h-6" />
         </div>
         
@@ -234,7 +234,7 @@ export default function VertragsvorlagenPage() {
   const gesamtVerwendungen = vorlagen.reduce((sum, v) => sum + (v.verwendungen || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Button
@@ -258,7 +258,7 @@ export default function VertragsvorlagenPage() {
               setEditingVorlage(null);
               setShowForm(true);
             }}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+            className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Vorlage erstellen

@@ -32,8 +32,8 @@ export default function EventMusikerCard({
     <Card className={`border-l-4 ${statusStyle.border} ${isCurrentUserMusiker && !isManager ? 'ring-2 ring-blue-300' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <Avatar className="w-10 h-10 flex-shrink-0 bg-gradient-to-br from-blue-500 to-indigo-600">
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-sm">
+          <Avatar className="w-10 h-10 flex-shrink-0 bg-[#FF6A4D]">
+            <AvatarFallback className="bg-[#FF6A4D] text-white font-bold text-sm">
               {initials}
             </AvatarFallback>
           </Avatar>

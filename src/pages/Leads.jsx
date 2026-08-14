@@ -523,7 +523,7 @@ export default function LeadsPage() {
   return (
     <>
       <AlertDialog />
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-3 md:p-8 overflow-x-hidden">
+      <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
         <div className="w-full max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
@@ -534,7 +534,7 @@ export default function LeadsPage() {
               onClick={() => {
                 setEditingLead(null);
                 setShowForm(true);
-              }} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700">
+              }} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:bg-[#E85A3D]">
 
 
               <Plus className="w-4 h-4 mr-2" />

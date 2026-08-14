@@ -90,7 +90,7 @@ export default function KundenDetailPage() {
 
   if (isLoading || !kunde) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Kunde...</p>
       </div>);
 
@@ -112,7 +112,7 @@ export default function KundenDetailPage() {
   // Wenn im Bearbeitungsmodus, zeige das Formular
   if (isEditing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <Button
@@ -138,7 +138,7 @@ export default function KundenDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">

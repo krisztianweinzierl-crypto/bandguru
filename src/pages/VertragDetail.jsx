@@ -455,7 +455,7 @@ Ihr Team`;
 
   if (isLoading || !vertrag) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-gray-600">Lade Vertrag...</p>
       </div>);
 
@@ -472,7 +472,7 @@ Ihr Team`;
 
   if (isEditing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <Button
@@ -501,7 +501,7 @@ Ihr Team`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">
@@ -632,7 +632,7 @@ Ihr Team`;
                           <PenTool className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                           <p className="text-gray-600 mb-3 text-sm">Noch nicht unterzeichnet</p>
                           {vertrag.status !== 'storniert' &&
-                            <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-gradient-to-r from-purple-500 to-pink-600">
+                            <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-[#FF6A4D]">
                               <PenTool className="w-4 h-4 mr-2" />Unterschreiben
                             </Button>
                           }
@@ -775,7 +775,7 @@ Ihr Team`;
                       <Button
                         onClick={() => openUnterschriftModal('kunde')}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-600">
+                        className="bg-[#FF6A4D]">
 
                             <PenTool className="w-4 h-4 mr-2" />
                             Unterschreiben
@@ -812,7 +812,7 @@ Ihr Team`;
                       <Button
                         onClick={() => openUnterschriftModal('organisation')}
                         size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-pink-600">
+                        className="bg-[#FF6A4D]">
 
                             <PenTool className="w-4 h-4 mr-2" />
                             Unterschreiben
@@ -1056,7 +1056,7 @@ Ihr Team`;
                 <Button
                   onClick={saveUnterschrift}
                   disabled={saveUnterschriftMutation.isPending}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-600">
+                  className="w-full bg-[#FF6A4D]">
                   <Check className="w-4 h-4 mr-2" />
                   {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}
                 </Button>

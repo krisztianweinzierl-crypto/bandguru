@@ -111,7 +111,7 @@ export default function OnboardingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center">
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
@@ -126,7 +126,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -143,7 +143,7 @@ export default function OnboardingPage() {
 
         {/* Form */}
         <Card className="border-none shadow-xl">
-          <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+          <CardHeader className="border-b bg-[#FF6A4D] text-white">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
               <CardTitle className="text-xl">Deine Organisation erstellen</CardTitle>
@@ -262,7 +262,7 @@ export default function OnboardingPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full h-12 text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                className="w-full h-12 text-lg bg-[#FF6A4D] hover:bg-[#E85A3D]"
                 disabled={createOrgMutation.isPending}
               >
                 {createOrgMutation.isPending ? (

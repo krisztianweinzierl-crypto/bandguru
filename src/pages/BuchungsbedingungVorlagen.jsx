@@ -163,7 +163,7 @@ export default function BuchungsbedingungVorlagenPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Button
@@ -187,7 +187,7 @@ export default function BuchungsbedingungVorlagenPage() {
               resetForm();
               setShowForm(true);
             }}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+            className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Vorlage erstellen
@@ -257,7 +257,7 @@ export default function BuchungsbedingungVorlagenPage() {
         {/* Formular */}
         {showForm && (
           <Card className="mb-6 border-none shadow-lg">
-            <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
+            <CardHeader className="border-b bg-background">
               <CardTitle>
                 {editingVorlage ? 'Vorlage bearbeiten' : 'Neue Vorlage erstellen'}
               </CardTitle>
@@ -329,7 +329,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                    className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
                     disabled={createVorlageMutation.isPending || updateVorlageMutation.isPending}
                   >
                     {editingVorlage ? 'Aktualisieren' : 'Erstellen'}

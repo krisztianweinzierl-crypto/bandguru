@@ -379,7 +379,7 @@ Das ${organisation.name} Team 🎵`;
 
   if (!organisation || !orgFormData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Organisation...</p>
       </div>
     );
@@ -388,7 +388,7 @@ Das ${organisation.name} Team 🎵`;
   return (
     <>
     <AlertDialog />
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -618,7 +618,7 @@ Das ${organisation.name} Team 🎵`;
                         className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white font-bold">
                             {displayInitial}
                           </div>
                           <div className="flex-1 min-w-0">

@@ -20,7 +20,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
@@ -33,7 +33,7 @@ export default function LandingPage() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Willkommen bei <span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">Bandguru</span>
+            Willkommen bei <span className="bg-[#FF6A4D] bg-clip-text text-transparent">Bandguru</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
@@ -45,7 +45,7 @@ export default function LandingPage() {
             <Button 
               onClick={handleLogin}
               size="lg"
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-lg px-8 py-6"
+              className="bg-[#FF6A4D] hover:bg-[#E85A3D] text-lg px-8 py-6"
             >
               Jetzt anmelden
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -142,7 +142,7 @@ export default function LandingPage() {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Card className="border-none shadow-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white max-w-3xl mx-auto">
+          <Card className="border-none shadow-xl bg-[#FF6A4D] text-white max-w-3xl mx-auto">
             <CardContent className="p-12">
               <Sparkles className="w-16 h-16 mx-auto mb-6" />
               <h2 className="text-3xl font-bold mb-4">

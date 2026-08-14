@@ -225,7 +225,7 @@ export default function AcceptInvitePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="max-w-lg w-full border-none shadow-2xl">
         <CardHeader className="text-center pb-4">
           <div className="flex items-center justify-center gap-2 mb-4">
@@ -284,7 +284,7 @@ export default function AcceptInvitePage() {
                     }
                     window.location.href = createPageUrl("Dashboard");
                   }}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600"
+                  className="bg-[#FF6A4D]"
                 >
                   Zum Dashboard
                 </Button>

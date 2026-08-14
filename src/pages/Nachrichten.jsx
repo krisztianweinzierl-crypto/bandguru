@@ -341,13 +341,13 @@ Dein Bandguru Team`
 
         <div className="relative">
           {teilnehmer.length === 1 ?
-            <Avatar className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600">
+            <Avatar className="w-12 h-12 bg-[#FF6A4D]">
               <AvatarFallback className="bg-[#FF6A4D] text-white rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                 {teilnehmer[0].user_name?.[0]?.toUpperCase() || '?'}
               </AvatarFallback>
             </Avatar> :
 
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div className="w-12 h-12 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white font-bold">
               <Users className="w-6 h-6" />
             </div>
           }
@@ -398,7 +398,7 @@ Dein Bandguru Team`
           <div
             className={`rounded-2xl px-4 py-2 ${
               isOwn ?
-                'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' :
+                'bg-[#FF6A4D] text-white' :
                 'bg-gray-100 text-gray-900'}`
             }>
 
@@ -424,7 +424,7 @@ Dein Bandguru Team`
   };
 
   return (
-    <div className="flex flex-col bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden w-full" style={{ height: 'calc(100vh - 0px)' }}>
+    <div className="flex flex-col bg-background overflow-x-hidden w-full" style={{ height: 'calc(100vh - 0px)' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto">
@@ -522,8 +522,8 @@ Dein Bandguru Team`
                         <X className="w-5 h-5" />
                       </Button>
 
-                      <Avatar className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                      <Avatar className="w-10 h-10 bg-[#FF6A4D]">
+                        <AvatarFallback className="bg-[#FF6A4D] text-white">
                           {getKonversationName(selectedKonversation)[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -624,7 +624,7 @@ Dein Bandguru Team`
                     <Button
                       type="submit"
                       disabled={!newMessage.trim() || sendNachrichtMutation.isPending}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
                     >
                       <Send className="w-4 h-4" />
                     </Button>
@@ -680,7 +680,7 @@ Dein Bandguru Team`
 
                     return (
                       <div key={userId} className="flex items-center gap-3 p-3">
-                        <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                        <Avatar className="w-8 h-8 bg-[#FF6A4D]">
                           <AvatarFallback className="bg-[#FF6A4D] text-white text-xs">
                             {displayName[0]?.toUpperCase() || '?'}
                           </AvatarFallback>
@@ -729,7 +729,7 @@ Dein Bandguru Team`
                           })}
                           className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50 transition-colors"
                         >
-                          <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                          <Avatar className="w-8 h-8 bg-[#FF6A4D]">
                             <AvatarFallback className="bg-[#FF6A4D] text-white text-xs">
                               {displayName[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
@@ -811,7 +811,7 @@ Dein Bandguru Team`
                               <Check className="w-3 h-3 text-white" />
                             }
                           </div>
-                          <Avatar className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600">
+                          <Avatar className="w-8 h-8 bg-[#FF6A4D]">
                             <AvatarFallback className="bg-[#FF6A4D] text-white text-xs rounded-full flex h-full w-full items-center justify-center from-blue-500 to-indigo-600">
                               {displayName[0]?.toUpperCase() || '?'}
                             </AvatarFallback>
@@ -839,7 +839,7 @@ Dein Bandguru Team`
                 </Button>
                 <Button
                   onClick={handleCreateChat}
-                  disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                  disabled={selectedUsers.length === 0 || createKonversationMutation.isPending} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-blue-500 to-indigo-600 hover:bg-[#E85A3D]">
 
 
                   Chat erstellen

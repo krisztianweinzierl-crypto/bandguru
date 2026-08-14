@@ -842,7 +842,7 @@ ${orgName} Team`;
   // Lade-Status - First, ensure event data is loaded
   if (eventLoading || !event) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
       </div>);
 
@@ -850,7 +850,7 @@ ${orgName} Team`;
 
   if (currentUser === null || !accessChecked) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <p className="text-gray-600">Lade Event...</p>
       </div>);
 
@@ -861,7 +861,7 @@ ${orgName} Team`;
   // WICHTIG: Nicht während des Speicherns anzeigen (verhindert kurzes Aufblinken)
   if (!hasAccess && !isSaving) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
@@ -994,7 +994,7 @@ ${orgName} Team`;
   // Wenn im Bearbeitungsmodus, zeige das Formular
   if (isEditing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
             <Button
@@ -1022,7 +1022,7 @@ ${orgName} Team`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="w-full max-w-7xl mx-auto px-3 md:px-8 py-4 md:py-6">

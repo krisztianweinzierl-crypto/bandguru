@@ -118,7 +118,7 @@ export default function KundenPage() {
 
         <CardHeader className="pb-4">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+            <div className="w-12 h-12 bg-[#FF6A4D] rounded-lg flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
               {kunde.firmenname?.[0]?.toUpperCase() || 'K'}
             </div>
             <div className="flex-1 min-w-0">
@@ -365,7 +365,7 @@ export default function KundenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-3 md:p-8 overflow-x-hidden">
+    <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>

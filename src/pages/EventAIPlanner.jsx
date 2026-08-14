@@ -308,7 +308,7 @@ export default function EventAIPlanner() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-[#FF6A4D] flex items-center justify-center">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -350,7 +350,7 @@ export default function EventAIPlanner() {
           <Button
             onClick={handleGenerate}
             disabled={loading || !prompt.trim()}
-            className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 h-11"
+            className="w-full bg-[#FF6A4D] hover:bg-[#E85A3D] h-11"
           >
             {loading ? (
               <>
@@ -371,7 +371,7 @@ export default function EventAIPlanner() {
       {plan && (
         <div className="space-y-4">
           {/* Summary + Save */}
-          <Card className="border-0 shadow-md bg-gradient-to-br from-purple-50 to-indigo-50">
+          <Card className="border-0 shadow-md bg-background">
             <CardContent className="p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
@@ -589,7 +589,7 @@ export default function EventAIPlanner() {
                           <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-gray-100 bg-gray-50"}`}>
                             <Avatar className="w-10 h-10 shrink-0">
                               <AvatarImage src={m.profilbild_url} alt={m.name} />
-                              <AvatarFallback className="bg-gradient-to-br from-purple-400 to-indigo-500 text-white text-xs font-bold">
+                              <AvatarFallback className="bg-[#FF6A4D] text-white text-xs font-bold">
                                 {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>

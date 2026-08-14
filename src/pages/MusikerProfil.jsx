@@ -167,7 +167,7 @@ export default function MusikerProfilPage() {
 
   if (loadingState === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardContent className="p-8 text-center">
             <Music className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-pulse" />
@@ -180,7 +180,7 @@ export default function MusikerProfilPage() {
 
   if (loadingState === "error" || loadingState === "no_profile") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-2xl w-full border-l-4 border-l-orange-500">
           <CardContent className="p-8">
             <div className="text-center mb-6">
@@ -205,7 +205,7 @@ export default function MusikerProfilPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
@@ -443,7 +443,7 @@ export default function MusikerProfilPage() {
             <Button
               type="submit"
               disabled={!hasChanges || updateMusikerMutation.isPending}
-              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700"
+              className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
             >
               <Save className="w-4 h-4 mr-2" />
               {updateMusikerMutation.isPending ? "Speichere..." : "Änderungen speichern"}

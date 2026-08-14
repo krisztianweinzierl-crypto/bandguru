@@ -199,7 +199,7 @@ export default function AusgabenPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 p-3 md:p-8 overflow-x-hidden">
+    <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -220,7 +220,7 @@ export default function AusgabenPage() {
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700">
+              className="bg-[#FF6A4D] hover:bg-[#E85A3D]">
               
               <Plus className="w-4 h-4 mr-2" />
               Neue Ausgabe

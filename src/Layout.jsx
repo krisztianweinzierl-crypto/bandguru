@@ -425,7 +425,7 @@ export default function Layout({ children, currentPageName }) {
   // Loading
   if (!initialLoadComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
@@ -442,7 +442,7 @@ export default function Layout({ children, currentPageName }) {
   // Landing Page für nicht eingeloggte User
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen bg-background">
         {/* Header */}
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
@@ -464,7 +464,7 @@ export default function Layout({ children, currentPageName }) {
               </Button>
               <Button
                 onClick={() => base44.auth.redirectToLogin()}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                className="bg-[#FF6A4D] hover:bg-[#E85A3D]">
 
                 Kostenlos starten
               </Button>
@@ -483,7 +483,7 @@ export default function Layout({ children, currentPageName }) {
             <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Verwalte deine Band
               <br />
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="bg-[#FF6A4D] bg-clip-text text-transparent">
                 professionell & einfach
               </span>
             </h2>
@@ -626,7 +626,7 @@ export default function Layout({ children, currentPageName }) {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-gradient-to-br from-blue-500 to-indigo-600 py-20">
+        <section className="bg-[#FF6A4D] py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Bereit loszulegen?
@@ -668,7 +668,7 @@ export default function Layout({ children, currentPageName }) {
   // Schwebende Einladungen anzeigen
   if (showPendingInvites && pendingInvites.length > 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -690,7 +690,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="space-y-4">
             {pendingInvites.map((invite) =>
             <Card key={invite.id} className="border-none shadow-xl hover:shadow-2xl transition-all">
-                <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                <CardHeader className="border-b bg-[#FF6A4D] text-white">
                   <div className="flex items-center gap-4">
                     <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
@@ -733,7 +733,7 @@ export default function Layout({ children, currentPageName }) {
 
                     <Button
                     onClick={() => handleAcceptInvite(invite)}
-                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 h-12">
+                    className="w-full bg-[#FF6A4D] hover:bg-[#E85A3D] h-12">
 
                       <Check className="w-5 h-5 mr-2" />
                       Einladung annehmen
@@ -789,7 +789,7 @@ export default function Layout({ children, currentPageName }) {
   // Onboarding anzeigen (KEINE Organisation UND KEINE Einladungen)
   if (showOnboarding) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -804,7 +804,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           <Card className="border-none shadow-xl">
-            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+            <CardHeader className="border-b bg-[#FF6A4D] text-white">
               <CardTitle className="text-xl">Deine Organisation erstellen</CardTitle>
             </CardHeader>
             <CardContent className="p-8">
@@ -880,7 +880,7 @@ export default function Layout({ children, currentPageName }) {
   // Warte auf Organisation
   if (!currentOrg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
@@ -1233,7 +1233,7 @@ export default function Layout({ children, currentPageName }) {
 
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
+                  <AvatarFallback className="bg-[#FF6A4D] text-white">
                     {(() => {
                       if (currentMusiker?.name) {
                         // Musiker name: Nimm erste Buchstaben von jedem Wort
