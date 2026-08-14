@@ -44,7 +44,7 @@ const researchSong = async (song) => {
 Ich brauche Metadaten zur ORIGINAL-Studioaufnahme dieses Songs (nicht zu einer Coverversion):
 - kuenstler_original: der Original-Interpret/die Original-Band
 - tonart: die Tonart der Originalaufnahme (z.B. "Bb", "Dm", "C-Dur")
-- bpm: das Tempo der Originalaufnahme in BPM
+- bpm: das Tempo der Originalaufnahme in BPM. Diese Info steht selten auf normalen Musik-Wikis, sondern meist auf spezialisierten DJ-/BPM-Datenbanken wie Tunebat, SongBPM oder GetSongBPM - such gezielt dort danach.
 - laenge: die Länge der Originalaufnahme im Format MM:SS
 - tags: 1-3 treffende Genre-Tags (z.B. "Pop", "Funk", "Soul")
 
