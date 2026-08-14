@@ -46,16 +46,16 @@ export default function Dashboard() {
   const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
-    anfrage: { className: "bg-muted text-foreground", label: "Anfrage" },
-    angebot_erstellt: { className: "bg-blue-100 text-blue-800", label: "Angebot erstellt" },
-    angebot_angenommen: { className: "bg-indigo-100 text-indigo-800", label: "Angebot angenommen" },
-    wartet_auf_bestaetigung: { className: "bg-yellow-100 text-yellow-800", label: "Wartet auf Bestätigung" },
-    angefragt: { className: "bg-orange-100 text-orange-800", label: "Wartet auf Musiker" },
-    bestätigt: { className: "bg-green-100 text-green-800", label: "Bestätigt" },
-    abgesagt: { className: "bg-red-100 text-red-800", label: "Abgesagt" },
-    zurückgezogen: { className: "bg-muted text-foreground", label: "Zurückgezogen" },
-    durchgeführt: { className: "bg-blue-100 text-blue-800", label: "Durchgeführt" },
-    abgerechnet: { className: "bg-purple-100 text-purple-800", label: "Abgerechnet" }
+    anfrage: { style: { background: 'var(--muted)', color: 'var(--muted-foreground)' }, label: "Anfrage" },
+    angebot_erstellt: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Angebot erstellt" },
+    angebot_angenommen: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Angebot angenommen" },
+    wartet_auf_bestaetigung: { style: { background: 'var(--status-waiting-bg)', color: 'var(--status-waiting-text)' }, label: "Wartet auf Bestätigung" },
+    angefragt: { style: { background: 'var(--status-waiting-bg)', color: 'var(--status-waiting-text)' }, label: "Wartet auf Musiker" },
+    bestätigt: { style: { background: 'var(--status-confirmed-bg)', color: 'var(--status-confirmed-text)' }, label: "Bestätigt" },
+    abgesagt: { style: { background: 'var(--status-inquiry-bg)', color: 'var(--status-inquiry-text)' }, label: "Abgesagt" },
+    zurückgezogen: { style: { background: 'var(--muted)', color: 'var(--muted-foreground)' }, label: "Zurückgezogen" },
+    durchgeführt: { style: { background: 'var(--status-confirmed-bg)', color: 'var(--status-confirmed-text)' }, label: "Durchgeführt" },
+    abgerechnet: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Abgerechnet" }
   };
 
   return (
@@ -73,7 +73,7 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Nächste Events</CardTitle>
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(34, 58, 94, 0.15)' }}>
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(255, 106, 77, 0.15)' }}>
                   <Calendar className="w-5 h-5" style={{ color: '#FF6A4D' }} />
                 </div>
               </div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
                   className="flex items-center gap-4 p-4 hover:bg-muted transition-colors">
 
                       <div className="flex-shrink-0">
-                        <div className="bg-[#FF6A4D] text-white rounded-xl w-14 h-14 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
+                        <div className="bg-[#FF6A4D] text-white rounded-xl w-14 h-14 flex flex-col items-center justify-center">
                           <span className="text-xs font-medium">
                             {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
                           </span>
@@ -173,7 +173,10 @@ export default function Dashboard() {
                           {event.ort_name && <span className="truncate"> • {event.ort_name}</span>}
                         </div>
                       </div>
-                      <Badge className={`text-xs flex-shrink-0 ${statusColors[event.status]?.className || "bg-muted text-foreground"}`}>
+                      <Badge
+                        className="text-xs flex-shrink-0 border-transparent"
+                        style={statusColors[event.status]?.style || { background: 'var(--muted)', color: 'var(--muted-foreground)' }}>
+
                         {statusColors[event.status]?.label || event.status}
                       </Badge>
                     </Link>
