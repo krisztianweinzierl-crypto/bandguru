@@ -46,14 +46,14 @@ export default function Dashboard() {
   const inArbeitAufgaben = aufgaben.filter((a) => a.status === 'in_arbeit').length;
 
   const statusColors = {
-    anfrage: { style: { background: 'var(--muted)', color: 'var(--muted-foreground)' }, label: "Anfrage" },
+    anfrage: { style: { background: 'rgb(var(--muted))', color: 'rgb(var(--muted-foreground))' }, label: "Anfrage" },
     angebot_erstellt: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Angebot erstellt" },
     angebot_angenommen: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Angebot angenommen" },
     wartet_auf_bestaetigung: { style: { background: 'var(--status-waiting-bg)', color: 'var(--status-waiting-text)' }, label: "Wartet auf Bestätigung" },
     angefragt: { style: { background: 'var(--status-waiting-bg)', color: 'var(--status-waiting-text)' }, label: "Wartet auf Musiker" },
     bestätigt: { style: { background: 'var(--status-confirmed-bg)', color: 'var(--status-confirmed-text)' }, label: "Bestätigt" },
     abgesagt: { style: { background: 'var(--status-inquiry-bg)', color: 'var(--status-inquiry-text)' }, label: "Abgesagt" },
-    zurückgezogen: { style: { background: 'var(--muted)', color: 'var(--muted-foreground)' }, label: "Zurückgezogen" },
+    zurückgezogen: { style: { background: 'rgb(var(--muted))', color: 'rgb(var(--muted-foreground))' }, label: "Zurückgezogen" },
     durchgeführt: { style: { background: 'var(--status-confirmed-bg)', color: 'var(--status-confirmed-text)' }, label: "Durchgeführt" },
     abgerechnet: { style: { background: 'var(--status-offer-bg)', color: 'var(--status-offer-text)' }, label: "Abgerechnet" }
   };
@@ -175,7 +175,7 @@ export default function Dashboard() {
                       </div>
                       <Badge
                         className="text-xs flex-shrink-0 border-transparent"
-                        style={statusColors[event.status]?.style || { background: 'var(--muted)', color: 'var(--muted-foreground)' }}>
+                        style={statusColors[event.status]?.style || { background: 'rgb(var(--muted))', color: 'rgb(var(--muted-foreground))' }}>
 
                         {statusColors[event.status]?.label || event.status}
                       </Badge>
