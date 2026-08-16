@@ -932,9 +932,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   variant="outline"
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
-                  className="w-full justify-between h-auto py-3 px-3 transition-colors"
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  className="w-full justify-between h-auto py-3 px-3 transition-colors bg-sidebar-accent/40 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
 
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div
