@@ -921,8 +921,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain" />
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-foreground truncate">Bandguru</h2>
-                  <p className="text-xs text-muted-foreground truncate">{currentMitglied?.rolle}</p>
+                  <h2 className="font-bold text-sidebar-foreground truncate">Bandguru</h2>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
                 <NotificationBell user={user} currentOrgId={currentOrg?.id} />
@@ -992,7 +992,7 @@ export default function Layout({ children, currentPageName }) {
           
           <SidebarContent className="p-2">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-2">
+              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider px-2 py-2">
                 Navigation
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -1107,7 +1107,7 @@ export default function Layout({ children, currentPageName }) {
 
             {isManager &&
             <SidebarGroup className="mt-4">
-                <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-2">
+                <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider px-2 py-2">
                   Verwaltung
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -1237,14 +1237,14 @@ export default function Layout({ children, currentPageName }) {
 
           <SidebarFooter className="border-t border-border p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <p className="text-xs text-muted-foreground">Beta 1.2.0</p>
-                              <div className="flex items-center gap-0.5 bg-muted rounded-full p-0.5">
+                              <p className="text-xs text-sidebar-foreground/50">Beta 1.2.0</p>
+                              <div className="flex items-center gap-0.5 bg-sidebar-accent rounded-full p-0.5">
                                 <button
                                   type="button"
                                   onClick={() => setTheme('light')}
                                   aria-pressed={theme === 'light'}
                                   title="Helles Design"
-                                  className={`p-1.5 rounded-full transition-colors ${theme === 'light' ? 'bg-[#FF6A4D] text-white' : 'text-muted-foreground hover:text-foreground'}`}>
+                                  className={`p-1.5 rounded-full transition-colors ${theme === 'light' ? 'bg-[#FF6A4D] text-white' : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'}`}>
                                   <Sun className="w-3.5 h-3.5" />
                                 </button>
                                 <button
@@ -1252,7 +1252,7 @@ export default function Layout({ children, currentPageName }) {
                                   onClick={() => setTheme('dark')}
                                   aria-pressed={theme === 'dark'}
                                   title="Dunkles Design"
-                                  className={`p-1.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-[#FF6A4D] text-white' : 'text-muted-foreground hover:text-foreground'}`}>
+                                  className={`p-1.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-[#FF6A4D] text-white' : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'}`}>
                                   <Moon className="w-3.5 h-3.5" />
                                 </button>
                               </div>
@@ -1285,12 +1285,12 @@ export default function Layout({ children, currentPageName }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-medium text-foreground text-sm truncate">
+                  <p className="font-medium text-sidebar-foreground text-sm truncate">
                     {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">{currentOrg.name}</p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-sidebar-foreground/60 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
