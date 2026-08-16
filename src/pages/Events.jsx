@@ -123,16 +123,16 @@ export default function EventsPage() {
   const pastEvents = filteredEvents.filter((e) => new Date(e.datum_von) <= new Date());
 
   const statusColors = {
-    anfrage: { bg: "bg-muted", text: "text-foreground", border: "border-border", borderClass: "border-l-gray-400", label: "Anfrage" },
-    angebot_erstellt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Angebot erstellt" },
-    angebot_angenommen: { bg: "bg-indigo-100", text: "text-indigo-800", border: "border-indigo-400", borderClass: "border-l-indigo-400", label: "Angebot angenommen" },
-    wartet_auf_bestaetigung: { bg: "bg-yellow-100", text: "text-yellow-800", border: "border-yellow-400", borderClass: "border-l-yellow-400", label: "Wartet auf Bestätigung" },
-    angefragt: { bg: "bg-orange-100", text: "text-orange-800", border: "border-orange-400", borderClass: "border-l-orange-400", label: "Wartet auf Musiker" },
-    bestätigt: { bg: "bg-green-100", text: "text-green-800", border: "border-green-400", borderClass: "border-l-green-500", label: "Bestätigt" },
-    abgesagt: { bg: "bg-red-100", text: "text-red-800", border: "border-red-400", borderClass: "border-l-red-400", label: "Abgesagt" },
-    zurückgezogen: { bg: "bg-muted", text: "text-foreground", border: "border-slate-400", borderClass: "border-l-slate-400", label: "Zurückgezogen" },
-    durchgeführt: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-400", borderClass: "border-l-blue-400", label: "Durchgeführt" },
-    abgerechnet: { bg: "bg-purple-100", text: "text-purple-800", border: "border-purple-400", borderClass: "border-l-purple-400", label: "Abgerechnet" }
+    anfrage: { bg: 'rgb(var(--muted))', text: 'rgb(var(--muted-foreground))', accent: 'rgb(var(--muted-foreground))', label: "Anfrage" },
+    angebot_erstellt: { bg: 'var(--status-offer-bg)', text: 'var(--status-offer-text)', accent: 'var(--status-offer-text)', label: "Angebot erstellt" },
+    angebot_angenommen: { bg: 'var(--status-offer-bg)', text: 'var(--status-offer-text)', accent: 'var(--status-offer-text)', label: "Angebot angenommen" },
+    wartet_auf_bestaetigung: { bg: 'var(--status-waiting-bg)', text: 'var(--status-waiting-text)', accent: 'var(--status-waiting-text)', label: "Wartet auf Bestätigung" },
+    angefragt: { bg: 'var(--status-waiting-bg)', text: 'var(--status-waiting-text)', accent: 'var(--status-waiting-text)', label: "Wartet auf Musiker" },
+    bestätigt: { bg: 'var(--status-confirmed-bg)', text: 'var(--status-confirmed-text)', accent: 'var(--status-confirmed-text)', label: "Bestätigt" },
+    abgesagt: { bg: 'var(--status-inquiry-bg)', text: 'var(--status-inquiry-text)', accent: 'var(--status-inquiry-text)', label: "Abgesagt" },
+    zurückgezogen: { bg: 'rgb(var(--muted))', text: 'rgb(var(--muted-foreground))', accent: 'rgb(var(--muted-foreground))', label: "Zurückgezogen" },
+    durchgeführt: { bg: 'var(--status-confirmed-bg)', text: 'var(--status-confirmed-text)', accent: 'var(--status-confirmed-text)', label: "Durchgeführt" },
+    abgerechnet: { bg: 'var(--status-offer-bg)', text: 'var(--status-offer-text)', accent: 'var(--status-offer-text)', label: "Abgerechnet" }
   };
 
   const handleSubmit = (data) => {
@@ -145,7 +145,7 @@ export default function EventsPage() {
 
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <Card className={`hover:shadow-lg transition-all duration-200 border-l-4 ${statusStyle.borderClass}`}>
+        <Card className="hover:shadow-lg transition-all duration-200 border-l-4" style={{ borderLeftColor: statusStyle.accent }}>
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
@@ -161,7 +161,7 @@ export default function EventsPage() {
                   </div>
                 </div>
               </div>
-              <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border}`}>
+              <Badge className="border-transparent" style={{ background: statusStyle.bg, color: statusStyle.text }}>
                 {statusStyle.label}
               </Badge>
             </div>
@@ -193,9 +193,9 @@ export default function EventsPage() {
 
     return (
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
-        <div className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${statusStyle.borderClass}`}>
+        <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4" style={{ borderLeftColor: statusStyle.accent }}>
           <div className="flex-shrink-0">
-            <div className="bg-[#FF6A4D] text-white rounded-lg ] w-16 h-16 from-blue-500 to-indigo-600 flex flex-col items-center justify-center">
+            <div className="bg-[#FF6A4D] text-white rounded-lg w-16 h-16 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
                 {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
               </span>
@@ -208,7 +208,7 @@ export default function EventsPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4 mb-2">
               <h3 className="font-semibold text-lg text-foreground truncate">{event.titel}</h3>
-              <Badge className={`${statusStyle.bg} ${statusStyle.text} border ${statusStyle.border} flex-shrink-0`}>
+              <Badge className="border-transparent flex-shrink-0" style={{ background: statusStyle.bg, color: statusStyle.text }}>
                 {statusStyle.label}
               </Badge>
             </div>
@@ -346,7 +346,7 @@ export default function EventsPage() {
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 106, 77, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -366,7 +366,7 @@ export default function EventsPage() {
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 106, 77, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
