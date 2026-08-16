@@ -174,7 +174,7 @@ export default function FinanzenPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gesamteinnahmen</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Einnahmen</CardTitle>
                 <div className="p-1.5 md:p-2 bg-green-100 rounded-lg">
                   <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                 </div>
