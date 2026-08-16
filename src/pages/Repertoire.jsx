@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2 } from "lucide-react";
+import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ export default function RepertoirePage() {
   const [activeTab, setActiveTab] = useState("bibliothek");
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState("alle");
+  const [sortBy, setSortBy] = useState("titel_asc");
   const [showSongForm, setShowSongForm] = useState(false);
   const [showSetlistForm, setShowSetlistForm] = useState(false);
   const [showImport, setShowImport] = useState(false); // Added showImport state
@@ -341,6 +342,24 @@ export default function RepertoirePage() {
                          s.kuenstler_original?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGenre = genreFilter === "alle" || s.tags?.includes(genreFilter);
     return matchesSearch && matchesGenre;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "titel_desc":
+        return (b.titel || "").localeCompare(a.titel || "", 'de');
+      case "kuenstler_asc":
+        return (a.kuenstler_original || "").localeCompare(b.kuenstler_original || "", 'de') || (a.titel || "").localeCompare(b.titel || "", 'de');
+      case "kuenstler_desc":
+        return (b.kuenstler_original || "").localeCompare(a.kuenstler_original || "", 'de') || (a.titel || "").localeCompare(b.titel || "", 'de');
+      case "bpm_asc":
+        return (a.bpm || 0) - (b.bpm || 0);
+      case "bpm_desc":
+        return (b.bpm || 0) - (a.bpm || 0);
+      case "tonart_asc":
+        return (a.tonart || "").localeCompare(b.tonart || "", 'de');
+      case "titel_asc":
+      default:
+        return (a.titel || "").localeCompare(b.titel || "", 'de');
+    }
   });
 
   const filteredSetlists = visibleSetlists.filter(s => 
@@ -604,6 +623,21 @@ export default function RepertoirePage() {
                       {allGenres.map(genre => (
                         <SelectItem key={genre} value={genre}>{genre}</SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-full md:w-56">
+                      <ArrowUpDown className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="titel_asc">Titel (A–Z)</SelectItem>
+                      <SelectItem value="titel_desc">Titel (Z–A)</SelectItem>
+                      <SelectItem value="kuenstler_asc">Künstler (A–Z)</SelectItem>
+                      <SelectItem value="kuenstler_desc">Künstler (Z–A)</SelectItem>
+                      <SelectItem value="tonart_asc">Tonart (A–Z)</SelectItem>
+                      <SelectItem value="bpm_asc">Tempo (aufsteigend)</SelectItem>
+                      <SelectItem value="bpm_desc">Tempo (absteigend)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
