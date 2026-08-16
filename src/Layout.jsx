@@ -1237,7 +1237,7 @@ export default function Layout({ children, currentPageName }) {
 
           <SidebarFooter className="border-t border-border p-4">
                             <div className="flex items-center justify-between mb-3">
-                              <p className="text-xs text-sidebar-foreground/50">Beta 1.2.0</p>
+                              <p className="text-xs text-sidebar-foreground/50">Beta 2.1.0</p>
                               <div className="flex items-center gap-0.5 bg-sidebar-accent rounded-full p-0.5">
                                 <button
                                   type="button"
