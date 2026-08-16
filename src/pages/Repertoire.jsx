@@ -820,7 +820,7 @@ export default function RepertoirePage() {
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between gap-3">
                       <CardTitle className="text-xl">{setlist.name}</CardTitle>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
+                      <Badge className="status-green border-transparent">
                         Bereit
                       </Badge>
                     </div>

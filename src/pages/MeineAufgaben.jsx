@@ -115,7 +115,7 @@ export default function MeineAufgabenPage() {
     
     if (isOverdue) {
       return (
-        <Badge className="bg-red-100 text-red-800 border border-red-300">
+        <Badge className="status-red border border-transparent">
           <AlertCircle className="w-3 h-3 mr-1" />
           Überfällig
         </Badge>
@@ -124,7 +124,7 @@ export default function MeineAufgabenPage() {
     
     if (isToday(date)) {
       return (
-        <Badge className="bg-orange-100 text-orange-800 border border-orange-300">
+        <Badge className="status-orange border border-transparent">
           <Clock className="w-3 h-3 mr-1" />
           Heute
         </Badge>
@@ -133,7 +133,7 @@ export default function MeineAufgabenPage() {
     
     if (isTomorrow(date)) {
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 border border-yellow-300">
+        <Badge className="status-yellow border border-transparent">
           <Clock className="w-3 h-3 mr-1" />
           Morgen
         </Badge>

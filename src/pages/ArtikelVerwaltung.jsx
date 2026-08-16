@@ -286,7 +286,7 @@ export default function ArtikelVerwaltungPage() {
                         </td>
                         <td className="p-4 text-muted-foreground">{artikel.steuersatz}%</td>
                         <td className="p-4">
-                          <Badge className={artikel.aktiv ? "bg-green-100 text-green-800" : "bg-muted text-foreground"}>
+                          <Badge className={artikel.aktiv ? "status-green" : "bg-muted text-foreground"}>
                             {artikel.aktiv ? "Aktiv" : "Inaktiv"}
                           </Badge>
                         </td>

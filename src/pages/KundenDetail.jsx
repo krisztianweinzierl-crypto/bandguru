@@ -310,8 +310,8 @@ export default function KundenDetailPage() {
                             </p>
                           </div>
                           <Badge className={
-                      event.status === 'bestätigt' ? 'bg-green-100 text-green-800' :
-                      event.status === 'angefragt' ? 'bg-yellow-100 text-yellow-800' :
+                      event.status === 'bestätigt' ? 'status-green' :
+                      event.status === 'angefragt' ? 'status-yellow' :
                       'bg-muted text-foreground'
                       }>
                             {event.status}
@@ -375,9 +375,9 @@ export default function KundenDetailPage() {
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-medium text-sm">{rechnung.rechnungsnummer}</span>
                           <Badge className={
-                      rechnung.status === 'bezahlt' ? 'bg-green-100 text-green-800' :
-                      rechnung.status === 'versendet' ? 'bg-blue-100 text-blue-800' :
-                      rechnung.status === 'überfällig' ? 'bg-red-100 text-red-800' :
+                      rechnung.status === 'bezahlt' ? 'status-green' :
+                      rechnung.status === 'versendet' ? 'status-blue' :
+                      rechnung.status === 'überfällig' ? 'status-red' :
                       'bg-muted text-foreground'
                       }>
                             {rechnung.status}

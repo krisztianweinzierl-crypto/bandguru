@@ -192,10 +192,10 @@ export default function RechnungenPage() {
 
   const statusColors = {
     entwurf: "bg-muted text-foreground",
-    versendet: "bg-blue-100 text-blue-800",
-    teilweise_bezahlt: "bg-yellow-100 text-yellow-800",
-    bezahlt: "bg-green-100 text-green-800",
-    überfällig: "bg-red-100 text-red-800",
+    versendet: "status-blue",
+    teilweise_bezahlt: "status-yellow",
+    bezahlt: "status-green",
+    überfällig: "status-red",
     storniert: "bg-muted text-foreground"
   };
 
@@ -284,7 +284,7 @@ export default function RechnungenPage() {
                   {rechnung.status}
                 </Badge>
                 {isUeberfaellig &&
-                  <Badge className="bg-red-100 text-red-800">
+                  <Badge className="status-red">
                     <AlertCircle className="w-3 h-3 mr-1" />
                     Überfällig
                   </Badge>

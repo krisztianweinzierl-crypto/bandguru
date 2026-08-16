@@ -153,10 +153,10 @@ export default function AngebotePage() {
 
   const statusColors = {
     entwurf: "bg-muted text-foreground",
-    versendet: "bg-blue-100 text-blue-800",
-    angenommen: "bg-green-100 text-green-800",
-    abgelehnt: "bg-red-100 text-red-800",
-    abgelaufen: "bg-orange-100 text-orange-800"
+    versendet: "status-blue",
+    angenommen: "status-green",
+    abgelehnt: "status-red",
+    abgelaufen: "status-orange"
   };
 
   const handleSubmit = (data) => {
@@ -489,7 +489,7 @@ export default function AngebotePage() {
                   {angebot.status}
                 </Badge>
                 {isAbgelaufen && (
-                  <Badge className="bg-orange-100 text-orange-800">
+                  <Badge className="status-orange">
                     <Clock className="w-3 h-3 mr-1" />
                     Abgelaufen
                   </Badge>

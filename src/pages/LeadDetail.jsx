@@ -437,11 +437,11 @@ export default function LeadDetailPage() {
   };
 
   const kategorieBadges = {
-    vertrag: "bg-blue-100 text-blue-800",
-    angebot: "bg-purple-100 text-purple-800",
-    rechnung: "bg-green-100 text-green-800",
-    technische_unterlagen: "bg-orange-100 text-orange-800",
-    bilder: "bg-pink-100 text-pink-800",
+    vertrag: "status-blue",
+    angebot: "status-purple",
+    rechnung: "status-green",
+    technische_unterlagen: "status-orange",
+    bilder: "status-pink",
     sonstiges: "bg-muted text-foreground"
   };
 
@@ -815,8 +815,8 @@ export default function LeadDetailPage() {
 
   const priorityBadges = {
     niedrig: "bg-muted text-foreground",
-    normal: "bg-blue-100 text-blue-800",
-    hoch: "bg-red-100 text-red-800"
+    normal: "status-blue",
+    hoch: "status-red"
   };
 
   const statusStyle = statusColors[lead.status] || statusColors.neu;
@@ -904,7 +904,7 @@ export default function LeadDetailPage() {
                   }
 
                   {aufgabe.status === 'in_arbeit' &&
-                  <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                  <Badge className="status-yellow text-xs">
                       <Clock className="w-3 h-3 mr-1" />
                       In Arbeit
                     </Badge>
@@ -1610,8 +1610,8 @@ export default function LeadDetailPage() {
                                       </div>
                                       <Badge className={
                                         email.status === 'gesendet' 
-                                          ? 'bg-green-100 text-green-800' 
-                                          : 'bg-red-100 text-red-800'
+                                          ? 'status-green' 
+                                          : 'status-red'
                                       }>
                                         {email.status === 'gesendet' ? 'Gesendet' : 'Fehler'}
                                       </Badge>

@@ -116,16 +116,16 @@ export default function AusgabenPage() {
   }, {});
 
   const kategorieColors = {
-    gage: "bg-purple-100 text-purple-800 border-purple-200",
-    reisekosten: "bg-blue-100 text-blue-800 border-blue-200",
-    unterkunft: "bg-indigo-100 text-indigo-800 border-indigo-200",
-    equipment: "bg-orange-100 text-orange-800 border-orange-200",
-    marketing: "bg-pink-100 text-pink-800 border-pink-200",
+    gage: "status-purple border-transparent",
+    reisekosten: "status-blue border-transparent",
+    unterkunft: "status-indigo border-transparent",
+    equipment: "status-orange border-transparent",
+    marketing: "status-pink border-transparent",
     verwaltung: "bg-muted text-foreground border-border",
-    steuern: "bg-red-100 text-red-800 border-red-200",
-    versicherung: "bg-green-100 text-green-800 border-green-200",
-    studio: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    software: "bg-cyan-100 text-cyan-800 border-cyan-200",
+    steuern: "status-red border-transparent",
+    versicherung: "status-green border-transparent",
+    studio: "status-yellow border-transparent",
+    software: "status-cyan border-transparent",
     sonstiges: "bg-muted text-foreground border-border"
   };
 
