@@ -176,3 +176,13 @@ button:focus-visible {
     @apply bg-background text-foreground;
   }
 }
+
+/* Semantic status-badge utilities — replace ad-hoc bg-X-100/text-X-800 pairs so status
+   colors stay legible in both themes instead of hardcoded light-only pastels. */
+@layer utilities {
+  .status-green, .status-cyan { background: var(--status-confirmed-bg); color: var(--status-confirmed-text); }
+  .status-red { background: var(--status-inquiry-bg); color: var(--status-inquiry-text); }
+  .status-yellow, .status-orange { background: var(--status-waiting-bg); color: var(--status-waiting-text); }
+  .status-blue, .status-indigo, .status-purple, .status-pink { background: var(--status-offer-bg); color: var(--status-offer-text); }
+  .status-gray, .status-slate { background: rgb(var(--muted)); color: rgb(var(--muted-foreground)); }
+}
