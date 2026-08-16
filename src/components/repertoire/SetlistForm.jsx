@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Save, Plus, GripVertical, Trash2, Clock, FileText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { X, Save, Plus, GripVertical, Trash2, Clock, FileText, Search } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSongs }) {
@@ -20,7 +21,8 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
     tags: []
   });
 
-  const [selectedSongId, setSelectedSongId] = useState("");
+  const [selectedSongIds, setSelectedSongIds] = useState([]);
+  const [songPickerSearch, setSongPickerSearch] = useState("");
   const [tagInput, setTagInput] = useState("");
 
   // Automatische Berechnung der Gesamtdauer
@@ -56,19 +58,25 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addSong = () => {
-    if (selectedSongId) {
-      const song = allSongs.find(s => s.id === selectedSongId);
-      if (song) {
-        const newSongs = [...formData.songs, {
-          song_id: song.id,
-          reihenfolge: formData.songs.length + 1,
-          notizen: ""
-        }];
-        handleChange('songs', newSongs);
-        setSelectedSongId("");
-      }
-    }
+  const toggleSongSelection = (songId) => {
+    setSelectedSongIds(prev =>
+      prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]
+    );
+  };
+
+  const addSelectedSongs = () => {
+    if (selectedSongIds.length === 0) return;
+    const songsToAdd = selectedSongIds
+      .map(id => allSongs.find(s => s.id === id))
+      .filter(Boolean)
+      .map((song, i) => ({
+        song_id: song.id,
+        reihenfolge: formData.songs.length + i + 1,
+        notizen: ""
+      }));
+    handleChange('songs', [...formData.songs, ...songsToAdd]);
+    setSelectedSongIds([]);
+    setSongPickerSearch("");
   };
 
   const removeSong = (index) => {
@@ -267,6 +275,11 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
     !formData.songs.some(fs => fs.song_id === s.id)
   );
 
+  const filteredAvailableSongs = availableSongs.filter(s => {
+    const q = songPickerSearch.toLowerCase();
+    return !q || s.titel?.toLowerCase().includes(q) || s.kuenstler_original?.toLowerCase().includes(q);
+  });
+
   return (
     <Card className="border-none shadow-lg mb-6">
       <CardHeader className="border-b">
@@ -329,29 +342,52 @@ export default function SetlistForm({ setlist, onSubmit, onCancel, events, allSo
           {/* Songs hinzufügen */}
           <div className="space-y-2">
             <Label>Songs zur Setlist hinzufügen</Label>
-            <div className="flex gap-2">
-              <Select value={selectedSongId} onValueChange={setSelectedSongId}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Song auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSongs.map((song) => (
-                    <SelectItem key={song.id} value={song.id}>
-                      {song.titel} - {song.kuenstler_original || 'Unbekannt'}
-                      {song.laenge && ` (${song.laenge})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                type="button" 
-                onClick={addSong}
-                disabled={!selectedSongId}
-                variant="outline"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                value={songPickerSearch}
+                onChange={(e) => setSongPickerSearch(e.target.value)}
+                placeholder="Songs durchsuchen..."
+                className="pl-10"
+              />
             </div>
+            <div className="border rounded-lg max-h-64 overflow-y-auto divide-y">
+              {filteredAvailableSongs.length > 0 ? (
+                filteredAvailableSongs.map((song) => (
+                  <label
+                    key={song.id}
+                    className="flex items-center gap-3 p-2.5 hover:bg-muted transition-colors cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={selectedSongIds.includes(song.id)}
+                      onCheckedChange={() => toggleSongSelection(song.id)}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{song.titel}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {song.kuenstler_original || 'Unbekannt'}{song.laenge && ` · ${song.laenge}`}
+                      </p>
+                    </div>
+                  </label>
+                ))
+              ) : (
+                <p className="p-4 text-sm text-muted-foreground text-center">
+                  {availableSongs.length === 0 ? 'Alle Songs sind bereits in der Setlist' : 'Keine Songs gefunden'}
+                </p>
+              )}
+            </div>
+            <Button
+              type="button"
+              onClick={addSelectedSongs}
+              disabled={selectedSongIds.length === 0}
+              variant="outline"
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {selectedSongIds.length > 0
+                ? `${selectedSongIds.length} ${selectedSongIds.length === 1 ? 'Song' : 'Songs'} hinzufügen`
+                : 'Songs auswählen'}
+            </Button>
           </div>
 
           {/* Songs Liste mit Drag & Drop */}
