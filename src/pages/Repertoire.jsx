@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2, ArrowUpDown } from "lucide-react";
+import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2, ArrowUpDown, FileStack } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import SongForm from "@/components/repertoire/SongForm";
 import SetlistForm from "@/components/repertoire/SetlistForm";
 import SongImport from "@/components/repertoire/SongImport"; // Added import for SongImport
 import SongEnrichment from "@/components/repertoire/SongEnrichment";
+import BulkNotenUpload from "@/components/repertoire/BulkNotenUpload";
 
 export default function RepertoirePage() {
   const [currentOrgId, setCurrentOrgId] = useState(null);
@@ -28,6 +29,7 @@ export default function RepertoirePage() {
   const [showSetlistForm, setShowSetlistForm] = useState(false);
   const [showImport, setShowImport] = useState(false); // Added showImport state
   const [showEnrichment, setShowEnrichment] = useState(false);
+  const [showNotenUpload, setShowNotenUpload] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
   const [editingSetlist, setEditingSetlist] = useState(null);
   const queryClient = useQueryClient();
@@ -556,6 +558,13 @@ export default function RepertoirePage() {
                     <Upload className="w-4 h-4 mr-2" />
                     Importieren
                   </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowNotenUpload(true)}
+                  >
+                    <FileStack className="w-4 h-4 mr-2" />
+                    Noten zuordnen
+                  </Button>
                   <Button 
                     onClick={() => {
                       setEditingSong(null);
@@ -586,6 +595,15 @@ export default function RepertoirePage() {
                 onClose={() => setShowImport(false)}
                 onSuccess={handleImportSuccess}
                 orgId={currentOrgId}
+              />
+            )}
+
+            {/* Bulk-Noten-Zuordnung */}
+            {showNotenUpload && (
+              <BulkNotenUpload
+                songs={songs}
+                onClose={() => setShowNotenUpload(false)}
+                onSuccess={() => queryClient.invalidateQueries({ queryKey: ['songs'] })}
               />
             )}
 
