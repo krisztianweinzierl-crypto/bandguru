@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Calendar, Users, DollarSign, Target, Plus, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Calendar, Users, DollarSign, Target, Plus, Clock, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,28 @@ export default function Dashboard() {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Dashboard</h1>
           <p className="text-muted-foreground">Willkommen zurück! Hier ist deine Übersicht.</p>
         </div>
+
+        {/* KI Event-Planer CTA */}
+        <Card className="mb-6 md:mb-8 border-none shadow-lg overflow-hidden relative">
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #FF6A4D 0%, #FF8F6D 100%)' }} />
+          <CardContent className="relative p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-1">KI Event-Planer</h2>
+                <p className="text-white/90 text-sm md:text-base max-w-xl">Beschreibe dein Event in ein paar Worten – die KI fragt nach, was noch fehlt, und erstellt danach einen vollständigen Plan inkl. Besetzung.</p>
+              </div>
+            </div>
+            <Link to={createPageUrl("EventAIPlanner")} className="shrink-0">
+              <Button className="bg-white text-[#FF6A4D] hover:bg-white/90 font-semibold">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Event planen
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
