@@ -30,9 +30,7 @@ import {
   Guitar,
   Zap,
   Shield,
-  UserPlus,
-  Sun,
-  Moon } from
+  UserPlus } from
 "lucide-react";
 import {
   Sidebar,
@@ -63,6 +61,11 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
+  // Für Public Pages: Sofort Children rendern ohne Auth-Check
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
+
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -82,94 +85,21 @@ export default function Layout({ children, currentPageName }) {
     steuernummer: "",
     waehrung: "EUR",
     zeitzone: "Europe/Berlin",
-    primary_color: "#FF6A4D"
-  });
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("bandguru-theme");
-    if (stored === "light" || stored === "dark") return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    primary_color: "#223a5e"
   });
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("bandguru-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    if (!isPublicPage) {
-      checkAuthAndLoadData();
+  // Prüfe ob wir im iframe (Preview-Modus) sind
+  const isInIframe = () => {
+    try {
+      return window.self !== window.top;
+    } catch (e) {
+      return true;
     }
-  }, [isPublicPage]);
+  };
 
-  const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
-  const isManager = currentMitglied?.rolle === "Band Manager";
-
-  const managerNavItems = [
-    { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
-    { title: "Events", icon: Calendar, submenu: [
-      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-      { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }
-    ]},
-    { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
-    { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
-    { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
-    { title: "Finanzen", icon: DollarSign, url: createPageUrl("Finanzen"), submenu: [
-      { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
-      { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
-      { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }
-    ]},
-    { title: "Leads", url: createPageUrl("Leads"), icon: Target },
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
-  ];
-
-  const musikerNavItems = [
-    { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
-    { title: "Events", icon: Calendar, submenu: [
-      { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-      { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }
-    ]},
-    { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
-    { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
-    { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }
-  ];
-
-  const navigationItems = isManager ? managerNavItems : musikerNavItems;
-
-  // Redirect Musiker to their dashboard if they're on wrong page
   useEffect(() => {
-    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
-      window.location.href = createPageUrl('MusikerDashboard');
-    }
-  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
-
-  // Auto-expand active submenu
-  useEffect(() => {
-    navigationItems.forEach((item, index) => {
-      if (item.submenu) {
-        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
-        if (isActive && !expandedMenus[index]) {
-          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
-        }
-      }
-    });
-    const settingsSubmenuUrls = [
-      createPageUrl("OrganisationSettings"),
-      createPageUrl("BuchungsbedingungVorlagen"),
-      createPageUrl("ArtikelVerwaltung")
-    ];
-    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
-    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
-      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
-    }
-  }, [location.pathname]);
-
-  // Für Public Pages: früher Return NACH allen Hooks
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
+    checkAuthAndLoadData();
+  }, []);
 
   const checkAuthAndLoadData = async () => {
     try {
@@ -435,10 +365,90 @@ export default function Layout({ children, currentPageName }) {
     }));
   };
 
+  const currentMitglied = mitgliedschaften.find((m) => m.org_id === currentOrg?.id);
+  const isManager = currentMitglied?.rolle === "Band Manager";
+
+  // Redirect Musiker to their dashboard if they're on wrong page
+  useEffect(() => {
+    if (initialLoadComplete && !isManager && currentOrg && location.pathname === createPageUrl('Dashboard')) {
+      window.location.href = createPageUrl('MusikerDashboard');
+    }
+  }, [initialLoadComplete, isManager, currentOrg, location.pathname]);
+
+  const managerNavItems = [
+  { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar },
+    { title: "AI Event-Planer", url: createPageUrl("EventAIPlanner"), icon: Sparkles }]
+
+  },
+  { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
+  { title: "Kunden", url: createPageUrl("Kunden"), icon: UserCircle },
+  { title: "Verträge", url: createPageUrl("Vertraege"), icon: FileSignature },
+  {
+    title: "Finanzen",
+    icon: DollarSign,
+    url: createPageUrl("Finanzen"),
+    submenu: [
+    { title: "Angebote", url: createPageUrl("Angebote"), icon: FileText },
+    { title: "Rechnungen", url: createPageUrl("Rechnungen"), icon: FileText },
+    { title: "Ausgaben", url: createPageUrl("Ausgaben"), icon: FileText }]
+
+  },
+  { title: "Leads", url: createPageUrl("Leads"), icon: Target },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Aufgaben", url: createPageUrl("Aufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
+
+  const musikerNavItems = [
+  { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
+  {
+    title: "Events",
+    icon: Calendar,
+    submenu: [
+    { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
+    { title: "Meine Events", url: createPageUrl("MeineEvents"), icon: Calendar }]
+
+  },
+  { title: "Repertoire", url: createPageUrl("Repertoire"), icon: Music },
+  { title: "Meine Aufgaben", url: createPageUrl("MeineAufgaben"), icon: CheckSquare },
+  { title: "Nachrichten", url: createPageUrl("Nachrichten"), icon: MessageSquare }];
+
+
+  const navigationItems = isManager ? managerNavItems : musikerNavItems;
+
+  useEffect(() => {
+    navigationItems.forEach((item, index) => {
+      if (item.submenu) {
+        const isActive = item.submenu.some((sub) => location.pathname === sub.url);
+        if (isActive && !expandedMenus[index]) {
+          setExpandedMenus((prev) => ({ ...prev, [index]: true }));
+        }
+      }
+    });
+
+    // Check for 'settings' submenu specifically
+    const settingsSubmenuUrls = [
+    createPageUrl("OrganisationSettings"),
+    createPageUrl("BuchungsbedingungVorlagen"),
+    createPageUrl("ArtikelVerwaltung")];
+
+    const isSettingsSubmenuActive = settingsSubmenuUrls.includes(location.pathname);
+    if (isSettingsSubmenuActive && !expandedMenus['settings']) {
+      setExpandedMenus((prev) => ({ ...prev, ['settings']: true }));
+    }
+
+  }, [location.pathname]);
+
   // Loading
   if (!initialLoadComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
@@ -446,7 +456,7 @@ export default function Layout({ children, currentPageName }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse" />
 
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-muted-foreground">Wird geladen...</p>
+          <p className="text-gray-600">Wird geladen...</p>
         </div>
       </div>);
 
@@ -455,9 +465,9 @@ export default function Layout({ children, currentPageName }) {
   // Landing Page für nicht eingeloggte User
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         {/* Header */}
-        <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+        <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <img
@@ -465,7 +475,7 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-12 h-12 object-contain" />
 
-              <h1 className="text-2xl font-bold text-foreground">Bandguru</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Bandguru</h1>
             </div>
             <div className="flex gap-3">
               <Button
@@ -477,7 +487,7 @@ export default function Layout({ children, currentPageName }) {
               </Button>
               <Button
                 onClick={() => base44.auth.redirectToLogin()}
-                className="bg-[#FF6A4D] hover:bg-[#E85A3D]">
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
 
                 Kostenlos starten
               </Button>
@@ -493,15 +503,15 @@ export default function Layout({ children, currentPageName }) {
               Das ultimative Band-Management Tool
             </div>
             
-            <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+            <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
               Verwalte deine Band
               <br />
-              <span className="bg-[#FF6A4D] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 professionell & einfach
               </span>
             </h2>
             
-            <p className="text-xl text-muted-foreground mb-10 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 mb-10 max-w-3xl mx-auto">
               Events organisieren, Musiker koordinieren, Kunden verwalten, Finanzen im Blick behalten – 
               alles an einem Ort. Für Bands, die mehr wollen.
             </p>
@@ -510,7 +520,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                style={{ backgroundColor: '#FF6A4D' }}
+                style={{ backgroundColor: '#223a5e' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -533,19 +543,19 @@ export default function Layout({ children, currentPageName }) {
             <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/87a1fd4b2_Bildschirmfoto2025-11-02um073357.png"
               alt="Bandguru Dashboard Preview"
-              className="relative rounded-2xl shadow-2xl border border-border w-full" />
+              className="relative rounded-2xl shadow-2xl border border-gray-200 w-full" />
 
           </div>
         </section>
 
         {/* Features */}
-        <section className="bg-card py-20">
+        <section className="bg-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
                 Alles, was deine Band braucht
               </h3>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-xl text-gray-600">
                 Von Event-Management bis zur Rechnungsstellung
               </p>
             </div>
@@ -559,7 +569,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Event-Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Plane und verwalte alle deine Auftritte an einem Ort. Mit Kalender, Checklisten und automatischen Erinnerungen.
                   </p>
                 </CardContent>
@@ -573,7 +583,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Musiker-Pool</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Verwalte dein Musiker-Netzwerk mit Verfügbarkeiten, Instrumenten und Gagen. Perfekt für flexible Besetzungen.
                   </p>
                 </CardContent>
@@ -587,7 +597,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Finanzen</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Erstelle Rechnungen, verfolge Zahlungen und behalte Ausgaben im Blick. Alles für eine saubere Buchhaltung.
                   </p>
                 </CardContent>
@@ -601,7 +611,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Lead-Management</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Verfolge Anfragen von der ersten Kontaktaufnahme bis zum gebuchten Event. Nie wieder eine Opportunity verpassen.
                   </p>
                 </CardContent>
@@ -615,7 +625,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Repertoire</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Verwalte Songs, Setlisten und Arrangements. Perfekt für die Planung eurer Shows.
                   </p>
                 </CardContent>
@@ -629,7 +639,7 @@ export default function Layout({ children, currentPageName }) {
                   <CardTitle>Verträge</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-600">
                     Erstelle professionelle Verträge mit digitaler Unterschrift. Rechtssicher und unkompliziert.
                   </p>
                 </CardContent>
@@ -639,7 +649,7 @@ export default function Layout({ children, currentPageName }) {
         </section>
 
         {/* CTA Section */}
-        <section className="bg-[#FF6A4D] py-20">
+        <section className="bg-gradient-to-br from-blue-500 to-indigo-600 py-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h3 className="text-4xl md:text-5xl font-bold text-white mb-6">
               Bereit loszulegen?
@@ -650,7 +660,7 @@ export default function Layout({ children, currentPageName }) {
             <Button
               size="lg"
               onClick={() => base44.auth.redirectToLogin()}
-              className="bg-card text-blue-600 hover:bg-muted text-lg h-14 px-8">
+              className="bg-white text-blue-600 hover:bg-gray-100 text-lg h-14 px-8">
 
               Jetzt kostenlos starten
               <Zap className="w-5 h-5 ml-2" />
@@ -659,7 +669,7 @@ export default function Layout({ children, currentPageName }) {
         </section>
 
         {/* Footer */}
-        <footer className="bg-foreground text-muted-foreground py-12">
+        <footer className="bg-gray-900 text-gray-400 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
               <img
@@ -681,7 +691,7 @@ export default function Layout({ children, currentPageName }) {
   // Schwebende Einladungen anzeigen
   if (showPendingInvites && pendingInvites.length > 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -690,12 +700,12 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-16 h-16 object-contain" />
 
-              <h1 className="text-4xl font-bold text-foreground">Bandguru</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
             </div>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-gray-600">
               Willkommen {user?.full_name || user?.email}! 🎉
             </p>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-gray-600 mt-2">
               Du wurdest zu {pendingInvites.length === 1 ? 'einer Organisation' : `${pendingInvites.length} Organisationen`} eingeladen!
             </p>
           </div>
@@ -703,7 +713,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="space-y-4">
             {pendingInvites.map((invite) =>
             <Card key={invite.id} className="border-none shadow-xl hover:shadow-2xl transition-all">
-                <CardHeader className="border-b bg-[#FF6A4D] text-white">
+                <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
                   <div className="flex items-center gap-4">
                     <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0"
@@ -726,17 +736,17 @@ export default function Layout({ children, currentPageName }) {
                     <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
                       <UserPlus className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-sm text-foreground">
+                        <p className="text-sm text-gray-700">
                           Du wurdest als <span className="font-semibold">{invite.rolle}</span> eingeladen.
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-gray-500 mt-1">
                           Klicke auf "Einladung annehmen" um der Organisation beizutreten.
                         </p>
                       </div>
                     </div>
 
                     {invite.invite_expires_at &&
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
                         <Calendar className="w-4 h-4" />
                         <span>
                           Gültig bis: {format(new Date(invite.invite_expires_at), 'dd. MMM yyyy', { locale: de })}
@@ -746,7 +756,7 @@ export default function Layout({ children, currentPageName }) {
 
                     <Button
                     onClick={() => handleAcceptInvite(invite)}
-                    className="w-full bg-[#FF6A4D] hover:bg-[#E85A3D] h-12">
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 h-12">
 
                       <Check className="w-5 h-5 mr-2" />
                       Einladung annehmen
@@ -759,7 +769,7 @@ export default function Layout({ children, currentPageName }) {
 
           <div className="mt-8 space-y-4">
             <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-gray-500 mb-4">
                 Oder möchtest du lieber deine eigene Organisation erstellen?
               </p>
               <Button
@@ -769,8 +779,8 @@ export default function Layout({ children, currentPageName }) {
                   setShowOnboarding(true);
                 }}
                 style={{
-                  borderColor: '#FF6A4D',
-                  color: '#FF6A4D'
+                  borderColor: '#223a5e',
+                  color: '#223a5e'
                 }}
                 className="hover:opacity-80">
 
@@ -781,13 +791,13 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Abmelden Button */}
             <div className="text-center pt-4 border-t">
-              <p className="text-sm text-muted-foreground mb-3">
+              <p className="text-sm text-gray-500 mb-3">
                 Probleme beim Annehmen der Einladung?
               </p>
               <Button
                 variant="ghost"
                 onClick={handleLogout}
-                className="text-muted-foreground hover:text-foreground">
+                className="text-gray-600 hover:text-gray-900">
 
                 <LogOut className="w-4 h-4 mr-2" />
                 Abmelden
@@ -802,7 +812,7 @@ export default function Layout({ children, currentPageName }) {
   // Onboarding anzeigen (KEINE Organisation UND KEINE Einladungen)
   if (showOnboarding) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
         <div className="max-w-2xl w-full">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -811,13 +821,13 @@ export default function Layout({ children, currentPageName }) {
                 alt="Bandguru Logo"
                 className="w-16 h-16 object-contain" />
 
-              <h1 className="text-4xl font-bold text-foreground">Bandguru</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Bandguru</h1>
             </div>
-            <p className="text-xl text-muted-foreground">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
+            <p className="text-xl text-gray-600">Willkommen {user?.full_name || user?.email}! Lass uns deine Band einrichten.</p>
           </div>
 
           <Card className="border-none shadow-xl">
-            <CardHeader className="border-b bg-[#FF6A4D] text-white">
+            <CardHeader className="border-b bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
               <CardTitle className="text-xl">Deine Organisation erstellen</CardTitle>
             </CardHeader>
             <CardContent className="p-8">
@@ -853,7 +863,7 @@ export default function Layout({ children, currentPageName }) {
                       id="waehrung"
                       value={orgData.waehrung}
                       onChange={(e) => setOrgData({ ...orgData, waehrung: e.target.value })}
-                      className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm">
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm">
 
                       <option value="EUR">EUR (€)</option>
                       <option value="USD">USD ($)</option>
@@ -877,7 +887,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   type="submit"
                   className="w-full h-12 text-lg"
-                  style={{ backgroundColor: '#FF6A4D' }}>
+                  style={{ backgroundColor: '#223a5e' }}>
 
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -893,7 +903,7 @@ export default function Layout({ children, currentPageName }) {
   // Warte auf Organisation
   if (!currentOrg) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
@@ -901,7 +911,7 @@ export default function Layout({ children, currentPageName }) {
             className="w-24 h-24 mx-auto mb-4 animate-pulse" />
 
           <h2 className="text-2xl font-bold mb-2">Bandguru</h2>
-          <p className="text-muted-foreground">Lade Organisation...</p>
+          <p className="text-gray-600">Lade Organisation...</p>
         </div>
       </div>);
 
@@ -910,9 +920,9 @@ export default function Layout({ children, currentPageName }) {
   // Normale App mit Sidebar
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-muted">
-        <Sidebar className="border-r border-border">
-          <SidebarHeader className="border-b border-border p-4">
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <Sidebar className="border-r border-gray-200">
+          <SidebarHeader className="border-b border-gray-200 p-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <img
@@ -921,8 +931,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain" />
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-sidebar-foreground truncate">Bandguru</h2>
-                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentMitglied?.rolle}</p>
+                  <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
+                  <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
                 <NotificationBell user={user} currentOrgId={currentOrg?.id} />
@@ -932,7 +942,9 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   variant="outline"
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
-                  className="w-full justify-between h-auto py-3 px-3 transition-colors bg-sidebar-accent/40 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                  className="w-full justify-between h-auto py-3 px-3 transition-colors"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(141, 153, 174, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
 
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <div
@@ -950,8 +962,8 @@ export default function Layout({ children, currentPageName }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowOrgSwitcher(false)} />
 
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
-                      <div className="p-2 text-xs text-muted-foreground font-medium border-b">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="p-2 text-xs text-gray-500 font-medium border-b">
                         Organisation wechseln
                       </div>
                       {organisations.map((org) => {
@@ -962,10 +974,10 @@ export default function Layout({ children, currentPageName }) {
                         <button
                           key={org.id}
                           onClick={() => handleOrgChange(org.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-muted transition-colors ${
+                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
-                          style={isCurrentOrg ? { borderLeftColor: '#FF6A4D' } : {}}>
+                          style={isCurrentOrg ? { borderLeftColor: '#223a5e' } : {}}>
 
                             <div
                             className="w-6 h-6 rounded flex-shrink-0"
@@ -973,12 +985,12 @@ export default function Layout({ children, currentPageName }) {
 
                             <div className="flex-1 min-w-0 text-left">
                               <p className="font-medium text-sm truncate">{org.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="text-xs text-gray-500 truncate">
                                 {mitglied?.rolle}
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#FF6A4D' }} />
+                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
                           }
                           </button>);
 
@@ -992,7 +1004,7 @@ export default function Layout({ children, currentPageName }) {
           
           <SidebarContent className="p-2">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider px-2 py-2">
+              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                 Navigation
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -1010,12 +1022,12 @@ export default function Layout({ children, currentPageName }) {
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
                           backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                          color: '#FF6A4D'
+                          color: '#223a5e'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                            e.currentTarget.style.color = '#FF6A4D';
+                            e.currentTarget.style.color = '#223a5e';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1045,12 +1057,12 @@ export default function Layout({ children, currentPageName }) {
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
                               backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                              color: '#FF6A4D'
+                              color: '#223a5e'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== subItem.url) {
                                 e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                e.currentTarget.style.color = '#FF6A4D';
+                                e.currentTarget.style.color = '#223a5e';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1079,12 +1091,12 @@ export default function Layout({ children, currentPageName }) {
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
                           backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                          color: '#FF6A4D'
+                          color: '#223a5e'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (location.pathname !== item.url) {
                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                            e.currentTarget.style.color = '#FF6A4D';
+                            e.currentTarget.style.color = '#223a5e';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1107,7 +1119,7 @@ export default function Layout({ children, currentPageName }) {
 
             {isManager &&
             <SidebarGroup className="mt-4">
-                <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider px-2 py-2">
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                   Verwaltung
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -1118,12 +1130,12 @@ export default function Layout({ children, currentPageName }) {
                       className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
                         backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                        color: '#FF6A4D'
+                        color: '#223a5e'
                       } : {}}
                       onMouseEnter={(e) => {
                         if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
                           e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                          e.currentTarget.style.color = '#FF6A4D';
+                          e.currentTarget.style.color = '#223a5e';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -1151,12 +1163,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("OrganisationSettings") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#FF6A4D'
+                            color: '#223a5e'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#FF6A4D';
+                              e.currentTarget.style.color = '#223a5e';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1179,12 +1191,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#FF6A4D'
+                            color: '#223a5e'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#FF6A4D';
+                              e.currentTarget.style.color = '#223a5e';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1207,12 +1219,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#FF6A4D'
+                            color: '#223a5e'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#FF6A4D';
+                              e.currentTarget.style.color = '#223a5e';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1235,36 +1247,16 @@ export default function Layout({ children, currentPageName }) {
             }
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-border p-4">
-                            <div className="flex items-center justify-between mb-3">
-                              <p className="text-xs text-sidebar-foreground/50">Beta 2.1.0</p>
-                              <div className="flex items-center gap-0.5 bg-sidebar-accent rounded-full p-0.5">
-                                <button
-                                  type="button"
-                                  onClick={() => setTheme('light')}
-                                  aria-pressed={theme === 'light'}
-                                  title="Helles Design"
-                                  className={`p-1.5 rounded-full transition-colors ${theme === 'light' ? 'bg-[#FF6A4D] text-white' : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'}`}>
-                                  <Sun className="w-3.5 h-3.5" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setTheme('dark')}
-                                  aria-pressed={theme === 'dark'}
-                                  title="Dunkles Design"
-                                  className={`p-1.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-[#FF6A4D] text-white' : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'}`}>
-                                  <Moon className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
+          <SidebarFooter className="border-t border-gray-200 p-4">
+                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.2.0</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center gap-3 hover:bg-muted rounded-lg p-2 transition-colors">
+                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
 
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
-                  <AvatarFallback className="bg-[#FF6A4D] text-white">
+                  <AvatarFallback className="bg-gradient-to-br from-slate-700 to-slate-900 text-white">
                     {(() => {
                       if (currentMusiker?.name) {
                         // Musiker name: Nimm erste Buchstaben von jedem Wort
@@ -1285,12 +1277,12 @@ export default function Layout({ children, currentPageName }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-medium text-sidebar-foreground text-sm truncate">
+                  <p className="font-medium text-gray-900 text-sm truncate">
                     {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
-                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentOrg.name}</p>
+                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-sidebar-foreground/60 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
@@ -1299,12 +1291,12 @@ export default function Layout({ children, currentPageName }) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)} />
 
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                     {!isManager &&
                   <Link
                     to={createPageUrl('MusikerProfil')}
                     onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
 
                         <UserCircle className="w-4 h-4" />
                         Mein Profil
@@ -1315,7 +1307,7 @@ export default function Layout({ children, currentPageName }) {
                       setShowUserMenu(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-destructive hover:bg-destructive/10 transition-colors border-t border-border">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
 
                       <LogOut className="w-4 h-4" />
                       Abmelden
@@ -1328,9 +1320,9 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-card border-b border-border px-6 py-4 md:hidden">
+          <header className="bg-white border-b border-gray-200 px-6 py-4 md:hidden">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-muted p-2 rounded-lg transition-colors duration-200">
+              <SidebarTrigger className="hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200">
                 <Menu className="w-5 h-5" />
               </SidebarTrigger>
               <img
@@ -1349,14 +1341,14 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           {/* Mobile Bottom Navigation */}
-          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-50">
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
             <div className="flex justify-around items-center h-16 px-2">
               <Link
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
-                'text-[#FF6A4D]' :
-                'text-muted-foreground'}`
+                'text-[#223a5e]' :
+                'text-gray-500'}`
                 }>
 
                 <LayoutDashboard className="w-6 h-6" />
@@ -1368,8 +1360,8 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
                 location.pathname === createPageUrl("Kalender") ?
-                'text-[#FF6A4D]' :
-                'text-muted-foreground'}`
+                'text-[#223a5e]' :
+                'text-gray-500'}`
                 }>
 
                 <Calendar className="w-6 h-6" />
@@ -1380,8 +1372,8 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl("Nachrichten")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl("Nachrichten") ?
-                'text-[#FF6A4D]' :
-                'text-muted-foreground'}`
+                'text-[#223a5e]' :
+                'text-gray-500'}`
                 }>
 
                 <MessageSquare className="w-6 h-6" />
@@ -1392,8 +1384,8 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
-                'text-[#FF6A4D]' :
-                'text-muted-foreground'}`
+                'text-[#223a5e]' :
+                'text-gray-500'}`
                 }>
 
                 <CheckSquare className="w-6 h-6" />
