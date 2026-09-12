@@ -59,6 +59,11 @@
       "format": "time",
       "description": "Get-In Zeit (HH:mm)"
     },
+    "aufbau_zeit": {
+      "type": "string",
+      "format": "time",
+      "description": "Aufbau-Beginn / Setup-Zeit (HH:mm)"
+    },
     "soundcheck_zeit": {
       "type": "string",
       "format": "time",
