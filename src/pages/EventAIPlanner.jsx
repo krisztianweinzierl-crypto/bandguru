@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,11 +19,14 @@ import {
   Music,
   Guitar,
   Send,
-  Mail
+  Mail,
+  Bot,
+  Hammer
 } from "lucide-react";
 
 export default function EventAIPlanner() {
-  const [prompt, setPrompt] = useState("");
+  const [messages, setMessages] = useState([]); // { role: "user" | "assistant", content: string }
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [plan, setPlan] = useState(null);
@@ -36,7 +39,10 @@ export default function EventAIPlanner() {
   const [requestedMusikerIds, setRequestedMusikerIds] = useState([]);
   const [eventMusikerMap, setEventMusikerMap] = useState({});
 
+  const chatEndRef = useRef(null);
   const currentOrgId = localStorage.getItem("currentOrgId");
+
+  const MAX_FOLLOWUP_ROUNDS = 3; // max. Anzahl Nutzer-Nachrichten, bevor der Plan spätestens erzwungen wird
 
   const prioritaetColors = { A: "bg-emerald-100 text-emerald-700", B: "bg-blue-100 text-blue-700", C: "bg-yellow-100 text-yellow-700", D: "bg-orange-100 text-orange-700", E: "bg-red-100 text-red-700" };
 
@@ -45,6 +51,10 @@ export default function EventAIPlanner() {
       base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true }).then(setAllMusiker);
     }
   }, [currentOrgId]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   // Synonyme für Instrument-Matching
   const instrumentSynonyme = {
@@ -128,44 +138,74 @@ export default function EventAIPlanner() {
     return matched;
   };
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+  const buildConversationText = (msgs) =>
+    msgs.map(m => `${m.role === "user" ? "Nutzer" : "Planer"}: ${m.content}`).join("\n");
+
+  const finalizePlanFromResult = async (result) => {
+    setSelectedLocationIndex(0);
+    setPlan(result);
+
+    const freshMusiker = await base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true });
+    setAllMusiker(freshMusiker);
+    setSuggestedMusiker(matchMusikerFromList(freshMusiker, result.besetzung_anforderung, result.genre_anforderung));
+  };
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const newMessages = [...messages, { role: "user", content: text }];
+    setMessages(newMessages);
+    setInput("");
     setLoading(true);
-    setPlan(null);
-    setSaved(false);
-    setSavedEventId(null);
-    setSuggestedMusiker([]);
-    setRequestedMusikerIds([]);
-    setEventMusikerMap({});
-    setRequestingMusiker({});
+
+    const userTurns = newMessages.filter(m => m.role === "user").length;
+    const isLastAllowedRound = userTurns >= MAX_FOLLOWUP_ROUNDS;
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Du bist ein professioneller Event-Planer für Musikbands. Erstelle einen detaillierten Eventplan basierend auf folgender Beschreibung: "${prompt}".
-      
-      Heute ist der ${new Date().toLocaleDateString("de-DE", { year: "numeric", month: "long", day: "numeric" })}.
-      
-      Gib mir einen vollständigen Plan mit allen wichtigen Details. Wenn ein Datum oder eine Uhrzeit nicht explizit genannt wurde, schlage ein passendes vor.
-      Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).
-      
-      Schlage außerdem genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen).
-      
-      Ermittle außerdem die benötigte Besetzung/Band für dieses Event. Gib diese als JSON-Objekt im Feld 'besetzung_anforderung' aus.
-      WICHTIGE REGELN für die Besetzung:
-      1. HÖCHSTE PRIORITÄT: Wenn im Prompt explizit bestimmte Instrumente oder Rollen genannt werden (z.B. "DJ", "DJ & Vocals"), dann übernimm diese EXAKT – füge KEINE weiteren Instrumente hinzu.
-      2. ENSEMBLE-BEGRIFFE müssen IMMER in einzelne Instrumente/Rollen aufgelöst werden – niemals als Ensemble-Name ins JSON schreiben:
-         - "Jazz-Trio" → {"Bass": 1, "Piano": 1, "Gesang": 1} (3 Personen)
-         - "Jazz-Quartett" → {"Bass": 1, "Piano": 1, "Gesang": 1, "Saxophon": 1} (4 Personen)
-         - "Streichquartett" → {"Violine": 2, "Viola": 1, "Cello": 1} (4 Personen)
-         - "Duo" → 2 passende Instrumente je nach Genre
-         - "Trio" → 3 passende Instrumente je nach Genre
-         - NIEMALS: {"Jazz-Trio": 3} oder {"Quartett": 1} – das ist FALSCH
-      3. Wenn eine Bandgröße genannt wird (z.B. "6er Band"), muss die Summe aller Werte im JSON EXAKT dieser Größe entsprechen.
-      4. Nur wenn KEINE explizite Besetzung oder Ensemblegröße genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
-      5. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
-      Falls im Prompt Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
+      prompt: `Du bist ein professioneller Event-Planer-Chatbot für eine Musikband/Bandagentur. Du führst mit dem Nutzer ein Gespräch, um Schritt für Schritt alle wichtigen Informationen für ein Event zu sammeln, und erstellst danach einen vollständigen, professionellen Eventplan.
+
+Heute ist der ${new Date().toLocaleDateString("de-DE", { year: "numeric", month: "long", day: "numeric" })}.
+
+Bisheriger Gesprächsverlauf (Nutzer = Kunde/Manager, Planer = du):
+${buildConversationText(newMessages)}
+
+DEINE AUFGABE IN DIESER RUNDE:
+1. Lies den GESAMTEN Gesprächsverlauf und extrahiere alle bekannten Event-Informationen (Datum/Zeitraum, Event-Name/Anlass, Location, gewünschte Besetzung/Band, Gästezahl, Event-Typ, sonstige Wünsche).
+2. Entscheide, ob genug Informationen für einen sinnvollen, vollständigen Plan vorhanden sind. Wichtig sind vor allem: ein Datum (oder zumindest ein grober Zeitraum), ein erkennbarer Anlass/Titel, und entweder eine Location oder die Bereitschaft des Nutzers, dass du Vorschläge machst. Details wie exakte Uhrzeiten, Technik-Anforderungen oder Dresscode musst du NICHT abfragen – die leitest du selbst professionell ab.
+3. Wenn wichtige Angaben fehlen oder unklar sind UND dies nicht die letzte erlaubte Runde ist: setze "ready" auf false und formuliere in "follow_up_message" GENAU EINE kurze, freundliche Nachricht auf Deutsch, die alle offenen Punkte in maximal 2-3 knappen Fragen bündelt. Wiederhole nicht, was der Nutzer schon gesagt hat.
+4. Wenn genug Informationen vorhanden sind, ODER dies die letzte erlaubte Runde ist (siehe Hinweis unten): setze "ready" auf true und fülle ALLE Plan-Felder wie unten beschrieben vollständig aus. Fehlende Details ergänzt du dann mit plausiblen, professionellen Annahmen.
+${isLastAllowedRound ? '\nWICHTIG: Dies ist die letzte erlaubte Gesprächsrunde. Du MUSST jetzt "ready": true setzen und einen vollständigen Plan erstellen, auch wenn noch kleinere Details fehlen – triff dafür plausible Annahmen.' : ""}
+
+FALLS ready=true, GILT FÜR DEN PLAN:
+Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).
+Schlage genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen) – außer der Nutzer hat bereits eine konkrete Location genannt, dann übernimm diese als einzigen bzw. ersten Vorschlag und ergänze ggf. 2 Alternativen.
+
+ZEITPLANUNG:
+- get_in_zeit: Ankunft/Load-In von Band & Crew am Venue (HH:mm)
+- aufbau_zeit: Beginn des Bühnen-/Technik-Aufbaus, üblicherweise 15-30 Minuten nach get_in_zeit (HH:mm)
+- soundcheck_zeit: Soundcheck, üblicherweise 30-60 Minuten vor Event-Beginn (datum_von) (HH:mm)
+Diese drei Zeiten müssen logisch aufeinanderfolgend VOR datum_von liegen.
+
+BESETZUNG – ermittle die benötigte Band/Besetzung für dieses Event und gib sie als JSON-Objekt im Feld 'besetzung_anforderung' aus.
+WICHTIGE REGELN für die Besetzung:
+1. HÖCHSTE PRIORITÄT: Wenn im Gespräch explizit bestimmte Instrumente oder Rollen genannt werden (z.B. "DJ", "DJ & Vocals"), dann übernimm diese EXAKT – füge KEINE weiteren Instrumente hinzu.
+2. ENSEMBLE-BEGRIFFE müssen IMMER in einzelne Instrumente/Rollen aufgelöst werden – niemals als Ensemble-Name ins JSON schreiben:
+   - "Jazz-Trio" → {"Bass": 1, "Piano": 1, "Gesang": 1} (3 Personen)
+   - "Jazz-Quartett" → {"Bass": 1, "Piano": 1, "Gesang": 1, "Saxophon": 1} (4 Personen)
+   - "Streichquartett" → {"Violine": 2, "Viola": 1, "Cello": 1} (4 Personen)
+   - "Duo" → 2 passende Instrumente je nach Genre
+   - "Trio" → 3 passende Instrumente je nach Genre
+   - NIEMALS: {"Jazz-Trio": 3} oder {"Quartett": 1} – das ist FALSCH
+3. Wenn eine Bandgröße genannt wird (z.B. "6er Band"), muss die Summe aller Werte im JSON EXAKT dieser Größe entsprechen.
+4. Nur wenn KEINE explizite Besetzung oder Ensemblegröße genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
+5. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
+Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
       response_json_schema: {
         type: "object",
         properties: {
+          ready: { type: "boolean", description: "true, wenn genug Informationen für einen vollständigen Plan vorhanden sind" },
+          follow_up_message: { type: "string", description: "Kurze, gebündelte Rückfrage an den Nutzer (nur relevant wenn ready=false)" },
           titel: { type: "string", description: "Event-Titel" },
           event_typ: {
             type: "string",
@@ -174,10 +214,11 @@ export default function EventAIPlanner() {
           datum_von: { type: "string", description: "Start-Datum und Zeit im ISO 8601 Format" },
           datum_bis: { type: "string", description: "End-Datum und Zeit im ISO 8601 Format" },
           get_in_zeit: { type: "string", description: "Get-In Zeit im Format HH:mm" },
+          aufbau_zeit: { type: "string", description: "Aufbau-Beginn / Setup-Zeit im Format HH:mm" },
           soundcheck_zeit: { type: "string", description: "Soundcheck Zeit im Format HH:mm" },
           location_vorschlaege: {
             type: "array",
-            description: "Genau 3 verschiedene Location-Vorschläge",
+            description: "Bis zu 3 verschiedene Location-Vorschläge",
             items: {
               type: "object",
               properties: {
@@ -207,16 +248,20 @@ export default function EventAIPlanner() {
             description: "Vorgeschlagene Musikgenres für das Event"
           }
         },
-        required: ["titel", "datum_von", "datum_bis"]
+        required: ["ready"]
       }
     });
-    setSelectedLocationIndex(0);
-    setPlan(result);
 
-    // Musiker frisch laden (falls seit Seitenaufruf neue hinzugekommen)
-    const freshMusiker = await base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true });
-    setAllMusiker(freshMusiker);
-    setSuggestedMusiker(matchMusikerFromList(freshMusiker, result.besetzung_anforderung, result.genre_anforderung));
+    if (result.ready || isLastAllowedRound) {
+      const summaryMsg = result.zusammenfassung
+        ? `Alles klar! Ich habe deinen Eventplan erstellt: „${result.titel || "Event"}“. ${result.zusammenfassung}`
+        : `Alles klar! Ich habe deinen Eventplan erstellt: „${result.titel || "Event"}“.`;
+      setMessages(prev => [...prev, { role: "assistant", content: summaryMsg }]);
+      await finalizePlanFromResult(result);
+    } else {
+      setMessages(prev => [...prev, { role: "assistant", content: result.follow_up_message || "Magst du mir noch ein paar Details zu deinem Event nennen?" }]);
+    }
+
     setLoading(false);
   };
 
@@ -232,6 +277,7 @@ export default function EventAIPlanner() {
       datum_von: plan.datum_von,
       datum_bis: plan.datum_bis,
       get_in_zeit: plan.get_in_zeit,
+      aufbau_zeit: plan.aufbau_zeit,
       soundcheck_zeit: plan.soundcheck_zeit,
       ort_name: selectedLocation?.name || "",
       ort_adresse: selectedLocation?.adresse || "",
@@ -298,10 +344,29 @@ export default function EventAIPlanner() {
     });
   };
 
+  const handleReset = () => {
+    setMessages([]);
+    setInput("");
+    setPlan(null);
+    setSaved(false);
+    setSuggestedMusiker([]);
+    setSavedEventId(null);
+    setRequestedMusikerIds([]);
+    setEventMusikerMap({});
+    setRequestingMusiker({});
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const examplePrompts = [
-    "Plane ein Hochzeitskonzert am nächsten Samstag in München für ca. 120 Gäste, Abendveranstaltung mit Dinner und Tanzteil",
-    "Corporate Event für ein Tech-Unternehmen, Sommerfest mit Live-Musik, 200 Personen, Rooftop-Location in Berlin",
-    "Geburtstagsparty für 50 Personen, elegantes Ambiente, Jazz-Trio, private Villa Hamburg"
+    "Hochzeitsfeier am nächsten Samstag in München, ca. 120 Gäste",
+    "Sommerfest für ein Tech-Unternehmen, Live-Musik, Rooftop-Location in Berlin",
+    "Geburtstagsparty für 50 Personen, Jazz-Trio, private Villa Hamburg"
   ];
 
   return (
@@ -313,59 +378,84 @@ export default function EventAIPlanner() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">AI Event-Planer</h1>
-          <p className="text-sm text-muted-foreground">Beschreibe dein Event – die KI erstellt einen vollständigen Plan</p>
+          <p className="text-sm text-muted-foreground">Erzähl mir von deinem Event – ich frage nach, was noch fehlt, und plane danach alles im Detail.</p>
         </div>
       </div>
 
-      {/* Prompt Input */}
-      <Card className="border-0 shadow-md">
-        <CardContent className="p-6 space-y-4">
-          <Textarea
-            placeholder="Beschreibe dein Event... z.B. 'Plane eine Hochzeitsfeier im Juni in München für 150 Gäste mit Dinner und Tanzabend'"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="min-h-[120px] text-base resize-none border-border focus:border-purple-400"
-          />
-
-          {/* Example Prompts */}
-          {!plan && !loading && (
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <Lightbulb className="w-3 h-3" /> Beispiele:
-              </p>
-              <div className="flex flex-col gap-2">
-                {examplePrompts.map((ex, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPrompt(ex)}
-                    className="text-left text-xs text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg px-3 py-2 border border-purple-100 transition-colors"
-                  >
-                    {ex}
-                  </button>
-                ))}
+      {/* Chat */}
+      {!plan && (
+        <Card className="border-0 shadow-md">
+          <CardContent className="p-6 space-y-4">
+            {messages.length === 0 ? (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Lightbulb className="w-3 h-3" /> Beispiele zum Starten:
+                </p>
+                <div className="flex flex-col gap-2">
+                  {examplePrompts.map((ex, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setInput(ex)}
+                      className="text-left text-xs text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg px-3 py-2 border border-purple-100 transition-colors"
+                    >
+                      {ex}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-
-          <Button
-            onClick={handleGenerate}
-            disabled={loading || !prompt.trim()}
-            className="w-full bg-[#FF6A4D] hover:bg-[#E85A3D] h-11"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                KI plant dein Event...
-              </>
             ) : (
-              <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Eventplan generieren
-              </>
+              <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
+                {messages.map((m, i) => (
+                  <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {m.role === "assistant" && (
+                      <div className="w-7 h-7 rounded-full bg-[#FF6A4D] flex items-center justify-center shrink-0">
+                        <Bot className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    <div
+                      className={`rounded-2xl px-4 py-2.5 text-sm max-w-[80%] whitespace-pre-line ${
+                        m.role === "user"
+                          ? "bg-[#FF6A4D] text-white rounded-br-sm"
+                          : "bg-muted text-foreground rounded-bl-sm"
+                      }`}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                {loading && (
+                  <div className="flex items-end gap-2 justify-start">
+                    <div className="w-7 h-7 rounded-full bg-[#FF6A4D] flex items-center justify-center shrink-0">
+                      <Bot className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm bg-muted text-muted-foreground flex items-center gap-2">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> denkt nach...
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
             )}
-          </Button>
-        </CardContent>
-      </Card>
+
+            <div className="flex items-end gap-2 pt-2 border-t border-border">
+              <Textarea
+                placeholder="Beschreibe dein Event... z.B. 'Hochzeitsfeier im Juni in München für 150 Gäste mit Dinner und Tanzabend'"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="min-h-[52px] max-h-[160px] text-base resize-none border-border focus:border-purple-400"
+              />
+              <Button
+                onClick={handleSend}
+                disabled={loading || !input.trim()}
+                className="bg-[#FF6A4D] hover:bg-[#E85A3D] h-[52px] px-4 shrink-0"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Generated Plan */}
       {plan && (
@@ -423,6 +513,12 @@ export default function EventAIPlanner() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Get-In</span>
                     <span className="font-medium">{plan.get_in_zeit}</span>
+                  </div>
+                )}
+                {plan.aufbau_zeit && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground flex items-center gap-1"><Hammer className="w-3 h-3" /> Aufbau</span>
+                    <span className="font-medium">{plan.aufbau_zeit}</span>
                   </div>
                 )}
                 {plan.soundcheck_zeit && (
@@ -644,7 +740,7 @@ export default function EventAIPlanner() {
           {/* New Plan Button */}
           <Button
             variant="outline"
-            onClick={() => { setPlan(null); setPrompt(""); setSaved(false); setSuggestedMusiker([]); setSavedEventId(null); setRequestedMusikerIds([]); setEventMusikerMap({}); setRequestingMusiker({}); }}
+            onClick={handleReset}
             className="w-full"
           >
             Neuen Plan erstellen
