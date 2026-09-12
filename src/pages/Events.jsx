@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Calendar, Search, Filter, MapPin, Clock, User, LayoutGrid, List } from "lucide-react";
+import { Plus, Calendar, Search, Filter, MapPin, Clock, User, LayoutGrid, List, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -260,14 +260,24 @@ export default function EventsPage() {
             </p>
           </div>
           {isManager &&
-          <Button
-            onClick={() => setShowForm(true)}
-            className="text-white"
-            style={{ backgroundColor: '#FF6A4D' }}>
+          <div className="flex gap-2">
+            <Link to={createPageUrl("EventAIPlanner")}>
+              <Button
+                variant="outline"
+                className="border-[#FF6A4D] text-[#FF6A4D] hover:bg-[#FF6A4D]/10">
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Event-Planer
+              </Button>
+            </Link>
+            <Button
+              onClick={() => setShowForm(true)}
+              className="text-white"
+              style={{ backgroundColor: '#FF6A4D' }}>
 
-              <Plus className="w-4 h-4 mr-2" />
-              Event erstellen
-            </Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Event erstellen
+              </Button>
+          </div>
           }
         </div>
 
