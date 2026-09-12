@@ -181,11 +181,19 @@ FALLS ready=true, GILT FÜR DEN PLAN:
 Alle Datumsfelder müssen im ISO 8601 Format sein (z.B. 2025-06-15T18:00:00).
 Schlage genau 3 verschiedene passende Location-Vorschläge vor (unterschiedliche Stile/Preisklassen) – außer der Nutzer hat bereits eine konkrete Location genannt, dann übernimm diese als einzigen bzw. ersten Vorschlag und ergänze ggf. 2 Alternativen.
 
-ZEITPLANUNG:
-- get_in_zeit: Ankunft/Load-In von Band & Crew am Venue (HH:mm)
-- aufbau_zeit: Beginn des Bühnen-/Technik-Aufbaus, üblicherweise 15-30 Minuten nach get_in_zeit (HH:mm)
-- soundcheck_zeit: Soundcheck, üblicherweise 30-60 Minuten vor Event-Beginn (datum_von) (HH:mm)
-Diese drei Zeiten müssen logisch aufeinanderfolgend VOR datum_von liegen.
+SET-STRUKTUR & PAUSEN (basierend auf echten Ablaufplänen realer Gigs):
+- Eine Band spielt in Sets von je ca. 45-50 Minuten Länge (reine Jazz-/Hintergrund-Sets auch bis zu 60 Minuten).
+- Zwischen den Sets liegt IMMER eine Pause von ca. 15-20 Minuten (Faustregel: 15 Minuten bei 2-3 Sets, bis zu 20 Minuten bei 4 Sets).
+- Die Anzahl der Sets richtet sich nach der gewünschten Gesamt-Spieldauer: Gesamtdauer = Summe aller Set-Längen + Summe aller Pausen. Beispiel: 3 Stunden Spielzeit → meist 3x50 Minuten mit 2x15 Minuten Pause.
+- datum_von = Beginn des ERSTEN Sets, datum_bis = Ende des LETZTEN Sets. Setze IMMER beide Werte konkret und explizit – die Band-Endzeit darf niemals offen/unklar bleiben. Wenn der Nutzer keine Spieldauer nennt, triff eine plausible Standard-Annahme (z.B. 3x50 Minuten mit 15 Minuten Pausen).
+- Trage die konkrete Set-Aufteilung mit Uhrzeiten in "ablaufplan" ein (z.B. "22:30–23:20 Uhr Set 1, 23:20–23:35 Uhr Pause, 23:35–00:25 Uhr Set 2, 00:25–00:40 Uhr Pause, 00:40–01:30 Uhr Set 3").
+
+ZEITPLANUNG (Get-In, Aufbau, Soundcheck, Abbau):
+- get_in_zeit: Ankunft/Load-In von Band & Crew am Venue, üblicherweise 60-90 Minuten vor datum_von (Standard bei Hochzeiten/Partyband-Gigs: 90 Minuten) (HH:mm)
+- aufbau_zeit: Beginn des Bühnen-/Technik-Aufbaus, direkt im Anschluss an get_in_zeit – Get-In und Aufbau bilden in der Praxis EIN gemeinsames Zeitfenster (HH:mm)
+- soundcheck_zeit: Soundcheck findet gegen Ende des Aufbaufensters statt und endet spätestens mit datum_von, üblicherweise in den letzten 15-30 Minuten davor (HH:mm)
+- Erwähne in "technik_hinweise" oder "ablaufplan", dass der Abbau direkt im Anschluss an den letzten Set erfolgt (kein zusätzlicher Zeitpuffer nötig).
+Diese Zeiten müssen logisch aufeinanderfolgend VOR datum_von liegen.
 
 BESETZUNG – ermittle die benötigte Band/Besetzung für dieses Event und gib sie als JSON-Objekt im Feld 'besetzung_anforderung' aus.
 WICHTIGE REGELN für die Besetzung:
@@ -198,7 +206,7 @@ WICHTIGE REGELN für die Besetzung:
    - "Trio" → 3 passende Instrumente je nach Genre
    - NIEMALS: {"Jazz-Trio": 3} oder {"Quartett": 1} – das ist FALSCH
 3. Wenn eine Bandgröße genannt wird (z.B. "6er Band"), muss die Summe aller Werte im JSON EXAKT dieser Größe entsprechen.
-4. Nur wenn KEINE explizite Besetzung oder Ensemblegröße genannt wird, schlage eine sinnvolle Standard-Besetzung vor (4-7 Personen: Schlagzeug, Bass, Keyboard, Gitarre, Gesang etc.).
+4. Nur wenn KEINE explizite Besetzung oder Ensemblegröße genannt wird, schlage eine sinnvolle Standard-Besetzung vor. Für Hochzeiten und klassische Partyband-Gigs hat sich eine 5er-Besetzung bewährt: {"Gesang": 1, "Gitarre": 1, "Keyboard": 1, "Schlagzeug": 1, "Bass": 1}. Für andere Event-Typen ohne genannte Besetzung: 4-7 Personen passend zum Anlass.
 5. Beispiel: "DJ & Live-Vocals" → {"DJ": 1, "Gesang": 1} – nur diese zwei.
 Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anforderung' als Array aus.`,
       response_json_schema: {
@@ -232,7 +240,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
           },
           anzahl_gaeste: { type: "number", description: "Erwartete Anzahl der Gäste" },
           dresscode: { type: "string", description: "Dresscode für Musiker" },
-          ablaufplan: { type: "string", description: "Detaillierter Ablaufplan des Events" },
+          ablaufplan: { type: "string", description: "Detaillierter Ablaufplan des Events inkl. konkreter Set-Zeiten mit Pausen (z.B. '22:30–23:20 Set 1, 23:20–23:35 Pause, ...')" },
           technik_hinweise: { type: "string", description: "Technische Hinweise" },
           musiker_notizen: { type: "string", description: "Wichtige Hinweise für Musiker" },
           interne_notizen: { type: "string", description: "Interne Planungsnotizen" },
