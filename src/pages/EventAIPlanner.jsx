@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Slider } from "@/components/ui/slider";
 import {
   Sparkles,
   Save,
@@ -34,7 +35,9 @@ export default function EventAIPlanner() {
   const [savedEventId, setSavedEventId] = useState(null);
   const [selectedLocationIndex, setSelectedLocationIndex] = useState(0);
   const [allMusiker, setAllMusiker] = useState([]);
-  const [suggestedMusiker, setSuggestedMusiker] = useState([]);
+  const [roleSlots, setRoleSlots] = useState([]); // [{ rolle, slotIndex, candidates: [musiker...] }]
+  const [selectedBySlot, setSelectedBySlot] = useState({}); // "rolle__slotIndex" -> musikerId
+  const [maxAlternatives, setMaxAlternatives] = useState(2); // 1-3, steuert Anzahl Vorschläge pro Rolle
   const [requestingMusiker, setRequestingMusiker] = useState({});
   const [requestedMusikerIds, setRequestedMusikerIds] = useState([]);
   const [eventMusikerMap, setEventMusikerMap] = useState({});
@@ -77,71 +80,80 @@ export default function EventAIPlanner() {
     return [rolleLower];
   };
 
-  const matchMusikerFromList = (musiker, besetzungAnforderung, genreAnforderung) => {
+  const getCandidatesForRole = (musiker, rolle, genreAnforderung) => {
+    const aliases = getAliases(rolle);
+
+    let kandidaten = musiker
+      .map(m => {
+        const instrumente = (m.instrumente || []);
+        const primaer = instrumente[0]?.toLowerCase() || "";
+        const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
+
+        const primaerMatch = aliases.some(a => primaer.includes(a) || a.includes(primaer));
+        const sekundaerMatch = sekundaer.some(inst => aliases.some(a => inst.includes(a) || a.includes(inst)));
+
+        let score = 0;
+        if (primaerMatch) score = 2;
+        else if (sekundaerMatch) score = 1;
+        // Priorität als Tie-Breaker: A=5, B=4, C=3, D=2, E=1, keine=0 (als Dezimalanteil)
+        const prioritaetBonus = { A: 0.5, B: 0.4, C: 0.3, D: 0.2, E: 0.1 };
+        if (score > 0) score += (prioritaetBonus[m.prioritaet] || 0);
+        return { ...m, _matchScore: score };
+      })
+      .filter(m => m._matchScore > 0)
+      .sort((a, b) => b._matchScore - a._matchScore);
+
+    // Genre-Filter optional
+    if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
+      const genreFiltered = kandidaten.filter(m => {
+        const mGenres = (m.genre || []).map(g => g.toLowerCase());
+        return genreAnforderung.some(g =>
+          mGenres.some(mg => mg.includes(g.toLowerCase()) || g.toLowerCase().includes(mg))
+        );
+      });
+      if (genreFiltered.length > 0) kandidaten = genreFiltered;
+    }
+
+    return kandidaten;
+  };
+
+  // Baut pro benötigtem Instrument-"Slot" (z.B. 1x Gitarre = 1 Slot) eine Liste von bis zu maxAlt Kandidaten.
+  // Der jeweils beste Kandidat eines Slots wird für nachfolgende Slots gesperrt, damit die Standard-Zuweisung
+  // niemand doppelt bucht; als Alternative kann derselbe Musiker trotzdem in einem anderen Slot auftauchen.
+  const computeRoleSlots = (musiker, besetzungAnforderung, genreAnforderung, maxAlt) => {
     if (!besetzungAnforderung || Object.keys(besetzungAnforderung).length === 0) return [];
 
-    // Schritt 1: Für jede Rolle die besten Kandidaten ermitteln (ohne usedIds-Sperre)
-    const rollenMitKandidaten = Object.entries(besetzungAnforderung).map(([rolle, anzahl]) => {
-      const aliases = getAliases(rolle);
+    const usedAsDefault = new Set();
+    const slots = [];
 
-      let kandidaten = musiker
-        .map(m => {
-          const instrumente = (m.instrumente || []);
-          const primaer = instrumente[0]?.toLowerCase() || "";
-          const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
-
-          const primaerMatch = aliases.some(a => primaer.includes(a) || a.includes(primaer));
-          const sekundaerMatch = sekundaer.some(inst => aliases.some(a => inst.includes(a) || a.includes(inst)));
-
-          let score = 0;
-          if (primaerMatch) score = 2;
-          else if (sekundaerMatch) score = 1;
-          // Priorität als Tie-Breaker: A=5, B=4, C=3, D=2, E=1, keine=0 (als Dezimalanteil)
-          const prioritaetBonus = { A: 0.5, B: 0.4, C: 0.3, D: 0.2, E: 0.1 };
-          if (score > 0) score += (prioritaetBonus[m.prioritaet] || 0);
-          return { ...m, _matchScore: score };
-        })
-        .filter(m => m._matchScore > 0)
-        .sort((a, b) => b._matchScore - a._matchScore);
-
-      // Genre-Filter optional
-      if (genreAnforderung?.length > 0 && kandidaten.length > 1) {
-        const genreFiltered = kandidaten.filter(m => {
-          const mGenres = (m.genre || []).map(g => g.toLowerCase());
-          return genreAnforderung.some(g =>
-            mGenres.some(mg => mg.includes(g.toLowerCase()) || g.toLowerCase().includes(mg))
-          );
-        });
-        if (genreFiltered.length > 0) kandidaten = genreFiltered;
+    Object.entries(besetzungAnforderung).forEach(([rolle, anzahl]) => {
+      const kandidaten = getCandidatesForRole(musiker, rolle, genreAnforderung);
+      for (let i = 0; i < anzahl; i++) {
+        const verfuegbar = kandidaten.filter(m => !usedAsDefault.has(m.id) || kandidaten.length <= 1);
+        const pool = verfuegbar.length > 0 ? verfuegbar : kandidaten;
+        const candidates = pool.slice(0, maxAlt);
+        if (candidates.length > 0) usedAsDefault.add(candidates[0].id);
+        slots.push({ rolle, slotIndex: i, candidates });
       }
-
-      return { rolle, anzahl, kandidaten };
     });
 
-    // Schritt 2: Greedy-Zuweisung – jede Rolle bekommt ihren besten noch nicht genutzten Musiker
-    const usedIds = new Set();
-    const matched = [];
-
-    rollenMitKandidaten.forEach(({ rolle, anzahl, kandidaten }) => {
-      let zugewiesen = 0;
-      for (const m of kandidaten) {
-        if (zugewiesen >= anzahl) break;
-        if (!usedIds.has(m.id)) {
-          usedIds.add(m.id);
-          matched.push({ ...m, _rolle: rolle });
-          zugewiesen++;
-        }
-      }
-      // Kein Fallback – nur echte Instrument-Treffer verwenden
-    });
-
-    return matched;
+    return slots;
   };
 
   const buildConversationText = (msgs) =>
     msgs.map(m => `${m.role === "user" ? "Nutzer" : "Planer"}: ${m.content}`).join("\n");
 
   const DEFAULT_BESETZUNG = { Gesang: 1, Gitarre: 1, Keyboard: 1, Schlagzeug: 1, Bass: 1 };
+
+  const slotKey = (rolle, slotIndex) => `${rolle}__${slotIndex}`;
+
+  const defaultSelectionForSlots = (slots) => {
+    const selection = {};
+    slots.forEach(slot => {
+      if (slot.candidates.length > 0) selection[slotKey(slot.rolle, slot.slotIndex)] = slot.candidates[0].id;
+    });
+    return selection;
+  };
 
   const finalizePlanFromResult = async (result) => {
     setSelectedLocationIndex(0);
@@ -155,8 +167,43 @@ export default function EventAIPlanner() {
 
     const freshMusiker = await base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true });
     setAllMusiker(freshMusiker);
-    setSuggestedMusiker(matchMusikerFromList(freshMusiker, besetzung, result.genre_anforderung));
+
+    const slots = computeRoleSlots(freshMusiker, besetzung, result.genre_anforderung, maxAlternatives);
+    setRoleSlots(slots);
+    setSelectedBySlot(defaultSelectionForSlots(slots));
   };
+
+  // Slider-Änderung: Kandidatenlisten neu berechnen, bestehende Auswahl möglichst beibehalten
+  useEffect(() => {
+    if (!plan || saved || allMusiker.length === 0) return;
+    const slots = computeRoleSlots(allMusiker, plan.besetzung_anforderung, plan.genre_anforderung, maxAlternatives);
+    setRoleSlots(slots);
+    setSelectedBySlot(prev => {
+      const next = {};
+      slots.forEach(slot => {
+        const key = slotKey(slot.rolle, slot.slotIndex);
+        const stillValid = slot.candidates.some(c => c.id === prev[key]);
+        next[key] = stillValid ? prev[key] : slot.candidates[0]?.id;
+      });
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [maxAlternatives]);
+
+  const handleSelectCandidate = (rolle, slotIndex, musikerId) => {
+    if (saved) return;
+    setSelectedBySlot(prev => ({ ...prev, [slotKey(rolle, slotIndex)]: musikerId }));
+  };
+
+  const suggestedMusiker = useMemo(() => {
+    return roleSlots
+      .map(slot => {
+        const selectedId = selectedBySlot[slotKey(slot.rolle, slot.slotIndex)];
+        const candidate = slot.candidates.find(c => c.id === selectedId) || slot.candidates[0];
+        return candidate ? { ...candidate, _rolle: slot.rolle } : null;
+      })
+      .filter(Boolean);
+  }, [roleSlots, selectedBySlot]);
 
   const handleSend = async () => {
     const text = input.trim();
@@ -365,7 +412,9 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
     setInput("");
     setPlan(null);
     setSaved(false);
-    setSuggestedMusiker([]);
+    setRoleSlots([]);
+    setSelectedBySlot({});
+    setMaxAlternatives(2);
     setSavedEventId(null);
     setRequestedMusikerIds([]);
     setEventMusikerMap({});
@@ -680,8 +729,24 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                   ))}
                 </div>
 
-                {/* Passende Musiker aus dem Pool */}
-                {suggestedMusiker.length > 0 ? (
+                {/* Slider: Anzahl Vorschläge pro Rolle */}
+                {!saved && roleSlots.length > 0 && (
+                  <div className="flex items-center gap-4 p-3 rounded-xl bg-muted">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">Vorschläge pro Rolle</span>
+                    <Slider
+                      value={[maxAlternatives]}
+                      onValueChange={([v]) => setMaxAlternatives(v)}
+                      min={1}
+                      max={3}
+                      step={1}
+                      className="flex-1 max-w-[160px]"
+                    />
+                    <Badge className="bg-purple-100 text-purple-700 border-0 shrink-0">{maxAlternatives}</Badge>
+                  </div>
+                )}
+
+                {/* Passende Musiker aus dem Pool, gruppiert pro Rolle */}
+                {roleSlots.length > 0 ? (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -693,52 +758,83 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                         </p>
                       )}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {suggestedMusiker.map((m) => {
-                        const isRequested = requestedMusikerIds.includes(m.id);
-                        const isLoading = requestingMusiker[m.id];
-                        return (
-                          <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isRequested ? "border-green-300 bg-green-50" : "border-border bg-muted"}`}>
-                            <Avatar className="w-10 h-10 shrink-0">
-                              <AvatarImage src={m.profilbild_url} alt={m.name} />
-                              <AvatarFallback className="bg-[#FF6A4D] text-white text-xs font-bold">
-                                {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="font-semibold text-sm text-foreground truncate">{m.name}</p>
-                                {m.prioritaet && (
-                                  <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
-                                    {m.prioritaet}
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-purple-600 font-medium truncate">{m._rolle}</p>
-                              {m.instrumente?.length > 0 && (
-                                <p className="text-xs text-muted-foreground truncate">{m.instrumente.join(", ")}</p>
-                              )}
-                              {isRequested ? (
-                                <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
-                                  <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
-                                </p>
-                              ) : m.email ? (
-                                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                                  <Mail className="w-3 h-3" /> {m.email}
-                                </p>
-                              ) : null}
+                    <div className="space-y-4">
+                      {roleSlots.map((slot) => {
+                        const key = slotKey(slot.rolle, slot.slotIndex);
+                        const selectedId = selectedBySlot[key];
+                        // Nach dem Speichern nur noch die getroffene Auswahl zeigen, nicht mehr alle Alternativen
+                        const candidatesToShow = saved ? slot.candidates.filter(c => c.id === selectedId) : slot.candidates;
+                        if (candidatesToShow.length === 0) {
+                          return (
+                            <div key={key}>
+                              <p className="text-xs font-medium text-foreground mb-1">{slot.rolle}{slot.slotIndex > 0 ? ` #${slot.slotIndex + 1}` : ""}</p>
+                              <p className="text-sm text-muted-foreground italic">Keine passenden Musiker im Pool gefunden.</p>
                             </div>
-                            {saved && !isRequested && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRequestSingleMusiker(m)}
-                                disabled={isLoading}
-                                className="shrink-0 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs px-2 py-1 h-auto"
-                              >
-                                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-                              </Button>
-                            )}
+                          );
+                        }
+                        return (
+                          <div key={key}>
+                            <p className="text-xs font-medium text-foreground mb-1.5">{slot.rolle}{slot.slotIndex > 0 ? ` #${slot.slotIndex + 1}` : ""}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {candidatesToShow.map((m) => {
+                                const isSelected = m.id === selectedId;
+                                const isRequested = requestedMusikerIds.includes(m.id);
+                                const isLoading = requestingMusiker[m.id];
+                                return (
+                                  <div
+                                    key={m.id}
+                                    onClick={() => handleSelectCandidate(slot.rolle, slot.slotIndex, m.id)}
+                                    className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${!saved ? "cursor-pointer" : ""} ${
+                                      isRequested ? "border-green-300 bg-green-50" :
+                                      isSelected ? "border-purple-400 bg-purple-50" : "border-border bg-muted opacity-70 hover:opacity-100"
+                                    }`}
+                                  >
+                                    <Avatar className="w-10 h-10 shrink-0">
+                                      <AvatarImage src={m.profilbild_url} alt={m.name} />
+                                      <AvatarFallback className="bg-[#FF6A4D] text-white text-xs font-bold">
+                                        {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <p className="font-semibold text-sm text-foreground truncate">{m.name}</p>
+                                        {m.prioritaet && (
+                                          <Badge className={`text-xs font-bold border-0 shrink-0 ${prioritaetColors[m.prioritaet]}`}>
+                                            {m.prioritaet}
+                                          </Badge>
+                                        )}
+                                        {isSelected && !saved && (
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                                        )}
+                                      </div>
+                                      {m.instrumente?.length > 0 && (
+                                        <p className="text-xs text-muted-foreground truncate">{m.instrumente.join(", ")}</p>
+                                      )}
+                                      {isRequested ? (
+                                        <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
+                                          <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
+                                        </p>
+                                      ) : m.email ? (
+                                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                          <Mail className="w-3 h-3" /> {m.email}
+                                        </p>
+                                      ) : null}
+                                    </div>
+                                    {saved && isSelected && !isRequested && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={(e) => { e.stopPropagation(); handleRequestSingleMusiker(m); }}
+                                        disabled={isLoading}
+                                        className="shrink-0 border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs px-2 py-1 h-auto"
+                                      >
+                                        {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                                      </Button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         );
                       })}
