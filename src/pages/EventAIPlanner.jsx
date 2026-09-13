@@ -197,11 +197,11 @@ SET-STRUKTUR & PAUSEN (basierend auf echten Ablaufplänen realer Gigs):
 - Trage die konkrete Set-Aufteilung mit Uhrzeiten in "ablaufplan" ein (z.B. "22:30–23:20 Uhr Set 1, 23:20–23:35 Uhr Pause, 23:35–00:25 Uhr Set 2, 00:25–00:40 Uhr Pause, 00:40–01:30 Uhr Set 3").
 
 ZEITPLANUNG (Get-In, Aufbau, Soundcheck, Abbau):
-- get_in_zeit: Ankunft/Load-In von Band & Crew am Venue, üblicherweise 60-90 Minuten vor datum_von (Standard bei Hochzeiten/Partyband-Gigs: 90 Minuten) (HH:mm)
-- aufbau_zeit: Beginn des Bühnen-/Technik-Aufbaus, direkt im Anschluss an get_in_zeit – Get-In und Aufbau bilden in der Praxis EIN gemeinsames Zeitfenster (HH:mm)
-- soundcheck_zeit: Soundcheck findet gegen Ende des Aufbaufensters statt und endet spätestens mit datum_von, üblicherweise in den letzten 15-30 Minuten davor (HH:mm)
+- get_in_zeit: Ankunft/Load-In von Band & Crew am Venue, üblicherweise 90-120 Minuten vor datum_von (Standard bei Hochzeiten/Partyband-Gigs: 120 Minuten / 2 Stunden) (HH:mm)
+- aufbau_zeit: Beginn des Bühnen-/Technik-Aufbaus, direkt im Anschluss an get_in_zeit (HH:mm)
+- soundcheck_zeit: MUSS mindestens 60 Minuten vor datum_von abgeschlossen sein – plane hier lieber grosszügig (60-90 Minuten vor Beginn), NIEMALS knapper als 60 Minuten. Ein zu später Soundcheck ist der häufigste Planungsfehler – lieber zu früh als zu spät ansetzen (HH:mm)
 - Erwähne in "technik_hinweise" oder "ablaufplan", dass der Abbau direkt im Anschluss an den letzten Set erfolgt (kein zusätzlicher Zeitpuffer nötig).
-Diese Zeiten müssen logisch aufeinanderfolgend VOR datum_von liegen.
+Diese Zeiten müssen logisch aufeinanderfolgend VOR datum_von liegen: get_in_zeit ist am frühesten, dann aufbau_zeit, dann soundcheck_zeit (mit mind. 60 Minuten Abstand zu datum_von).
 
 BESETZUNG – ermittle die benötigte Band/Besetzung für dieses Event und gib sie als JSON-Objekt im Feld 'besetzung_anforderung' aus.
 WICHTIGE REGELN für die Besetzung:
