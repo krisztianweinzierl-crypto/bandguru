@@ -61,21 +61,35 @@ export default function EventAIPlanner() {
 
   // Synonyme für Instrument-Matching
   const instrumentSynonyme = {
-    "keyboard": ["keyboard", "keys", "piano", "klavier", "synthesizer", "synth", "organ", "orgel"],
-    "gesang": ["gesang", "vocals", "vocal", "singen", "stimme", "singer", "voice"],
-    "schlagzeug": ["schlagzeug", "drums", "drum", "percussion", "beats"],
-    "bass": ["bass", "bassgitarre", "e-bass", "kontrabass"],
-    "gitarre": ["gitarre", "guitar", "e-gitarre", "akustikgitarre", "acoustic guitar"],
-    "trompete": ["trompete", "trumpet", "horn", "blechbläser"],
-    "saxophon": ["saxophon", "saxophone", "sax"],
-    "geige": ["geige", "violine", "violin", "fiddle"],
+    "keyboard": ["keyboard", "keys", "piano", "klavier", "synthesizer", "synth", "organ", "orgel", "keyboarder", "pianist", "pianistin"],
+    "gesang": ["gesang", "vocals", "vocal", "singen", "stimme", "singer", "voice", "sänger", "sängerin", "saenger", "saengerin", "vocalist"],
+    "schlagzeug": ["schlagzeug", "drums", "drum", "percussion", "beats", "schlagzeuger", "schlagzeugerin", "drummer"],
+    "bass": ["bass", "bassgitarre", "e-bass", "kontrabass", "bassist", "bassistin"],
+    "gitarre": ["gitarre", "guitar", "e-gitarre", "akustikgitarre", "acoustic guitar", "gitarrist", "gitarristin"],
+    "trompete": ["trompete", "trumpet", "horn", "blechbläser", "trompeter"],
+    "saxophon": ["saxophon", "saxophone", "sax", "saxophonist"],
+    "geige": ["geige", "violine", "violin", "fiddle", "geiger", "geigerin", "violinist"],
     "dj": ["dj", "disc jockey", "turntable"],
   };
 
+  // Wortgrenzen-bewusster "enthält"-Check: verhindert, dass z.B. "Gitarre" fälschlich als Treffer
+  // für "Bassgitarre" zählt, nur weil der Text zufällig als Substring enthalten ist.
+  const containsAsWord = (haystack, needle) => {
+    if (!haystack || !needle) return false;
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const boundary = "[^a-zäöüß]";
+    return new RegExp(`(^|${boundary})${escaped}(${boundary}|$)`, "i").test(haystack);
+  };
+
   const getAliases = (rolle) => {
-    const rolleLower = rolle.toLowerCase();
-    for (const [key, aliases] of Object.entries(instrumentSynonyme)) {
-      if (aliases.some(a => a === rolleLower || rolleLower.includes(a) || a.includes(rolleLower))) return aliases;
+    const rolleLower = rolle.toLowerCase().trim();
+    // Pass 1: exakter Treffer hat immer Vorrang (verhindert Gruppen-Verwechslung durch Substrings)
+    for (const aliases of Object.values(instrumentSynonyme)) {
+      if (aliases.includes(rolleLower)) return aliases;
+    }
+    // Pass 2: Rolle enthält einen Alias als eigenständiges Wort (z.B. "E-Gitarre" -> "gitarre")
+    for (const aliases of Object.values(instrumentSynonyme)) {
+      if (aliases.some(a => containsAsWord(rolleLower, a))) return aliases;
     }
     return [rolleLower];
   };
@@ -89,8 +103,8 @@ export default function EventAIPlanner() {
         const primaer = instrumente[0]?.toLowerCase() || "";
         const sekundaer = instrumente.slice(1).map(i => i.toLowerCase());
 
-        const primaerMatch = aliases.some(a => primaer.includes(a) || a.includes(primaer));
-        const sekundaerMatch = sekundaer.some(inst => aliases.some(a => inst.includes(a) || a.includes(inst)));
+        const primaerMatch = aliases.some(a => primaer === a || containsAsWord(primaer, a) || containsAsWord(a, primaer));
+        const sekundaerMatch = sekundaer.some(inst => aliases.some(a => inst === a || containsAsWord(inst, a) || containsAsWord(a, inst)));
 
         let score = 0;
         if (primaerMatch) score = 2;
