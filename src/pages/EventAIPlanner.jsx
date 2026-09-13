@@ -141,13 +141,21 @@ export default function EventAIPlanner() {
   const buildConversationText = (msgs) =>
     msgs.map(m => `${m.role === "user" ? "Nutzer" : "Planer"}: ${m.content}`).join("\n");
 
+  const DEFAULT_BESETZUNG = { Gesang: 1, Gitarre: 1, Keyboard: 1, Schlagzeug: 1, Bass: 1 };
+
   const finalizePlanFromResult = async (result) => {
     setSelectedLocationIndex(0);
-    setPlan(result);
+
+    // Fallback: falls die KI die Besetzung vergessen hat, Standard-Besetzung setzen statt leer zu lassen
+    const besetzung = (result.besetzung_anforderung && Object.keys(result.besetzung_anforderung).length > 0)
+      ? result.besetzung_anforderung
+      : DEFAULT_BESETZUNG;
+    const finalPlan = { ...result, besetzung_anforderung: besetzung };
+    setPlan(finalPlan);
 
     const freshMusiker = await base44.entities.Musiker.filter({ org_id: currentOrgId, aktiv: true });
     setAllMusiker(freshMusiker);
-    setSuggestedMusiker(matchMusikerFromList(freshMusiker, result.besetzung_anforderung, result.genre_anforderung));
+    setSuggestedMusiker(matchMusikerFromList(freshMusiker, besetzung, result.genre_anforderung));
   };
 
   const handleSend = async () => {
@@ -256,7 +264,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
             description: "Vorgeschlagene Musikgenres für das Event"
           }
         },
-        required: ["ready"]
+        required: ["ready", "besetzung_anforderung"]
       }
     });
 
