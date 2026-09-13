@@ -187,7 +187,6 @@ export default function EventAIPlanner() {
       });
       return next;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxAlternatives]);
 
   const handleSelectCandidate = (rolle, slotIndex, musikerId) => {
