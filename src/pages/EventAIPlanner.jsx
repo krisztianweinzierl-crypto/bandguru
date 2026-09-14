@@ -798,7 +798,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                     key={m.id}
                                     onClick={() => handleSelectCandidate(slot.rolle, slot.slotIndex, m.id)}
                                     className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${!saved ? "cursor-pointer" : ""} ${
-                                      isRequested ? "border-green-300 bg-green-50" :
+                                      isRequested ? "border-[#2E7D69]/40 bg-[#2E7D69]/5" :
                                       isSelected ? "border-[#D96648]/60 bg-[#D96648]/5" : "border-border bg-muted opacity-70 hover:opacity-100"
                                     }`}
                                   >
