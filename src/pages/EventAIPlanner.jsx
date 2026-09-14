@@ -474,7 +474,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                     <button
                       key={i}
                       onClick={() => setInput(ex)}
-                      className="text-left text-xs text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg px-3 py-2 border border-purple-100 transition-colors"
+                      className="text-left text-xs text-[#D96648] hover:text-[#B8543A] hover:bg-[#D96648]/5 rounded-lg px-3 py-2 border border-[#D96648]/10 transition-colors"
                     >
                       {ex}
                     </button>
@@ -521,7 +521,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="min-h-[52px] max-h-[160px] text-base resize-none border-border focus:border-purple-400"
+                className="min-h-[52px] max-h-[160px] text-base resize-none border-border focus:border-[#D96648]"
               />
               <Button
                 onClick={handleSend}
@@ -544,7 +544,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-purple-100 text-purple-700 border-0">{plan.event_typ || "Event"}</Badge>
+                    <Badge className="bg-[#D96648]/10 text-[#D96648] border-0">{plan.event_typ || "Event"}</Badge>
                     {saved && <Badge className="bg-[#2E7D69]/10 text-[#2E7D69] border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
                   </div>
                   <h2 className="font-display font-medium text-xl text-foreground mb-2">{plan.titel}</h2>
@@ -575,7 +575,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-purple-500" /> Datum & Zeit
+                  <Calendar className="w-4 h-4 text-[#D96648]" /> Datum & Zeit
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
@@ -613,7 +613,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-purple-500" /> Location-Vorschläge
+                    <MapPin className="w-4 h-4 text-[#D96648]" /> Location-Vorschläge
                     <span className="text-xs text-muted-foreground font-normal ml-1">– wähle eine aus</span>
                   </CardTitle>
                 </CardHeader>
@@ -625,14 +625,14 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                         onClick={() => setSelectedLocationIndex(i)}
                         className={`text-left rounded-xl border-2 p-4 transition-all space-y-2 ${
                           selectedLocationIndex === i
-                            ? "border-purple-500 bg-purple-50"
-                            : "border-border hover:border-purple-300 bg-card"
+                            ? "border-[#D96648] bg-[#D96648]/5"
+                            : "border-border hover:border-[#D96648]/40 bg-card"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <span className="font-semibold text-sm text-foreground">{loc.name}</span>
                           <Badge className={`text-xs shrink-0 border-0 ${
-                            selectedLocationIndex === i ? "bg-purple-500 text-white" : "bg-muted text-muted-foreground"
+                            selectedLocationIndex === i ? "bg-[#D96648]/50 text-white" : "bg-muted text-muted-foreground"
                           }`}>
                             {loc.preisklasse}
                           </Badge>
@@ -668,7 +668,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-purple-500" /> Ablaufplan
+                    <Clock className="w-4 h-4 text-[#D96648]" /> Ablaufplan
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -682,7 +682,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Users className="w-4 h-4 text-purple-500" /> Technik
+                    <Users className="w-4 h-4 text-[#D96648]" /> Technik
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -696,7 +696,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-purple-500" /> Notizen
+                    <FileText className="w-4 h-4 text-[#D96648]" /> Notizen
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
@@ -722,7 +722,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Guitar className="w-4 h-4 text-purple-500" /> Empfohlene Besetzung
+                  <Guitar className="w-4 h-4 text-[#D96648]" /> Empfohlene Besetzung
                   {plan.genre_anforderung?.length > 0 && (
                     <div className="flex gap-1 ml-auto">
                       {plan.genre_anforderung.map((g, i) => (
@@ -736,7 +736,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 {/* Benötigte Rollen */}
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(plan.besetzung_anforderung).map(([rolle, anzahl]) => (
-                    <Badge key={rolle} className="bg-purple-100 text-purple-700 border-0 text-sm px-3 py-1">
+                    <Badge key={rolle} className="bg-[#D96648]/10 text-[#D96648] border-0 text-sm px-3 py-1">
                       {anzahl}x {rolle}
                     </Badge>
                   ))}
@@ -754,7 +754,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                       step={1}
                       className="flex-1 max-w-[160px]"
                     />
-                    <Badge className="bg-purple-100 text-purple-700 border-0 shrink-0">{maxAlternatives}</Badge>
+                    <Badge className="bg-[#D96648]/10 text-[#D96648] border-0 shrink-0">{maxAlternatives}</Badge>
                   </div>
                 )}
 
@@ -799,7 +799,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                     onClick={() => handleSelectCandidate(slot.rolle, slot.slotIndex, m.id)}
                                     className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${!saved ? "cursor-pointer" : ""} ${
                                       isRequested ? "border-green-300 bg-green-50" :
-                                      isSelected ? "border-purple-400 bg-purple-50" : "border-border bg-muted opacity-70 hover:opacity-100"
+                                      isSelected ? "border-[#D96648]/60 bg-[#D96648]/5" : "border-border bg-muted opacity-70 hover:opacity-100"
                                     }`}
                                   >
                                     <Avatar className="w-10 h-10 shrink-0">
@@ -817,7 +817,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                           </Badge>
                                         )}
                                         {isSelected && !saved && (
-                                          <CheckCircle2 className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-[#D96648] shrink-0" />
                                         )}
                                       </div>
                                       {m.instrumente?.length > 0 && (
