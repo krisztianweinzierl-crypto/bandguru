@@ -85,7 +85,7 @@ export default function Layout({ children, currentPageName }) {
     steuernummer: "",
     waehrung: "EUR",
     zeitzone: "Europe/Berlin",
-    primary_color: "#223a5e"
+    primary_color: "#D96648"
   });
 
   // Prüfe ob wir im iframe (Preview-Modus) sind
@@ -520,7 +520,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                style={{ backgroundColor: '#223a5e' }}
+                style={{ backgroundColor: '#D96648' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -779,8 +779,8 @@ export default function Layout({ children, currentPageName }) {
                   setShowOnboarding(true);
                 }}
                 style={{
-                  borderColor: '#223a5e',
-                  color: '#223a5e'
+                  borderColor: '#D96648',
+                  color: '#D96648'
                 }}
                 className="hover:opacity-80">
 
@@ -887,7 +887,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   type="submit"
                   className="w-full h-12 text-lg"
-                  style={{ backgroundColor: '#223a5e' }}>
+                  style={{ backgroundColor: '#D96648' }}>
 
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -1022,12 +1022,12 @@ export default function Layout({ children, currentPageName }) {
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
                           backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                          color: '#223a5e'
+                          color: '#D96648'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                            e.currentTarget.style.color = '#223a5e';
+                            e.currentTarget.style.color = '#D96648';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1057,12 +1057,12 @@ export default function Layout({ children, currentPageName }) {
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
                               backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                              color: '#223a5e'
+                              color: '#D96648'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== subItem.url) {
                                 e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                                e.currentTarget.style.color = '#223a5e';
+                                e.currentTarget.style.color = '#D96648';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1091,12 +1091,12 @@ export default function Layout({ children, currentPageName }) {
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
                           backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                          color: '#223a5e'
+                          color: '#D96648'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (location.pathname !== item.url) {
                             e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                            e.currentTarget.style.color = '#223a5e';
+                            e.currentTarget.style.color = '#D96648';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1130,12 +1130,12 @@ export default function Layout({ children, currentPageName }) {
                       className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
                         backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                        color: '#223a5e'
+                        color: '#D96648'
                       } : {}}
                       onMouseEnter={(e) => {
                         if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
                           e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                          e.currentTarget.style.color = '#223a5e';
+                          e.currentTarget.style.color = '#D96648';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -1163,12 +1163,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("OrganisationSettings") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#223a5e'
+                            color: '#D96648'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.color = '#D96648';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1191,12 +1191,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#223a5e'
+                            color: '#D96648'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.color = '#D96648';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1219,12 +1219,12 @@ export default function Layout({ children, currentPageName }) {
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
                             backgroundColor: 'rgba(34, 58, 94, 0.15)',
-                            color: '#223a5e'
+                            color: '#D96648'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
                               e.currentTarget.style.backgroundColor = 'rgba(34, 58, 94, 0.1)';
-                              e.currentTarget.style.color = '#223a5e';
+                              e.currentTarget.style.color = '#D96648';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1347,7 +1347,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
-                'text-[#223a5e]' :
+                'text-[#D96648]' :
                 'text-gray-500'}`
                 }>
 
@@ -1360,7 +1360,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
                 location.pathname === createPageUrl("Kalender") ?
-                'text-[#223a5e]' :
+                'text-[#D96648]' :
                 'text-gray-500'}`
                 }>
 
@@ -1372,7 +1372,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl("Nachrichten")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl("Nachrichten") ?
-                'text-[#223a5e]' :
+                'text-[#D96648]' :
                 'text-gray-500'}`
                 }>
 
@@ -1384,7 +1384,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
-                'text-[#223a5e]' :
+                'text-[#D96648]' :
                 'text-gray-500'}`
                 }>
 
