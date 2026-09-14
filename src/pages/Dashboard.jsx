@@ -62,13 +62,13 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background p-3 md:p-8 overflow-x-hidden">
       <div className="w-full max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Dashboard</h1>
+          <h1 className="font-display font-medium text-3xl md:text-4xl text-foreground mb-2">Dashboard</h1>
           <p className="text-muted-foreground">Willkommen zurück! Hier ist deine Übersicht.</p>
         </div>
 
         {/* KI Event-Planer CTA */}
         <Card className="mb-6 md:mb-8 border-none shadow-lg overflow-hidden relative">
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #D96648 0%, #FF8F6D 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #D96648 0%, #C05B3F 100%)' }} />
           <CardContent className="relative p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
