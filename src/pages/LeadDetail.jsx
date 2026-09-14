@@ -976,7 +976,7 @@ export default function LeadDetailPage() {
                 variant="default"
                 size="default"
                 onClick={() => navigate(createPageUrl('Leads'))}
-                className="gap-2 bg-[#FF6A4D] text-white hover:bg-[#E85A3D] h-8 px-3 text-sm">
+                className="gap-2 bg-[#D96648] text-white hover:bg-[#C05B3F] h-8 px-3 text-sm">
 
                 <ArrowLeft className="w-4 h-4" />
                 Zurück zu Leads
@@ -1191,7 +1191,7 @@ export default function LeadDetailPage() {
                     <div>
                         <p className="text-xs text-muted-foreground mb-1">Zugewiesen an</p>
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          <div className="w-8 h-8 bg-[#D96648] rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {assignedMitglied.name?.[0]}
                           </div>
                           <span className="text-sm font-medium">{assignedMitglied.name}</span>
@@ -1293,7 +1293,7 @@ export default function LeadDetailPage() {
 
                         <Button
                           onClick={handleAddNote}
-                          disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:bg-[#E85A3D]">
+                          disabled={!newNote.trim() || createNotizMutation.isPending} className="bg-[#D96648] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:bg-[#C05B3F]">
 
 
                           <Send className="w-4 h-4 mr-2" />
@@ -1337,7 +1337,7 @@ export default function LeadDetailPage() {
                             onClick={() => {
                               setEditingAufgabe(null);
                               setShowAufgabeForm(!showAufgabeForm);
-                            }} className="bg-[#FF6A4D] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:bg-[#E85A3D]">
+                            }} className="bg-[#D96648] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-8 from-orange-500 to-red-600 hover:bg-[#C05B3F]">
 
 
                             <Plus className="w-4 h-4 mr-2" />
@@ -1563,7 +1563,7 @@ export default function LeadDetailPage() {
                                 size="sm"
                                 onClick={() => setShowEmailForm(true)}
                                 disabled={!lead.email}
-                                style={{ backgroundColor: '#FF6A4D' }}
+                                style={{ backgroundColor: '#D96648' }}
                                 className="hover:opacity-90"
                               >
                                 <Send className="w-4 h-4 mr-2" />
@@ -1642,7 +1642,7 @@ export default function LeadDetailPage() {
                               <p className="text-muted-foreground mb-4">Sende die erste E-Mail an diesen Lead</p>
                               <Button 
                                 onClick={() => setShowEmailForm(true)}
-                                style={{ backgroundColor: '#FF6A4D' }}
+                                style={{ backgroundColor: '#D96648' }}
                                 className="hover:opacity-90"
                               >
                                 <Send className="w-4 h-4 mr-2" />

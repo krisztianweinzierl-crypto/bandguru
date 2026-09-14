@@ -618,7 +618,7 @@ Das ${organisation.name} Team 🎵`;
                         className="flex items-center justify-between p-4 bg-muted rounded-lg"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-[#FF6A4D] rounded-full flex items-center justify-center text-white font-bold">
+                          <div className="w-10 h-10 bg-[#D96648] rounded-full flex items-center justify-center text-white font-bold">
                             {displayInitial}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -741,7 +741,7 @@ Das ${organisation.name} Team 🎵`;
                     onClick={handleGenerateDemoData}
                     disabled={demoLoading}
                     className="w-full h-12 text-base"
-                    style={{ backgroundColor: '#FF6A4D' }}
+                    style={{ backgroundColor: '#D96648' }}
                   >
                     <Sparkles className="w-5 h-5 mr-2" />
                     {demoLoading ? "Erstelle Demo-Daten..." : "Demo-Daten jetzt erstellen"}

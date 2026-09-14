@@ -195,7 +195,7 @@ export default function SongEnrichment({ songs, onClose, onSuccess }) {
               <Button
                 onClick={handleStartResearch}
                 disabled={candidateSongs.length === 0}
-                className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
+                className="bg-[#D96648] hover:bg-[#C05B3F]"
               >
                 <Wand2 className="w-4 h-4 mr-2" />
                 Jetzt recherchieren ({candidateSongs.length})
@@ -282,7 +282,7 @@ export default function SongEnrichment({ songs, onClose, onSuccess }) {
               <Button
                 onClick={handleConfirm}
                 disabled={committing || includedCount === 0}
-                className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
+                className="bg-[#D96648] hover:bg-[#C05B3F]"
               >
                 {committing ? (
                   <>

@@ -284,7 +284,7 @@ export default function AcceptInvitePage() {
                     }
                     window.location.href = createPageUrl("Dashboard");
                   }}
-                  className="bg-[#FF6A4D]"
+                  className="bg-[#D96648]"
                 >
                   Zum Dashboard
                 </Button>

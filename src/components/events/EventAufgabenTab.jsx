@@ -122,7 +122,7 @@ export default function EventAufgabenTab({
               }}
               size="sm"
               className="text-white"
-              style={{ backgroundColor: '#FF6A4D' }}
+              style={{ backgroundColor: '#D96648' }}
             >
               <Plus className="w-4 h-4 mr-2" />
               Aufgabe hinzufügen
@@ -344,7 +344,7 @@ export default function EventAufgabenTab({
                   setShowAufgabeDialog(true);
                 }}
                 className="text-white"
-                style={{ backgroundColor: '#FF6A4D' }}
+                style={{ backgroundColor: '#D96648' }}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Erste Aufgabe erstellen
@@ -590,7 +590,7 @@ export default function EventAufgabenTab({
               }}
               disabled={createAufgabeMutation.isPending || updateAufgabeMutation.isPending}
               className="text-white"
-              style={{ backgroundColor: '#FF6A4D' }}
+              style={{ backgroundColor: '#D96648' }}
             >
               {editingAufgabe ? 'Speichern' : 'Aufgabe erstellen'}
             </Button>

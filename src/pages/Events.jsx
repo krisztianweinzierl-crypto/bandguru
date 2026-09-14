@@ -195,7 +195,7 @@ export default function EventsPage() {
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
         <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4" style={{ borderLeftColor: statusStyle.accent }}>
           <div className="flex-shrink-0">
-            <div className="bg-[#FF6A4D] text-white rounded-lg w-16 h-16 flex flex-col items-center justify-center">
+            <div className="bg-[#D96648] text-white rounded-lg w-16 h-16 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
                 {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
               </span>
@@ -264,7 +264,7 @@ export default function EventsPage() {
             <Link to={createPageUrl("EventAIPlanner")}>
               <Button
                 variant="outline"
-                className="border-[#FF6A4D] text-[#FF6A4D] hover:bg-[#FF6A4D]/10">
+                className="border-[#D96648] text-[#D96648] hover:bg-[#D96648]/10">
                 <Sparkles className="w-4 h-4 mr-2" />
                 AI Event-Planer
               </Button>
@@ -272,7 +272,7 @@ export default function EventsPage() {
             <Button
               onClick={() => setShowForm(true)}
               className="text-white"
-              style={{ backgroundColor: '#FF6A4D' }}>
+              style={{ backgroundColor: '#D96648' }}>
 
                 <Plus className="w-4 h-4 mr-2" />
                 Event erstellen
@@ -352,11 +352,11 @@ export default function EventsPage() {
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#FF6A4D'
+                '--active-bg': '#D96648'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 106, 77, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -364,7 +364,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #FF6A4D">
+              data-active-style="background-color: #D96648">
 
               Anstehende ({upcomingEvents.length})
             </TabsTrigger>
@@ -372,11 +372,11 @@ export default function EventsPage() {
               value="past"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#FF6A4D'
+                '--active-bg': '#D96648'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 106, 77, 0.1)';
+                  e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
                 }
               }}
               onMouseLeave={(e) => {
@@ -384,7 +384,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #FF6A4D">
+              data-active-style="background-color: #D96648">
 
               Vergangene ({pastEvents.length})
             </TabsTrigger>
@@ -453,7 +453,7 @@ export default function EventsPage() {
 
       <style>{`
         [data-state="active"][data-active-style] {
-          background-color: #FF6A4D !important;
+          background-color: #D96648 !important;
         }
       `}</style>
     </div>);

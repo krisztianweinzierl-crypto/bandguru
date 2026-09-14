@@ -143,7 +143,7 @@ export default function OnboardingPage() {
 
         {/* Form */}
         <Card className="border-none shadow-xl">
-          <CardHeader className="border-b bg-[#FF6A4D] text-white">
+          <CardHeader className="border-b bg-[#D96648] text-white">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5" />
               <CardTitle className="text-xl">Deine Organisation erstellen</CardTitle>
@@ -262,7 +262,7 @@ export default function OnboardingPage() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full h-12 text-lg bg-[#FF6A4D] hover:bg-[#E85A3D]"
+                className="w-full h-12 text-lg bg-[#D96648] hover:bg-[#C05B3F]"
                 disabled={createOrgMutation.isPending}
               >
                 {createOrgMutation.isPending ? (

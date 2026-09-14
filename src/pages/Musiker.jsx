@@ -371,7 +371,7 @@ export default function MusikerPage() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="bg-[#FF6A4D] text-white font-bold w-full h-full flex items-center justify-center">
+            <div className="bg-[#D96648] text-white font-bold w-full h-full flex items-center justify-center">
               {initials}
             </div>
           )}

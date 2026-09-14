@@ -212,7 +212,7 @@ export default function ArtikelVerwaltungPage() {
                     <X className="w-4 h-4 mr-2" />
                     Abbrechen
                   </Button>
-                  <Button type="submit" style={{ backgroundColor: '#FF6A4D' }} className="hover:opacity-90">
+                  <Button type="submit" style={{ backgroundColor: '#D96648' }} className="hover:opacity-90">
                     <Save className="w-4 h-4 mr-2" />
                     Speichern
                   </Button>
@@ -238,7 +238,7 @@ export default function ArtikelVerwaltungPage() {
               resetForm();
               setShowForm(true);
             }}
-            style={{ backgroundColor: '#FF6A4D' }}
+            style={{ backgroundColor: '#D96648' }}
             className="hover:opacity-90"
           >
             <Plus className="w-4 h-4 mr-2" />

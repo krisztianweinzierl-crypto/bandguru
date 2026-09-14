@@ -451,7 +451,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#FF6A4D] flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-[#D96648] flex items-center justify-center">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -486,14 +486,14 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 {messages.map((m, i) => (
                   <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                     {m.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full bg-[#FF6A4D] flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[#D96648] flex items-center justify-center shrink-0">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
                     <div
                       className={`rounded-2xl px-4 py-2.5 text-sm max-w-[80%] whitespace-pre-line ${
                         m.role === "user"
-                          ? "bg-[#FF6A4D] text-white rounded-br-sm"
+                          ? "bg-[#D96648] text-white rounded-br-sm"
                           : "bg-muted text-foreground rounded-bl-sm"
                       }`}
                     >
@@ -503,7 +503,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 ))}
                 {loading && (
                   <div className="flex items-end gap-2 justify-start">
-                    <div className="w-7 h-7 rounded-full bg-[#FF6A4D] flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[#D96648] flex items-center justify-center shrink-0">
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                     <div className="rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm bg-muted text-muted-foreground flex items-center gap-2">
@@ -526,7 +526,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Button
                 onClick={handleSend}
                 disabled={loading || !input.trim()}
-                className="bg-[#FF6A4D] hover:bg-[#E85A3D] h-[52px] px-4 shrink-0"
+                className="bg-[#D96648] hover:bg-[#C05B3F] h-[52px] px-4 shrink-0"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
@@ -804,7 +804,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                   >
                                     <Avatar className="w-10 h-10 shrink-0">
                                       <AvatarImage src={m.profilbild_url} alt={m.name} />
-                                      <AvatarFallback className="bg-[#FF6A4D] text-white text-xs font-bold">
+                                      <AvatarFallback className="bg-[#D96648] text-white text-xs font-bold">
                                         {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
                                       </AvatarFallback>
                                     </Avatar>

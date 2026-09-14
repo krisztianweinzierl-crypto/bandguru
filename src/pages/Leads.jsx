@@ -260,7 +260,7 @@ export default function LeadsPage() {
         <CardHeader className="pb-3">
           <div className="flex items-start gap-4">
             <div
-              className="bg-[#FF6A4D] text-white text-lg font-bold rounded-lg w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer"
+              className="bg-[#D96648] text-white text-lg font-bold rounded-lg w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer"
               onClick={() => handleCardClick(lead.id)}>
               <Target className="w-6 h-6" />
             </div>
@@ -408,7 +408,7 @@ export default function LeadsPage() {
         className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 cursor-pointer border-l-4 ${statusStyle.borderClass}`}
         onClick={() => handleCardClick(lead.id)}>
 
-        <div className="bg-[#FF6A4D] text-white font-bold rounded-lg w-12 h-12 from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
+        <div className="bg-[#D96648] text-white font-bold rounded-lg w-12 h-12 from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0">
           <Target className="w-6 h-6" />
         </div>
         
@@ -534,7 +534,7 @@ export default function LeadsPage() {
               onClick={() => {
                 setEditingLead(null);
                 setShowForm(true);
-              }} className="bg-[#FF6A4D] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:bg-[#E85A3D]">
+              }} className="bg-[#D96648] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 from-orange-500 to-red-600 hover:bg-[#C05B3F]">
 
 
               <Plus className="w-4 h-4 mr-2" />

@@ -430,7 +430,7 @@ export default function SongForm({ song, onSubmit, onCancel }) {
             </Button>
             <Button 
               type="submit" 
-              style={{ backgroundColor: '#FF6A4D' }}
+              style={{ backgroundColor: '#D96648' }}
               className="hover:opacity-90"
             >
               <Save className="w-4 h-4 mr-2" />

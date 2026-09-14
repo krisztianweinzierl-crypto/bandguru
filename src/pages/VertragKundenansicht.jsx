@@ -207,7 +207,7 @@ export default function VertragKundenansichtPage() {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md w-full border-none shadow-xl">
-          <CardHeader className="border-b bg-[#FF6A4D] text-white">
+          <CardHeader className="border-b bg-[#D96648] text-white">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-card/20 rounded-lg">
                 <Lock className="w-6 h-6" />
@@ -252,7 +252,7 @@ export default function VertragKundenansichtPage() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-[#FF6A4D] hover:bg-[#E85A3D]"
+                className="w-full h-12 bg-[#D96648] hover:bg-[#C05B3F]"
                 disabled={verifyEmailMutation.isPending}
               >
                 {verifyEmailMutation.isPending ? (
@@ -337,7 +337,7 @@ export default function VertragKundenansichtPage() {
             {organisation && (
               <div 
                 className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-xl"
-                style={{ backgroundColor: organisation.primary_color || '#FF6A4D' }}
+                style={{ backgroundColor: organisation.primary_color || '#D96648' }}
               >
                 {organisation.name?.[0]?.toUpperCase() || "B"}
               </div>
@@ -358,7 +358,7 @@ export default function VertragKundenansichtPage() {
         <div className="space-y-6">
           {/* Vertragstitel */}
           <Card className="border-none shadow-lg">
-            <CardHeader className="border-b bg-[#FF6A4D] text-white">
+            <CardHeader className="border-b bg-[#D96648] text-white">
               <CardTitle className="text-2xl">{vertrag.titel}</CardTitle>
               {vertrag.vertragsnummer && (
                 <p className="text-purple-100 mt-1">{vertrag.vertragsnummer}</p>
@@ -441,7 +441,7 @@ export default function VertragKundenansichtPage() {
                   <Button
                     onClick={() => setShowUnterschriftModal(true)}
                     size="lg"
-                    className="bg-[#FF6A4D] hover:bg-[#E85A3D]"
+                    className="bg-[#D96648] hover:bg-[#C05B3F]"
                   >
                     <PenTool className="w-5 h-5 mr-2" />
                     Jetzt unterschreiben
@@ -543,7 +543,7 @@ export default function VertragKundenansichtPage() {
                   <Button
                     onClick={saveUnterschrift}
                     disabled={saveUnterschriftMutation.isPending}
-                    className="bg-[#FF6A4D]"
+                    className="bg-[#D96648]"
                   >
                     <Check className="w-4 h-4 mr-2" />
                     {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}
