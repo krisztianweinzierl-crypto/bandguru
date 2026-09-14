@@ -382,8 +382,7 @@ export default function Layout({ children, currentPageName }) {
     icon: Calendar,
     submenu: [
     { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
-    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar },
-    { title: "AI Event-Planer", url: createPageUrl("EventAIPlanner"), icon: Sparkles }]
+    { title: "Event-Liste", url: createPageUrl("Events"), icon: Calendar }]
 
   },
   { title: "Musiker", url: createPageUrl("Musiker"), icon: Users },
@@ -920,9 +919,9 @@ export default function Layout({ children, currentPageName }) {
   // Normale App mit Sidebar
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <Sidebar className="border-r border-gray-200">
-          <SidebarHeader className="border-b border-gray-200 p-4">
+      <div className="min-h-screen flex w-full bg-background">
+        <Sidebar className="border-r border-sidebar-border">
+          <SidebarHeader className="border-b border-sidebar-border p-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <img
@@ -931,8 +930,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain" />
 
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-gray-900 truncate">Bandguru</h2>
-                  <p className="text-xs text-gray-500 truncate">{currentMitglied?.rolle}</p>
+                  <h2 className="font-display font-semibold text-lg text-foreground truncate">Bandguru</h2>
+                  <p className="text-xs text-muted-foreground truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
                 <NotificationBell user={user} currentOrgId={currentOrg?.id} />
@@ -977,7 +976,7 @@ export default function Layout({ children, currentPageName }) {
                           className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
-                          style={isCurrentOrg ? { borderLeftColor: '#223a5e' } : {}}>
+                          style={isCurrentOrg ? { borderLeftColor: '#D96648' } : {}}>
 
                             <div
                             className="w-6 h-6 rounded flex-shrink-0"
@@ -990,7 +989,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#223a5e' }} />
+                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#D96648' }} />
                           }
                           </button>);
 
