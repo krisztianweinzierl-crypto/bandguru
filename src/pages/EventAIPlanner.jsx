@@ -455,7 +455,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">AI Event-Planer</h1>
+          <h1 className="font-display font-medium text-2xl text-foreground">AI Event-Planer</h1>
           <p className="text-sm text-muted-foreground">Erzähl mir von deinem Event – ich frage nach, was noch fehlt, und plane danach alles im Detail.</p>
         </div>
       </div>
@@ -545,9 +545,9 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge className="bg-purple-100 text-purple-700 border-0">{plan.event_typ || "Event"}</Badge>
-                    {saved && <Badge className="bg-green-100 text-green-700 border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
+                    {saved && <Badge className="bg-[#2E7D69]/10 text-[#2E7D69] border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
                   </div>
-                  <h2 className="text-xl font-bold text-foreground mb-2">{plan.titel}</h2>
+                  <h2 className="font-display font-medium text-xl text-foreground mb-2">{plan.titel}</h2>
                   {plan.zusammenfassung && (
                     <p className="text-muted-foreground text-sm">{plan.zusammenfassung}</p>
                   )}
@@ -555,7 +555,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 <Button
                   onClick={handleSave}
                   disabled={saving || saved}
-                  className="bg-green-600 hover:bg-green-700 shrink-0"
+                  className="bg-[#2E7D69] hover:bg-[#256B59] shrink-0"
                 >
                   {saving ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Speichern...</>
@@ -824,7 +824,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                         <p className="text-xs text-muted-foreground truncate">{m.instrumente.join(", ")}</p>
                                       )}
                                       {isRequested ? (
-                                        <p className="text-xs text-green-600 font-medium flex items-center gap-1 mt-0.5">
+                                        <p className="text-xs text-[#2E7D69] font-medium flex items-center gap-1 mt-0.5">
                                           <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
                                         </p>
                                       ) : m.email ? (
