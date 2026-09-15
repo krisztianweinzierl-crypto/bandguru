@@ -931,8 +931,8 @@ export default function Layout({ children, currentPageName }) {
                   className="w-12 h-12 object-contain group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9" />
 
                 <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                  <h2 className="font-display font-semibold text-lg text-foreground truncate">Bandguru</h2>
-                  <p className="text-xs text-muted-foreground truncate">{currentMitglied?.rolle}</p>
+                  <h2 className="font-display font-semibold text-lg text-sidebar-foreground truncate">Bandguru</h2>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
                 <div className="group-data-[collapsible=icon]:hidden">
@@ -1253,13 +1253,13 @@ export default function Layout({ children, currentPageName }) {
             }
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-gray-200 p-4 group-data-[collapsible=icon]:p-2">
-                            <p className="text-xs text-gray-400 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 1.2.0</p>
+          <SidebarFooter className="border-t border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
+                            <p className="text-xs text-sidebar-foreground/40 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 1.2.0</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 title={currentMusiker?.name || user?.full_name || user?.email}
-                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+                className="w-full flex items-center gap-3 hover:bg-sidebar-accent rounded-lg p-2 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
@@ -1284,12 +1284,12 @@ export default function Layout({ children, currentPageName }) {
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 text-left group-data-[collapsible=icon]:hidden">
-                  <p className="font-medium text-gray-900 text-sm truncate">
+                  <p className="font-medium text-sidebar-foreground text-sm truncate">
                     {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform group-data-[collapsible=icon]:hidden ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-sidebar-foreground/60 transition-transform group-data-[collapsible=icon]:hidden ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
