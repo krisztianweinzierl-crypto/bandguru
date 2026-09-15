@@ -68,19 +68,18 @@ export default function Dashboard() {
 
         {/* KI Event-Planer CTA */}
         <Card className="mb-6 md:mb-8 border-none shadow-lg overflow-hidden relative">
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #2E7D69 0%, #256B59 100%)' }} />
           <CardContent className="relative p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(46, 125, 105, 0.1)' }}>
+                <Sparkles className="w-6 h-6" style={{ color: '#2E7D69' }} />
               </div>
               <div>
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-1">KI Event-Planer</h2>
-                <p className="text-white/90 text-sm md:text-base max-w-xl">Beschreibe dein Event in ein paar Worten – die KI fragt nach, was noch fehlt, und erstellt danach einen vollständigen Plan inkl. Besetzung.</p>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">KI Event-Planer</h2>
+                <p className="text-muted-foreground text-sm md:text-base max-w-xl">Beschreibe dein Event in ein paar Worten – die KI fragt nach, was noch fehlt, und erstellt danach einen vollständigen Plan inkl. Besetzung.</p>
               </div>
             </div>
             <Link to={createPageUrl("EventAIPlanner")} className="shrink-0">
-              <Button className="bg-white text-[#2E7D69] hover:bg-white/90 font-semibold">
+              <Button className="text-white font-semibold" style={{ backgroundColor: '#2E7D69' }}>
                 <Sparkles className="w-4 h-4 mr-2" />
                 Event planen
               </Button>
@@ -91,12 +90,11 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#2E7D69' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Nächste Events</CardTitle>
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(46, 125, 105, 0.15)' }}>
-                  <Calendar className="w-5 h-5" style={{ color: '#2E7D69' }} />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(165, 161, 154, 0.16)' }}>
+                  <Calendar className="w-5 h-5" style={{ color: '#6B6862' }} />
                 </div>
               </div>
             </CardHeader>
@@ -107,12 +105,11 @@ export default function Dashboard() {
           </Card>
 
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Aktive Musiker</CardTitle>
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Users className="w-5 h-5 text-green-600" />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(165, 161, 154, 0.16)' }}>
+                  <Users className="w-5 h-5" style={{ color: '#6B6862' }} />
                 </div>
               </div>
             </CardHeader>
@@ -123,12 +120,11 @@ export default function Dashboard() {
           </Card>
 
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Offene Aufgaben</CardTitle>
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(165, 161, 154, 0.16)' }}>
+                  <AlertCircle className="w-5 h-5" style={{ color: '#6B6862' }} />
                 </div>
               </div>
             </CardHeader>
@@ -178,8 +174,8 @@ export default function Dashboard() {
                   className="flex items-center gap-4 p-4 hover:bg-muted transition-colors">
 
                       <div className="flex-shrink-0">
-                        <div className="bg-[#2E7D69] text-white rounded-xl w-14 h-14 flex flex-col items-center justify-center">
-                          <span className="text-xs font-medium">
+                        <div className="bg-background border border-border text-foreground rounded-xl w-14 h-14 flex flex-col items-center justify-center">
+                          <span className="text-xs font-medium text-muted-foreground">
                             {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
                           </span>
                           <span className="text-xl font-bold">
@@ -231,19 +227,19 @@ export default function Dashboard() {
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
+                <Button variant="outline" className="w-full justify-start">
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
+                <Button variant="outline" className="w-full justify-start">
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
+                <Button variant="outline" className="w-full justify-start">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>
