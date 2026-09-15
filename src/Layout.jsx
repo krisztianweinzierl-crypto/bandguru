@@ -983,7 +983,7 @@ export default function Layout({ children, currentPageName }) {
                           className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
-                          style={isCurrentOrg ? { borderLeftColor: '#2E7D69' } : {}}>
+                          style={isCurrentOrg ? { borderLeftColor: '#FFFFFF' } : {}}>
 
                             <div
                             className="w-6 h-6 rounded flex-shrink-0"
@@ -996,7 +996,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#2E7D69' }} />
+                          <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#FFFFFF' }} />
                           }
                           </button>);
 
@@ -1028,13 +1028,13 @@ export default function Layout({ children, currentPageName }) {
                         }}
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
-                          backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                          color: '#2E7D69'
+                          backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                          color: '#FFFFFF'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
-                            e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                            e.currentTarget.style.color = '#2E7D69';
+                            e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                            e.currentTarget.style.color = '#FFFFFF';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1063,13 +1063,13 @@ export default function Layout({ children, currentPageName }) {
                             to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
-                              backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                              color: '#2E7D69'
+                              backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                              color: '#FFFFFF'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== subItem.url) {
-                                e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                                e.currentTarget.style.color = '#2E7D69';
+                                e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                                e.currentTarget.style.color = '#FFFFFF';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1098,13 +1098,13 @@ export default function Layout({ children, currentPageName }) {
                         to={item.url}
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
-                          backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                          color: '#2E7D69'
+                          backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                          color: '#FFFFFF'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (location.pathname !== item.url) {
-                            e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                            e.currentTarget.style.color = '#2E7D69';
+                            e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                            e.currentTarget.style.color = '#FFFFFF';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1139,13 +1139,13 @@ export default function Layout({ children, currentPageName }) {
                       title="Einstellungen"
                       className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname) ? {
-                        backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                        color: '#2E7D69'
+                        backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                        color: '#FFFFFF'
                       } : {}}
                       onMouseEnter={(e) => {
                         if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) {
-                          e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                          e.currentTarget.style.color = '#2E7D69';
+                          e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                          e.currentTarget.style.color = '#FFFFFF';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -1172,13 +1172,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("OrganisationSettings")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                            color: '#2E7D69'
+                            backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                            color: '#FFFFFF'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                              e.currentTarget.style.color = '#2E7D69';
+                              e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                              e.currentTarget.style.color = '#FFFFFF';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1200,13 +1200,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("BuchungsbedingungVorlagen")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                            color: '#2E7D69'
+                            backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                            color: '#FFFFFF'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                              e.currentTarget.style.color = '#2E7D69';
+                              e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                              e.currentTarget.style.color = '#FFFFFF';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1228,13 +1228,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("ArtikelVerwaltung")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
-                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
-                            color: '#2E7D69'
+                            backgroundColor: 'rgba(165, 161, 154, 0.18)',
+                            color: '#FFFFFF'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
-                              e.currentTarget.style.color = '#2E7D69';
+                              e.currentTarget.style.backgroundColor = 'rgba(165, 161, 154, 0.12)';
+                              e.currentTarget.style.color = '#FFFFFF';
                             }
                           }}
                           onMouseLeave={(e) => {
