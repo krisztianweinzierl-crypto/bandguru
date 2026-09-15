@@ -1132,7 +1132,8 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem>
                       <button
                       onClick={() => toggleMenu('settings')}
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
+                      title="Einstellungen"
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:mx-auto"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
                         backgroundColor: 'rgba(46, 125, 105, 0.15)',
                         color: '#2E7D69'
@@ -1150,15 +1151,15 @@ export default function Layout({ children, currentPageName }) {
                         }
                       }}>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
                           <Settings className="w-4 h-4" />
-                          <span className="font-medium">Einstellungen</span>
+                          <span className="font-medium group-data-[collapsible=icon]:hidden">Einstellungen</span>
                         </div>
-                        <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
+                        <ChevronRight className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
                       </button>
                       
                       {expandedMenus['settings'] &&
-                    <div className="ml-4 mb-1 space-y-1">
+                    <div className="ml-4 mb-1 space-y-1 group-data-[collapsible=icon]:hidden">
                           <SidebarMenuButton
                         asChild
                         className="transition-colors duration-200 rounded-lg">
