@@ -133,7 +133,7 @@ export default function NotificationBell({ user, currentOrgId }) {
         onClick={() => setShowDropdown(!showDropdown)}
         className="notification-bell relative p-1.5 hover:bg-muted rounded-full transition-colors"
       >
-        <Bell className="w-5 h-5 text-sidebar-foreground/70" />
+        <Bell className="w-5 h-5 text-muted-foreground" />
         {ungeleseneCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
             {ungeleseneCount > 9 ? '9+' : ungeleseneCount}
