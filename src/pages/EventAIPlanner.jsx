@@ -451,8 +451,8 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[#2E7D69] flex items-center justify-center">
-          <Sparkles className="w-5 h-5 text-white" />
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(46, 125, 105, 0.1)' }}>
+          <Sparkles className="w-5 h-5" style={{ color: '#2E7D69' }} />
         </div>
         <div>
           <h1 className="font-display font-medium text-2xl text-foreground">AI Event-Planer</h1>
@@ -474,7 +474,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                     <button
                       key={i}
                       onClick={() => setInput(ex)}
-                      className="text-left text-xs text-[#2E7D69] hover:text-[#B8543A] hover:bg-[#2E7D69]/5 rounded-lg px-3 py-2 border border-[#2E7D69]/10 transition-colors"
+                      className="text-left text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-3 py-2 border border-border transition-colors"
                     >
                       {ex}
                     </button>
@@ -575,7 +575,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#2E7D69]" /> Datum & Zeit
+                  <Calendar className="w-4 h-4 text-muted-foreground" /> Datum & Zeit
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
@@ -613,7 +613,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-[#2E7D69]" /> Location-Vorschläge
+                    <MapPin className="w-4 h-4 text-muted-foreground" /> Location-Vorschläge
                     <span className="text-xs text-muted-foreground font-normal ml-1">– wähle eine aus</span>
                   </CardTitle>
                 </CardHeader>
@@ -668,7 +668,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm md:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#2E7D69]" /> Ablaufplan
+                    <Clock className="w-4 h-4 text-muted-foreground" /> Ablaufplan
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -682,7 +682,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#2E7D69]" /> Technik
+                    <Users className="w-4 h-4 text-muted-foreground" /> Technik
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -696,7 +696,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <Card className="border-0 shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#2E7D69]" /> Notizen
+                    <FileText className="w-4 h-4 text-muted-foreground" /> Notizen
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
@@ -722,7 +722,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Guitar className="w-4 h-4 text-[#2E7D69]" /> Empfohlene Besetzung
+                  <Guitar className="w-4 h-4 text-muted-foreground" /> Empfohlene Besetzung
                   {plan.genre_anforderung?.length > 0 && (
                     <div className="flex gap-1 ml-auto">
                       {plan.genre_anforderung.map((g, i) => (
@@ -736,7 +736,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 {/* Benötigte Rollen */}
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(plan.besetzung_anforderung).map(([rolle, anzahl]) => (
-                    <Badge key={rolle} className="bg-[#2E7D69]/10 text-[#2E7D69] border-0 text-sm px-3 py-1">
+                    <Badge key={rolle} className="bg-muted text-foreground border-0 text-sm px-3 py-1">
                       {anzahl}x {rolle}
                     </Badge>
                   ))}
@@ -754,7 +754,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                       step={1}
                       className="flex-1 max-w-[160px]"
                     />
-                    <Badge className="bg-[#2E7D69]/10 text-[#2E7D69] border-0 shrink-0">{maxAlternatives}</Badge>
+                    <Badge className="bg-muted text-foreground border-0 shrink-0">{maxAlternatives}</Badge>
                   </div>
                 )}
 
@@ -804,7 +804,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                   >
                                     <Avatar className="w-10 h-10 shrink-0">
                                       <AvatarImage src={m.profilbild_url} alt={m.name} />
-                                      <AvatarFallback className="bg-[#2E7D69] text-white text-xs font-bold">
+                                      <AvatarFallback className={`text-white text-xs font-bold ${isSelected || isRequested ? "bg-[#2E7D69]" : "bg-[#A5A19A]"}`}>
                                         {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
                                       </AvatarFallback>
                                     </Avatar>
