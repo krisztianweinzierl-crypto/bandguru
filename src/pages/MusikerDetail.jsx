@@ -137,7 +137,7 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#D96648] text-white hover:bg-[#C05B3F] h-8 px-3 text-sm">
+              className="gap-2 mb-4 bg-[#2E7D69] text-white hover:bg-[#256B59] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -166,7 +166,7 @@ ${orgName} Team`;
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Musiker'))}
-              className="gap-2 bg-[#D96648] text-white hover:bg-[#C05B3F] h-8 px-3 text-sm">
+              className="gap-2 bg-[#2E7D69] text-white hover:bg-[#256B59] h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
@@ -189,7 +189,7 @@ ${orgName} Team`;
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <AvatarFallback className="bg-[#D96648] text-white text-3xl font-bold rounded-full flex h-full w-full items-center justify-center">
+                  <AvatarFallback className="bg-[#2E7D69] text-white text-3xl font-bold rounded-full flex h-full w-full items-center justify-center">
                     {initials}
                   </AvatarFallback>
                 )}
@@ -233,7 +233,7 @@ ${orgName} Team`;
               <Button
                 variant="default"
                 size="sm"
-                onClick={() => setIsEditing(true)} className="bg-[#D96648] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-purple-700">
+                onClick={() => setIsEditing(true)} className="bg-[#2E7D69] text-primary-foreground px-3 text-xs font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-8 gap-2 hover:bg-purple-700">
 
 
                 <Edit className="w-4 h-4" />
@@ -487,7 +487,7 @@ ${orgName} Team`;
               onClick={() => sendInvitationMutation.mutate(einladungText)}
               disabled={sendInvitationMutation.isPending}
               className="text-white"
-              style={{ backgroundColor: '#D96648' }}
+              style={{ backgroundColor: '#2E7D69' }}
             >
               <Send className="w-4 h-4 mr-2" />
               {sendInvitationMutation.isPending ? 'Wird gesendet...' : 'Einladung senden'}

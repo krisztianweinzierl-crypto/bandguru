@@ -187,7 +187,7 @@ export default function BuchungsbedingungVorlagenPage() {
               resetForm();
               setShowForm(true);
             }}
-            className="bg-[#D96648] hover:bg-[#C05B3F]"
+            className="bg-[#2E7D69] hover:bg-[#256B59]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Vorlage erstellen
@@ -329,7 +329,7 @@ export default function BuchungsbedingungVorlagenPage() {
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-[#D96648] hover:bg-[#C05B3F]"
+                    className="bg-[#2E7D69] hover:bg-[#256B59]"
                     disabled={createVorlageMutation.isPending || updateVorlageMutation.isPending}
                   >
                     {editingVorlage ? 'Aktualisieren' : 'Erstellen'}

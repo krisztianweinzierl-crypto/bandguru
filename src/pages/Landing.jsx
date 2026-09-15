@@ -33,7 +33,7 @@ export default function LandingPage() {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-            Willkommen bei <span className="bg-[#D96648] bg-clip-text text-transparent">Bandguru</span>
+            Willkommen bei <span className="bg-[#2E7D69] bg-clip-text text-transparent">Bandguru</span>
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -45,7 +45,7 @@ export default function LandingPage() {
             <Button 
               onClick={handleLogin}
               size="lg"
-              className="bg-[#D96648] hover:bg-[#C05B3F] text-lg px-8 py-6"
+              className="bg-[#2E7D69] hover:bg-[#256B59] text-lg px-8 py-6"
             >
               Jetzt anmelden
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -142,7 +142,7 @@ export default function LandingPage() {
 
         {/* CTA Section */}
         <div className="text-center">
-          <Card className="border-none shadow-xl bg-[#D96648] text-white max-w-3xl mx-auto">
+          <Card className="border-none shadow-xl bg-[#2E7D69] text-white max-w-3xl mx-auto">
             <CardContent className="p-12">
               <Sparkles className="w-16 h-16 mx-auto mb-6" />
               <h2 className="text-3xl font-bold mb-4">

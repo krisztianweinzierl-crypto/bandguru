@@ -216,7 +216,7 @@ export default function StageManager({ stages, onSave, onCancel }) {
             </Button>
             <Button
               onClick={handleSave}
-              style={{ backgroundColor: '#D96648' }}
+              style={{ backgroundColor: '#2E7D69' }}
               className="hover:opacity-90"
             >
               <Save className="w-4 h-4 mr-2" />

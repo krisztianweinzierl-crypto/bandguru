@@ -85,7 +85,7 @@ export default function Layout({ children, currentPageName }) {
     steuernummer: "",
     waehrung: "EUR",
     zeitzone: "Europe/Berlin",
-    primary_color: "#D96648"
+    primary_color: "#2E7D69"
   });
 
   // Prüfe ob wir im iframe (Preview-Modus) sind
@@ -520,7 +520,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                style={{ backgroundColor: '#D96648' }}
+                style={{ backgroundColor: '#2E7D69' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -779,8 +779,8 @@ export default function Layout({ children, currentPageName }) {
                   setShowOnboarding(true);
                 }}
                 style={{
-                  borderColor: '#D96648',
-                  color: '#D96648'
+                  borderColor: '#2E7D69',
+                  color: '#2E7D69'
                 }}
                 className="hover:opacity-80">
 
@@ -887,7 +887,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   type="submit"
                   className="w-full h-12 text-lg"
-                  style={{ backgroundColor: '#D96648' }}>
+                  style={{ backgroundColor: '#2E7D69' }}>
 
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -977,7 +977,7 @@ export default function Layout({ children, currentPageName }) {
                           className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
-                          style={isCurrentOrg ? { borderLeftColor: '#D96648' } : {}}>
+                          style={isCurrentOrg ? { borderLeftColor: '#2E7D69' } : {}}>
 
                             <div
                             className="w-6 h-6 rounded flex-shrink-0"
@@ -990,7 +990,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#D96648' }} />
+                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#2E7D69' }} />
                           }
                           </button>);
 
@@ -1021,13 +1021,13 @@ export default function Layout({ children, currentPageName }) {
                         }}
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
-                          backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                          color: '#D96648'
+                          backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                          color: '#2E7D69'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
-                            e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                            e.currentTarget.style.color = '#D96648';
+                            e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                            e.currentTarget.style.color = '#2E7D69';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1056,13 +1056,13 @@ export default function Layout({ children, currentPageName }) {
                             to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
                             style={location.pathname === subItem.url ? {
-                              backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                              color: '#D96648'
+                              backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                              color: '#2E7D69'
                             } : {}}
                             onMouseEnter={(e) => {
                               if (location.pathname !== subItem.url) {
-                                e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                                e.currentTarget.style.color = '#D96648';
+                                e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                                e.currentTarget.style.color = '#2E7D69';
                               }
                             }}
                             onMouseLeave={(e) => {
@@ -1090,13 +1090,13 @@ export default function Layout({ children, currentPageName }) {
                         to={item.url}
                         className="flex items-center gap-3 px-3 py-2"
                         style={location.pathname === item.url ? {
-                          backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                          color: '#D96648'
+                          backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                          color: '#2E7D69'
                         } : {}}
                         onMouseEnter={(e) => {
                           if (location.pathname !== item.url) {
-                            e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                            e.currentTarget.style.color = '#D96648';
+                            e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                            e.currentTarget.style.color = '#2E7D69';
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -1129,13 +1129,13 @@ export default function Layout({ children, currentPageName }) {
                       onClick={() => toggleMenu('settings')}
                       className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
-                        backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                        color: '#D96648'
+                        backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                        color: '#2E7D69'
                       } : {}}
                       onMouseEnter={(e) => {
                         if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
-                          e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                          e.currentTarget.style.color = '#D96648';
+                          e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                          e.currentTarget.style.color = '#2E7D69';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -1162,13 +1162,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("OrganisationSettings")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                            backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                            color: '#D96648'
+                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                            color: '#2E7D69'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                              e.currentTarget.style.color = '#D96648';
+                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                              e.currentTarget.style.color = '#2E7D69';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1190,13 +1190,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("BuchungsbedingungVorlagen")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                            backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                            color: '#D96648'
+                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                            color: '#2E7D69'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                              e.currentTarget.style.color = '#D96648';
+                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                              e.currentTarget.style.color = '#2E7D69';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1218,13 +1218,13 @@ export default function Layout({ children, currentPageName }) {
                           to={createPageUrl("ArtikelVerwaltung")}
                           className="flex items-center gap-3 px-3 py-2"
                           style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
-                            backgroundColor: 'rgba(217, 102, 72, 0.15)',
-                            color: '#D96648'
+                            backgroundColor: 'rgba(46, 125, 105, 0.15)',
+                            color: '#2E7D69'
                           } : {}}
                           onMouseEnter={(e) => {
                             if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'rgba(217, 102, 72, 0.1)';
-                              e.currentTarget.style.color = '#D96648';
+                              e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
+                              e.currentTarget.style.color = '#2E7D69';
                             }
                           }}
                           onMouseLeave={(e) => {
@@ -1347,7 +1347,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
-                'text-[#D96648]' :
+                'text-[#2E7D69]' :
                 'text-gray-500'}`
                 }>
 
@@ -1360,7 +1360,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
                 location.pathname === createPageUrl("Kalender") ?
-                'text-[#D96648]' :
+                'text-[#2E7D69]' :
                 'text-gray-500'}`
                 }>
 
@@ -1372,7 +1372,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl("Nachrichten")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl("Nachrichten") ?
-                'text-[#D96648]' :
+                'text-[#2E7D69]' :
                 'text-gray-500'}`
                 }>
 
@@ -1384,7 +1384,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
-                'text-[#D96648]' :
+                'text-[#2E7D69]' :
                 'text-gray-500'}`
                 }>
 

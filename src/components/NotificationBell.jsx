@@ -145,7 +145,7 @@ export default function NotificationBell({ user, currentOrgId }) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
           <div className="notification-dropdown absolute left-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden">
-            <div className="bg-gradient-to-r from-[#D96648] to-[#C05B3F] px-4 py-3 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-[#2E7D69] to-[#256B59] px-4 py-3 flex items-center justify-between">
               <h3 className="font-semibold text-white flex items-center gap-2">
                 <Bell className="w-4 h-4" />
                 Benachrichtigungen

@@ -220,7 +220,7 @@ export default function AusgabenPage() {
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-[#D96648] hover:bg-[#C05B3F]">
+              className="bg-[#2E7D69] hover:bg-[#256B59]">
               
               <Plus className="w-4 h-4 mr-2" />
               Neue Ausgabe
@@ -384,7 +384,7 @@ export default function AusgabenPage() {
               <Receipt className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Ausgaben gefunden</h3>
               <p className="text-muted-foreground mb-4">Erfasse deine erste Ausgabe</p>
-              <Button onClick={() => setShowForm(true)} className="bg-[#D96648] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
+              <Button onClick={() => setShowForm(true)} className="bg-[#2E7D69] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
                 <Plus className="w-4 h-4 mr-2" />
                 Neue Ausgabe
               </Button>

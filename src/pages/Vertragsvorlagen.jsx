@@ -181,7 +181,7 @@ export default function VertragsvorlagenPage() {
 
     return (
       <div className={`bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4 ${kategorieStyle.borderClass} ${!vorlage.aktiv ? 'opacity-60' : ''}`}>
-        <div className="w-12 h-12 bg-[#D96648] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+        <div className="w-12 h-12 bg-[#2E7D69] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
           <FileText className="w-6 h-6" />
         </div>
         
@@ -258,7 +258,7 @@ export default function VertragsvorlagenPage() {
               setEditingVorlage(null);
               setShowForm(true);
             }}
-            className="bg-[#D96648] hover:bg-[#C05B3F]"
+            className="bg-[#2E7D69] hover:bg-[#256B59]"
           >
             <Plus className="w-4 h-4 mr-2" />
             Vorlage erstellen

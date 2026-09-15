@@ -262,7 +262,7 @@ export default function AngebotePage() {
             text-align: right;
           }
           .header-right h1 {
-            color: #D96648;
+            color: #2E7D69;
             font-size: 28pt;
             margin: 0 0 10px 0;
             font-weight: bold;
@@ -290,7 +290,7 @@ export default function AngebotePage() {
             letter-spacing: 0.5px;
           }
           .address-block .name {
-            color: #D96648;
+            color: #2E7D69;
             font-weight: bold;
             font-size: 13pt;
             margin-bottom: 5px;
@@ -311,10 +311,10 @@ export default function AngebotePage() {
             margin: 30px 0;
           }
           thead {
-            border-bottom: 3px solid #D96648;
+            border-bottom: 3px solid #2E7D69;
           }
           th { 
-            color: #D96648;
+            color: #2E7D69;
             padding: 12px 8px;
             text-align: left;
             font-size: 9pt;
@@ -352,16 +352,16 @@ export default function AngebotePage() {
             font-weight: bold;
           }
           .totals-row.tax {
-            color: #D96648;
+            color: #2E7D69;
             font-weight: bold;
           }
           .totals-row.total {
-            border-top: 3px solid #D96648;
+            border-top: 3px solid #2E7D69;
             padding-top: 12px;
             margin-top: 8px;
             font-size: 14pt;
             font-weight: bold;
-            color: #D96648;
+            color: #2E7D69;
           }
           .conditions { 
             margin-top: 80px;
@@ -369,7 +369,7 @@ export default function AngebotePage() {
             clear: both;
           }
           .conditions h3 {
-            color: #D96648;
+            color: #2E7D69;
             font-size: 11pt;
             font-weight: bold;
             text-transform: uppercase;
@@ -639,7 +639,7 @@ export default function AngebotePage() {
                 setEditingAngebot(null);
                 setShowForm(true);
               }}
-              style={{ backgroundColor: '#D96648' }}
+              style={{ backgroundColor: '#2E7D69' }}
               className="hover:opacity-90"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -942,7 +942,7 @@ export default function AngebotePage() {
               <FileCheck className="w-16 h-16 mx-auto mb-4 text-muted-foreground/40" />
               <h3 className="text-lg font-semibold mb-2">Keine Angebote gefunden</h3>
               <p className="text-muted-foreground mb-4">Erstelle dein erstes Angebot</p>
-              <Button onClick={() => setShowForm(true)} style={{ backgroundColor: '#D96648' }} className="hover:opacity-90">
+              <Button onClick={() => setShowForm(true)} style={{ backgroundColor: '#2E7D69' }} className="hover:opacity-90">
                 <Plus className="w-4 h-4 mr-2" />
                 Neues Angebot
               </Button>

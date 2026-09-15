@@ -68,7 +68,7 @@ export default function Dashboard() {
 
         {/* KI Event-Planer CTA */}
         <Card className="mb-6 md:mb-8 border-none shadow-lg overflow-hidden relative">
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #D96648 0%, #C05B3F 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #2E7D69 0%, #256B59 100%)' }} />
           <CardContent className="relative p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
@@ -80,7 +80,7 @@ export default function Dashboard() {
               </div>
             </div>
             <Link to={createPageUrl("EventAIPlanner")} className="shrink-0">
-              <Button className="bg-white text-[#D96648] hover:bg-white/90 font-semibold">
+              <Button className="bg-white text-[#2E7D69] hover:bg-white/90 font-semibold">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Event planen
               </Button>
@@ -91,12 +91,12 @@ export default function Dashboard() {
         {/* Statistik-Kacheln */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <Card className="relative overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#D96648' }} />
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 transform translate-x-8 -translate-y-8" style={{ backgroundColor: '#2E7D69' }} />
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Nächste Events</CardTitle>
-                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(217, 102, 72, 0.15)' }}>
-                  <Calendar className="w-5 h-5" style={{ color: '#D96648' }} />
+                <div className="p-2 rounded-lg" style={{ backgroundColor: 'rgba(46, 125, 105, 0.15)' }}>
+                  <Calendar className="w-5 h-5" style={{ color: '#2E7D69' }} />
                 </div>
               </div>
             </CardHeader>
@@ -178,7 +178,7 @@ export default function Dashboard() {
                   className="flex items-center gap-4 p-4 hover:bg-muted transition-colors">
 
                       <div className="flex-shrink-0">
-                        <div className="bg-[#D96648] text-white rounded-xl w-14 h-14 flex flex-col items-center justify-center">
+                        <div className="bg-[#2E7D69] text-white rounded-xl w-14 h-14 flex flex-col items-center justify-center">
                           <span className="text-xs font-medium">
                             {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
                           </span>
@@ -225,25 +225,25 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#D96648' }}>
+                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#2E7D69' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>
               </Link>
               <Link to={createPageUrl("Musiker")}>
-                <Button variant="outline" className="w-full justify-start border-[#D96648] text-[#D96648] hover:bg-[#D96648]/10">
+                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
                   <Users className="w-4 h-4 mr-2" />
                   Musiker hinzufügen
                 </Button>
               </Link>
               <Link to={createPageUrl("Kunden")}>
-                <Button variant="outline" className="w-full justify-start border-[#D96648] text-[#D96648] hover:bg-[#D96648]/10">
+                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
                   <Target className="w-4 h-4 mr-2" />
                   Kunde anlegen
                 </Button>
               </Link>
               <Link to={createPageUrl("Aufgaben")}>
-                <Button variant="outline" className="w-full justify-start border-[#D96648] text-[#D96648] hover:bg-[#D96648]/10">
+                <Button variant="outline" className="w-full justify-start border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Aufgabe erstellen
                 </Button>
