@@ -1253,12 +1253,13 @@ export default function Layout({ children, currentPageName }) {
             }
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-gray-200 p-4">
-                            <p className="text-xs text-gray-400 text-center mb-3">Beta 1.2.0</p>
+          <SidebarFooter className="border-t border-gray-200 p-4 group-data-[collapsible=icon]:p-2">
+                            <p className="text-xs text-gray-400 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 1.2.0</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors">
+                title={currentMusiker?.name || user?.full_name || user?.email}
+                className="w-full flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={user?.avatar_url} />
@@ -1282,13 +1283,13 @@ export default function Layout({ children, currentPageName }) {
                     })()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0 text-left">
+                <div className="flex-1 min-w-0 text-left group-data-[collapsible=icon]:hidden">
                   <p className="font-medium text-gray-900 text-sm truncate">
                     {currentMusiker?.name || user?.full_name || user?.email}
                   </p>
                   <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-data-[collapsible=icon]:hidden ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
