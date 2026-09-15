@@ -1018,11 +1018,12 @@ export default function Layout({ children, currentPageName }) {
                     <>
                           <Link
                         to={item.url || '#'}
+                        title={item.title}
                         onClick={(e) => {
                           if (!item.url) e.preventDefault();
                           toggleMenu(index);
                         }}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200`}
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:mx-auto`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
                           backgroundColor: 'rgba(46, 125, 105, 0.15)',
                           color: '#2E7D69'
@@ -1040,15 +1041,15 @@ export default function Layout({ children, currentPageName }) {
                           }
                         }}>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
                               <item.icon className="w-4 h-4" />
-                              <span className="font-medium">{item.title}</span>
+                              <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                             </div>
-                            <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${expandedMenus[index] ? 'rotate-90' : ''}`} />
+                            <ChevronRight className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus[index] ? 'rotate-90' : ''}`} />
                           </Link>
 
                           {expandedMenus[index] &&
-                      <div className="ml-4 mb-1 space-y-1">
+                      <div className="ml-4 mb-1 space-y-1 group-data-[collapsible=icon]:hidden">
                               {item.submenu.map((subItem) =>
                         <SidebarMenuButton
                           key={subItem.title}
