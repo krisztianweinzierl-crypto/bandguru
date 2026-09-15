@@ -924,11 +924,11 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar collapsible="icon" className="border-r border-sidebar-border">
           <SidebarHeader className="border-b border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
             <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
-              <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+              <div className="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
                 <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                   alt="Bandguru Logo"
-                  className="w-12 h-12 object-contain group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8" />
+                  className="w-12 h-12 object-contain group-data-[collapsible=icon]:w-9 group-data-[collapsible=icon]:h-9" />
 
                 <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
                   <h2 className="font-display font-semibold text-lg text-foreground truncate">Bandguru</h2>
