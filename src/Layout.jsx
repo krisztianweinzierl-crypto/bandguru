@@ -61,11 +61,6 @@ export default function Layout({ children, currentPageName }) {
   currentPageName === 'AcceptInvite' ||
   location.pathname.includes('/vertragkundenansicht');
 
-  // Für Public Pages: Sofort Children rendern ohne Auth-Check
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
   const [user, setUser] = useState(null);
   const [mitgliedschaften, setMitgliedschaften] = useState([]);
   const [currentOrg, setCurrentOrg] = useState(null);
@@ -98,8 +93,9 @@ export default function Layout({ children, currentPageName }) {
   };
 
   useEffect(() => {
+    if (isPublicPage) return;
     checkAuthAndLoadData();
-  }, []);
+  }, [isPublicPage]);
 
   const checkAuthAndLoadData = async () => {
     try {
@@ -379,6 +375,7 @@ export default function Layout({ children, currentPageName }) {
   { title: "Dashboard", url: createPageUrl("Dashboard"), icon: LayoutDashboard },
   {
     title: "Events",
+    url: createPageUrl("Events"),
     icon: Calendar,
     submenu: [
     { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
@@ -409,6 +406,7 @@ export default function Layout({ children, currentPageName }) {
   { title: "Dashboard", url: createPageUrl("MusikerDashboard"), icon: LayoutDashboard },
   {
     title: "Events",
+    url: createPageUrl("MeineEvents"),
     icon: Calendar,
     submenu: [
     { title: "Kalender", url: createPageUrl("Kalender"), icon: CalendarDays },
@@ -444,6 +442,11 @@ export default function Layout({ children, currentPageName }) {
     }
 
   }, [location.pathname]);
+
+  // Public Pages: Ohne Auth-Check direkt Children rendern (nach allen Hooks)
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   // Loading
   if (!initialLoadComplete) {
@@ -1130,22 +1133,23 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarGroupContent>
                   <SidebarMenu>
                     <SidebarMenuItem>
-                      <button
+                      <Link
+                      to={createPageUrl("OrganisationSettings")}
                       onClick={() => toggleMenu('settings')}
                       title="Einstellungen"
                       className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto"
-                      style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
+                      style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname) ? {
                         backgroundColor: 'rgba(46, 125, 105, 0.15)',
                         color: '#2E7D69'
                       } : {}}
                       onMouseEnter={(e) => {
-                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) {
                           e.currentTarget.style.backgroundColor = 'rgba(46, 125, 105, 0.1)';
                           e.currentTarget.style.color = '#2E7D69';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname)) {
+                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) {
                           e.currentTarget.style.backgroundColor = 'transparent';
                           e.currentTarget.style.color = '';
                         }
@@ -1156,7 +1160,7 @@ export default function Layout({ children, currentPageName }) {
                           <span className="font-medium group-data-[collapsible=icon]:hidden">Einstellungen</span>
                         </div>
                         <ChevronRight className={`w-5 h-5 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
-                      </button>
+                      </Link>
                       
                       {expandedMenus['settings'] &&
                     <div className="ml-4 mb-1 space-y-1 group-data-[collapsible=icon]:hidden">
