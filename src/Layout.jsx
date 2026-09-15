@@ -1302,7 +1302,7 @@ export default function Layout({ children, currentPageName }) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)} />
 
-                  <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute bottom-full left-0 mb-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                     {!isManager &&
                   <Link
                     to={createPageUrl('MusikerProfil')}
