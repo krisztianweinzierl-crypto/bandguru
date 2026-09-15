@@ -956,7 +956,7 @@ export default function Layout({ children, currentPageName }) {
 
                     <span className="truncate font-medium text-sm">{currentOrg.name}</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 flex-shrink-0 ml-2" />
+                  <ChevronDown className="w-5 h-5 flex-shrink-0 ml-2" />
                 </Button>
 
                 {showOrgSwitcher &&
@@ -993,7 +993,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-4 h-4 flex-shrink-0" style={{ color: '#2E7D69' }} />
+                          <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#2E7D69' }} />
                           }
                           </button>);
 
@@ -1023,7 +1023,7 @@ export default function Layout({ children, currentPageName }) {
                           if (!item.url) e.preventDefault();
                           toggleMenu(index);
                         }}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:mx-auto`}
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto`}
                         style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
                           backgroundColor: 'rgba(46, 125, 105, 0.15)',
                           color: '#2E7D69'
@@ -1042,10 +1042,10 @@ export default function Layout({ children, currentPageName }) {
                         }}>
 
                             <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
-                              <item.icon className="w-4 h-4" />
+                              <item.icon className="w-5 h-5" />
                               <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                             </div>
-                            <ChevronRight className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus[index] ? 'rotate-90' : ''}`} />
+                            <ChevronRight className={`w-5 h-5 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus[index] ? 'rotate-90' : ''}`} />
                           </Link>
 
                           {expandedMenus[index] &&
@@ -1076,7 +1076,7 @@ export default function Layout({ children, currentPageName }) {
                               }
                             }}>
 
-                                    <subItem.icon className="w-4 h-4" />
+                                    <subItem.icon className="w-5 h-5" />
                                     <span className="font-medium">{subItem.title}</span>
                                   </Link>
 
@@ -1111,7 +1111,7 @@ export default function Layout({ children, currentPageName }) {
                           }
                         }}>
 
-                            <item.icon className="w-4 h-4" />
+                            <item.icon className="w-5 h-5" />
                             <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                           </Link>
                         </SidebarMenuButton>
@@ -1133,7 +1133,7 @@ export default function Layout({ children, currentPageName }) {
                       <button
                       onClick={() => toggleMenu('settings')}
                       title="Einstellungen"
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:mx-auto"
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto"
                       style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen")].includes(location.pathname) ? {
                         backgroundColor: 'rgba(46, 125, 105, 0.15)',
                         color: '#2E7D69'
@@ -1152,10 +1152,10 @@ export default function Layout({ children, currentPageName }) {
                       }}>
 
                         <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
-                          <Settings className="w-4 h-4" />
+                          <Settings className="w-5 h-5" />
                           <span className="font-medium group-data-[collapsible=icon]:hidden">Einstellungen</span>
                         </div>
-                        <ChevronRight className={`w-4 h-4 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
+                        <ChevronRight className={`w-5 h-5 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${expandedMenus['settings'] ? 'rotate-90' : ''}`} />
                       </button>
                       
                       {expandedMenus['settings'] &&
@@ -1184,7 +1184,7 @@ export default function Layout({ children, currentPageName }) {
                             }
                           }}>
 
-                              <Building2 className="w-4 h-4" />
+                              <Building2 className="w-5 h-5" />
                               <span className="font-medium">Organisation</span>
                             </Link>
                           </SidebarMenuButton>
@@ -1212,7 +1212,7 @@ export default function Layout({ children, currentPageName }) {
                             }
                           }}>
 
-                              <FileText className="w-4 h-4" />
+                              <FileText className="w-5 h-5" />
                               <span className="font-medium">Buchungsbedingungen</span>
                             </Link>
                           </SidebarMenuButton>
@@ -1240,7 +1240,7 @@ export default function Layout({ children, currentPageName }) {
                             }
                           }}>
 
-                              <FileText className="w-4 h-4" />
+                              <FileText className="w-5 h-5" />
                               <span className="font-medium">Artikel & Positionen</span>
                             </Link>
                           </SidebarMenuButton>
@@ -1289,7 +1289,7 @@ export default function Layout({ children, currentPageName }) {
                   </p>
                   <p className="text-xs text-gray-500 truncate">{currentOrg.name}</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform group-data-[collapsible=icon]:hidden ${showUserMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform group-data-[collapsible=icon]:hidden ${showUserMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showUserMenu &&
@@ -1305,7 +1305,7 @@ export default function Layout({ children, currentPageName }) {
                     onClick={() => setShowUserMenu(false)}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
 
-                        <UserCircle className="w-4 h-4" />
+                        <UserCircle className="w-5 h-5" />
                         Mein Profil
                       </Link>
                   }
@@ -1316,7 +1316,7 @@ export default function Layout({ children, currentPageName }) {
                     }}
                     className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
 
-                      <LogOut className="w-4 h-4" />
+                      <LogOut className="w-5 h-5" />
                       Abmelden
                     </button>
                   </div>
