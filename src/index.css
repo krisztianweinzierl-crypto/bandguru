@@ -102,13 +102,13 @@ button:focus-visible {
     --chart-4: 196 130 30;
     --chart-5: 30 30 30;
     --radius: 0.75rem;
-    --sidebar-background: 231 228 222;
-    --sidebar-foreground: 74 71 66;
+    --sidebar-background: 22 35 61;
+    --sidebar-foreground: 185 196 217;
     --sidebar-primary: 46 125 105;
     --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 209 216 208;
+    --sidebar-accent: 34 49 79;
     --sidebar-accent-foreground: 46 125 105;
-    --sidebar-border: 214 209 199;
+    --sidebar-border: 34 49 79;
     --sidebar-ring: 46 125 105;
 
     /* status/semantic tokens used across list & badge views */
