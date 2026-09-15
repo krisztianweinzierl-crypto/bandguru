@@ -922,23 +922,26 @@ export default function Layout({ children, currentPageName }) {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-          <SidebarHeader className="border-b border-sidebar-border p-4">
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
+          <SidebarHeader className="border-b border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
+            <div className="space-y-4 group-data-[collapsible=icon]:space-y-2">
+              <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
                 <img
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69022398b7641635d4b9d494/ee6dc0826_Buddha_Guitar_oHintergrund.png"
                   alt="Bandguru Logo"
-                  className="w-12 h-12 object-contain" />
+                  className="w-12 h-12 object-contain group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8" />
 
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
                   <h2 className="font-display font-semibold text-lg text-foreground truncate">Bandguru</h2>
                   <p className="text-xs text-muted-foreground truncate">{currentMitglied?.rolle}</p>
                 </div>
                 {/* Notification Bell */}
-                <NotificationBell user={user} currentOrgId={currentOrg?.id} />
+                <div className="group-data-[collapsible=icon]:hidden">
+                  <NotificationBell user={user} currentOrgId={currentOrg?.id} />
+                </div>
+                <SidebarTrigger className="hidden md:flex shrink-0" />
               </div>
 
-              <div className="relative">
+              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Button
                   variant="outline"
                   onClick={() => setShowOrgSwitcher(!showOrgSwitcher)}
