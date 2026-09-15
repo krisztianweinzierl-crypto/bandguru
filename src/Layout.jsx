@@ -1088,6 +1088,7 @@ export default function Layout({ children, currentPageName }) {
 
                     <SidebarMenuButton
                       asChild
+                      tooltip={item.title}
                       className="transition-colors duration-200 rounded-lg mb-1">
 
                           <Link
@@ -1111,7 +1112,7 @@ export default function Layout({ children, currentPageName }) {
                         }}>
 
                             <item.icon className="w-4 h-4" />
-                            <span className="font-medium">{item.title}</span>
+                            <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                           </Link>
                         </SidebarMenuButton>
                     }
