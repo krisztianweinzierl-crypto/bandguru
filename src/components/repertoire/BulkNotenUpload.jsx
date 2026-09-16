@@ -12,7 +12,7 @@ function normalize(str) {
     .toString()
     .normalize("NFD").replace(new RegExp("[\\u0300-\\u036f]", "g"), "")
     .replace(/\.(pdf|jpg|jpeg|png)$/i, "")
-    .replace(/[_\-]+/g, " ")
+    .replace(/[_-]+/g, " ")
     .replace(/[^a-z0-9 ]/gi, "")
     .toLowerCase()
     .replace(/\s+/g, " ")
@@ -201,7 +201,7 @@ export default function BulkNotenUpload({ songs, onClose, onSuccess }) {
             </div>
             <p className="text-xs text-muted-foreground">Dateiname wird als Titel verwendet, z.B. &bdquo;Uptown Funk.pdf&ldquo;.</p>
             <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
-            <input ref={folderInputRef} type="file" webkitdirectory="" directory="" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
+            <input ref={folderInputRef} type="file" webkitdirectory="" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
           </div>
 
           <div className="border-2 border-dashed border-border rounded-lg p-4 space-y-3">
