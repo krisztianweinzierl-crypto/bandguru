@@ -149,7 +149,7 @@ export default function LeadsPage() {
       const updates = stagesToSave.map(async (stage) => {
         if (stage.id && typeof stage.id === 'string' && stage.id.startsWith('temp_')) {
           // Neue Stage erstellen
-          const { id, ...stageData } = stage; // eslint-disable-line no-unused-vars
+          const { id, ...stageData } = stage;
           return base44.entities.LeadStage.create({ ...stageData, org_id: currentOrgId });
         } else if (stage.id) {
           // Existierende Stage updaten
