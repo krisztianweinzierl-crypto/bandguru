@@ -175,7 +175,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="text-center py-8">
               <Receipt className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
               <p className="text-muted-foreground mb-3">Noch keine Rechnungen für dieses Event</p>
-              <Button size="sm" onClick={() => navigate(createPageUrl('Rechnungen'))} className="text-white" style={{ backgroundColor: '#2E7D69' }}>
+              <Button size="sm" onClick={() => navigate(createPageUrl('Rechnungen'))} className="text-white" style={{ backgroundColor: 'rgb(var(--primary))' }}>
                 <Plus className="w-4 h-4 mr-2" />Rechnung erstellen
               </Button>
             </div>
@@ -221,7 +221,7 @@ export default function EventFinanzenTab({ isManager, eventMusiker, ausgaben, re
             <div className="text-center py-8">
               <TrendingDown className="w-12 h-12 mx-auto mb-3 text-muted-foreground/40" />
               <p className="text-muted-foreground mb-3">Noch keine Ausgaben für dieses Event</p>
-              <Button size="sm" onClick={() => navigate(createPageUrl('Ausgaben'))} className="text-white" style={{ backgroundColor: '#2E7D69' }}>
+              <Button size="sm" onClick={() => navigate(createPageUrl('Ausgaben'))} className="text-white" style={{ backgroundColor: 'rgb(var(--primary))' }}>
                 <Plus className="w-4 h-4 mr-2" />Ausgabe hinzufügen
               </Button>
             </div>

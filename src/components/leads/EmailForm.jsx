@@ -103,7 +103,7 @@ export default function EmailForm({ lead, onSubmit, onCancel, isSending }) {
             <Button 
               type="submit" 
               disabled={isSending}
-              style={{ backgroundColor: '#2E7D69' }}
+              style={{ backgroundColor: 'rgb(var(--primary))' }}
               className="hover:opacity-90"
             >
               <Send className="w-4 h-4 mr-2" />

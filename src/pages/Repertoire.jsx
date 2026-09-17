@@ -570,7 +570,7 @@ export default function RepertoirePage() {
                       setEditingSong(null);
                       setShowSongForm(true);
                     }}
-                    style={{ backgroundColor: '#2E7D69' }}
+                    style={{ backgroundColor: 'rgb(var(--primary))' }}
                     className="hover:opacity-90"
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -822,7 +822,7 @@ export default function RepertoirePage() {
                     setEditingSetlist(null);
                     setShowSetlistForm(true);
                   }}
-                  style={{ backgroundColor: '#2E7D69' }}
+                  style={{ backgroundColor: 'rgb(var(--primary))' }}
                   className="hover:opacity-90"
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -947,7 +947,7 @@ export default function RepertoirePage() {
                         <Button
                           variant="default"
                           className="flex-1 hover:opacity-90"
-                          style={{ backgroundColor: '#2E7D69' }}
+                          style={{ backgroundColor: 'rgb(var(--primary))' }}
                           onClick={() => {
                             setEditingSetlist(setlist);
                             setShowSetlistForm(true);

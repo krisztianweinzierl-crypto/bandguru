@@ -479,7 +479,7 @@ Ihr Team`;
               variant="default"
               size="default"
               onClick={() => setIsEditing(false)}
-              className="gap-2 mb-4 bg-[#2E7D69] text-white hover:bg-[#256B59] h-8 px-3 text-sm">
+              className="gap-2 mb-4 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary))]/90 h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück zur Übersicht
@@ -510,7 +510,7 @@ Ihr Team`;
               variant="default"
               size="default"
               onClick={() => navigate(createPageUrl('Vertraege'))}
-              className="gap-2 bg-[#2E7D69] text-white hover:bg-[#256B59] h-8 px-3 text-sm">
+              className="gap-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary))]/90 h-8 px-3 text-sm">
 
               <ArrowLeft className="w-4 h-4" />
               Zurück
@@ -544,7 +544,7 @@ Ihr Team`;
                   size="sm"
                   onClick={handleSendVertrag}
                   disabled={sendVertragMutation.isPending}
-                  className="bg-[#2E7D69] hover:bg-blue-700 gap-2">
+                  className="bg-[rgb(var(--primary))] hover:bg-blue-700 gap-2">
 
                     <Send className="w-4 h-4" />
                     {sendVertragMutation.isPending ? "Wird versendet..." : "Vertrag versenden"}
@@ -632,7 +632,7 @@ Ihr Team`;
                           <PenTool className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                           <p className="text-muted-foreground mb-3 text-sm">Noch nicht unterzeichnet</p>
                           {vertrag.status !== 'storniert' &&
-                            <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-[#2E7D69]">
+                            <Button onClick={() => openUnterschriftModal(typ)} size="sm" className="bg-[rgb(var(--primary))]">
                               <PenTool className="w-4 h-4 mr-2" />Unterschreiben
                             </Button>
                           }
@@ -775,7 +775,7 @@ Ihr Team`;
                       <Button
                         onClick={() => openUnterschriftModal('kunde')}
                         size="sm"
-                        className="bg-[#2E7D69]">
+                        className="bg-[rgb(var(--primary))]">
 
                             <PenTool className="w-4 h-4 mr-2" />
                             Unterschreiben
@@ -812,7 +812,7 @@ Ihr Team`;
                       <Button
                         onClick={() => openUnterschriftModal('organisation')}
                         size="sm"
-                        className="bg-[#2E7D69]">
+                        className="bg-[rgb(var(--primary))]">
 
                             <PenTool className="w-4 h-4 mr-2" />
                             Unterschreiben
@@ -1056,7 +1056,7 @@ Ihr Team`;
                 <Button
                   onClick={saveUnterschrift}
                   disabled={saveUnterschriftMutation.isPending}
-                  className="w-full bg-[#2E7D69]">
+                  className="w-full bg-[rgb(var(--primary))]">
                   <Check className="w-4 h-4 mr-2" />
                   {saveUnterschriftMutation.isPending ? "Wird gespeichert..." : "Unterschrift speichern"}
                 </Button>

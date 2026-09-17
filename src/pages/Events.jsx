@@ -195,7 +195,7 @@ export default function EventsPage() {
       <Link to={createPageUrl(`EventDetail?id=${event.id}`)}>
         <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-all duration-200 flex items-center gap-4 border-l-4" style={{ borderLeftColor: statusStyle.accent }}>
           <div className="flex-shrink-0">
-            <div className="bg-[#2E7D69] text-white rounded-lg w-16 h-16 flex flex-col items-center justify-center">
+            <div className="bg-[rgb(var(--primary))] text-white rounded-lg w-16 h-16 flex flex-col items-center justify-center">
               <span className="text-xs font-medium">
                 {format(new Date(event.datum_von), 'MMM', { locale: de }).toUpperCase()}
               </span>
@@ -264,7 +264,7 @@ export default function EventsPage() {
             <Link to={createPageUrl("EventAIPlanner")}>
               <Button
                 variant="outline"
-                className="border-[#2E7D69] text-[#2E7D69] hover:bg-[#2E7D69]/10">
+                className="border-[rgb(var(--primary))] text-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/10">
                 <Sparkles className="w-4 h-4 mr-2" />
                 AI Event-Planer
               </Button>
@@ -272,7 +272,7 @@ export default function EventsPage() {
             <Button
               onClick={() => setShowForm(true)}
               className="text-white"
-              style={{ backgroundColor: '#2E7D69' }}>
+              style={{ backgroundColor: 'rgb(var(--primary))' }}>
 
                 <Plus className="w-4 h-4 mr-2" />
                 Event erstellen
@@ -352,7 +352,7 @@ export default function EventsPage() {
               value="upcoming"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#2E7D69'
+                '--active-bg': 'rgb(var(--primary))'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
@@ -364,7 +364,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #2E7D69">
+              data-active-style="background-color: rgb(var(--primary))">
 
               Anstehende ({upcomingEvents.length})
             </TabsTrigger>
@@ -372,7 +372,7 @@ export default function EventsPage() {
               value="past"
               className="data-[state=active]:text-white"
               style={{
-                '--active-bg': '#2E7D69'
+                '--active-bg': 'rgb(var(--primary))'
               }}
               onMouseEnter={(e) => {
                 if (!e.currentTarget.getAttribute('data-state').includes('active')) {
@@ -384,7 +384,7 @@ export default function EventsPage() {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
-              data-active-style="background-color: #2E7D69">
+              data-active-style="background-color: rgb(var(--primary))">
 
               Vergangene ({pastEvents.length})
             </TabsTrigger>
@@ -453,7 +453,7 @@ export default function EventsPage() {
 
       <style>{`
         [data-state="active"][data-active-style] {
-          background-color: #2E7D69 !important;
+          background-color: rgb(var(--primary)) !important;
         }
       `}</style>
     </div>);

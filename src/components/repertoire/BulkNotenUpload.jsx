@@ -161,7 +161,7 @@ export default function BulkNotenUpload({ songs, onClose, onSuccess }) {
           {result.failed > 0 && (
             <p className="text-sm text-destructive mb-4">{result.failed} fehlgeschlagen (siehe Konsole).</p>
           )}
-          <Button onClick={onClose} style={{ backgroundColor: "#2E7D69" }} className="hover:opacity-90 text-white">
+          <Button onClick={onClose} style={{ backgroundColor: "rgb(var(--primary))" }} className="hover:opacity-90 text-white">
             Fertig
           </Button>
         </CardContent>
@@ -286,7 +286,7 @@ export default function BulkNotenUpload({ songs, onClose, onSuccess }) {
             type="button"
             onClick={handleApply}
             disabled={applying || matchedCount === 0}
-            style={{ backgroundColor: "#2E7D69" }}
+            style={{ backgroundColor: "rgb(var(--primary))" }}
             className="hover:opacity-90 text-white"
           >
             {applying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}

@@ -132,7 +132,7 @@ export default function MusikerHinzufuegenForm({
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onCancel}>Abbrechen</Button>
-            <Button onClick={onAdd} disabled={!selectedMusikerId || isPending} className="text-white" style={{ backgroundColor: "#2E7D69" }}>
+            <Button onClick={onAdd} disabled={!selectedMusikerId || isPending} className="text-white" style={{ backgroundColor: "rgb(var(--primary))" }}>
               Musiker hinzufügen
             </Button>
           </div>

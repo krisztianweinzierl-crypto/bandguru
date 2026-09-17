@@ -452,7 +452,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(46, 125, 105, 0.1)' }}>
-          <Sparkles className="w-5 h-5" style={{ color: '#2E7D69' }} />
+          <Sparkles className="w-5 h-5" style={{ color: 'rgb(var(--primary))' }} />
         </div>
         <div>
           <h1 className="font-display font-medium text-2xl text-foreground">AI Event-Planer</h1>
@@ -486,14 +486,14 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 {messages.map((m, i) => (
                   <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                     {m.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full bg-[#2E7D69] flex items-center justify-center shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center shrink-0">
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
                     <div
                       className={`rounded-2xl px-4 py-2.5 text-sm max-w-[80%] whitespace-pre-line ${
                         m.role === "user"
-                          ? "bg-[#2E7D69] text-white rounded-br-sm"
+                          ? "bg-[rgb(var(--primary))] text-white rounded-br-sm"
                           : "bg-muted text-foreground rounded-bl-sm"
                       }`}
                     >
@@ -503,7 +503,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 ))}
                 {loading && (
                   <div className="flex items-end gap-2 justify-start">
-                    <div className="w-7 h-7 rounded-full bg-[#2E7D69] flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-[rgb(var(--primary))] flex items-center justify-center shrink-0">
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                     <div className="rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm bg-muted text-muted-foreground flex items-center gap-2">
@@ -521,12 +521,12 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="min-h-[52px] max-h-[160px] text-base resize-none border-border focus:border-[#2E7D69]"
+                className="min-h-[52px] max-h-[160px] text-base resize-none border-border focus:border-[rgb(var(--primary))]"
               />
               <Button
                 onClick={handleSend}
                 disabled={loading || !input.trim()}
-                className="bg-[#2E7D69] hover:bg-[#256B59] h-[52px] px-4 shrink-0"
+                className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90 h-[52px] px-4 shrink-0"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
@@ -544,8 +544,8 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-[#2E7D69]/10 text-[#2E7D69] border-0">{plan.event_typ || "Event"}</Badge>
-                    {saved && <Badge className="bg-[#2E7D69]/10 text-[#2E7D69] border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
+                    <Badge className="bg-[rgb(var(--primary))]/10 text-[rgb(var(--primary))] border-0">{plan.event_typ || "Event"}</Badge>
+                    {saved && <Badge className="bg-[rgb(var(--primary))]/10 text-[rgb(var(--primary))] border-0"><CheckCircle2 className="w-3 h-3 mr-1" />Gespeichert</Badge>}
                   </div>
                   <h2 className="font-display font-medium text-xl text-foreground mb-2">{plan.titel}</h2>
                   {plan.zusammenfassung && (
@@ -555,7 +555,7 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                 <Button
                   onClick={handleSave}
                   disabled={saving || saved}
-                  className="bg-[#2E7D69] hover:bg-[#256B59] shrink-0"
+                  className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90 shrink-0"
                 >
                   {saving ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Speichern...</>
@@ -625,14 +625,14 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                         onClick={() => setSelectedLocationIndex(i)}
                         className={`text-left rounded-xl border-2 p-4 transition-all space-y-2 ${
                           selectedLocationIndex === i
-                            ? "border-[#2E7D69] bg-[#2E7D69]/5"
-                            : "border-border hover:border-[#2E7D69]/40 bg-card"
+                            ? "border-[rgb(var(--primary))] bg-[rgb(var(--primary))]/5"
+                            : "border-border hover:border-[rgb(var(--primary))]/40 bg-card"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <span className="font-semibold text-sm text-foreground">{loc.name}</span>
                           <Badge className={`text-xs shrink-0 border-0 ${
-                            selectedLocationIndex === i ? "bg-[#2E7D69]/50 text-white" : "bg-muted text-muted-foreground"
+                            selectedLocationIndex === i ? "bg-[rgb(var(--primary))]/50 text-white" : "bg-muted text-muted-foreground"
                           }`}>
                             {loc.preisklasse}
                           </Badge>
@@ -798,13 +798,13 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                     key={m.id}
                                     onClick={() => handleSelectCandidate(slot.rolle, slot.slotIndex, m.id)}
                                     className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${!saved ? "cursor-pointer" : ""} ${
-                                      isRequested ? "border-[#2E7D69]/40 bg-[#2E7D69]/5" :
-                                      isSelected ? "border-[#2E7D69]/60 bg-[#2E7D69]/5" : "border-border bg-muted opacity-70 hover:opacity-100"
+                                      isRequested ? "border-[rgb(var(--primary))]/40 bg-[rgb(var(--primary))]/5" :
+                                      isSelected ? "border-[rgb(var(--primary))]/60 bg-[rgb(var(--primary))]/5" : "border-border bg-muted opacity-70 hover:opacity-100"
                                     }`}
                                   >
                                     <Avatar className="w-10 h-10 shrink-0">
                                       <AvatarImage src={m.profilbild_url} alt={m.name} />
-                                      <AvatarFallback className={`text-white text-xs font-bold ${isSelected || isRequested ? "bg-[#2E7D69]" : "bg-[#A5A19A]"}`}>
+                                      <AvatarFallback className={`text-white text-xs font-bold ${isSelected || isRequested ? "bg-[rgb(var(--primary))]" : "bg-[#A5A19A]"}`}>
                                         {m.name?.split(" ").map(p => p[0]).join("").slice(0, 2).toUpperCase()}
                                       </AvatarFallback>
                                     </Avatar>
@@ -817,14 +817,14 @@ Falls Musikgenres erwähnt oder impliziert werden, gib diese im Feld 'genre_anfo
                                           </Badge>
                                         )}
                                         {isSelected && !saved && (
-                                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2E7D69] shrink-0" />
+                                          <CheckCircle2 className="w-3.5 h-3.5 text-[rgb(var(--primary))] shrink-0" />
                                         )}
                                       </div>
                                       {m.instrumente?.length > 0 && (
                                         <p className="text-xs text-muted-foreground truncate">{m.instrumente.join(", ")}</p>
                                       )}
                                       {isRequested ? (
-                                        <p className="text-xs text-[#2E7D69] font-medium flex items-center gap-1 mt-0.5">
+                                        <p className="text-xs text-[rgb(var(--primary))] font-medium flex items-center gap-1 mt-0.5">
                                           <CheckCircle2 className="w-3 h-3" /> Angefragt{m.email ? " + E-Mail" : ""}
                                         </p>
                                       ) : m.email ? (

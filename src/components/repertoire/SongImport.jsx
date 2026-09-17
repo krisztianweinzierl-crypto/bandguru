@@ -339,7 +339,7 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
               <Button
                 onClick={handleAnalyze}
                 disabled={!file || analyzing}
-                className="bg-[#2E7D69] hover:bg-[#256B59]"
+                className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90"
               >
                 {analyzing ? (
                   <>
@@ -459,7 +459,7 @@ Superstition,Stevie Wonder,Ebm,100,04:05,Funk;Soul,,,Classic`;
                 <Button
                   onClick={handleConfirmImport}
                   disabled={importing || includedCount === 0}
-                  className="bg-[#2E7D69] hover:bg-[#256B59]"
+                  className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   {importing ? 'Importiere...' : `${includedCount} Songs importieren`}

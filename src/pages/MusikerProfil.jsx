@@ -443,7 +443,7 @@ export default function MusikerProfilPage() {
             <Button
               type="submit"
               disabled={!hasChanges || updateMusikerMutation.isPending}
-              className="bg-[#2E7D69] hover:bg-[#256B59]"
+              className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90"
             >
               <Save className="w-4 h-4 mr-2" />
               {updateMusikerMutation.isPending ? "Speichere..." : "Änderungen speichern"}

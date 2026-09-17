@@ -80,7 +80,7 @@ export default function Layout({ children, currentPageName }) {
     steuernummer: "",
     waehrung: "EUR",
     zeitzone: "Europe/Berlin",
-    primary_color: "#2E7D69"
+    primary_color: "rgb(var(--primary))"
   });
 
   // Prüfe ob wir im iframe (Preview-Modus) sind
@@ -523,7 +523,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                style={{ backgroundColor: '#2E7D69' }}
+                style={{ backgroundColor: 'rgb(var(--primary))' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -782,8 +782,8 @@ export default function Layout({ children, currentPageName }) {
                   setShowOnboarding(true);
                 }}
                 style={{
-                  borderColor: '#2E7D69',
-                  color: '#2E7D69'
+                  borderColor: 'rgb(var(--primary))',
+                  color: 'rgb(var(--primary))'
                 }}
                 className="hover:opacity-80">
 
@@ -890,7 +890,7 @@ export default function Layout({ children, currentPageName }) {
                 <Button
                   type="submit"
                   className="w-full h-12 text-lg"
-                  style={{ backgroundColor: '#2E7D69' }}>
+                  style={{ backgroundColor: 'rgb(var(--primary))' }}>
 
                   Organisation erstellen
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -983,7 +983,7 @@ export default function Layout({ children, currentPageName }) {
                           className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
-                          style={isCurrentOrg ? { borderLeftColor: '#2E7D69' } : {}}>
+                          style={isCurrentOrg ? { borderLeftColor: 'rgb(var(--primary))' } : {}}>
 
                             <div
                             className="w-6 h-6 rounded flex-shrink-0"
@@ -996,7 +996,7 @@ export default function Layout({ children, currentPageName }) {
                               </p>
                             </div>
                             {isCurrentOrg &&
-                          <Check className="w-5 h-5 flex-shrink-0" style={{ color: '#2E7D69' }} />
+                          <Check className="w-5 h-5 flex-shrink-0" style={{ color: 'rgb(var(--primary))' }} />
                           }
                           </button>);
 
@@ -1358,7 +1358,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Dashboard" : "MusikerDashboard")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Dashboard" : "MusikerDashboard") ?
-                'text-[#2E7D69]' :
+                'text-[rgb(var(--primary))]' :
                 'text-gray-500'}`
                 }>
 
@@ -1371,7 +1371,7 @@ export default function Layout({ children, currentPageName }) {
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Events" : "MeineEvents") ||
                 location.pathname === createPageUrl("Kalender") ?
-                'text-[#2E7D69]' :
+                'text-[rgb(var(--primary))]' :
                 'text-gray-500'}`
                 }>
 
@@ -1383,7 +1383,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl("Nachrichten")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl("Nachrichten") ?
-                'text-[#2E7D69]' :
+                'text-[rgb(var(--primary))]' :
                 'text-gray-500'}`
                 }>
 
@@ -1395,7 +1395,7 @@ export default function Layout({ children, currentPageName }) {
                 to={createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben")}
                 className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
                 location.pathname === createPageUrl(isManager ? "Aufgaben" : "MeineAufgaben") ?
-                'text-[#2E7D69]' :
+                'text-[rgb(var(--primary))]' :
                 'text-gray-500'}`
                 }>
 

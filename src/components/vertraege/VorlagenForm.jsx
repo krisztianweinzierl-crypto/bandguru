@@ -240,7 +240,7 @@ export default function VorlagenForm({ vorlage = null, onSubmit, onCancel }) {
             <Button type="button" variant="outline" onClick={onCancel}>
               Abbrechen
             </Button>
-            <Button type="submit" className="bg-[#2E7D69] hover:bg-[#256B59]">
+            <Button type="submit" className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90">
               <Save className="w-4 h-4 mr-2" />
               {vorlage ? "Aktualisieren" : "Vorlage erstellen"}
             </Button>

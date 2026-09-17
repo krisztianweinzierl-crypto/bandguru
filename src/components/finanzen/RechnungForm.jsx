@@ -360,7 +360,7 @@ export default function RechnungForm({ rechnung, onSubmit, onCancel, kunden, eve
             </Button>
             <Button 
               type="submit"
-              style={{ backgroundColor: '#2E7D69' }}
+              style={{ backgroundColor: 'rgb(var(--primary))' }}
               className="hover:opacity-90"
             >
               <Save className="w-4 h-4 mr-2" />

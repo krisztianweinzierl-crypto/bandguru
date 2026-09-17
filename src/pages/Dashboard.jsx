@@ -71,7 +71,7 @@ export default function Dashboard() {
           <CardContent className="relative p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(46, 125, 105, 0.1)' }}>
-                <Sparkles className="w-6 h-6" style={{ color: '#2E7D69' }} />
+                <Sparkles className="w-6 h-6" style={{ color: 'rgb(var(--primary))' }} />
               </div>
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">KI Event-Planer</h2>
@@ -79,7 +79,7 @@ export default function Dashboard() {
               </div>
             </div>
             <Link to={createPageUrl("EventAIPlanner")} className="shrink-0">
-              <Button className="text-white font-semibold" style={{ backgroundColor: '#2E7D69' }}>
+              <Button className="text-white font-semibold" style={{ backgroundColor: 'rgb(var(--primary))' }}>
                 <Sparkles className="w-4 h-4 mr-2" />
                 Event planen
               </Button>
@@ -221,7 +221,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <Link to={createPageUrl("Events")}>
-                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: '#2E7D69' }}>
+                <Button className="w-full justify-start text-white hover:opacity-90" style={{ backgroundColor: 'rgb(var(--primary))' }}>
                   <Plus className="w-4 h-4 mr-2" />
                   Event erstellen
                 </Button>

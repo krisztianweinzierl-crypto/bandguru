@@ -546,7 +546,7 @@ export default function KalenderPage() {
                   setSelectedDate(new Date());
                   setShowEventForm(true);
                 }}
-                className="bg-[#2E7D69] hover:bg-[#256B59]"
+                className="bg-[rgb(var(--primary))] hover:bg-[rgb(var(--primary))]/90"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Event erstellen
