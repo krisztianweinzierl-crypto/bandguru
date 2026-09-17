@@ -5,8 +5,8 @@ module.exports = {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			display: ['"Playfair Display"', 'Georgia', 'serif']
+  			sans: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			display: ['Syne', 'ui-sans-serif', 'sans-serif']
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
