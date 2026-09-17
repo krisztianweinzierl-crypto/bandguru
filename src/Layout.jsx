@@ -72,6 +72,7 @@ export default function Layout({ children, currentPageName }) {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   const [showOrgSwitcher, setShowOrgSwitcher] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [expandedMenus, setExpandedMenus] = useState({});
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [pendingInvites, setPendingInvites] = useState([]);
