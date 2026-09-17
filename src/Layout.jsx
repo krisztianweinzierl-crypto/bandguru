@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { useTheme } from "next-themes";
 import {
   LayoutDashboard,
   Calendar,
@@ -30,7 +31,9 @@ import {
   Guitar,
   Zap,
   Shield,
-  UserPlus } from
+  UserPlus,
+  Sun,
+  Moon } from
 "lucide-react";
 import {
   Sidebar,
