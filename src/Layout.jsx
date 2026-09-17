@@ -1262,6 +1262,15 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
+                            <button
+                              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                              title={theme === "dark" ? "Zu Hell wechseln" : "Zu Dunkel wechseln"}
+                              className="w-full flex items-center gap-3 hover:bg-sidebar-accent rounded-lg p-2 mb-2 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 text-sidebar-foreground/70 hover:text-sidebar-foreground">
+                              {theme === "dark" ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
+                              <span className="text-sm font-medium group-data-[collapsible=icon]:hidden">
+                                {theme === "dark" ? "Hell-Modus" : "Dunkel-Modus"}
+                              </span>
+                            </button>
                             <p className="text-xs text-sidebar-foreground/40 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 1.2.0</p>
                             <div className="relative">
               <button
