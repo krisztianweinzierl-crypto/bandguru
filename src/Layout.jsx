@@ -972,8 +972,8 @@ export default function Layout({ children, currentPageName }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setShowOrgSwitcher(false)} />
 
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                      <div className="p-2 text-xs text-gray-500 font-medium border-b">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="p-2 text-xs text-muted-foreground font-medium border-b border-border">
                         Organisation wechseln
                       </div>
                       {organisations.map((org) => {
@@ -984,7 +984,7 @@ export default function Layout({ children, currentPageName }) {
                         <button
                           key={org.id}
                           onClick={() => handleOrgChange(org.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-50 transition-colors ${
+                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-muted transition-colors ${
                           isCurrentOrg ? 'border-l-4' : ''}`
                           }
                           style={isCurrentOrg ? { borderLeftColor: 'rgb(var(--primary))' } : {}}>
@@ -995,7 +995,7 @@ export default function Layout({ children, currentPageName }) {
 
                             <div className="flex-1 min-w-0 text-left">
                               <p className="font-medium text-sm truncate">{org.name}</p>
-                              <p className="text-xs text-gray-500 truncate">
+                              <p className="text-xs text-muted-foreground truncate">
                                 {mitglied?.rolle}
                               </p>
                             </div>
@@ -1315,12 +1315,12 @@ export default function Layout({ children, currentPageName }) {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)} />
 
-                  <div className="absolute bottom-full left-0 mb-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                  <div className="absolute bottom-full left-0 mb-2 w-56 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg z-50 overflow-hidden">
                     {!isManager &&
                   <Link
                     to={createPageUrl('MusikerProfil')}
                     onClick={() => setShowUserMenu(false)}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-muted transition-colors">
 
                         <UserCircle className="w-5 h-5" />
                         Mein Profil
@@ -1331,7 +1331,7 @@ export default function Layout({ children, currentPageName }) {
                       setShowUserMenu(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-gray-100">
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-500/10 transition-colors border-t border-border">
 
                       <LogOut className="w-5 h-5" />
                       Abmelden
