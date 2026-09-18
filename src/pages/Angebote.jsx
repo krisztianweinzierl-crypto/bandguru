@@ -249,7 +249,7 @@ export default function AngebotePage() {
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
-            margin: 22mm 18mm 28mm 18mm;
+            margin: 22mm 18mm 36mm 18mm;
           }
           * { box-sizing: border-box; }
           body {
@@ -440,9 +440,15 @@ export default function AngebotePage() {
             font-weight: 600;
             color: #1e293b;
           }
+          table.positions tr {
+            page-break-inside: avoid;
+          }
+          .totals, .conditions, .closing {
+            page-break-inside: avoid;
+          }
           .footer {
             position: fixed;
-            bottom: 8mm;
+            bottom: 10mm;
             left: 18mm;
             right: 18mm;
             text-align: center;
