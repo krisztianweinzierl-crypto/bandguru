@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { printBusinessDocument, formatDokumentDatum } from "@/utils/printDocument";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   DropdownMenu,
@@ -233,30 +234,33 @@ export default function RechnungenPage() {
     setViewRechnung(rechnung);
   };
 
-  const handleDownloadPDF = async (rechnung) => {
-    try {
-      if (rechnung.pdf_url) {
-        window.open(rechnung.pdf_url, '_blank');
-        return;
-      }
-
-      // PDF generieren
-      const response = await base44.functions.invoke('generateRechnungPDF', {
-        rechnungId: rechnung.id
-      });
-
-      if (response.data.success && response.data.pdf_url) {
-        // Cache aktualisieren
-        queryClient.invalidateQueries({ queryKey: ['rechnungen'] });
-        // PDF öffnen
-        window.open(response.data.pdf_url, '_blank');
-      } else {
-        alert('Fehler beim Generieren des PDFs');
-      }
-    } catch (error) {
-      console.error('PDF Error:', error);
-      alert('Fehler beim Generieren des PDFs: ' + error.message);
-    }
+  const handleDownloadPDF = (rechnung) => {
+    const bezahlt = rechnung.bezahlt_betrag || 0;
+    printBusinessDocument({
+      titel: 'Rechnung',
+      nummer: rechnung.rechnungsnummer,
+      metaZeilen: [
+        ['Rechnungs-Nr.', rechnung.rechnungsnummer],
+        ['Datum', formatDokumentDatum(rechnung.rechnungsdatum)],
+        ['Fällig am', formatDokumentDatum(rechnung.faelligkeitsdatum)]
+      ],
+      kunde: kunden.find((k) => k.id === rechnung.kunde_id),
+      organisation,
+      positionen: rechnung.positionen,
+      nettoBetrag: rechnung.netto_betrag,
+      steuerBetrag: rechnung.steuer_betrag,
+      bruttoBetrag: rechnung.brutto_betrag,
+      extraSummen: bezahlt > 0 ? [
+        ['Bereits bezahlt', -bezahlt],
+        ['Offener Betrag', (rechnung.brutto_betrag || 0) - bezahlt]
+      ] : [],
+      intro: rechnung.kunde_notizen,
+      bedingungen: rechnung.zahlungsbedingungen,
+      abschlussZeilen: [
+        'Vielen Dank für Ihren Auftrag.',
+        `Bitte überweisen Sie den Rechnungsbetrag bis zum ${formatDokumentDatum(rechnung.faelligkeitsdatum)} unter Angabe der Rechnungsnummer.`
+      ]
+    });
   };
 
   const handlePrint = () => {
