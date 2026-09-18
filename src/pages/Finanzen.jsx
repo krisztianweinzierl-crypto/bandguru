@@ -230,7 +230,7 @@ export default function FinanzenPage() {
                 {gewinn.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
-                {(gewinn / gesamtEinnahmen * 100 || 0).toFixed(1)}% Marge
+                Marge
               </p>
             </CardContent>
           </Card>
