@@ -613,6 +613,50 @@ export default function AngebotePage() {
     );
   };
 
+  const AngebotListRow = ({ angebot }) => {
+    const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+    const isAbgelaufen = new Date(angebot.gueltig_bis) < new Date() && angebot.status === 'versendet';
+
+    return (
+      <div
+        className="flex items-center justify-between gap-3 p-4 border-b last:border-0 hover:bg-muted transition-colors cursor-pointer"
+        onClick={() => handleView(angebot)}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h3 className="font-semibold text-foreground truncate">{angebot.angebotsnummer}</h3>
+            <Badge className={statusColors[angebot.status] + " shrink-0"}>
+              {angebot.status}
+            </Badge>
+            {isAbgelaufen && (
+              <Badge className="status-orange shrink-0">
+                <Clock className="w-3 h-3 mr-1" />
+                Abgelaufen
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap text-sm text-muted-foreground">
+            <span className="truncate">{kunde?.firmenname || 'Kunde unbekannt'}</span>
+            <span className="shrink-0">· Gültig bis {format(new Date(angebot.gueltig_bis), 'dd. MMM yyyy', { locale: de })}</span>
+          </div>
+        </div>
+        <p className="text-lg font-bold text-foreground shrink-0 whitespace-nowrap">
+          {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+        </p>
+        <div className="flex gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <Button variant="ghost" size="icon" onClick={() => handleExportPDF(angebot)} title="PDF Export">
+            <Download className="w-4 h-4" />
+          </Button>
+          {angebot.status === 'entwurf' && (
+            <Button variant="ghost" size="icon" onClick={() => handleSend(angebot)} title="Senden">
+              <Send className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <AlertDialog />
