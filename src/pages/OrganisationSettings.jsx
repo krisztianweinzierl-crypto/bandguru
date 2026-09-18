@@ -68,6 +68,15 @@ export default function OrganisationSettingsPage() {
         name: organisation.name || "",
         adresse: organisation.adresse || "",
         steuernummer: organisation.steuernummer || "",
+        ust_id: organisation.ust_id || "",
+        inhaber: organisation.inhaber || "",
+        handelsregister: organisation.handelsregister || "",
+        telefon: organisation.telefon || "",
+        email: organisation.email || "",
+        website: organisation.website || "",
+        bank_name: organisation.bank_name || "",
+        iban: organisation.iban || "",
+        bic: organisation.bic || "",
         waehrung: organisation.waehrung || "EUR",
         primary_color: organisation.primary_color || "#3B82F6"
       });
@@ -443,6 +452,107 @@ Das ${organisation.name} Team 🎵`;
                     onChange={(e) => handleFormChange('steuernummer', e.target.value)}
                     disabled={!isManager}
                   />
+                </div>
+
+                <div className="pt-2 border-t">
+                  <h3 className="font-semibold text-foreground mb-1">Kontakt &amp; Rechtliches</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Erscheint in der Fußzeile von Angeboten und Rechnungen.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="org-telefon">Telefon</Label>
+                    <Input
+                      id="org-telefon"
+                      value={orgFormData.telefon}
+                      onChange={(e) => handleFormChange('telefon', e.target.value)}
+                    placeholder="+49 ..."
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-email">E-Mail</Label>
+                    <Input
+                      id="org-email"
+                      value={orgFormData.email}
+                      onChange={(e) => handleFormChange('email', e.target.value)}
+                    placeholder="info@..."
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-website">Website</Label>
+                    <Input
+                      id="org-website"
+                      value={orgFormData.website}
+                      onChange={(e) => handleFormChange('website', e.target.value)}
+                    placeholder="www..."
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-inhaber">Inhaber/in bzw. Geschäftsführung</Label>
+                    <Input
+                      id="org-inhaber"
+                      value={orgFormData.inhaber}
+                      onChange={(e) => handleFormChange('inhaber', e.target.value)}
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-ust-id">USt-IdNr.</Label>
+                    <Input
+                      id="org-ust-id"
+                      value={orgFormData.ust_id}
+                      onChange={(e) => handleFormChange('ust_id', e.target.value)}
+                    placeholder="DE..."
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-handelsregister">Registergericht &amp; -nummer</Label>
+                    <Input
+                      id="org-handelsregister"
+                      value={orgFormData.handelsregister}
+                      onChange={(e) => handleFormChange('handelsregister', e.target.value)}
+                    placeholder="z. B. Amtsgericht Stuttgart, HRB 12345"
+                      disabled={!isManager}
+                    />
+                  </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <h3 className="font-semibold text-foreground mb-1">Bankverbindung</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Wird auf Rechnungen als Zahlungshinweis und in der Fußzeile angezeigt.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="org-bank">Bank</Label>
+                    <Input
+                      id="org-bank"
+                      value={orgFormData.bank_name}
+                      onChange={(e) => handleFormChange('bank_name', e.target.value)}
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-iban">IBAN</Label>
+                    <Input
+                      id="org-iban"
+                      value={orgFormData.iban}
+                      onChange={(e) => handleFormChange('iban', e.target.value)}
+                    placeholder="DE..."
+                      disabled={!isManager}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="org-bic">BIC</Label>
+                    <Input
+                      id="org-bic"
+                      value={orgFormData.bic}
+                      onChange={(e) => handleFormChange('bic', e.target.value)}
+                      disabled={!isManager}
+                    />
+                  </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

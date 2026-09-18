@@ -258,7 +258,7 @@ export default function RechnungenPage() {
       bedingungen: rechnung.zahlungsbedingungen,
       abschlussZeilen: [
         'Vielen Dank für Ihren Auftrag.',
-        `Bitte überweisen Sie den Rechnungsbetrag bis zum ${formatDokumentDatum(rechnung.faelligkeitsdatum)} unter Angabe der Rechnungsnummer.`
+        `Bitte überweisen Sie den ${bezahlt > 0 ? 'offenen Betrag' : 'Rechnungsbetrag'} bis zum ${formatDokumentDatum(rechnung.faelligkeitsdatum)} unter Angabe der Rechnungsnummer${organisation?.iban ? ' auf folgendes Konto: ' + [organisation.bank_name, 'IBAN ' + organisation.iban, organisation.bic ? 'BIC ' + organisation.bic : ''].filter(Boolean).join(' · ') : ''}.`
       ]
     });
   };

@@ -27,12 +27,49 @@ export function printBusinessDocument({
 }) {
   const brandColor = organisation?.primary_color || '#10B981';
   const orgAdresseZeile = (organisation?.adresse || '').replace(/\n/g, ' · ');
-  const footerText = [
-    organisation?.name,
-    orgAdresseZeile,
-    organisation?.steuernummer ? 'USt-IdNr: ' + organisation.steuernummer : ''
-  ].filter(Boolean).join(' · ');
+  const footerSpalten = [
+    [
+      organisation?.name,
+      orgAdresseZeile,
+      organisation?.inhaber ? 'Inhaber/in: ' + organisation.inhaber : '',
+      organisation?.handelsregister
+    ],
+    [
+      organisation?.telefon ? 'Tel. ' + organisation.telefon : '',
+      organisation?.email ? 'E-Mail ' + organisation.email : '',
+      organisation?.website ? 'Web ' + organisation.website : ''
+    ],
+    [
+      organisation?.bank_name,
+      organisation?.iban ? 'IBAN ' + organisation.iban : '',
+      organisation?.bic ? 'BIC ' + organisation.bic : '',
+      organisation?.ust_id ? 'USt-IdNr. ' + organisation.ust_id : '',
+      organisation?.steuernummer ? 'Steuer-Nr. ' + organisation.steuernummer : ''
+    ]
+  ].map((zeilen) => zeilen.filter(Boolean)).filter((zeilen) => zeilen.length > 0);
   const supportsMarginBoxes = /Chrome\//.test(navigator.userAgent);
+
+  const randBoxen = {
+    1: ['bottom-center'],
+    2: ['bottom-left', 'bottom-right'],
+    3: ['bottom-left', 'bottom-center', 'bottom-right']
+  }[footerSpalten.length] || [];
+  const boxBreite = footerSpalten.length === 3 ? ['33%', '33%', '34%'] : footerSpalten.length === 2 ? ['50%', '50%'] : ['100%'];
+  const cssZeilen = (zeilen) => zeilen.map((z) => JSON.stringify(z)).join(' "\\A " ');
+  const footerMarginBoxes = randBoxen.map((box, i) => `@${box} {
+              content: ${cssZeilen(footerSpalten[i])};
+              white-space: pre;
+              font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+              font-size: 7pt;
+              line-height: 1.45;
+              color: #94a3b8;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 6px;
+              margin-top: 4mm;
+              width: ${boxBreite[i]};
+              text-align: ${i === 0 ? 'left' : 'left'};
+              vertical-align: top;
+            }`).join('\n');
 
   const htmlContent = `
       <!DOCTYPE html>
@@ -45,18 +82,8 @@ export function printBusinessDocument({
         <style>
           @page {
             size: A4;
-            margin: 22mm 18mm 24mm 18mm;
-            ${supportsMarginBoxes && footerText ? `@bottom-center {
-              content: ${JSON.stringify(footerText)};
-              font-family: 'Plus Jakarta Sans', Arial, sans-serif;
-              font-size: 7.5pt;
-              color: #94a3b8;
-              border-top: 1px solid #e2e8f0;
-              padding-top: 6px;
-              margin-top: 12mm;
-              width: 100%;
-              vertical-align: top;
-            }` : ''}
+            margin: 22mm 18mm 30mm 18mm;
+            ${supportsMarginBoxes ? footerMarginBoxes : ''}
           }
           * { box-sizing: border-box; }
           body {
@@ -237,12 +264,15 @@ export function printBusinessDocument({
           }
           .footer-flow {
             margin-top: 40px;
-            text-align: center;
-            font-size: 7.5pt;
+            display: flex;
+            gap: 16px;
+            font-size: 7pt;
+            line-height: 1.45;
             color: #94a3b8;
             border-top: 1px solid #e2e8f0;
             padding-top: 8px;
           }
+          .footer-flow div { flex: 1; }
         </style>
       </head>
       <body>
@@ -326,7 +356,7 @@ export function printBusinessDocument({
           <p class="signoff">Mit freundlichen Grüßen<br>${organisation?.name || ''}</p>
         </div>
 
-        ${!supportsMarginBoxes && footerText ? `<div class="footer-flow">${footerText}</div>` : ''}
+        ${!supportsMarginBoxes && footerSpalten.length ? `<div class="footer-flow">${footerSpalten.map((zeilen) => `<div>${zeilen.join('<br>')}</div>`).join('')}</div>` : ''}
       </body>
       </html>
     `;
