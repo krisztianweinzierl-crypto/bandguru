@@ -219,7 +219,7 @@ export default function FinanzenPage() {
             <div className={`absolute top-0 right-0 w-32 h-32 ${gewinn >= 0 ? 'bg-blue-500' : 'bg-orange-500'} rounded-full opacity-10 transform translate-x-8 -translate-y-8`} />
             <CardHeader className="pb-2 p-3 md:p-6">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Marge</CardTitle>
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gewinn/Verlust</CardTitle>
                 <div className={`p-1.5 md:p-2 ${gewinn >= 0 ? 'bg-blue-100' : 'bg-orange-100'} rounded-lg`}>
                   <Euro className={`w-4 h-4 md:w-5 md:h-5 ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
                 </div>
