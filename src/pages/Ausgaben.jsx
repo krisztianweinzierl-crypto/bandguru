@@ -131,6 +131,29 @@ export default function AusgabenPage() {
     sonstiges: "bg-muted text-foreground border-border"
   };
 
+  const kategorieChartColors = {
+    gage: "#6366F1",
+    reisekosten: "#0EA5E9",
+    unterkunft: "#8B5CF6",
+    equipment: "#F97316",
+    marketing: "#EC4899",
+    verwaltung: "#64748B",
+    steuern: "#EF4444",
+    versicherung: "#10B981",
+    studio: "#EAB308",
+    software: "#06B6D4",
+    sonstiges: "#94A3B8"
+  };
+
+  const kategorieChartData = Object.entries(ausgabenNachKategorie).
+  map(([kategorie, betrag]) => ({
+    name: kategorie.charAt(0).toUpperCase() + kategorie.slice(1),
+    kategorie,
+    value: betrag,
+    color: kategorieChartColors[kategorie] || "#94A3B8"
+  })).
+  sort((a, b) => b.value - a.value);
+
   const handleSubmit = (data) => {
     createAusgabeMutation.mutate(data);
   };
