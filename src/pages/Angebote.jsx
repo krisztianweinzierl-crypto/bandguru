@@ -323,11 +323,11 @@ export default function AngebotePage() {
             text-align: right;
           }
           h1.title {
-            font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
-            font-size: 22pt;
-            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14pt;
+            font-weight: 700;
             color: #1e293b;
-            margin: 0 0 22px 0;
+            margin: 0 0 20px 0;
           }
           .intro {
             font-size: 10.5pt;
