@@ -23,6 +23,42 @@
       "type": "string",
       "description": "Steuernummer"
     },
+    "ust_id": {
+      "type": "string",
+      "description": "Umsatzsteuer-Identifikationsnummer (USt-IdNr.)"
+    },
+    "inhaber": {
+      "type": "string",
+      "description": "Inhaber/in bzw. Gesch\u00e4ftsf\u00fchrung"
+    },
+    "handelsregister": {
+      "type": "string",
+      "description": "Registergericht und Registernummer (z.B. Amtsgericht Stuttgart, HRB 12345)"
+    },
+    "telefon": {
+      "type": "string",
+      "description": "Telefonnummer f\u00fcr Gesch\u00e4ftsdokumente"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse f\u00fcr Gesch\u00e4ftsdokumente"
+    },
+    "website": {
+      "type": "string",
+      "description": "Website"
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "Name der Bank"
+    },
+    "iban": {
+      "type": "string",
+      "description": "IBAN"
+    },
+    "bic": {
+      "type": "string",
+      "description": "BIC"
+    },
     "waehrung": {
       "type": "string",
       "enum": [
