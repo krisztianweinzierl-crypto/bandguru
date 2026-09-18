@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAlertDialog } from "@/components/ui/alert-dialog-custom";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock, Download, Edit, Trash2, Mail } from "lucide-react";
+import { Plus, FileCheck, Send, Eye, MoreVertical, Search, ArrowLeft, CheckCircle, XCircle, Clock, Download, Edit, Trash2, Mail, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +27,7 @@ export default function AngebotePage() {
   const [selectedAngebot, setSelectedAngebot] = useState(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [statusToChange, setStatusToChange] = useState(null);
+  const [viewMode, setViewMode] = useState("grid");
   const queryClient = useQueryClient();
   const { showAlert, showConfirm, AlertDialog } = useAlertDialog();
 
@@ -223,7 +224,7 @@ export default function AngebotePage() {
       title: 'Angebot versenden',
       message: `Möchtest du das Angebot "${angebot.angebotsnummer}" an ${kunde.email} versenden?`,
       type: 'info',
-      confirmText: 'Versenden',
+      confirmText: 'Senden',
       cancelText: 'Abbrechen'
     });
 
@@ -603,7 +604,7 @@ export default function AngebotePage() {
                 onClick={() => handleSend(angebot)}
               >
                 <Send className="w-4 h-4 mr-2" />
-                Versenden
+                Senden
               </Button>
             )}
           </div>
@@ -919,7 +920,7 @@ export default function AngebotePage() {
                         className="flex-1 bg-blue-600 hover:bg-blue-700"
                       >
                         <Mail className="w-4 h-4 mr-2" />
-                        Versenden
+                        Senden
                       </Button>
                     )}
                   </div>
