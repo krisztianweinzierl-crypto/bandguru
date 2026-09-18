@@ -181,7 +181,7 @@ export default function FinanzenPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
+              <p className="text-lg md:text-2xl xl:text-3xl font-bold text-foreground truncate">
                 {gesamtEinnahmen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-green-600">
@@ -204,7 +204,7 @@ export default function FinanzenPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
+              <p className="text-lg md:text-2xl xl:text-3xl font-bold text-foreground truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <div className="flex items-center gap-1 mt-1 md:mt-2 text-xs md:text-sm text-red-600">
@@ -226,7 +226,7 @@ export default function FinanzenPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className={`text-lg md:text-3xl font-bold truncate ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+              <p className={`text-lg md:text-2xl xl:text-3xl font-bold truncate ${gewinn >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                 {gewinn.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
@@ -247,7 +247,7 @@ export default function FinanzenPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-foreground truncate">
+              <p className="text-lg md:text-2xl xl:text-3xl font-bold text-foreground truncate">
                 {offeneRechnungen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
               {ueberfaelligeRechnungen > 0 &&
@@ -271,7 +271,7 @@ export default function FinanzenPage() {
               </div>
             </CardHeader>
             <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
-              <p className="text-lg md:text-3xl font-bold text-foreground">{offeneAngebote}</p>
+              <p className="text-lg md:text-2xl xl:text-3xl font-bold text-foreground">{offeneAngebote}</p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
                 {angenommeneAngebote} angenommen
               </p>
