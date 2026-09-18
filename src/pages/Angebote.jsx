@@ -643,7 +643,7 @@ export default function AngebotePage() {
         <p className="text-lg font-bold text-foreground shrink-0 whitespace-nowrap">
           {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
         </p>
-        <div className="flex gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-1 shrink-0 relative" onClick={(e) => e.stopPropagation()}>
           <Button variant="ghost" size="icon" onClick={() => handleExportPDF(angebot)} title="PDF Export">
             <Download className="w-4 h-4" />
           </Button>
@@ -651,6 +651,45 @@ export default function AngebotePage() {
             <Button variant="ghost" size="icon" onClick={() => handleSend(angebot)} title="Senden">
               <Send className="w-4 h-4" />
             </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowDropdownId(showDropdownId === angebot.id ? null : angebot.id)}
+          >
+            <MoreVertical className="w-4 h-4" />
+          </Button>
+
+          {showDropdownId === angebot.id && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowDropdownId(null)}
+              />
+              <div className="absolute right-0 top-full mt-2 bg-card border border-border rounded-lg shadow-lg z-50 w-56 overflow-hidden">
+                <button
+                  onClick={() => handleChangeStatus(angebot)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left"
+                >
+                  <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Status ändern</span>
+                </button>
+                <button
+                  onClick={() => handleEdit(angebot)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left border-t"
+                >
+                  <Edit className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Angebot bearbeiten</span>
+                </button>
+                <button
+                  onClick={() => handleDelete(angebot)}
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left text-sm text-red-600 border-t"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Angebot löschen</span>
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
