@@ -990,13 +990,23 @@ export default function AngebotePage() {
           </DialogContent>
         </Dialog>
 
-        {/* Angebote Grid */}
+        {/* Angebote Grid/List */}
         {filteredAngebote.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredAngebote.map((angebot) => (
-              <AngebotCard key={angebot.id} angebot={angebot} />
-            ))}
-          </div>
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAngebote.map((angebot) => (
+                <AngebotCard key={angebot.id} angebot={angebot} />
+              ))}
+            </div>
+          ) : (
+            <Card className="border-none shadow-lg">
+              <CardContent className="p-0">
+                {filteredAngebote.map((angebot) => (
+                  <AngebotListRow key={angebot.id} angebot={angebot} />
+                ))}
+              </CardContent>
+            </Card>
+          )
         ) : (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
