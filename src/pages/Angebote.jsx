@@ -818,6 +818,13 @@ export default function AngebotePage() {
                 >
                   <List className="w-4 h-4" />
                 </Button>
+                <Button
+                  variant={viewMode === "kanban" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("kanban")}
+                >
+                  <Columns3 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           </CardContent>
