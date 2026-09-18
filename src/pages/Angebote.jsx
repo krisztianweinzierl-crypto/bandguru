@@ -239,6 +239,12 @@ export default function AngebotePage() {
     const kunde = kunden.find((k) => k.id === angebot.kunde_id);
     const brandColor = organisation?.primary_color || '#10B981';
     const orgAdresseZeile = (organisation?.adresse || '').replace(/\n/g, ' · ');
+    const footerText = [
+      organisation?.name,
+      orgAdresseZeile,
+      organisation?.steuernummer ? 'USt-IdNr: ' + organisation.steuernummer : ''
+    ].filter(Boolean).join(' · ');
+    const supportsMarginBoxes = /Chrome\//.test(navigator.userAgent);
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -249,7 +255,19 @@ export default function AngebotePage() {
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
-            margin: 22mm 18mm 36mm 18mm;
+            size: A4;
+            margin: 22mm 18mm 24mm 18mm;
+            ${supportsMarginBoxes && footerText ? `@bottom-center {
+              content: ${JSON.stringify(footerText)};
+              font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+              font-size: 7.5pt;
+              color: #94a3b8;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 6px;
+              margin-top: 12mm;
+              width: 100%;
+              vertical-align: top;
+            }` : ''}
           }
           * { box-sizing: border-box; }
           body {
@@ -446,11 +464,8 @@ export default function AngebotePage() {
           .totals, .conditions, .closing {
             page-break-inside: avoid;
           }
-          .footer {
-            position: fixed;
-            bottom: -28mm;
-            left: 18mm;
-            right: 18mm;
+          .footer-flow {
+            margin-top: 40px;
             text-align: center;
             font-size: 7.5pt;
             color: #94a3b8;
@@ -538,9 +553,7 @@ export default function AngebotePage() {
           <p class="signoff">Mit freundlichen Grüßen<br>${organisation?.name || ''}</p>
         </div>
 
-        <div class="footer">
-          ${organisation?.name || ''}${orgAdresseZeile ? ' · ' + orgAdresseZeile : ''}${organisation?.steuernummer ? ' · USt-IdNr: ' + organisation.steuernummer : ''}
-        </div>
+        ${!supportsMarginBoxes && footerText ? `<div class="footer-flow">${footerText}</div>` : ''}
       </body>
       </html>
     `;
