@@ -237,232 +237,304 @@ export default function AngebotePage() {
 
   const handleExportPDF = (angebot) => {
     const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+    const brandColor = organisation?.primary_color || '#10B981';
+    const orgAdresseZeile = (organisation?.adresse || '').replace(/\n/g, ' · ');
 
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
         <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            padding: 40px; 
-            color: #333;
-            font-size: 11pt;
+          @page {
+            margin: 22mm 18mm 28mm 18mm;
           }
-          .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-start; 
-            margin-bottom: 30px;
+          * { box-sizing: border-box; }
+          body {
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            color: #1e293b;
+            font-size: 10.5pt;
+            line-height: 1.5;
+            margin: 0;
           }
-          .header-left img {
-            max-width: 150px;
-            max-height: 80px;
+          .letterhead {
+            font-size: 7.5pt;
+            color: #94a3b8;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 28px;
+            letter-spacing: 0.2px;
           }
-          .header-right { 
-            text-align: right;
-          }
-          .header-right h1 {
-            color: rgb(var(--primary));
-            font-size: 28pt;
-            margin: 0 0 10px 0;
-            font-weight: bold;
-          }
-          .header-right .meta {
-            font-size: 10pt;
-            color: #666;
-            line-height: 1.6;
-          }
-          .addresses {
+          .header {
             display: flex;
             justify-content: space-between;
-            margin: 40px 0;
-            gap: 40px;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 36px;
           }
-          .address-block {
+          .header-left {
             flex: 1;
           }
-          .address-block h3 {
-            font-size: 9pt;
-            font-weight: bold;
-            color: #666;
+          .header-left .label {
+            font-size: 8pt;
+            font-weight: 700;
+            color: #94a3b8;
             text-transform: uppercase;
-            margin: 0 0 10px 0;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+            margin: 0 0 8px 0;
           }
-          .address-block .name {
-            color: rgb(var(--primary));
-            font-weight: bold;
-            font-size: 13pt;
-            margin-bottom: 5px;
+          .header-left .to-name {
+            font-weight: 700;
+            font-size: 12pt;
+            color: #1e293b;
+            margin-bottom: 4px;
           }
-          .address-block p {
-            margin: 3px 0;
-            line-height: 1.5;
+          .header-left p {
+            margin: 2px 0;
             font-size: 10pt;
+            color: #475569;
           }
-          .bank-info {
-            margin-top: 10px;
-            font-size: 9pt;
-            color: #666;
+          .header-right {
+            text-align: right;
           }
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin: 30px 0;
+          .header-right img {
+            max-width: 150px;
+            max-height: 64px;
+            margin-bottom: 14px;
           }
-          thead {
-            border-bottom: 3px solid rgb(var(--primary));
+          .meta-table {
+            border-collapse: collapse;
+            margin-left: auto;
           }
-          th { 
-            color: rgb(var(--primary));
-            padding: 12px 8px;
+          .meta-table td {
+            font-size: 9.5pt;
+            padding: 2px 0 2px 20px;
+            white-space: nowrap;
+          }
+          .meta-table td:first-child {
+            color: #94a3b8;
+            padding-left: 0;
+          }
+          .meta-table td:last-child {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+          }
+          h1.title {
+            font-family: 'Syne', 'Plus Jakarta Sans', sans-serif;
+            font-size: 22pt;
+            font-weight: 800;
+            color: #1e293b;
+            margin: 0 0 22px 0;
+          }
+          .intro {
+            font-size: 10.5pt;
+            color: #334155;
+            white-space: pre-line;
+            margin-bottom: 28px;
+            max-width: 560px;
+          }
+          table.positions {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 4px;
+          }
+          table.positions thead tr {
+            background: #f8fafc;
+          }
+          table.positions th {
+            color: #64748b;
+            padding: 10px 10px;
             text-align: left;
-            font-size: 9pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 8.5pt;
+            font-weight: 700;
+            border-bottom: 2px solid #e2e8f0;
           }
-          th:nth-child(2), th:nth-child(3), th:nth-child(4), th:nth-child(5) {
+          table.positions th.num,
+          table.positions td.num {
             text-align: right;
+            white-space: nowrap;
           }
-          td { 
-            padding: 12px 8px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 10pt;
+          table.positions th.pos,
+          table.positions td.pos {
+            width: 28px;
+            color: #94a3b8;
           }
-          td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5) {
-            text-align: right;
+          table.positions td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 9.8pt;
+            vertical-align: top;
           }
-          .description-cell {
-            color: #374151;
+          table.positions td.description-cell .pos-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 3px 0;
           }
-          .totals { 
-            margin-top: 30px;
-            float: right;
-            width: 350px;
+          table.positions td.description-cell .pos-desc {
+            color: #64748b;
+            font-size: 9.3pt;
+            line-height: 1.5;
+          }
+          table.positions td.description-cell .pos-desc p {
+            margin: 0 0 4px 0;
+          }
+          table.positions td.description-cell .pos-desc p:last-child {
+            margin-bottom: 0;
+          }
+          .totals {
+            margin-top: 18px;
+            margin-left: auto;
+            width: 300px;
           }
           .totals-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            font-size: 11pt;
-          }
-          .totals-row.subtotal {
-            color: #666;
-            font-weight: bold;
-          }
-          .totals-row.tax {
-            color: rgb(var(--primary));
-            font-weight: bold;
+            padding: 6px 4px;
+            font-size: 10pt;
+            color: #475569;
           }
           .totals-row.total {
-            border-top: 3px solid rgb(var(--primary));
-            padding-top: 12px;
-            margin-top: 8px;
-            font-size: 14pt;
-            font-weight: bold;
-            color: rgb(var(--primary));
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-top: 6px;
+            padding: 10px 12px;
+            font-size: 12pt;
+            font-weight: 800;
+            color: #1e293b;
           }
-          .conditions { 
-            margin-top: 80px;
-            padding-top: 20px;
+          .totals-row.total span:last-child {
+            color: ${brandColor};
+          }
+          .conditions {
+            margin-top: 44px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
             clear: both;
           }
           .conditions h3 {
-            color: rgb(var(--primary));
-            font-size: 11pt;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 0 0 10px 0;
-            letter-spacing: 0.5px;
+            color: #1e293b;
+            font-size: 9.5pt;
+            font-weight: 700;
+            margin: 0 0 8px 0;
           }
           .conditions p {
-            font-size: 10pt;
+            font-size: 9.5pt;
             line-height: 1.6;
-            color: #666;
+            color: #64748b;
+            white-space: pre-line;
+            margin: 0;
+          }
+          .closing {
+            margin-top: 32px;
+            font-size: 10pt;
+            color: #334155;
+          }
+          .closing p {
+            margin: 0 0 4px 0;
+          }
+          .closing .signoff {
+            margin-top: 18px;
+            font-weight: 600;
+            color: #1e293b;
+          }
+          .footer {
+            position: fixed;
+            bottom: 8mm;
+            left: 18mm;
+            right: 18mm;
+            text-align: center;
+            font-size: 7.5pt;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
           }
         </style>
       </head>
       <body>
+        <div class="letterhead">${organisation?.name || ''}${orgAdresseZeile ? ' · ' + orgAdresseZeile : ''}</div>
+
         <div class="header">
           <div class="header-left">
-            ${organisation?.logo_url ? `<img src="${organisation.logo_url}" alt="Logo">` : ''}
-          </div>
-          <div class="header-right">
-            <h1>ANGEBOT ${angebot.angebotsnummer}</h1>
-            <div class="meta">
-              <div>ERSTELLT: ${format(new Date(angebot.angebotsdatum), 'dd. MMM. yyyy', { locale: de }).toUpperCase()}</div>
-              <div>GÜLTIG BIS: ${format(new Date(angebot.gueltig_bis), 'dd. MMM. yyyy', { locale: de }).toUpperCase()}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="addresses">
-          <div class="address-block">
-            <h3>An</h3>
-            <div class="name">${kunde?.firmenname || 'Unbekannt'}</div>
+            <p class="label">An</p>
+            <div class="to-name">${kunde?.firmenname || 'Unbekannt'}</div>
             ${kunde?.ansprechpartner ? `<p>${kunde.ansprechpartner}</p>` : ''}
             ${kunde?.adresse ? `<p style="white-space: pre-line;">${kunde.adresse}</p>` : ''}
             ${kunde?.email ? `<p>${kunde.email}</p>` : ''}
           </div>
-          <div class="address-block">
-            <h3>Von</h3>
-            <div class="name">${organisation?.name || ''}</div>
-            ${organisation?.adresse ? `<p style="white-space: pre-line;">${organisation.adresse}</p>` : ''}
-            ${organisation?.steuernummer ? `<div class="bank-info">USt.-IdNr: ${organisation.steuernummer}</div>` : ''}
+          <div class="header-right">
+            ${organisation?.logo_url ? `<img src="${organisation.logo_url}" alt="Logo">` : ''}
+            <table class="meta-table">
+              <tr><td>Angebots-Nr.</td><td>${angebot.angebotsnummer}</td></tr>
+              <tr><td>Datum</td><td>${format(new Date(angebot.angebotsdatum), 'dd.MM.yyyy', { locale: de })}</td></tr>
+              <tr><td>Gültig bis</td><td>${format(new Date(angebot.gueltig_bis), 'dd.MM.yyyy', { locale: de })}</td></tr>
+            </table>
           </div>
         </div>
 
-        <table>
+        <h1 class="title">Angebot ${angebot.angebotsnummer}</h1>
+
+        ${angebot.kunde_notizen ? `<p class="intro">${angebot.kunde_notizen}</p>` : ''}
+
+        <table class="positions">
           <thead>
             <tr>
-              <th style="text-align: left;">Beschreibung</th>
-              <th>Preis (ohne USt.)</th>
-              <th>USt.-Satz</th>
-              <th>Anzahl</th>
-              <th>Gesamt</th>
+              <th class="pos">Pos.</th>
+              <th>Beschreibung</th>
+              <th class="num">Menge</th>
+              <th class="num">Einzelpreis</th>
+              <th class="num">Gesamtpreis</th>
             </tr>
           </thead>
           <tbody>
-            ${angebot.positionen?.map(pos => {
-              // HTML-Tags entfernen oder beibehalten für PDF
-              const beschreibung = pos.beschreibung || '';
-              return `
+            ${angebot.positionen?.map((pos, idx) => `
               <tr>
-                <td class="description-cell">${beschreibung}</td>
-                <td>${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
-                <td>${(pos.steuersatz || 0)} %</td>
-                <td>${pos.menge}</td>
-                <td>${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+                <td class="pos num">${idx + 1}.</td>
+                <td class="description-cell">
+                  ${pos.bezeichnung ? `<p class="pos-title">${pos.bezeichnung}</p>` : ''}
+                  <div class="pos-desc">${pos.beschreibung || ''}</div>
+                </td>
+                <td class="num">${(pos.menge || 0).toLocaleString('de-DE', { minimumFractionDigits: 2 })} ${pos.einheit || 'Stk'}</td>
+                <td class="num">${(pos.einzelpreis || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
+                <td class="num">${((pos.menge || 0) * (pos.einzelpreis || 0)).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</td>
               </tr>
-            `}).join('') || ''}
+            `).join('') || ''}
           </tbody>
         </table>
 
         <div class="totals">
-          <div class="totals-row subtotal">
-            <span>NETTOBETRAG</span>
+          <div class="totals-row">
+            <span>Nettobetrag</span>
             <span>${(angebot.netto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
           </div>
-          <div class="totals-row tax">
-            <span>UMSATZSTEUER ${angebot.positionen?.[0]?.steuersatz || 19}%</span>
+          <div class="totals-row">
+            <span>Umsatzsteuer ${angebot.positionen?.[0]?.steuersatz || 19}%</span>
             <span>${(angebot.steuer_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
           </div>
           <div class="totals-row total">
-            <span>GESAMTBETRAG</span>
+            <span>Gesamtbetrag</span>
             <span>${(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
           </div>
         </div>
 
-        ${angebot.zahlungsbedingungen || angebot.kunde_notizen ? `
+        ${angebot.zahlungsbedingungen ? `
           <div class="conditions">
-            <h3>Bedingungen</h3>
-            ${angebot.zahlungsbedingungen ? `<p>${angebot.zahlungsbedingungen}</p>` : ''}
-            ${angebot.kunde_notizen ? `<p>${angebot.kunde_notizen}</p>` : ''}
+            <h3>Zahlungsbedingungen</h3>
+            <p>${angebot.zahlungsbedingungen}</p>
           </div>
         ` : ''}
+
+        <div class="closing">
+          <p>Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.</p>
+          <p>Wir freuen uns auf Ihre Rückmeldung.</p>
+          <p class="signoff">Mit freundlichen Grüßen<br>${organisation?.name || ''}</p>
+        </div>
+
+        <div class="footer">
+          ${organisation?.name || ''}${orgAdresseZeile ? ' · ' + orgAdresseZeile : ''}${organisation?.steuernummer ? ' · USt-IdNr: ' + organisation.steuernummer : ''}
+        </div>
       </body>
       </html>
     `;
