@@ -448,7 +448,7 @@ export default function AngebotePage() {
           }
           .footer {
             position: fixed;
-            bottom: 10mm;
+            bottom: 4mm;
             left: 18mm;
             right: 18mm;
             text-align: center;
