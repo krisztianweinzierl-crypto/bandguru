@@ -11,11 +11,13 @@ import {
   Upload,
   Download,
   TrendingDown,
-  PieChart,
+  PieChart as PieChartIcon,
+  Calculator,
   ArrowLeft,
   LayoutGrid,
   List } from
 "lucide-react";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
