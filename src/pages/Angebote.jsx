@@ -697,6 +697,109 @@ export default function AngebotePage() {
     );
   };
 
+  const kanbanStages = [
+    { status: 'entwurf', label: 'Entwurf', color: '#94A3B8' },
+    { status: 'versendet', label: 'Versendet', color: '#3B82F6' },
+    { status: 'angenommen', label: 'Angenommen', color: '#10B981' },
+    { status: 'abgelehnt', label: 'Abgelehnt', color: '#EF4444' }
+  ];
+
+  const handleKanbanDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId) return;
+
+    updateAngebotMutation.mutate({
+      id: draggableId,
+      data: { status: destination.droppableId }
+    });
+  };
+
+  const AngebotKanbanCard = ({ angebot }) => {
+    const kunde = kunden.find((k) => k.id === angebot.kunde_id);
+    const isAbgelaufen = new Date(angebot.gueltig_bis) < new Date() && angebot.status === 'versendet';
+
+    return (
+      <Card className="cursor-pointer hover:shadow-md transition-all" onClick={() => handleView(angebot)}>
+        <CardContent className="p-3 space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <h4 className="font-semibold text-sm text-foreground truncate">{angebot.angebotsnummer}</h4>
+            {isAbgelaufen && (
+              <Badge className="status-orange shrink-0 text-xs">
+                <Clock className="w-3 h-3 mr-1" />
+                Abgelaufen
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">{kunde?.firmenname || 'Kunde unbekannt'}</p>
+          <p className="text-sm font-bold text-foreground">
+            {(angebot.brutto_betrag || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Gültig bis {format(new Date(angebot.gueltig_bis), 'dd. MMM yyyy', { locale: de })}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const AngebotKanbanView = () => (
+    <DragDropContext onDragEnd={handleKanbanDragEnd}>
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {kanbanStages.map((stage) => {
+          const stageAngebote = filteredAngebote.filter((a) => a.status === stage.status);
+          return (
+            <div key={stage.status} className="flex-shrink-0 w-80">
+              <div className="bg-card rounded-lg shadow-sm border border-border">
+                <div
+                  className="p-4 border-b"
+                  style={{
+                    backgroundColor: stage.color + '15',
+                    borderTopColor: stage.color,
+                    borderTopWidth: '3px'
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground">{stage.label}</h3>
+                    <Badge variant="secondary" className="text-xs">{stageAngebote.length}</Badge>
+                  </div>
+                </div>
+                <Droppable droppableId={stage.status}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`p-3 space-y-3 min-h-[200px] transition-colors ${
+                        snapshot.isDraggingOver ? 'bg-blue-50' : 'bg-muted'
+                      }`}
+                      style={{ maxHeight: 'calc(100vh - 380px)', overflowY: 'auto' }}
+                    >
+                      {stageAngebote.map((angebot, index) => (
+                        <Draggable key={angebot.id} draggableId={angebot.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={snapshot.isDragging ? 'ring-2 ring-blue-400 rounded-lg' : ''}
+                            >
+                              <AngebotKanbanCard angebot={angebot} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </DragDropContext>
+  );
+
   return (
     <>
       <AlertDialog />
@@ -1037,7 +1140,7 @@ export default function AngebotePage() {
           </DialogContent>
         </Dialog>
 
-        {/* Angebote Grid/List */}
+        {/* Angebote Grid/List/Kanban */}
         {filteredAngebote.length > 0 ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1045,7 +1148,7 @@ export default function AngebotePage() {
                 <AngebotCard key={angebot.id} angebot={angebot} />
               ))}
             </div>
-          ) : (
+          ) : viewMode === "list" ? (
             <Card className="border-none shadow-lg">
               <CardContent className="p-0">
                 {filteredAngebote.map((angebot) => (
@@ -1053,6 +1156,8 @@ export default function AngebotePage() {
                 ))}
               </CardContent>
             </Card>
+          ) : (
+            <AngebotKanbanView />
           )
         ) : (
           <Card className="border-dashed">
