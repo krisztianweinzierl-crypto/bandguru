@@ -254,45 +254,116 @@ export default function AusgabenPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 gap-3 md:gap-4 mb-6 md:mb-8">
-          <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Gesamtausgaben</CardTitle>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-6 md:mb-8">
+          <Card className="relative overflow-hidden border-none shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Gesamtausgaben</CardTitle>
+                <div className="p-1.5 md:p-2 bg-red-100 rounded-lg">
+                  <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-red-600 text-2xl font-bold md:text-4xl truncate">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-red-600 text-base md:text-xl xl:text-2xl font-bold truncate">
                 {gesamtAusgaben.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">{filteredAusgaben.length} Ausgaben</p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">{filteredAusgaben.length} Ausgaben</p>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Häufigste Kategorie</CardTitle>
+          <Card className="relative overflow-hidden border-none shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Häufigste Kategorie</CardTitle>
+                <div className="p-1.5 md:p-2 bg-purple-100 rounded-lg">
+                  <PieChartIcon className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-foreground">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-base md:text-xl xl:text-2xl font-bold text-foreground truncate">
                 {Object.keys(ausgabenNachKategorie).sort((a, b) => ausgabenNachKategorie[b] - ausgabenNachKategorie[a])[0] || '-'}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
                 {Object.keys(ausgabenNachKategorie).length} Kategorien
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Durchschnitt</CardTitle>
+          <Card className="relative overflow-hidden border-none shadow-lg col-span-2 md:col-span-1">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full opacity-10 transform translate-x-8 -translate-y-8" />
+            <CardHeader className="pb-2 p-3 md:p-6">
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">Durchschnitt</CardTitle>
+                <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg">
+                  <Calculator className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-foreground text-2xl font-bold md:text-4xl truncate">
+            <CardContent className="px-3 pb-3 md:px-6 md:pb-6">
+              <p className="text-foreground text-base md:text-xl xl:text-2xl font-bold truncate">
                 {(gesamtAusgaben / filteredAusgaben.length || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">Pro Ausgabe</p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">Pro Ausgabe</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Ausgaben nach Kategorie */}
+        {kategorieChartData.length > 0 &&
+        <Card className="mb-6 border-none shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-base md:text-lg">Ausgaben nach Kategorie</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+                <div className="w-full md:w-1/2 h-64 md:h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={kategorieChartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="55%"
+                        outerRadius="85%"
+                        paddingAngle={2}
+                        dataKey="value">
+
+                        {kategorieChartData.map((entry) =>
+                        <Cell key={entry.kategorie} fill={entry.color} stroke="none" />
+                        )}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value) => value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })} />
+
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="w-full md:w-1/2 space-y-2">
+                  {kategorieChartData.map((entry) =>
+                  <div key={entry.kategorie} className="flex items-center justify-between gap-3 py-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
+                        <span className="text-sm font-medium text-foreground truncate">{entry.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-sm font-semibold text-foreground">
+                          {entry.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                        </span>
+                        <span className="text-xs text-muted-foreground w-10 text-right">
+                          {(entry.value / gesamtAusgaben * 100 || 0).toFixed(0)}%
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        }
 
         {/* Search & Filter */}
         <Card className="mb-6 border-none shadow-md">
