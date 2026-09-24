@@ -527,7 +527,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                style={{ backgroundColor: 'rgb(var(--primary))' }}
+                data-active={({ backgroundColor: 'rgb(var(--primary))' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -1012,7 +1012,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </SidebarHeader>
           
-          <SidebarContent className="p-2">
+          <SidebarContent className="p-0">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2 py-2">
                 Navigation
@@ -1030,23 +1030,8 @@ export default function Layout({ children, currentPageName }) {
                           if (!item.url) e.preventDefault();
                           toggleMenu(index);
                         }}
-                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto`}
-                        style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url) ? {
-                          backgroundColor: 'rgb(var(--sidebar-accent))',
-                          color: 'rgb(var(--sidebar-accent-foreground))'
-                        } : {}}
-                        onMouseEnter={(e) => {
-                          if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
-                            e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                            e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!(item.url && location.pathname === item.url) && !item.submenu.some((sub) => location.pathname === sub.url)) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = '';
-                          }
-                        }}>
+                        className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0`}
+                        style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url)) ? "true" : undefined}>
 
                             <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
                               <item.icon className="w-5 h-5" />
@@ -1056,7 +1041,7 @@ export default function Layout({ children, currentPageName }) {
                           </Link>
 
                           {expandedMenus[index] &&
-                      <div className="ml-4 mb-1 space-y-1 group-data-[collapsible=icon]:hidden">
+                      <div data-nav-sub="true" className="mb-1 group-data-[collapsible=icon]:hidden">
                               {item.submenu.map((subItem) =>
                         <SidebarMenuButton
                           key={subItem.title}
@@ -1066,22 +1051,7 @@ export default function Layout({ children, currentPageName }) {
                                   <Link
                             to={subItem.url}
                             className="flex items-center gap-3 px-3 py-2"
-                            style={location.pathname === subItem.url ? {
-                              backgroundColor: 'rgb(var(--sidebar-accent))',
-                              color: 'rgb(var(--sidebar-accent-foreground))'
-                            } : {}}
-                            onMouseEnter={(e) => {
-                              if (location.pathname !== subItem.url) {
-                                e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                                e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (location.pathname !== subItem.url) {
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                                e.currentTarget.style.color = '';
-                              }
-                            }}>
+                            data-active={(location.pathname === subItem.url) ? "true" : undefined}>
 
                                     <subItem.icon className="w-5 h-5" />
                                     <span className="font-medium">{subItem.title}</span>
@@ -1101,22 +1071,7 @@ export default function Layout({ children, currentPageName }) {
                           <Link
                         to={item.url}
                         className="flex items-center gap-3 px-3 py-2"
-                        style={location.pathname === item.url ? {
-                          backgroundColor: 'rgb(var(--sidebar-accent))',
-                          color: 'rgb(var(--sidebar-accent-foreground))'
-                        } : {}}
-                        onMouseEnter={(e) => {
-                          if (location.pathname !== item.url) {
-                            e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                            e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (location.pathname !== item.url) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = '';
-                          }
-                        }}>
+                        data-active={(location.pathname === item.url) ? "true" : undefined}>
 
                             <item.icon className="w-5 h-5" />
                             <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
@@ -1141,23 +1096,8 @@ export default function Layout({ children, currentPageName }) {
                       to={createPageUrl("OrganisationSettings")}
                       onClick={() => toggleMenu('settings')}
                       title="Einstellungen"
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:mx-auto"
-                      style={[createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname) ? {
-                        backgroundColor: 'rgb(var(--sidebar-accent))',
-                        color: 'rgb(var(--sidebar-accent-foreground))'
-                      } : {}}
-                      onMouseEnter={(e) => {
-                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) {
-                          e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                          e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (![createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = '';
-                        }
-                      }}>
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+                      data-active={([createPageUrl("OrganisationSettings"), createPageUrl("BuchungsbedingungVorlagen"), createPageUrl("ArtikelVerwaltung")].includes(location.pathname)) ? "true" : undefined}>
 
                         <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
                           <Settings className="w-5 h-5" />
@@ -1167,7 +1107,7 @@ export default function Layout({ children, currentPageName }) {
                       </Link>
                       
                       {expandedMenus['settings'] &&
-                    <div className="ml-4 mb-1 space-y-1 group-data-[collapsible=icon]:hidden">
+                    <div data-nav-sub="true" className="mb-1 group-data-[collapsible=icon]:hidden">
                           <SidebarMenuButton
                         asChild
                         className="transition-colors duration-200 rounded-lg">
@@ -1175,22 +1115,7 @@ export default function Layout({ children, currentPageName }) {
                             <Link
                           to={createPageUrl("OrganisationSettings")}
                           className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("OrganisationSettings") ? {
-                            backgroundColor: 'rgb(var(--sidebar-accent))',
-                            color: 'rgb(var(--sidebar-accent-foreground))'
-                          } : {}}
-                          onMouseEnter={(e) => {
-                            if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                              e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (location.pathname !== createPageUrl("OrganisationSettings")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
-                            }
-                          }}>
+                          data-active={(location.pathname === createPageUrl("OrganisationSettings")) ? "true" : undefined}>
 
                               <Building2 className="w-5 h-5" />
                               <span className="font-medium">Organisation</span>
@@ -1203,22 +1128,7 @@ export default function Layout({ children, currentPageName }) {
                             <Link
                           to={createPageUrl("BuchungsbedingungVorlagen")}
                           className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("BuchungsbedingungVorlagen") ? {
-                            backgroundColor: 'rgb(var(--sidebar-accent))',
-                            color: 'rgb(var(--sidebar-accent-foreground))'
-                          } : {}}
-                          onMouseEnter={(e) => {
-                            if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                              e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (location.pathname !== createPageUrl("BuchungsbedingungVorlagen")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
-                            }
-                          }}>
+                          data-active={(location.pathname === createPageUrl("BuchungsbedingungVorlagen")) ? "true" : undefined}>
 
                               <FileText className="w-5 h-5" />
                               <span className="font-medium">Buchungsbedingungen</span>
@@ -1231,22 +1141,7 @@ export default function Layout({ children, currentPageName }) {
                             <Link
                           to={createPageUrl("ArtikelVerwaltung")}
                           className="flex items-center gap-3 px-3 py-2"
-                          style={location.pathname === createPageUrl("ArtikelVerwaltung") ? {
-                            backgroundColor: 'rgb(var(--sidebar-accent))',
-                            color: 'rgb(var(--sidebar-accent-foreground))'
-                          } : {}}
-                          onMouseEnter={(e) => {
-                            if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'rgb(var(--sidebar-accent) / 0.6)';
-                              e.currentTarget.style.color = 'rgb(var(--sidebar-accent-foreground))';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (location.pathname !== createPageUrl("ArtikelVerwaltung")) {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '';
-                            }
-                          }}>
+                          data-active={(location.pathname === createPageUrl("ArtikelVerwaltung")) ? "true" : undefined}>
 
                               <FileText className="w-5 h-5" />
                               <span className="font-medium">Artikel & Positionen</span>
