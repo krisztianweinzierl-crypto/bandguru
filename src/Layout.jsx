@@ -527,7 +527,7 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 size="lg"
                 onClick={() => base44.auth.redirectToLogin()}
-                data-active={({ backgroundColor: 'rgb(var(--primary))' }}
+                style={{ backgroundColor: 'rgb(var(--primary))' }}
                 className="hover:opacity-90 text-lg h-14 px-8">
 
                 Jetzt kostenlos starten
@@ -1031,7 +1031,7 @@ export default function Layout({ children, currentPageName }) {
                           toggleMenu(index);
                         }}
                         className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg mb-1 transition-colors duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0`}
-                        style={item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url)) ? "true" : undefined}>
+                        data-active={(item.url && location.pathname === item.url || item.submenu.some((sub) => location.pathname === sub.url)) ? "true" : undefined}>
 
                             <div className="flex items-center gap-3 group-data-[collapsible=icon]:gap-0">
                               <item.icon className="w-5 h-5" />
