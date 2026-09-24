@@ -1166,7 +1166,7 @@ export default function Layout({ children, currentPageName }) {
                                 {theme === "dark" ? "Hell-Modus" : "Dunkel-Modus"}
                               </span>
                             </button>
-                            <p className="text-xs text-sidebar-foreground/40 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 1.2.0</p>
+                            <p className="text-xs text-sidebar-foreground/40 text-center mb-3 group-data-[collapsible=icon]:hidden">Beta 2.1.0</p>
                             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
