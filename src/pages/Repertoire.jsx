@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
-import { Plus, Search, Music, List, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2, ArrowUpDown, FileStack } from "lucide-react";
+import { Plus, Search, Music, List, LayoutGrid, Info, Clock, Calendar, Edit, Trash2, Upload, AlertCircle, Printer, Wand2, ArrowUpDown, FileStack } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,7 @@ export default function RepertoirePage() {
   const [isLoadingAccess, setIsLoadingAccess] = useState(true); // Neuer Loading-State
   const [activeTab, setActiveTab] = useState("bibliothek");
   const [searchQuery, setSearchQuery] = useState("");
+  const [setlistViewMode, setSetlistViewMode] = useState("grid");
   const [genreFilter, setGenreFilter] = useState("alle");
   const [sortBy, setSortBy] = useState("titel_asc");
   const [showSongForm, setShowSongForm] = useState(false);
@@ -847,14 +848,32 @@ export default function RepertoirePage() {
             {/* Suche */}
             <Card className="border-none shadow-md">
               <CardContent className="p-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Setlists durchsuchen..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Setlists durchsuchen..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={setlistViewMode === "grid" ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => setSetlistViewMode("grid")}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={setlistViewMode === "list" ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => setSetlistViewMode("list")}
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
