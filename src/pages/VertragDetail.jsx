@@ -579,8 +579,8 @@ Ihr Team`;
           <TabsContent value="inhalt" className="space-y-4">
             {/* Event-Informationen */}
             {vertrag.eventinformationen_anzeigen && event &&
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h3 className="font-semibold text-lg mb-3">Event-Details</h3>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-950">
+                <h3 className="font-semibold text-lg mb-3 text-blue-950">Event-Details</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -716,8 +716,8 @@ Ihr Team`;
               <CardContent className="p-6">
                 {/* Event-Informationen */}
                 {vertrag.eventinformationen_anzeigen && event &&
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h3 className="font-semibold text-lg mb-3">Event-Details</h3>
+                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-950">
+                    <h3 className="font-semibold text-lg mb-3 text-blue-950">Event-Details</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-blue-600" />
