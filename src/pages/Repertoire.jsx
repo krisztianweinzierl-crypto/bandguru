@@ -880,6 +880,62 @@ export default function RepertoirePage() {
 
             {/* Setlist Cards */}
             {filteredSetlists.length > 0 ? (
+              setlistViewMode === "list" ? (
+                <Card className="border-none shadow-lg">
+                  <CardContent className="p-0">
+                    {filteredSetlists.map((setlist) => {
+                      const event = visibleEvents.find(e => e.id === setlist.event_id);
+                      const songCount = setlist.songs?.length || 0;
+                      return (
+                        <div key={setlist.id} className="flex items-center justify-between gap-3 p-4 border-b last:border-0 hover:bg-muted transition-colors">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h3 className="font-semibold text-foreground truncate">{setlist.name}</h3>
+                              <Badge className="status-green border-transparent shrink-0">Bereit</Badge>
+                            </div>
+                            <div className="flex items-center gap-3 flex-wrap text-sm text-muted-foreground">
+                              {event && (
+                                <span className="truncate">{event.titel} · {new Date(event.datum_von).toLocaleDateString('de-DE')}</span>
+                              )}
+                              <span className="shrink-0">{setlist.gesamtdauer || 0} Min.</span>
+                              <span className="shrink-0">{songCount} {songCount === 1 ? 'Song' : 'Songs'}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button variant="ghost" size="icon" onClick={() => handlePrintSetlist(setlist)} title="Setliste drucken / PDF">
+                              <Printer className="w-4 h-4" />
+                            </Button>
+                            {isManager && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setEditingSetlist(setlist);
+                                    setShowSetlistForm(true);
+                                  }}
+                                  title="Bearbeiten"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteSetlist(setlist)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  title="Löschen"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredSetlists.map((setlist) => {
                 const event = visibleEvents.find(e => e.id === setlist.event_id);
@@ -990,6 +1046,7 @@ export default function RepertoirePage() {
                 );
                 })}
               </div>
+              )
             ) : (
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
