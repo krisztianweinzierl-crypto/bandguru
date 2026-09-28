@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { safeHtml } from "@/utils/sanitize";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, FileText, Edit, Trash2, Copy, ArrowLeft } from "lucide-react";
+import { Plus, Search, FileText, Edit, Trash2, Copy, ArrowLeft, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,7 @@ export default function BuchungsbedingungVorlagenPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingVorlage, setEditingVorlage] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
   const [formData, setFormData] = useState({
     name: "",
     inhalt: "",
@@ -242,14 +243,32 @@ export default function BuchungsbedingungVorlagenPage() {
         {/* Suchfeld */}
         <Card className="mb-6 border-none shadow-md">
           <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Vorlagen durchsuchen..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Vorlagen durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -342,6 +361,44 @@ export default function BuchungsbedingungVorlagenPage() {
 
         {/* Vorlagen Liste */}
         {filteredVorlagen.length > 0 ? (
+          viewMode === "list" ? (
+            <Card className="border-none shadow-lg">
+              <CardContent className="p-0">
+                {filteredVorlagen.map((vorlage) => {
+                  const kategorieStyle = kategorieColors[vorlage.kategorie] || kategorieColors.standard;
+                  return (
+                    <div key={vorlage.id} className="flex items-center justify-between gap-3 p-4 border-b last:border-0 hover:bg-muted transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="font-semibold text-foreground truncate">{vorlage.name}</h3>
+                          <Badge className={`${kategorieStyle.bg} ${kategorieStyle.text} shrink-0`}>
+                            {kategorieLabels[vorlage.kategorie]}
+                          </Badge>
+                          {!vorlage.aktiv && (
+                            <Badge variant="outline" className="bg-red-50 text-red-600 border-red-300 shrink-0">
+                              Inaktiv
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="text-sm text-muted-foreground">{vorlage.verwendungen || 0}x verwendet</span>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(vorlage)} title="Bearbeiten">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDuplicate(vorlage)} title="Duplizieren">
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(vorlage)} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Löschen">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredVorlagen.map((vorlage) => {
               const kategorieStyle = kategorieColors[vorlage.kategorie] || kategorieColors.standard;
@@ -407,6 +464,7 @@ export default function BuchungsbedingungVorlagenPage() {
               );
             })}
           </div>
+          )
         ) : (
           <Card className="border-dashed">
             <CardContent className="p-12 text-center">
